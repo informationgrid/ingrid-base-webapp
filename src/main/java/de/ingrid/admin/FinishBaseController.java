@@ -17,6 +17,6 @@ public class FinishBaseController {
 
     @RequestMapping(method = RequestMethod.POST)
     public String postFinish() {
-        return "redirect:/iplug";
+        return "redirect:/iplug/welcome.html";
     }
 }
