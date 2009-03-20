@@ -52,7 +52,7 @@ dependencies {
 libs {
 	archive_jar.enabled=true
 
-    jar(classifier: 'jsp') {
+    jar(baseName: "${project.name}-jsp") {
 		fileSet(dir: 'src/main/webapp/WEB-INF/jsp')
 	}
 }
