@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <html>
 <head>
-	<title>Grids CSS Example - YUI Grids - Special Nesting Grid B: 1/3 - 1/3 - 1/3</title>
+	<title>Indexing</title>
 	<link rel="stylesheet" type="text/css" href="../css/yui/reset-fonts-grids/reset-fonts-grids.css"> 
 </head>
 
@@ -22,17 +22,17 @@
 			<!-- the first child of a Grid needs the "first" class -->
 			<div class="yui-u first">
 				<p>
-					<a href="communication.html">Setup Communication</a>
-					<a href="workingDir.html">Basic Setup</a>
-					<a href="indexing.html">Index Creation</a>
 				</p>
 			</div>	
 	
 			<div class="yui-u">
 				<p>
 				
-				Welcome in your Admin Configuration Site 
-							
+				Index Status: ${state}
+				Index Document Count: ${count}
+				<form action="indexing.html" method="post">
+					<input type="submit" value="Indexieren">
+				</form> 			
 				</p>
 			</div>
 	
