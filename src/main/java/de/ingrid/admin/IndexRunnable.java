@@ -9,10 +9,10 @@ import org.apache.lucene.index.IndexWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.xml.XMLSerializer;
 
 @Service
 public class IndexRunnable implements Runnable {
@@ -22,14 +22,20 @@ public class IndexRunnable implements Runnable {
     private IDocumentProducer _documentProducer;
     private File _indexDir;
     private boolean _configured = false;
+    private INewIndexListener _indexClosedListener;
+    private final PlugDescriptionService _plugDescriptionService;
+
+    public IndexRunnable(@Qualifier("flipIndex") INewIndexListener indexClosedListener,
+            PlugDescriptionService plugDescriptionService) {
+        _indexClosedListener = indexClosedListener;
+        _plugDescriptionService = plugDescriptionService;
+    }
 
     @Autowired(required = false)
     public void setDocumentProducer(IDocumentProducer documentProducer) {
         _documentProducer = documentProducer;
-        String property = System.getProperty("plugDescription");
-        File plugDescriptionFile = new File(property);
         try {
-            PlugDescription plugDescription = (PlugDescription) new XMLSerializer().deSerialize(plugDescriptionFile);
+            PlugDescription plugDescription = _plugDescriptionService.readPlugDescription();
             File workinDirectory = plugDescription.getWorkinDirectory();
             _indexDir = new File(workinDirectory, "newIndex");
             _configured = true;
@@ -52,6 +58,7 @@ public class IndexRunnable implements Runnable {
                 }
                 writer.optimize();
                 writer.close();
+                _indexClosedListener.indexIsCreated();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {

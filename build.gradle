@@ -47,6 +47,7 @@ dependencies {
     }
     
     compile ":lucene-core:2.4.1"
+    testCompile ":testng:5.8-jdk15" 
 
        
 }
