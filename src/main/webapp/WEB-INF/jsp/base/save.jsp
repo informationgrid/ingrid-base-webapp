@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <html>
 <head>
-	<title>Working Dir</title>
+	<title>Save Plugdescription</title>
 	<link rel="stylesheet" type="text/css" href="../css/yui/reset-fonts-grids/reset-fonts-grids.css"> 
 </head>
 
@@ -21,23 +21,18 @@
 	
 			<!-- the first child of a Grid needs the "first" class -->
 			<div class="yui-u first">
-				<p>A</p>
+				<p>
+					<form:form action="save.html" method="post"> 
+						<input type="submit" value="Speichern" />
+					</form:form>
+				</p>
 			</div>	
 	
 			<div class="yui-u">
 				<p>
-					<div id="myDialog"> 
-	 					<div class="hd">Please enter your information</div> 
-	    				<div class="bd"> 
-	        				<form:form name="dlgForm" method="POST" action="workingDir.html" modelAttribute="plugDescription"> 
-            					<p>In diesem Folder wird der Index gespeichert.</p> 
-	            				<label for="workingDir">Working Directory:</label>
-	            				<form:input path="workinDirectory" />
-	            				<input type="submit" value="Weiter" /> 
-	        				</form:form> 
-	    				</div> 
-					</div>
 				
+				Welcome in your Admin Configuration Site 
+							
 				</p>
 			</div>
 	

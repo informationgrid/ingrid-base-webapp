@@ -32,6 +32,8 @@ dependencies {
     }
     
     clientModule(['compile'], ":ingrid-utils:1.2-dev") {
+    	dependency(":xstream:1.1.2")
+    	dependency(":xpp3:1.1.2a")
     }
     
     compile ":ingrid-communication:1.2-dev"

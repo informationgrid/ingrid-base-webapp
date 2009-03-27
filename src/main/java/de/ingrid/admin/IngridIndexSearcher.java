@@ -1,5 +1,6 @@
 package de.ingrid.admin;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,7 +9,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.query.IQueryParser;
@@ -22,16 +22,16 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.query.IngridQuery;
 
 @Service
-public class IngridIndexSearcher implements ISearcher, IDetailer {
+public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable {
 
     private final ILuceneSearcher _luceneSearcher;
-    private final IQueryParser _queryParser;
     private String _plugId;
+    private final List<IQueryParser> _queryParsers;
 
     @Autowired
-    public IngridIndexSearcher(ILuceneSearcher luceneSearcher, @Qualifier("queryParser") IQueryParser queryParser) {
+    public IngridIndexSearcher(ILuceneSearcher luceneSearcher, List<IQueryParser> queryParsers) {
         _luceneSearcher = luceneSearcher;
-        _queryParser = queryParser;
+        _queryParsers = queryParsers;
     }
 
     public void configure(PlugDescription plugDescription) {
@@ -43,7 +43,9 @@ public class IngridIndexSearcher implements ISearcher, IDetailer {
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
         BooleanQuery booleanQuery = new BooleanQuery();
-        _queryParser.parse(ingridQuery, booleanQuery);
+        for (IQueryParser queryParser : _queryParsers) {
+            queryParser.parse(ingridQuery, booleanQuery);
+        }
         TopDocs topDocs = _luceneSearcher.search(booleanQuery, start, length);
         IngridHits ingridHits = new IngridHits();
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;

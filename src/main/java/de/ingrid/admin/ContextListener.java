@@ -10,6 +10,11 @@ public class ContextListener implements ServletContextListener {
         if (plugDescription == null) {
             throw new RuntimeException("no plugdescription defined!");
         }
+
+        String communication = System.getProperty("communication");
+        if (communication == null) {
+            throw new RuntimeException("no communication defined!");
+        }
     }
 
     public void contextDestroyed(ServletContextEvent contextEvent) {

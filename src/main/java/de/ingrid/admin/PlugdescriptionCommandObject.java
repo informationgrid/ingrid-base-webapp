@@ -1,33 +1,35 @@
 package de.ingrid.admin;
 
-public class PlugdescriptionCommandObject {
+import de.ingrid.utils.PlugDescription;
 
-    private String _workingDir;
-    private String _partner;
-    private String _provider;
+public class PlugdescriptionCommandObject extends PlugDescription {
 
-    public String getWorkingDir() {
-        return _workingDir;
-    }
-
-    public void setWorkingDir(String workingDir) {
-        _workingDir = workingDir;
+    public void setPartner(String partner) {
+        addPartner(partner);
     }
 
     public String getPartner() {
-        return _partner;
-    }
-
-    public void setPartner(String partner) {
-        _partner = partner;
-    }
-
-    public String getProvider() {
-        return _provider;
+        String partner = null;
+        if (getPartners() != null) {
+            if (getPartners().length > 0) {
+                partner = getPartners()[0];
+            }
+        }
+        return partner;
     }
 
     public void setProvider(String provider) {
-        _provider = provider;
+        addProvider(provider);
+    }
+
+    public String getProvider() {
+        String provider = null;
+        if (getProviders() != null) {
+            if (getProviders().length > 0) {
+                provider = getProviders()[0];
+            }
+        }
+        return provider;
     }
 
 }

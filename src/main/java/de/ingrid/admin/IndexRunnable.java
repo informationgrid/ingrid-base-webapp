@@ -25,6 +25,7 @@ public class IndexRunnable implements Runnable {
     private INewIndexListener _indexClosedListener;
     private final PlugDescriptionService _plugDescriptionService;
 
+    @Autowired
     public IndexRunnable(@Qualifier("flipIndex") INewIndexListener indexClosedListener,
             PlugDescriptionService plugDescriptionService) {
         _indexClosedListener = indexClosedListener;
