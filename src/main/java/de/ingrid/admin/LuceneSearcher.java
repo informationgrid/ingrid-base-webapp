@@ -1,6 +1,7 @@
 package de.ingrid.admin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         File index = new File(workinDirectory, "index");
         try {
             _indexSearcher = new IndexSearcher(FSDirectory.getDirectory(index));
+            // TODO throw exception?
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,6 +63,10 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
             }
         }
         return details;
+    }
+
+    public void close() throws IOException {
+        _indexSearcher.close();
     }
 
 }

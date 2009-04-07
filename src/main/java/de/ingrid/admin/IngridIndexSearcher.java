@@ -62,7 +62,7 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
     }
 
     public void close() throws Exception {
-        // TODO Auto-generated method stub
+        _luceneSearcher.close();
     }
 
     public IngridHitDetail getDetail(IngridHit ingridHit, IngridQuery ingridQuery, String[] fields) throws Exception {

@@ -12,10 +12,19 @@ import de.ingrid.utils.xml.XMLSerializer;
 public class PlugDescriptionService {
 
     public PlugDescription readPlugDescription() throws IOException {
+        File file = getPlugdescriptionAsFile();
+        PlugDescription plugDescription = (PlugDescription) new XMLSerializer().deSerialize(file);
+        return plugDescription;
+    }
+
+    public boolean existsPlugdescription() {
+        File file = getPlugdescriptionAsFile();
+        return file.exists();
+    }
+
+    public File getPlugdescriptionAsFile() {
         String property = System.getProperty("plugDescription");
         File plugDescriptionFile = new File(property);
-        PlugDescription plugDescription = (PlugDescription) new XMLSerializer().deSerialize(plugDescriptionFile);
-        return plugDescription;
-
+        return plugDescriptionFile;
     }
 }
