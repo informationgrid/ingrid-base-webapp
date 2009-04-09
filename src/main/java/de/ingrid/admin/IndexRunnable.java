@@ -1,7 +1,6 @@
 package de.ingrid.admin;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -12,53 +11,48 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
 @Service
-public class IndexRunnable implements Runnable {
+public class IndexRunnable implements Runnable, IConfigurable {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexRunnable.class);
     private int _documentCount;
     private IDocumentProducer _documentProducer;
     private File _indexDir;
-    private boolean _configured = false;
+    private boolean _produceable = false;
     private INewIndexListener _indexClosedListener;
-    private final PlugDescriptionService _plugDescriptionService;
+    private PlugDescription _plugDescription;
 
     @Autowired
-    public IndexRunnable(@Qualifier("flipIndex") INewIndexListener indexClosedListener,
-            PlugDescriptionService plugDescriptionService) {
+    public IndexRunnable(@Qualifier("flipIndex") INewIndexListener indexClosedListener) {
         _indexClosedListener = indexClosedListener;
-        _plugDescriptionService = plugDescriptionService;
     }
 
     @Autowired(required = false)
     public void setDocumentProducer(IDocumentProducer documentProducer) {
         _documentProducer = documentProducer;
-        try {
-            PlugDescription plugDescription = _plugDescriptionService.readPlugDescription();
-            File workinDirectory = plugDescription.getWorkinDirectory();
-            _indexDir = new File(workinDirectory, "newIndex");
-            _configured = true;
-        } catch (IOException e) {
-            LOG.warn("configuration fails. disable index creation.", e);
-        }
+        _produceable = true;
     }
 
     public void run() {
-        if (_configured) {
+        if (_produceable) {
             try {
+                LOG.info("indexing starts");
                 resetDocumentCount();
                 _documentProducer.initialize();
                 IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true,
                         IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
                     Document document = _documentProducer.next();
+                    LOG.debug("add document to index: " + _documentCount);
                     writer.addDocument(document);
                     _documentCount++;
                 }
                 writer.optimize();
                 writer.close();
+                LOG.info("indexing ends");
                 _indexClosedListener.indexIsCreated();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -79,8 +73,17 @@ public class IndexRunnable implements Runnable {
         return _documentCount;
     }
 
-    public boolean isConfigured() {
-        return _configured;
+    public boolean isProduceable() {
+        return _produceable;
+    }
+
+    public void configure(PlugDescription plugDescription) {
+        LOG.debug("reconfigure...");
+        _plugDescription = plugDescription;
+        if (_plugDescription != null) {
+            File workinDirectory = _plugDescription.getWorkinDirectory();
+            _indexDir = new File(workinDirectory, "newIndex");
+        }
     }
 
 }

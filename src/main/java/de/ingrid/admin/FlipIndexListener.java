@@ -3,29 +3,30 @@ package de.ingrid.admin;
 import java.io.File;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
 @Service
 @Qualifier("flipIndex")
-public class FlipIndexListener implements INewIndexListener {
+public class FlipIndexListener implements INewIndexListener, IConfigurable {
 
     private final INewIndexListener _listener;
-    private final PlugDescriptionService _plugDescriptionService;
+    private PlugDescription _plugDescription;
+    private static final Logger LOG = LoggerFactory.getLogger(FlipIndexListener.class);
 
     @Autowired
-    public FlipIndexListener(@Qualifier("restartSearcher") INewIndexListener listener,
-            PlugDescriptionService plugDescriptionService) {
+    public FlipIndexListener(@Qualifier("restartSearcher") INewIndexListener listener) {
         _listener = listener;
-        _plugDescriptionService = plugDescriptionService;
     }
 
     public void indexIsCreated() throws IOException {
-        PlugDescription plugDescription = _plugDescriptionService.readPlugDescription();
-        File workinDirectory = plugDescription.getWorkinDirectory();
+        File workinDirectory = _plugDescription.getWorkinDirectory();
         File oldIndex = new File(workinDirectory, "index");
         File newIndex = new File(workinDirectory, "newIndex");
         delete(oldIndex);
@@ -45,6 +46,11 @@ public class FlipIndexListener implements INewIndexListener {
             }
         }
         folder.delete();
+    }
+
+    public void configure(PlugDescription plugDescription) {
+        LOG.debug("reconfigure...");
+        _plugDescription = plugDescription;
     }
 
 }

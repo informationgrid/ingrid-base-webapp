@@ -53,8 +53,8 @@ public class HeartBeat extends TimerTask {
         if (_enable) {
             LOG.info("send heartbeat");
             try {
-                PlugDescription plugDescription = _plugDescriptionService.readPlugDescription();
-                File plugdescriptionAsFile = _plugDescriptionService.getPlugdescriptionAsFile();
+                PlugDescription plugDescription = _plugDescriptionService.readHeartBeatPlugDescription();
+                File plugdescriptionAsFile = _plugDescriptionService.getPlugDescriptionAsFile();
                 IBus bus = _communicationInterface.getIBus();
                 String md5 = MD5Util.getMD5(plugdescriptionAsFile);
                 plugDescription.setMd5Hash(md5);

@@ -8,6 +8,8 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,18 +29,12 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
     private final ILuceneSearcher _luceneSearcher;
     private String _plugId;
     private final List<IQueryParser> _queryParsers;
+    private static final Logger LOG = LoggerFactory.getLogger(IngridIndexSearcher.class);
 
     @Autowired
     public IngridIndexSearcher(ILuceneSearcher luceneSearcher, List<IQueryParser> queryParsers) {
         _luceneSearcher = luceneSearcher;
         _queryParsers = queryParsers;
-    }
-
-    public void configure(PlugDescription plugDescription) {
-        _plugId = plugDescription.getPlugId();
-        if (_luceneSearcher instanceof IConfigurable) {
-            ((IConfigurable) _luceneSearcher).configure(plugDescription);
-        }
     }
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
@@ -111,4 +107,12 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
         return details;
     }
 
+    public void configure(PlugDescription plugDescription) {
+        LOG.debug("reconfigure...");
+        _plugId = plugDescription.getPlugId();
+        // TODO need to reconfigure?
+        if (_luceneSearcher instanceof IConfigurable) {
+            ((IConfigurable) _luceneSearcher).configure(plugDescription);
+        }
+    }
 }

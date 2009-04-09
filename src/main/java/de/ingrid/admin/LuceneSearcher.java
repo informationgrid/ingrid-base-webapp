@@ -12,6 +12,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.IConfigurable;
@@ -21,18 +23,7 @@ import de.ingrid.utils.PlugDescription;
 public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 
     private IndexSearcher _indexSearcher;
-
-    public void configure(PlugDescription plugDescription) {
-        File workinDirectory = plugDescription.getWorkinDirectory();
-        File index = new File(workinDirectory, "index");
-        try {
-            _indexSearcher = new IndexSearcher(FSDirectory.getDirectory(index));
-            // TODO throw exception?
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(LuceneSearcher.class);
 
     public TopDocs search(BooleanQuery booleanQuery, int start, int length) throws Exception {
         TopDocs topDocs = _indexSearcher.search(booleanQuery, length);
@@ -69,4 +60,16 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         _indexSearcher.close();
     }
 
+    public void configure(PlugDescription plugDescription) {
+        LOG.debug("reconfigure...");
+        File workinDirectory = plugDescription.getWorkinDirectory();
+        File index = new File(workinDirectory, "index");
+        try {
+            _indexSearcher = new IndexSearcher(FSDirectory.getDirectory(index));
+            // TODO throw exception?
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }

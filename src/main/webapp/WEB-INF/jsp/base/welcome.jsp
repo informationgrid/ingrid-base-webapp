@@ -25,6 +25,7 @@
 					<a href="communication.html">Setup Communication</a>
 					<a href="workingDir.html">Basic Setup</a>
 					<a href="indexing.html">Index Creation</a>
+					<a href="heartbeat.html">Heart Beat</a>
 				</p>
 			</div>	
 	
