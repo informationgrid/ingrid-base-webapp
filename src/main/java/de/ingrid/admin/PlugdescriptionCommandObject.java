@@ -31,5 +31,11 @@ public class PlugdescriptionCommandObject extends PlugDescription {
         }
         return provider;
     }
+    
+    public void setDatatypes(String... strings) {
+        for (String string : strings) {
+            addDataType(string);
+        }
+    }
 
 }

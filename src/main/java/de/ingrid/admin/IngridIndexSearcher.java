@@ -43,7 +43,6 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
             queryParser.parse(ingridQuery, booleanQuery);
         }
         TopDocs topDocs = _luceneSearcher.search(booleanQuery, start, length);
-        IngridHits ingridHits = new IngridHits();
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         IngridHit[] ingridHitArray = new IngridHit[scoreDocs.length];
         for (int i = 0; i < scoreDocs.length; i++) {
@@ -53,7 +52,7 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
             IngridHit ingridHit = new IngridHit(_plugId, docid, -1, score);
             ingridHitArray[i] = ingridHit;
         }
-        ingridHits = new IngridHits(_plugId, topDocs.totalHits, ingridHitArray, true);
+        IngridHits ingridHits = new IngridHits(_plugId, topDocs.totalHits, ingridHitArray, true);
         return ingridHits;
     }
 

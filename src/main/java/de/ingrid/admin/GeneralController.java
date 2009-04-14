@@ -22,10 +22,12 @@ import de.ingrid.utils.query.IngridQuery;
 public class GeneralController {
 
     private final CommunicationInterface _communicationInterface;
+    private final IDataType[] _dataTypes;
 
     @Autowired
-    public GeneralController(CommunicationInterface communicationInterface) throws Exception {
+    public GeneralController(CommunicationInterface communicationInterface, IDataType... dataTypes) throws Exception {
         _communicationInterface = communicationInterface;
+        _dataTypes = dataTypes;
     }
 
     @ModelAttribute("partners")
@@ -70,6 +72,11 @@ public class GeneralController {
         }
 
         return list;
+    }
+    
+    @ModelAttribute("datatypes")
+    public IDataType[] injectDataTypes() {
+        return _dataTypes;
     }
 
     @RequestMapping(method = RequestMethod.GET)

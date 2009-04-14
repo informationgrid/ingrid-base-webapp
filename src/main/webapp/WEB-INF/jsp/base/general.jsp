@@ -47,6 +47,8 @@
                     				<form:options items="${providers}" itemValue="shortName" itemLabel="displayName"/> 
                 				</form:select> 
  
+ 								<form:checkboxes items="${datatypes}" path="dataTypes" itemLabel="displayName" itemValue="name"/>	
+ 
 	            				<input type="submit" value="Weiter" />
 	        				</form:form> 
 
