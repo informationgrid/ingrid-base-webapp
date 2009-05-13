@@ -55,7 +55,7 @@ public class CommunicationInterface {
     }
 
     private void addPlugToCommunication(IPlug plug) {
-        if (plug != null) {
+        if (plug != null && _communication != null) {
             IMessageQueue messageQueue = _communication.getMessageQueue();
             IMessageHandler messageHandler = new ReflectMessageHandler();
             LOG.info("add iplug [" + plug.getClass().getSimpleName() + "] to message handler");
