@@ -11,12 +11,12 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 
 public class ContentQueryParserTest extends TestCase {
 
-    public void testParseContent(String query) throws Exception {
+    public void testParseContent() throws Exception {
         IngridQuery ingridQuery = QueryStringParser.parse("foo");
         BooleanQuery booleanQuery = new BooleanQuery();
         IQueryParser parser = new ContentQueryParser();
         parser.parse(ingridQuery, booleanQuery);
-        assert booleanQuery.getClauses().length == 1;
+        assertEquals(1, booleanQuery.getClauses().length);
         BooleanClause booleanClause = booleanQuery.getClauses()[0];
         assertEquals(Occur.MUST, booleanClause.getOccur());
         assertEquals(booleanClause.getQuery().toString(), "content:foo");
