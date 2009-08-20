@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class HeartBeat extends TimerTask {
     private final CommunicationInterface _communicationInterface;
     private Timer _timer;
     private boolean _enable = false;
-    private static final Logger LOG = LoggerFactory.getLogger(HeartBeat.class);
+    private static final Log LOG = LogFactory.getLog(HeartBeat.class);
 
     @Autowired
     public HeartBeat(PlugDescriptionService plugDescriptionService, CommunicationInterface communicationInterface) {

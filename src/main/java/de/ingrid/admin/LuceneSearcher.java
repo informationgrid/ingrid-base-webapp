@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.BooleanQuery;
@@ -12,8 +14,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.IConfigurable;
@@ -23,7 +23,7 @@ import de.ingrid.utils.PlugDescription;
 public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 
     private IndexSearcher _indexSearcher;
-    private static final Logger LOG = LoggerFactory.getLogger(LuceneSearcher.class);
+    private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
 
     public TopDocs search(BooleanQuery booleanQuery, int start, int length) throws Exception {
         TopDocs topDocs = _indexSearcher.search(booleanQuery, length);

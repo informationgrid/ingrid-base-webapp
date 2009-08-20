@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
     private final ILuceneSearcher _luceneSearcher;
     private String _plugId;
     private final List<IQueryParser> _queryParsers;
-    private static final Logger LOG = LoggerFactory.getLogger(IngridIndexSearcher.class);
+    private static final Log LOG = LogFactory.getLog(IngridIndexSearcher.class);
 
     @Autowired
     public IngridIndexSearcher(ILuceneSearcher luceneSearcher, List<IQueryParser> queryParsers) {

@@ -2,11 +2,11 @@ package de.ingrid.admin;
 
 import java.io.File;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import de.ingrid.utils.PlugDescription;
 @Service
 public class IndexRunnable implements Runnable, IConfigurable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IndexRunnable.class);
+    private static final Log LOG = LogFactory.getLog(IndexRunnable.class);
     private int _documentCount;
     private IDocumentProducer _documentProducer;
     private File _indexDir;

@@ -5,12 +5,12 @@ import java.io.File;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ContextListener implements ServletContextListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContextListener.class);
+    private static final Log LOG = LogFactory.getLog(ContextListener.class);
 
     public void contextInitialized(ServletContextEvent arg0) {
         String plugDescription = System.getProperty("plugDescription");

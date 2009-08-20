@@ -9,8 +9,8 @@ import net.weta.components.communication.messaging.IMessageQueue;
 import net.weta.components.communication.reflect.ReflectMessageHandler;
 import net.weta.components.communication.tcp.StartCommunication;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class CommunicationInterface {
     private File _communicationFile;
     private ICommunication _communication;
     private IPlug _plug;
-    private static final Logger LOG = LoggerFactory.getLogger(CommunicationInterface.class);
+    private static final Log LOG = LogFactory.getLog(CommunicationInterface.class);
 
     public CommunicationInterface() throws Exception {
         String communication = System.getProperty("communication");
