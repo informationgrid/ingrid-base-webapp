@@ -16,7 +16,7 @@ public class TitleQueryParserTest extends TestCase {
         BooleanQuery booleanQuery = new BooleanQuery();
         IQueryParser parser = new TitleQueryParser();
         parser.parse(ingridQuery, booleanQuery);
-        assertEquals(1, booleanQuery.getClauses());
+        assertEquals(1, booleanQuery.getClauses().length);
         BooleanClause booleanClause = booleanQuery.getClauses()[0];
         assertEquals(Occur.SHOULD, booleanClause.getOccur());
         assertEquals(booleanClause.getQuery().toString(), "title:foo");
