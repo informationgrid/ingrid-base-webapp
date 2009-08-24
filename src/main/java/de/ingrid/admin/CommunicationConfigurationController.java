@@ -49,8 +49,10 @@ public class CommunicationConfigurationController {
     public String postCommunication(@ModelAttribute("communication") CommunicationCommandObject commandObject)
             throws Exception {
         File communicationFile = _communicationInterface.getCommunicationFile();
-        if (!communicationFile.getParentFile().exists()) {
-            communicationFile.getParentFile().mkdirs();
+        if(communicationFile.getParentFile() != null) {
+	        if (!communicationFile.getParentFile().exists()) {
+	            communicationFile.getParentFile().mkdirs();
+	        }
         }
 
         XPathService pathService = new XPathService();
