@@ -12,10 +12,17 @@ public class ContextListener implements ServletContextListener {
 
     private static final Log LOG = LogFactory.getLog(ContextListener.class);
 
-    public void contextInitialized(ServletContextEvent arg0) {
+    public void contextInitialized(final ServletContextEvent arg0) {
         String plugDescription = System.getProperty("plugDescription");
-        if (plugDescription == null) {
-            throw new RuntimeException("no plugdescription defined!");
+		if (plugDescription == null) {
+			// rather doing this, then stopping the sysytem
+            plugDescription = "conf/plugDescription.xml";
+			System.setProperty("plugDescription", plugDescription);
+			// just commenting this out because it's a lil bit stressfull to
+			// type this again and again
+			// throw new RuntimeException("no plugdescription defined!");
+			// okay lets show a warning
+			LOG.warn("plug description is not defined. using default.");
         }
         if (!new File(plugDescription).exists()) {
             LOG.warn("plugdescription does not exists. create one via ui setup. " + plugDescription);
@@ -23,14 +30,18 @@ public class ContextListener implements ServletContextListener {
 
         String communication = System.getProperty("communication");
         if (communication == null) {
-            throw new RuntimeException("no communication defined!");
+			// the same here
+            communication = "conf/communication.xml";
+			System.setProperty("communication", communication);
+			// throw new RuntimeException("no communication defined!");
+			LOG.warn("commmunication is not defined. using default.");
         }
         if (!new File(communication).exists()) {
             LOG.warn("communication.xml does not exists. create one via ui setup. " + communication);
         }
     }
 
-    public void contextDestroyed(ServletContextEvent contextEvent) {
+    public void contextDestroyed(final ServletContextEvent contextEvent) {
 
     }
 

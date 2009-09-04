@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>de.ingrid</groupId>
 		<artifactId>ingrid-base-pom</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.3-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.ingrid</groupId>
@@ -47,6 +47,7 @@
 		<dependency>
 			<groupId>de.ingrid</groupId>
 			<artifactId>ingrid-utils</artifactId>
+			<version>1.2.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>de.ingrid</groupId>
@@ -55,10 +56,7 @@
 		<dependency>
 			<groupId>de.ingrid</groupId>
 			<artifactId>ingrid-communication</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.ingrid</groupId>
-			<artifactId>ingrid-communication</artifactId>
+			<version>1.2.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
@@ -147,7 +145,7 @@
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
 					</connectors>
-					<scanIntervalSeconds>2</scanIntervalSeconds>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
 				</configuration>
 			</plugin>
 		</plugins>
