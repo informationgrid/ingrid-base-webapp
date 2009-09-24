@@ -1,52 +1,54 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
-<html>
-	<head>
-		<title>Arbeitsverzeichnis wählen</title>
-		<link rel="stylesheet" type="text/css" href="../css/yui/reset-fonts-grids/reset-fonts-grids.css"> 
-	</head>
-	<body>
-		<!-- the id on the containing div determines the page width. -->
-		<!-- #doc = 750px; #doc2 = 950px; #doc3 = 100%; #doc4 = 974px -->
-		<div id="doc">		
-		    <div id="hd">
-                <h2>Arbeitsverzeichnis wählen</h2>
-                <span>Bitte geben Sie den Pfad zum Ordner an, in dem der Index abgelegt werden soll.</span>
-			</div>
-			<div id="bd">
-				<!-- Use Standard Nesting Grids and Special Nesting Grids to subdivid regions of your layout. -->
-				<!-- Special Nesting Grid B tells three children to split space evenly -->
-				<div class="yui-gb">
-					<!-- the first child of a Grid needs the "first" class -->
-					<div class="yui-u first">
-						<span>A</span>
-					</div>	
-					<div class="yui-u">
-
-        				<form:form method="post" action="workingDir.html" modelAttribute="plugDescription">
-        				    <div>
-        				        <fieldset>
-        				            <h2>Pfad zum Ordner</h2>
-                                    <label for="workingDir">Pfad:</label>
-		            				<form:input path="workinDirectory" /><br />
-        				        </fieldset>
-                             </div>
-        				    <div>
-        				        <button type="button" onclick="document.location='welcome.html';">Zurück</button>
-            				    <button type="button" onclick="document.location='welcome.html';">Abbrechen</button>
-	            				<input type="submit" value="Weiter" />
-        				    </div>
-        				</form:form>
-
-					</div>
-					<div class="yui-u">
-						<span>C</span>
-					</div>
-				</div>
-			</div>
-			<div id="ft">
-                <span>Footer</span>
-			</div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de">
+<head>
+<title>Portal U Administration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="author" content="wemove digital solutions" />
+<meta name="copyright" content="wemove digital solutions GmbH" />
+<link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
+</head>
+<body>
+	<div id="header">
+		<img src="../images/logo.gif" width="168" height="60" alt="Portal U" />
+		<h1>Konfiguration</h1>
+		<div id="language"><a href="#">Englisch</a></div>
+	</div>
+	<div id="navi_horizontal"><a href="#">Konfiguration</a> | <a href="#">Alle Einstellungen bearbeiten</a> | <a href="#" class="active">Angaben zu Betreiber und Datenquellen</a></div>
+	<div id="help"><a href="#">[?]</a></div>
+	
+	<c:set var="desc" value="Pfad zum Index" scope="request"/>
+	<c:set var="active" value="workingDir" scope="request"/>
+	<c:import url="subNavi.jsp"></c:import>
+	
+	<div id="contentBox" class="contentMiddle">
+		<h1 id="head">Arbeitsverzeichnis wählen</h1>
+		<div class="controls">
+			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
-	</body>
+		<div class="controls cBottom">
+			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
+		</div>
+		<div id="content">
+			<h2>Geben Sie den Pfad zum Ordner an, in dem der Index abgelegt werden soll</h2>
+			<form:form method="post" action="workingDir.html" modelAttribute="plugDescription">
+				<table id="konfigForm">
+					<tr>
+						<td class="leftCol">Pfad zum Ordner:</td>
+						<td><form:input path="workinDirectory" /></td>
+					</tr>
+							
+				</table>
+			</form:form>
+		</div>
+	</div>
+	<div id="footer" style="height:100px; width:90%"></div>
+</body>
 </html>
