@@ -54,10 +54,9 @@
 		<h1>Konfiguration</h1>
 		<div id="language"><a href="#">Englisch</a></div>
 	</div>
-	<div id="navi_horizontal"><a href="#">Konfiguration</a> | <a href="#">Alle Einstellungen bearbeiten</a> | <a href="#" class="active">Angaben zu Betreiber und Datenquellen</a></div>
+	
 	<div id="help"><a href="#">[?]</a></div>
 	
-	<c:set var="desc" value="Partner" scope="request"/>
 	<c:set var="active" value="partner" scope="request"/>
 	<c:import url="subNavi.jsp"></c:import>
 	

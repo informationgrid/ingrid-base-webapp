@@ -1,52 +1,36 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
-	<title>Grids CSS Example - YUI Grids - Special Nesting Grid B: 1/3 - 1/3 - 1/3</title>
-	<link rel="stylesheet" type="text/css" href="../css/yui/reset-fonts-grids/reset-fonts-grids.css"> 
+<title>Portal U Administration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="author" content="wemove digital solutions" />
+<meta name="copyright" content="wemove digital solutions GmbH" />
+<link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
 </head>
-
 <body>
-<!-- the id on the containing div determines the page width. -->
-<!-- #doc = 750px; #doc2 = 950px; #doc3 = 100%; #doc4 = 974px -->
-<div id="doc">					
-	<div id="hd">
-		<p>Header</p>
+	<div id="header">
+		<img src="../images/logo.gif" width="168" height="60" alt="Portal U" />
+		<h1>Konfiguration</h1>
+		<div id="language"><a href="#">Englisch</a></div>
 	</div>
-	<div id="bd">
-
-		<!-- Use Standard Nesting Grids and Special Nesting Grids to subdivid regions of your layout. -->
-		<!-- Special Nesting Grid B tells three children to split space evenly -->
-		<div class="yui-gb">
 	
-			<!-- the first child of a Grid needs the "first" class -->
-			<div class="yui-u first">
-				<p>
-					<a href="communication.html">Setup Communication</a>
-					<a href="workingDir.html">Basic Setup</a>
-					<a href="indexing.html">Index Creation</a>
-					<a href="heartbeat.html">Heart Beat</a>
-				</p>
-			</div>	
+	<div id="help"><a href="#">[?]</a></div>
 	
-			<div class="yui-u">
-				<p>
-				
-				Welcome in your Admin Configuration Site 
-							
-				</p>
-			</div>
+	<c:import url="subNavi.jsp"></c:import>
 	
-			<div class="yui-u">
-				<p>C</p>
-			</div>
-	
+	<div id="contentBox" class="contentMiddle">
+		<h1 id="head">Iplug Konfiguration</h1>
+		
+		<div id="content">
+			<br/>
+			<h2>Herzlich willkommen zur IPlug Konfiguration</h2>
+			
 		</div>
-	
 	</div>
-	<div id="ft">
-		<p>Footer</p>
-	</div>
-</div>
+	<div id="footer" style="height:100px; width:90%"></div>
 </body>
 </html>

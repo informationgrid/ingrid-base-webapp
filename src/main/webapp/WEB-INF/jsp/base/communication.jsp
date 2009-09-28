@@ -1,30 +1,168 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de">
+<head>
+<title>Portal U Administration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="author" content="wemove digital solutions" />
+<meta name="copyright" content="wemove digital solutions GmbH" />
+<link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".hide").hide();
+        $("#edit").toggle(function() {
+            $(".toggle,.hide").toggle();
+            $(this).html("Abbrechen");
+        }, function() {
+        	$(".toggle,.hide").toggle();
+        	$(this).html("Bearbeiten");
+        });
+        
+        <c:if test="${(empty busses) || (!empty bus)}">
+        $(".toggle,.hide").toggle();
+        $("#edit").hide();
+        <c:if test="${!empty bus}">
+        $(".proxyServiceUrl .toggle, .proxyServiceUrl .hide").toggle();
+        </c:if>
+        </c:if>
+    });
+</script>
+</head>
+<body>
+	<div id="header">
+		<img src="../images/logo.gif" width="168" height="60" alt="Portal U" />
+		<h1>Konfiguration</h1>
+		<div id="language"><a href="#">Englisch</a></div>
+	</div>
+	
+	<div id="help"><a href="#">[?]</a></div>
+	
+	<c:set var="active" value="communication" scope="request"/>
+	<c:import url="subNavi.jsp"></c:import>
+	
+	<div id="contentBox" class="contentMiddle">
+		<h1 id="head">Hinzufügen des iBus</h1>
+		<div class="controls">
+			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.getElementById('communication').submit();">Weiter</a>
+		</div>
+		<div class="controls cBottom">
+			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.getElementById('communication').submit();">Weiter</a>
+		</div>
+		<div id="content">
+			<h2>Geben sie den iBus an.</h2>
+			<form:form method="post" action="communication.html" modelAttribute="communication" name="client">
+				<input type="hidden" name="form" value="base" />
+                <input type="hidden" name="bus" value="${bus}" />
+				<table id="konfigForm">
+					<tr>
+						<td class="leftCol">Eigene Proxy Service Url:</td>
+						<td>
+		                    <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2"><h3>Standard IBus</h3></td>
+					</tr>
+					<tr>
+						<td class="leftCol">IBus Proxy Service Url:</td>
+						<td>
+		                    <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" />
+						</td>
+					</tr>
+					<tr>
+						<td class="leftCol">IP:</td>
+						<td>
+		                    <input type="text" name="ip" value="${communication.ip}" />
+						</td>
+					</tr>
+					<tr>
+						<td class="leftCol">Port:</td>
+						<td>
+		                    <input type="text" name="port" value="${communication.port}" />
+						</td>
+					</tr>		
+				</table>
+			</form:form>
+			
+			<c:if test="${!empty busses}">
+			<form:form method="post" action="communication.html" modelAttribute="communication" name="client">
+                  <table id="konfigForm">
+					<tr>
+						<td colspan="2"><h3>Weiterer IBus</h3></td>
+					</tr>
+					<tr>
+						<td class="leftCol">IBus Proxy Service Url:</td>
+						<td>
+		                    <input type="text" name="busProxyServiceUrl" />
+						</td>
+					</tr>
+					<tr>
+						<td class="leftCol">IP:</td>
+						<td>
+		                    <input type="text" name="ip" />
+						</td>
+					</tr>
+					<tr>
+						<td class="leftCol">Port:</td>
+						<td>
+		                    <input type="text" name="port" />
+						</td>
+					</tr>
+					<tr>
+						<td class="leftCol">&nbsp;</td>
+						<td> <input type="submit" value="Hinzufügen" /></td>
+					</tr>
+				</table>	
+                  
+              </form:form>
+	                
+			<br />
+			
+			<div id="ibusses">
+              <table>
+                  <tr>
+                  	<td colspan="4"><h3>Vorhandene IBusse</h3></td>
+                  </tr>
+                  <tr>
+                      <th>IBus Url</th>
+                      <th>IP</th>
+                      <th>Port</th>
+                      <th>&nbsp;</th>
+                  </tr>
+                  <c:set var="busIndex" value="0" />
+                  <c:forEach items="${busses}" var="bus">
+                      <tr>
+                          <td>${bus.busProxyServiceUrl}</td>
+                          <td>${bus.ip}</td>
+                          <td>${bus.port}</td>
+                          <td><button onclick="document.location = '/base/communication.html?action=delete&bus=${busIndex}'"/>Löschen</button></td>
+                      </tr>
+                      <c:set var="busIndex" value="${busIndex + 1}" />
+                  </c:forEach>
+              </table>
+			</div>
+			</c:if>
+			
+		</div>
+	</div>
+	<div id="footer" style="height:100px; width:90%"></div>
+</body>
+</html>
+
+
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <html>
     <head>
         <title>Kommunikations-Einstellungen</title>
-        <link rel="stylesheet" type="text/css" href="../css/yui/reset-fonts-grids/reset-fonts-grids.css">
-        <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $(".hide").hide();
-                $("#edit").toggle(function() {
-                    $(".toggle,.hide").toggle();
-                    $(this).html("Abbrechen");
-                }, function() {
-                	$(".toggle,.hide").toggle();
-                	$(this).html("Bearbeiten");
-                });
-                
-                <c:if test="${(empty busses) || (!empty bus)}">
-                $(".toggle,.hide").toggle();
-                $("#edit").hide();
-                <c:if test="${!empty bus}">
-                $(".proxyServiceUrl .toggle, .proxyServiceUrl .hide").toggle();
-                </c:if>
-                </c:if>
-            });
-        </script>
+        
     </head>
     <body>
         <!-- the id on the containing div determines the page width. -->
@@ -32,7 +170,7 @@
         <div id="doc">      
             <div id="hd">
                 <h2>Hinzufügen des iBus</h2>
-                <span>Geben sie den iBus an.</span>
+                <span></span>
             </div>
             <div id="bd">
                 <!-- Use Standard Nesting Grids and Special Nesting Grids to subdivid regions of your layout. -->
@@ -51,28 +189,13 @@
                         <br />
 
                         <form:form method="post" action="communication.html" modelAttribute="communication" name="client">
-                            <input type="hidden" name="form" value="base" />
-                            <input type="hidden" name="bus" value="${bus}" />
+                            
                             <div>
-                                <fieldset class="proxyServiceUrl">
-	                                <label for="name">Eigene Proxy Service Url</label><br />
-		                            <span class="toggle"><b><c:out value="${communication.proxyServiceUrl}" /></b></span>
-		                            <input class="hide" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" />
-                                </fieldset>
+                               
                                 <fieldset>
 			        				<h2>standard iBus</h2> 
 			
-			         				<label>iBus Proxy Service Url</label>
-			         				<span class="toggle"><b><c:out value="${communication.busProxyServiceUrl}" /></b></span>
-			         				<input class="hide" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" />
-			         				<br />
-			         				<label>IP</label>
-			         				<span class="toggle"><b><c:out value="${communication.ip}" /></b></span>
-			         				<input class="hide" name="ip" value="${communication.ip}" />
-			         				<br />
-			         				<label>Port</label>
-			         				<span class="toggle"><b><c:out value="${communication.port}" /></b></span>
-			         				<input class="hide" name="port" value="${communication.port}" />
+			         				
 		         				</fieldset>
 		         				
                             </div>
@@ -84,53 +207,7 @@
 	     				
 	     				<br />
 	     				
-	     				<c:if test="${!empty busses}">
-		     				
-		     				<form:form method="post" action="communication.html" modelAttribute="communication" name="client">
-	                            <div>
-	                                <fieldset>
-	                                    <h2>weiterer iBus</h2> 
-	            
-	                                    <label>iBus Proxy Service Url</label>
-	                                    <input type="text" name="busProxyServiceUrl" />
-	                                    <br />
-	                                    <label>IP</label>
-	                                    <input type="text" name="ip"  />
-	                                    <br />
-	                                    <label>Port</label>
-	                                    <input type="text" name="port" />
-	                                </fieldset>
-	                                
-	                            </div>
-	                            <div>
-	                                <input type="submit" value="Hinzufügen" />
-	                            </div>
-	                        </form:form>
-	                        
-		     				<br />
-		     				
-		     				<div id="ibusses">
-	                            <table>
-	                                <tr>
-	                                    <th><b>iBus Url</b></th>
-	                                    <th><b>IP</b></th>
-	                                    <th><b>Port</b></th>
-	                                    <th></th>
-	                                </tr>
-	                                <c:set var="busIndex" value="0" />
-	                                <c:forEach items="${busses}" var="bus">
-	                                    <tr>
-	                                        <td>${bus.busProxyServiceUrl}</td>
-	                                        <td>${bus.ip}</td>
-	                                        <td>${bus.port}</td>
-	                                        <td><a href="/base/communication.html?action=edit&bus=${busIndex}">Bearbeiten</a> <a href="/base/communication.html?action=delete&bus=${busIndex}">Löschen</a></td>
-	                                    </tr>
-	                                    <c:set var="busIndex" value="${busIndex + 1}" />
-	                                </c:forEach>
-	                            </table>
-		     				</div>
 	     				
-	     				</c:if>
 
                     </div>
                     <div class="yui-u">

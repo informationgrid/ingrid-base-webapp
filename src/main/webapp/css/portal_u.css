@@ -55,7 +55,7 @@ h3 { font:bold 12px/15px Verdana, Arial, Helvetica, sans-serif; padding:0; margi
 
 /* --- Inhaltsbereich --- */
 
-div#contentBox { position:relative; top:116px; border:1px solid #DDE9BD; min-height:450px; margin-left:40px; margin-bottom:100px; }
+div#contentBox { position:relative; top:116px; border:1px solid #DDE9BD; min-height:650px; margin-left:40px; margin-bottom:100px; }
 .contentLeft { left:0; }
 .contentMiddle { left:200px; width:75% !important; }
 
