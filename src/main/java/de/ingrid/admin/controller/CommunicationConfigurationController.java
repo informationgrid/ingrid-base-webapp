@@ -10,17 +10,25 @@ import net.weta.components.communication.configuration.XPathService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.service.CommunicationInterface;
 
 @Controller
 @RequestMapping(value = "/base/communication.html")
 public class CommunicationConfigurationController {
+
+    public static final int DEFAULT_TIMEOUT = 10;
+
+    public static final int DEFAULT_MAXIMUM_SIZE = 1048576;
+
+    public static final int DEFAULT_THREAD_COUNT = 100;
 
     private final CommunicationInterface _communicationInterface;
 
@@ -39,25 +47,32 @@ public class CommunicationConfigurationController {
 
         // open communication file
         final File communicationFile = _communicationInterface.getCommunicationFile();
-        // if it exists save the proxy url
+
+        // bus count
+        Integer count = 0;
+
         if (communicationFile.exists()) {
+            // only save proxy service url
             communication.registerDocument(communicationFile);
-        } else {
+            commandObject.setProxyServiceUrl(communication.parseAttribute("/communication/client", "name"));
+            count = getBusCount(communication);
+        }
+
+        if (count < 1) {
             // open template file
             final InputStream inputStream = CommunicationConfigurationController.class
                     .getResourceAsStream("/communication-template.xml");
             communication.registerDocument(inputStream);
+            // save all default values
+            if (null == commandObject.getProxyServiceUrl()) {
+                commandObject.setProxyServiceUrl(communication.parseAttribute("/communication/client", "name"));
+            }
+            commandObject.setBusProxyServiceUrl(communication.parseAttribute(
+                    "/communication/client/connections/server", "name"));
+            commandObject.setIp(communication.parseAttribute("/communication/client/connections/server/socket", "ip"));
+            commandObject.setPort(Integer.parseInt(communication.parseAttribute(
+                    "/communication/client/connections/server/socket", "port")));
         }
-        // only set default proxy url if it's not already set
-        if (commandObject.getProxyServiceUrl() == null) {
-            commandObject.setProxyServiceUrl(communication.parseAttribute("/communication/client", "name"));
-        }
-        // save default values
-        commandObject.setBusProxyServiceUrl(communication.parseAttribute("/communication/client/connections/server",
-                "name"));
-        commandObject.setIp(communication.parseAttribute("/communication/client/connections/server/socket", "ip"));
-        commandObject.setPort(Integer.parseInt(communication.parseAttribute(
-                "/communication/client/connections/server/socket", "port")));
 
         // return command object
         return commandObject;
@@ -92,59 +107,103 @@ public class CommunicationConfigurationController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String getCommunication(final ModelMap modelMap,
-            @ModelAttribute("communication") final CommunicationCommandObject commandObject,
-            @ModelAttribute("busses") final List<CommunicationCommandObject> busses,
-            @RequestParam(value = "action", required = false) final String action,
-            @RequestParam(value = "bus", required = false) final Integer busIndex) throws Exception {
-        if (action != null) {
-            // open communication file
-            final XPathService communication = new XPathService();
-            final File communicationFile = _communicationInterface.getCommunicationFile();
-            communication.registerDocument(communicationFile);
-
-            // find out which action is chosen
-            if ("delete".equals(action)) {
-                if (busIndex != null && busses.size() > busIndex) {
-                    // delete from communication
-                    communication.removeNode("/communication/client/connections/server", busIndex);
-                    communication.store(communicationFile);
-                    // delete from model attribute
-                    busses.remove((int) busIndex);
-                    modelMap.addAttribute("busses", busses);
-                }
-            } else if ("edit".equals(action)) {
-                // update command object
-                modelMap.addAttribute("bus", busIndex);
-                commandObject.setBusProxyServiceUrl(communication.parseAttribute(
-                        "/communication/client/connections/server", "name", busIndex));
-                commandObject.setIp(communication.parseAttribute("/communication/client/connections/server/socket",
-                        "ip", busIndex));
-                commandObject.setPort(Integer.parseInt(communication.parseAttribute(
-                        "/communication/client/connections/server/socket", "port", busIndex)));
-            }
-        }
+    public String getCommunication() {
         return "/base/communication";
     }
 
     @RequestMapping(method = RequestMethod.POST)
     public String postCommunication(final ModelMap modelMap,
-            @ModelAttribute("communication") CommunicationCommandObject commandObject,
-            @ModelAttribute("busses") List<CommunicationCommandObject> busses,
-            @RequestParam(value = "form", required = false) final String form,
-            @RequestParam(value = "bus", required = false) Integer busIndex)
+            @ModelAttribute("communication") final CommunicationCommandObject commandObject, final Errors errors,
+            @RequestParam(value = "action", required = false) final String action,
+            @RequestParam(value = "id", required = false) final Integer id)
             throws Exception {
-        // TODO: validate that busUrls are unique
+        if (null != action && !"".equals(action)) {
+            final File communicationFile = _communicationInterface.getCommunicationFile();
+            final XPathService communication = openCommunication(communicationFile);
 
-        // create directories if necessary
-        final File communicationFile = _communicationInterface.getCommunicationFile();
-        if(communicationFile.getParentFile() != null) {
+            if ("proxy".equals(action)) {
+                if (validateProxyUrl(errors, commandObject).hasErrors()) {
+                    return "/base/communication";
+                }
+                // update client name
+                setProxyUrl(communication, commandObject.getProxyServiceUrl());
+            } else if ("submit".equals(action)) {
+                // set proxy url
+                if (!validateProxyUrl(errors, commandObject).hasErrors()) {
+                    setProxyUrl(communication, commandObject.getProxyServiceUrl());
+                }
+                // set base bus
+                if (!validateBus(errors, commandObject).hasErrors()) {
+                    setBaseBus(communication, commandObject.getBusProxyServiceUrl(), commandObject.getIp(),
+                            commandObject.getPort());
+                }
+                if (getBusCount(communication) > 0) {
+                    // redirect to next step
+                    // currently we redirect to same site
+                    return "/base/communication";
+                }
+            } else if ("add".equals(action)) {
+                if (validateBus(errors, commandObject).hasErrors()) {
+                    return "/base/communication";
+                }
+                // add new bus
+                addBus(communication, commandObject.getBusProxyServiceUrl(), commandObject.getIp(), commandObject
+                        .getPort());
+            } else if ("delete".equals(action)) {
+                // delete bus
+                deleteBus(communication, id);
+            } else if ("set".equals(action)) {
+                // set base bus
+                switchBusses(communication, 0, id);
+            }
+
+            // save the new data
+            communication.store(communicationFile);
+
+            // update command object and existing busses
+            modelMap.addAttribute("communication", createCommandObject());
+            modelMap.addAttribute("busses", existingBusses());
+
+            if ("submit".equals(action) || "restart".equals(action)) {
+                // restart communication interface
+                _communicationInterface.restart();
+            }
+        }
+
+        return "/base/communication";
+    }
+
+    private final Errors validateProxyUrl(final Errors errors, final CommunicationCommandObject object) {
+        if (StringUtils.isEmptyOrWhiteSpace(object.getProxyServiceUrl())) {
+            errors.rejectValue("proxyServiceUrl", null, "Die URL darf nicht leer sein!");
+        }
+        return errors;
+    }
+
+    private final Errors validateBus(final Errors errors, final CommunicationCommandObject object) {
+        if (StringUtils.isEmptyOrWhiteSpace(object.getBusProxyServiceUrl())) {
+            errors.rejectValue("busProxyServiceUrl", null, "Die URL darf nicht leer sein!");
+        }
+        if (StringUtils.isEmptyOrWhiteSpace(object.getIp())) {
+            errors.rejectValue("ip", null, "Es muss eine IP oder Adresse angegeben werden!");
+        }
+        if (null == object.getPort()) {
+            errors.rejectValue("port", null, "Es muss ein Port angegeben werden!");
+        } else if (object.getPort() < 0) {
+            errors.rejectValue("port", null, "Der Port muss grš§er gleich '0' sein!");
+        }
+        return errors;
+    }
+
+    private final XPathService openCommunication(final File communicationFile) throws Exception {
+        // first of all create directories if necessary
+        if (communicationFile.getParentFile() != null) {
             if (!communicationFile.getParentFile().exists()) {
                 communicationFile.getParentFile().mkdirs();
             }
         }
 
-        // open xml document or file
+        // open template xml or communication file
         final XPathService communication = new XPathService();
         if (!communicationFile.exists()) {
             final InputStream inputStream = CommunicationConfigurationController.class
@@ -154,72 +213,78 @@ public class CommunicationConfigurationController {
             communication.registerDocument(communicationFile);
         }
 
-        // maybe a bus have to be update
-        if (busIndex == null) {
-            busIndex = 0;
-        }
-
-        // update client url
-        if ("base".equals(form)) {
-            // update client name
-            communication.setAttribute("/communication/client", "name", commandObject.getProxyServiceUrl());
-
-            // update base bus
-            communication.setAttribute("/communication/client/connections/server", "name", commandObject
-                    .getBusProxyServiceUrl(), busIndex);
-            communication.setAttribute("/communication/client/connections/server/socket", "port", ""
-                    + commandObject.getPort(), busIndex);
-            communication.setAttribute("/communication/client/connections/server/socket", "ip", commandObject.getIp(),
-                    busIndex);
-
-            // if the base bus already exist delete it from the view
-            if ((busses != null) && (busses.size() > busIndex)) {
-                busses.remove((int) busIndex);
-            }
-        } else {
-            // determine count of ibusses
-            final int count = communication.countNodes("/communication/client/connections/server");
-            busIndex = count;
-
-            // create default nodes and attributes
-            communication.addNode("/communication/client/connections", "server");
-            communication.addNode("/communication/client/connections/server", "socket", count);
-            communication.addAttribute("/communication/client/connections/server/socket", "timeout", "10", count);
-            communication.addNode("/communication/client/connections/server", "messages", count);
-            communication.addAttribute("/communication/client/connections/server/messages", "maximumSize", "1048576",
-                    count);
-            communication
-                    .addAttribute("/communication/client/connections/server/messages", "threadCount", "100", count);
-
-            // add a new bus
-            communication.addAttribute("/communication/client/connections/server", "name", commandObject
-                    .getBusProxyServiceUrl(), count);
-            communication.addAttribute("/communication/client/connections/server/socket", "port", ""
-                    + commandObject.getPort(), count);
-            communication.addAttribute("/communication/client/connections/server/socket", "ip", commandObject.getIp(),
-                    count);
-
-        }
-        // add bus to the view
-        if (busses == null) {
-            busses = new ArrayList<CommunicationCommandObject>();
-        }
-        busses.add(busIndex, commandObject);
-        modelMap.addAttribute("busses", busses);
-
-        // save the new data
-        communication.store(communicationFile);
-
-        // update command object
-        commandObject = createCommandObject();
-        modelMap.addAttribute("communication", commandObject);
-
-        if ("base".equals(form)) {
-            // restart communication interface
-            _communicationInterface.restart();
-        }
-
-        return "/base/communication";
+        return communication;
     }
 
+    private void setProxyUrl(final XPathService communication, final String proxyUrl) throws Exception {
+        communication.setAttribute("/communication/client", "name", proxyUrl);
+    }
+
+    private void setBus(final XPathService communication, final String proxyUrl, final String ip, final Integer port,
+            final Integer id) throws Exception {
+        communication.setAttribute("/communication/client/connections/server", "name", proxyUrl, id);
+        communication.setAttribute("/communication/client/connections/server/socket", "port", "" + port, id);
+        communication.setAttribute("/communication/client/connections/server/socket", "ip", ip, id);
+    }
+
+    private void setBaseBus(final XPathService communication, final String proxyUrl, final String ip, final Integer port)
+            throws Exception {
+        if (getBusCount(communication) < 1) {
+            addBus(communication, proxyUrl, ip, port);
+        } else {
+            setBus(communication, proxyUrl, ip, port, 0);
+        }
+    }
+
+    private void switchBusses(final XPathService communication, final Integer idA, final Integer idB) throws Exception {
+        // get old values
+        final String proxyUrlA = communication.parseAttribute("/communication/client/connections/server", "name", idA);
+        final Integer portA = Integer.parseInt(communication.parseAttribute(
+                "/communication/client/connections/server/socket", "port", idA));
+        final String ipA = communication.parseAttribute("/communication/client/connections/server/socket", "ip", idA);
+        // get new values
+        final String proxyUrlB = communication.parseAttribute("/communication/client/connections/server", "name", idB);
+        final Integer portB = Integer.parseInt(communication.parseAttribute(
+                "/communication/client/connections/server/socket", "port", idB));
+        final String ipB = communication.parseAttribute("/communication/client/connections/server/socket", "ip", idB);
+
+        // switch positions
+        setBus(communication, proxyUrlA, ipA, portA, idB);
+        setBus(communication, proxyUrlB, ipB, portB, idA);
+    }
+
+    private void addBus(final XPathService communication, final String proxyUrl, final String ip, final Integer port,
+            final Integer id) throws Exception {
+        // create default nodes and attributes
+        communication.addNode("/communication/client/connections", "server");
+        communication.addNode("/communication/client/connections/server", "socket", id);
+        communication.addAttribute("/communication/client/connections/server/socket", "timeout", "" + DEFAULT_TIMEOUT,
+                id);
+        communication.addNode("/communication/client/connections/server", "messages", id);
+        communication.addAttribute("/communication/client/connections/server/messages", "maximumSize", ""
+                + DEFAULT_MAXIMUM_SIZE, id);
+        communication.addAttribute("/communication/client/connections/server/messages", "threadCount", ""
+                + DEFAULT_THREAD_COUNT, id);
+
+        // add a new bus
+        communication.addAttribute("/communication/client/connections/server", "name", proxyUrl, id);
+        communication.addAttribute("/communication/client/connections/server/socket", "port", "" + port, id);
+        communication.addAttribute("/communication/client/connections/server/socket", "ip", ip, id);
+    }
+
+    private void addBus(final XPathService communication, final String proxyUrl, final String ip, final Integer port)
+            throws Exception {
+        // determine count of ibusses (=index of new ibus)
+        final int count = getBusCount(communication);
+        // add bus
+        addBus(communication, proxyUrl, ip, port, count);
+    }
+
+    private Integer getBusCount(final XPathService communication) throws Exception {
+        return communication.countNodes("/communication/client/connections/server");
+    }
+
+    private void deleteBus(final XPathService communication, final Integer id) throws Exception {
+        communication.removeNode("/communication/client/connections/server", id);
+    }
 }

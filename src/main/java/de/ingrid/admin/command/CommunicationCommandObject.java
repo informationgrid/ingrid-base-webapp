@@ -4,7 +4,8 @@ public class CommunicationCommandObject {
 
     private String _proxyServiceUrl;
     private String _iBusProxyServiceUrl;
-    private int _port;
+
+    private Integer _port;
     private String _ip;
 
     public String getProxyServiceUrl() {
@@ -23,11 +24,11 @@ public class CommunicationCommandObject {
         _iBusProxyServiceUrl = busProxyServiceUrl;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return _port;
     }
 
-    public void setPort(final int port) {
+    public void setPort(final Integer port) {
         _port = port;
     }
 

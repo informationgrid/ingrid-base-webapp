@@ -13,22 +13,24 @@
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        $(".hide").hide();
-        $("#edit").toggle(function() {
-            $(".toggle,.hide").toggle();
-            $(this).html("Abbrechen");
-        }, function() {
-        	$(".toggle,.hide").toggle();
-        	$(this).html("Bearbeiten");
+        $("button[action], .submit").click(function() {
+        	// get form
+            var form = $("#communication");
+            // get button action
+            var action = $(this).attr("action");
+            // set request action
+            if(action) {
+                form.find("input[name='action']").val(action);
+            }
+            // get button id
+            var id = $(this).attr("id");
+            // set request id
+            if(id) {
+                form.find("input[name='id']").val(id);
+            }
+            // submit form
+            form.submit();
         });
-        
-        <c:if test="${(empty busses) || (!empty bus)}">
-        $(".toggle,.hide").toggle();
-        $("#edit").hide();
-        <c:if test="${!empty bus}">
-        $(".proxyServiceUrl .toggle, .proxyServiceUrl .hide").toggle();
-        </c:if>
-        </c:if>
     });
 </script>
 </head>
@@ -49,175 +51,107 @@
 		<div class="controls">
 			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('communication').submit();">Weiter</a>
+			<a href="#" onclick="document.location='welcome.html';" class="submit">Weiter</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('communication').submit();">Weiter</a>
+			<a href="#" onclick="document.location='welcome.html';" class="submit">Weiter</a>
 		</div>
 		<div id="content">
-			<h2>Geben sie den iBus an.</h2>
-			<form:form method="post" action="communication.html" modelAttribute="communication" name="client">
-				<input type="hidden" name="form" value="base" />
-                <input type="hidden" name="bus" value="${bus}" />
-				<table id="konfigForm">
-					<tr>
-						<td class="leftCol">Eigene Proxy Service Url:</td>
-						<td>
-		                    <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" />
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2"><h3>Standard IBus</h3></td>
-					</tr>
-					<tr>
-						<td class="leftCol">IBus Proxy Service Url:</td>
-						<td>
-		                    <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" />
-						</td>
-					</tr>
-					<tr>
-						<td class="leftCol">IP:</td>
-						<td>
-		                    <input type="text" name="ip" value="${communication.ip}" />
-						</td>
-					</tr>
-					<tr>
-						<td class="leftCol">Port:</td>
-						<td>
-		                    <input type="text" name="port" value="${communication.port}" />
-						</td>
-					</tr>		
-				</table>
-			</form:form>
-			
-			<c:if test="${!empty busses}">
-			<form:form method="post" action="communication.html" modelAttribute="communication" name="client">
-                  <table id="konfigForm">
-					<tr>
-						<td colspan="2"><h3>Weiterer IBus</h3></td>
-					</tr>
-					<tr>
-						<td class="leftCol">IBus Proxy Service Url:</td>
-						<td>
-		                    <input type="text" name="busProxyServiceUrl" />
-						</td>
-					</tr>
-					<tr>
-						<td class="leftCol">IP:</td>
-						<td>
-		                    <input type="text" name="ip" />
-						</td>
-					</tr>
-					<tr>
-						<td class="leftCol">Port:</td>
-						<td>
-		                    <input type="text" name="port" />
-						</td>
-					</tr>
-					<tr>
-						<td class="leftCol">&nbsp;</td>
-						<td> <input type="submit" value="Hinzufügen" /></td>
-					</tr>
-				</table>	
-                  
-              </form:form>
-	                
-			<br />
-			
-			<div id="ibusses">
-              <table>
-                  <tr>
-                  	<td colspan="4"><h3>Vorhandene IBusse</h3></td>
-                  </tr>
-                  <tr>
-                      <th>IBus Url</th>
-                      <th>IP</th>
-                      <th>Port</th>
-                      <th>&nbsp;</th>
-                  </tr>
-                  <c:set var="busIndex" value="0" />
-                  <c:forEach items="${busses}" var="bus">
-                      <tr>
-                          <td>${bus.busProxyServiceUrl}</td>
-                          <td>${bus.ip}</td>
-                          <td>${bus.port}</td>
-                          <td><button onclick="document.location = '/base/communication.html?action=delete&bus=${busIndex}'"/>Löschen</button></td>
-                      </tr>
-                      <c:set var="busIndex" value="${busIndex + 1}" />
-                  </c:forEach>
-              </table>
-			</div>
-			</c:if>
-			
-		</div>
+		
+            <form:form method="post" action="communication.html" modelAttribute="communication">
+                <input type="hidden" name="action" value="submit" />
+                <input type="hidden" name="id" value="" />
+                <table id="konfigForm">
+                    <tr>
+                        <td colspan="2"><h3>Eigene angaben:</h3></td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol">Eigene Proxy Service Url:</td>
+                        <td>
+                            <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" />
+                            <form:errors path="proxyServiceUrl" cssClass="error" element="div" />
+                        </td>
+                    </tr>
+                    <c:if test="${!empty busses}">
+	                    <tr>
+	                        <td class="leftCol">&nbsp;</td>
+	                        <td><button type="button" action="proxy">Bearbeiten</button></td>
+	                    </tr>
+	                </c:if>
+                    <tr>
+                        <td colspan="2"><h3>IBus angaben:</h3></td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol">IBus Proxy Service Url:</td>
+                        <td>
+                            <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" />
+                            <form:errors path="busProxyServiceUrl" cssClass="error" element="div" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol">IP:</td>
+                        <td>
+                            <input type="text" name="ip" value="${communication.ip}" />
+                            <form:errors path="ip" cssClass="error" element="div" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol">Port:</td>
+                        <td>
+                            <input type="text" name="port" value="${communication.port}" />
+                            <form:errors path="port" cssClass="error" element="div" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol">&nbsp;</td>
+                        <td>
+	                        <c:choose>
+	                            <c:when test="${!empty busses}"><button type="button" action="add">Hinzufügen</button></c:when>
+	                            <c:otherwise><button type="button" action="submit">Speichern</button></c:otherwise>
+	                        </c:choose>
+                        </td>
+                    </tr>
+                </table>
+                
+	            <c:if test="${!empty busses}">
+		              <table>
+		                  <tr>
+		                    <td colspan="4"><h3>Vorhandene IBusse</h3></td>
+		                  </tr>
+		                  <tr>
+		                      <th>IBus Url</th>
+		                      <th>IP</th>
+		                      <th>Port</th>
+		                      <th>&nbsp;</th>
+		                      <th>&nbsp;</th>
+		                  </tr>
+		                  <c:set var="busIndex" value="0" />
+		                  <c:forEach items="${busses}" var="bus">
+		                      <tr>
+		                          <td>${bus.busProxyServiceUrl}</td>
+		                          <td>${bus.ip}</td>
+		                          <td>${bus.port}</td>
+		                          <td>
+		                              <c:choose>
+		                                  <c:when test="${busIndex == 0}">(Standard)</c:when>
+		                                  <c:otherwise><button type="button" action="set" id="${busIndex}"/>Als Standard</button></c:otherwise>
+		                              </c:choose>
+		                          </td>
+		                          <td><button type="button" action="delete" id="${busIndex}"/>Löschen</button></td>
+		                      </tr>
+		                      <c:set var="busIndex" value="${busIndex + 1}" />
+		                  </c:forEach>
+		              </table>
+		              
+		              <br />
+		              <button type="button" action="reset">Änderungen übernehmen</button>
+	            </c:if>
+            </form:form>
+		
+	    </div>
 	</div>
 	<div id="footer" style="height:100px; width:90%"></div>
 </body>
-</html>
-
-
-<%@ include file="/WEB-INF/jsp/base/include.jsp" %>
-<html>
-    <head>
-        <title>Kommunikations-Einstellungen</title>
-        
-    </head>
-    <body>
-        <!-- the id on the containing div determines the page width. -->
-        <!-- #doc = 750px; #doc2 = 950px; #doc3 = 100%; #doc4 = 974px -->
-        <div id="doc">      
-            <div id="hd">
-                <h2>Hinzufügen des iBus</h2>
-                <span></span>
-            </div>
-            <div id="bd">
-                <!-- Use Standard Nesting Grids and Special Nesting Grids to subdivid regions of your layout. -->
-                <!-- Special Nesting Grid B tells three children to split space evenly -->
-                <div class="yui-gb">
-                    <!-- the first child of a Grid needs the "first" class -->
-                    <div class="yui-u first">
-                        <span>A</span>
-                    </div>  
-                    <div class="yui-u">
-
-                        <div>
-                            <button type="button" onclick="document.location='welcome.html';">Zurück</button>
-                        </div>
-                        
-                        <br />
-
-                        <form:form method="post" action="communication.html" modelAttribute="communication" name="client">
-                            
-                            <div>
-                               
-                                <fieldset>
-			        				<h2>standard iBus</h2> 
-			
-			         				
-		         				</fieldset>
-		         				
-                            </div>
-                            <div>
-	                            <button type="button" id="edit">Bearbeiten</button>
-	                            <input class="hide" type="submit" value="Speichern" id="save" />
-                            </div>
-	     				</form:form>
-	     				
-	     				<br />
-	     				
-	     				
-
-                    </div>
-                    <div class="yui-u">
-                        <span>C</span>
-                    </div>
-                </div>
-            </div>
-            <div id="ft">
-                <span>Footer</span>
-            </div>
-        </div>
-    </body>
 </html>
