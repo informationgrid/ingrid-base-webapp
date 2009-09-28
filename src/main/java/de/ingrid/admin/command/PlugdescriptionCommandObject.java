@@ -1,7 +1,5 @@
 package de.ingrid.admin.command;
 
-import java.io.File;
-
 import de.ingrid.utils.PlugDescription;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
@@ -46,14 +44,5 @@ public class PlugdescriptionCommandObject extends PlugDescription {
 			return super.getIplugAdminGuiPort();
 		}
 		return 8082;
-	}
-
-	@Override
-	public File getWorkinDirectory() {
-		final String folder = (String) get(WORKING_DIRECTORY);
-		if (folder != null) {
-			return new File(folder);
-		}
-        return new File("./tmp");
 	}
 }

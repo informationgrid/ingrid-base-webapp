@@ -41,7 +41,7 @@
 				<table id="konfigForm">
 					<tr>
 						<td class="leftCol">Pfad zum Ordner:</td>
-						<td><form:input path="workinDirectory" /></td>
+						<td><form:input path="workinDirectory" /><form:errors path="workinDirectory" cssClass="error" element="div" /></td>
 					</tr>
 							
 				</table>
