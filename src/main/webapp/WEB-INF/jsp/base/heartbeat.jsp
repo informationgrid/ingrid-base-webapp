@@ -24,16 +24,16 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Mit IBus verbinden</h1>
+		<h1 id="head">Mit IBus verbinden / abmelden</h1>
 		<div class="controls">
 			<a href="#" onclick="document.location='save.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('heartbeat').submit();">Abschließen</a>
+			<a href="#" onclick="document.location='welcome.html';">Abschließen</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='save.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('heartbeat').submit();">Abschließen</a>
+			<a href="#" onclick="document.location='welcome.html';">Abschließen</a>
 		</div>
 		<div id="content">
 			<h2>Die Kommunikation wird neu gestartet, Ihre Einstellungen zum IBus übertragen und Ihr IPlug angemeldet.</h2>
@@ -45,15 +45,15 @@
 						<c:when test="${!heartBeat.enable}">
 							<td>
 								<input type="hidden" name="start" value="true">
-								Status: Kommunikation angehalten<br/>
-								Klicken Sie Abschließen, um die Kommunikation zu starten.
+								IPlug nicht verbunden<br/><br/>
+								<input type="submit" value="Anmelden"/>
 							</td>
 						</c:when>
 						<c:otherwise>
 							<td>
 								<input type="hidden" name="start" value="false">
-								Status: Kommunikation gestartet<br/>
-								Klicken Sie Abschließen, um die Kommunikation zu anzuhalten.
+								IPlug angemeldet<br/><br/>
+								<input type="submit" value="Abmelden"/>
 							</td>
 						</c:otherwise>
 					</c:choose>

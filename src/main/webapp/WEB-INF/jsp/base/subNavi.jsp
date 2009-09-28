@@ -19,6 +19,7 @@
 		<c:catch>
 		<c:import url="iplugSubNavi.jsp"></c:import>
 		</c:catch>
+		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="save.html">Speichern</a></li>
 	</ul>
 	<div class="konf">
 		<p class="no">3</p>
@@ -34,7 +35,6 @@
 		<h2>Abschlieﬂen</h2>
 	</div>
 	<ul>
-		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="save.html">Speichern</a></li>
 		<li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">Zum IBus verbinden</a></li>
 	</ul>
 </div>
