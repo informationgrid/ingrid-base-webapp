@@ -26,7 +26,7 @@
 	</div>
 	<ul>
 		<li>Scheduling</li>
-		<li><a href="indexing.html">Indexieren</a></li>
+		<li <c:if test="${active == 'indexing'}">class="active"</c:if>><a href="indexing.html">Indexieren</a></li>
 		<li>Suche Testen</li>
 	</ul>
 	<div class="konf">
