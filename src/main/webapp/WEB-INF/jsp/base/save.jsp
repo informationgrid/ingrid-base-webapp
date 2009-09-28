@@ -25,15 +25,25 @@
 	
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Konfiguration Speichern</h1>
+		<div class="controls">
+			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.getElementById('save').submit();">Speichern</a>
+		</div>
+		<div class="controls cBottom">
+			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.getElementById('save').submit();">Speichern</a>
+		</div>
 		<div id="content">
-			<h2>Ihre Angaben werden gespeichert</h2>
-			<form:form action="save.html" method="post"> 
+			<h2>Die Konfiguration ist abgeschlossen. Ihre Angaben werden gespeichert.</h2>
+			<form:form action="save.html" method="post" id="save"> 
 				<table id="konfigForm">
 					<tr>
-						<td><input type="submit" value="Speichern" /></td>
+						<td>&nbsp;</td>
 					</tr>
-							
 				</table>
+				// todo: link back button
 			</form:form>
 		</div>
 	</div>

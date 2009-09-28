@@ -35,6 +35,6 @@
 	</div>
 	<ul>
 		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="save.html">Speichern</a></li>
-		<li><a href="heartbeat.html">Zum IBus verbinden</a></li>
+		<li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">Zum IBus verbinden</a></li>
 	</ul>
 </div>
