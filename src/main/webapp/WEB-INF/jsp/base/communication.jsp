@@ -65,7 +65,7 @@
                 <input type="hidden" name="id" value="" />
                 <table id="konfigForm">
                     <tr>
-                        <td colspan="2"><h3>Eigene angaben:</h3></td>
+                        <td colspan="2"><h3>Ihr IPlug:</h3></td>
                     </tr>
                     <tr>
                         <td class="leftCol">Eigene Proxy Service Url:</td>
@@ -74,12 +74,6 @@
                             <form:errors path="proxyServiceUrl" cssClass="error" element="div" />
                         </td>
                     </tr>
-                    <c:if test="${!empty busses}">
-	                    <tr>
-	                        <td class="leftCol">&nbsp;</td>
-	                        <td><button type="button" action="proxy">Bearbeiten</button></td>
-	                    </tr>
-	                </c:if>
                     <tr>
                         <td colspan="2"><h3>IBus angaben:</h3></td>
                     </tr>
@@ -106,11 +100,7 @@
                     </tr>
                     <tr>
                         <td class="leftCol">&nbsp;</td>
-                        <td>
-	                        <c:choose>
-	                            <c:when test="${!empty busses}"><button type="button" action="add">Hinzufügen</button></c:when>
-	                            <c:otherwise><button type="button" action="submit">Speichern</button></c:otherwise>
-	                        </c:choose>
+                        <td><button type="button" action="add">Hinzufügen</button>
                         </td>
                     </tr>
                 </table>
@@ -144,9 +134,6 @@
 		                      <c:set var="busIndex" value="${busIndex + 1}" />
 		                  </c:forEach>
 		              </table>
-		              
-		              <br />
-		              <button type="button" action="reset">Änderungen übernehmen</button>
 	            </c:if>
             </form:form>
 		
