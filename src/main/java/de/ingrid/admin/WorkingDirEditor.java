@@ -1,22 +1,21 @@
 package de.ingrid.admin;
 
-import org.springframework.beans.propertyeditors.FileEditor;
+import java.beans.PropertyEditorSupport;
+import java.io.File;
 
-public class WorkingDirEditor extends FileEditor {
+public class WorkingDirEditor extends PropertyEditorSupport {
 
     @Override
-    public void setAsText(final String text) throws IllegalArgumentException {
+    public void setAsText(String text) throws IllegalArgumentException {
         if (null != text && !"".equals(text)) {
-            System.out.println("set: " + text);
-            super.setAsText(text);
+            setValue(new File(text));
         }
     }
 
     @Override
     public String getAsText() {
-        // TODO Auto-generated method stub
-        final String text = super.getAsText();
-        System.out.println("get: " + text);
-        return text == null ? "./" : text;
+        Object value = getValue();
+        return value != null ? value.toString() : "";
     }
+
 }

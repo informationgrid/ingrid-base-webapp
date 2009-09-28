@@ -3,6 +3,7 @@ package de.ingrid.admin.controller;
 import java.io.File;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -31,17 +32,16 @@ public class WorkingDirController {
 
     @RequestMapping(method = RequestMethod.POST)
     public String postWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription,
-            final Errors errors) {
+            final BindingResult errors) {
         if (validateDirectory(errors, plugDescription).hasErrors()) {
             return "/base/workingDir";
         }
-        // TODO validate
         return "redirect:/base/general.html";
     }
 
-    private final Errors validateDirectory(final Errors errors, final PlugdescriptionCommandObject object) {
-        if (null == object.getWorkinDirectory()) {
-            errors.rejectValue("workinDirectory", null, "Es muss ein Ordner angegeben werden!");
+    private final Errors validateDirectory(final BindingResult errors, final PlugdescriptionCommandObject object) {
+        if (object.getWorkinDirectory() == null) {
+            errors.rejectValue("workinDirectory", "empty");
         }
         return errors;
     }

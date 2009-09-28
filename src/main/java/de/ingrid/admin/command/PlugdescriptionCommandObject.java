@@ -1,5 +1,7 @@
 package de.ingrid.admin.command;
 
+import java.io.File;
+
 import de.ingrid.utils.PlugDescription;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
@@ -38,11 +40,18 @@ public class PlugdescriptionCommandObject extends PlugDescription {
         }
     }
 
-	@Override
-	public int getIplugAdminGuiPort() {
-		if (super.containsKey(PlugDescription.IPLUG_ADMIN_GUI_PORT)) {
-			return super.getIplugAdminGuiPort();
-		}
-		return 8082;
-	}
+    @Override
+    public int getIplugAdminGuiPort() {
+        if (super.containsKey(PlugDescription.IPLUG_ADMIN_GUI_PORT)) {
+            return super.getIplugAdminGuiPort();
+        }
+        return 8082;
+    }
+
+    @Override
+    public void setWorkinDirectory(File workinDirectory) {
+        if (workinDirectory != null) {
+            super.setWorkinDirectory(workinDirectory);
+        }
+    }
 }
