@@ -45,12 +45,14 @@
 						<c:when test="${!heartBeat.enable}">
 							<td>
 								<input type="hidden" name="start" value="true">
+								Status: Kommunikation angehalten<br/>
 								Klicken Sie Abschlieﬂen, um die Kommunikation zu starten.
 							</td>
 						</c:when>
 						<c:otherwise>
 							<td>
 								<input type="hidden" name="start" value="false">
+								Status: Kommunikation gestartet<br/>
 								Klicken Sie Abschlieﬂen, um die Kommunikation zu anzuhalten.
 							</td>
 						</c:otherwise>
