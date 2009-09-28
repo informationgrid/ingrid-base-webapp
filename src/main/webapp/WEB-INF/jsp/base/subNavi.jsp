@@ -31,9 +31,10 @@
 	</ul>
 	<div class="konf">
 		<p class="no">4</p>
-		<h2>Verbindung IBus</h2>
+		<h2>Abschlieﬂen</h2>
 	</div>
 	<ul>
-		<li><a href="heartbeat.html">Start / Stop</a></li>
+		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="save.html">Speichern</a></li>
+		<li><a href="heartbeat.html">Zum IBus verbinden</a></li>
 	</ul>
 </div>
