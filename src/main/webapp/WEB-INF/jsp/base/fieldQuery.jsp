@@ -12,53 +12,26 @@
 <link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript">
-    /*$(document).ready(function() {
-        $("#add").click(function() {
-            var bus_url = $("select[name='bus_url']").val();
-            var regex = $("input[name='regex']").val();
-            var key = $("input[name='key']").val();
-            var value = $("input[name='value']").val();
-            var prohibited = $("input[name='prohibited']").attr("checked");
-            var required = $("input[name='required']").attr("checked");
-        	addFieldQuery(bus_url, regex, key, value, prohibited, required);
-        });
-
-        <c:if test="${!empty fields}">
-         <c:forEach items="${fields}" var="field">
-             addFieldQuery("${field['bus_url']}", "${field['regex']}", "${field['key']}", "${field['value']}", "${field['prohibited']}", "${field['required']}");
-         </c:forEach>
-        </c:if>
-    });
-
-    function addFieldQuery(bus_url, regex, key, value, prohibited, required) {
-        var table = $("#addedQueries");
-        var input = $("#fieldQueries");
-        var count = input.children().length;
-        // add to table
-        table
-            .append($("<tr id='tr_"+count+"'></tr>")
-                .append("<td>"+bus_url+"</td>")
-                .append("<td>"+regex+"</td>")
-                .append("<td>"+key+"</td>")
-                .append("<td>"+value+"</td>")
-                .append("<td>"+(prohibited?"ja":"nein")+"</td>")
-                .append("<td>"+(required?"ja":"nein")+"</td>")
-                .append($("<td></td>")
-                    .append($("<button type='button'>Entfernen</button>")
-                        .click(function() {
-                            $("#tr_"+count).remove();
-                            $("#input_"+count).remove();
-                        })
-                    )
-                )
-            );
-        // add to parameters
-        input.append("<input id='input_"+count+"' type='hidden' name='fieldQuery' value='"+bus_url+";"+regex+";"+key+";"+value+";"+prohibited+";"+required+"' />");
-        // reset inputs
-        table.find("input").not("[type='checkbox']").not("[name='regex']").val("");
-        table.find("input[name='regex']").val(".*");
-        table.find("input[type='checkbox']").removeAttr("checked");
-    }*/
+	$(document).ready(function() {
+	    $("button[action], .submit").click(function() {
+	        // get form
+	        var form = $("#fieldQuery");
+	        // get button action
+	        var action = $(this).attr("action");
+	        // set request action
+	        if(action) {
+	            form.find("input[name='action']").val(action);
+	        }
+	        // get button id
+	        var id = $(this).attr("id");
+	        // set request id
+	        if(id) {
+	            form.find("input[name='id']").val(id);
+	        }
+	        // submit form
+	        form.submit();
+	    });
+	});
 </script>
 </head>
 <body>
@@ -87,41 +60,42 @@
 		</div>
 		<div id="content">
 			<h2>Geben Sie Field Queries an</h2>
-			<form:form method="post" action="fieldQuery.html" modelAttribute="plugDescription">
+			<form:form method="post" action="fieldQuery.html" modelAttribute="fieldQuery">
+			     <input type="hidden" name="action" value="submit" />
+                 <input type="hidden" name="id" value="" />
 				<table id="konfigForm">
 					<tr>
 						<td class="leftCol">IBus:</td>
 						<td>
-							<select name="bus_url">
-                                <c:forEach items="${busUrls}" var="bus">
-                                    <option value="${bus}">${bus}</optoin>
-                                </c:forEach>
-                            </select>
+						    <form:select path="busUrl">
+						      <form:options items="${busUrls}" />
+						    </form:select>
+						    <form:errors path="busUrl" cssClass="error" element="div" />
 						</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Regex:</td>
-						<td><input type="text" name="regex" value=".*" /></td>
+						<td><form:input path="regex" /><form:errors path="regex" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td class="leftCol">Index Feld Name:</td>
-						<td><input type="text" name="key" /></td>
+						<td><form:input path="key" /><form:errors path="key" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td class="leftCol">Index Feld Wert:</td>
-						<td><input type="text" name="value" /></td>
+						<td><form:input path="value" /><form:errors path="value" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
-						<td class="leftCol">Verboten:</td>
-						<td><input type="checkbox" name="prohibited" value="true" /></td>
-					</tr>
-					<tr>
-						<td class="leftCol">Erforderlich:</td>
-						<td><input type="checkbox" name="required" value="true" /></td>
+						<td class="leftCol">Option:</td>
+						<td>
+							<form:radiobutton path="option" value="prohibited" label="verboten"/>
+							<form:radiobutton path="option" value="required" label="erforderlich"/>
+							<form:errors path="option" cssClass="error" element="div" />
+						</td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
-						<td><button type="button" id="add">Hinzufügen</button></td>
+						<td><button type="button" action="add">Hinzufügen</button></td>
 					</tr>		
 				</table>
 
@@ -134,11 +108,25 @@
 						<th>Regex</th>
 						<th>Index Feld Name</th>
 						<th>Index Feld Wert</th>
-						<th>Verboten</th>
-						<th>Erforderlich</th>
+						<th>Option</th>
 						<th>&nbsp;</th>
 					</tr>
-					<c:forEach items="">
+					<c:set var="i" value="0" />
+					<c:forEach items="${fields}" var="field">
+					   <tr>
+					       <td>${field.busUrl}</td>
+					       <td>${field.regex}</td>
+					       <td>${field.key}</td>
+					       <td>${field.value}</td>
+					       <td>
+					           <c:choose>
+					               <c:when test="${field.prohibited}">verboten</c:when>
+					               <c:when test="${field.required}">erforderlich</c:when>
+					           </c:choose>
+					       </td>
+                           <td><button type="button" action="delete" id="${i}">Entfernen</button></td>
+					   </tr>
+					   <c:set var="i" value="${i + 1}" />
 					</c:forEach>
 				</table>
 				
