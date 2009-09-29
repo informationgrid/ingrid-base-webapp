@@ -6,50 +6,58 @@ import de.ingrid.utils.PlugDescription;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
 
-    public void setPartner(final String partner) {
+    public void setDataTypes(final String... types) {
+        for (final String type : types) {
+            addDataType(type);
+        }
+    }
+
+    public void removePartner(final String partner) {
+        removeFromList(PlugDescription.PARTNER, partner);
+    }
+
+    @Override
+    public void addPartner(final String partner) {
+        for (final String p : getPartners()) {
+            if (p.equals(partner)) {
+                return;
+            }
+        }
+        super.addPartner(partner);
+    }
+
+    @Override
+    public void addProvider(final String provider) {
+        for (final String p : getProviders()) {
+            if (p.equals(provider)) {
+                return;
+            }
+        }
+        super.addProvider(provider);
+    }
+
+    @Override
+    public void setOrganisation(final String partner) {
+        super.setOrganisation(partner);
         addPartner(partner);
     }
 
-    public String getPartner() {
-        String partner = null;
-        if (getPartners() != null) {
-            if (getPartners().length > 0) {
-                partner = getPartners()[0];
-            }
-        }
-        return partner;
-    }
-
-    public void setProvider(final String provider) {
+    @Override
+    public void setOrganisationAbbr(final String provider) {
+        super.setOrganisationAbbr(provider);
         addProvider(provider);
-    }
-
-    public String getProvider() {
-        String provider = null;
-        if (getProviders() != null) {
-            if (getProviders().length > 0) {
-                provider = getProviders()[0];
-            }
-        }
-        return provider;
-    }
-
-    public void setDatatypes(final String... strings) {
-        for (final String string : strings) {
-            addDataType(string);
-        }
     }
 
     @Override
     public int getIplugAdminGuiPort() {
-        if (super.containsKey(PlugDescription.IPLUG_ADMIN_GUI_PORT)) {
+        if (containsKey(PlugDescription.IPLUG_ADMIN_GUI_PORT)) {
             return super.getIplugAdminGuiPort();
         }
         return 8082;
     }
 
     @Override
-    public void setWorkinDirectory(File workinDirectory) {
+    public void setWorkinDirectory(final File workinDirectory) {
         if (workinDirectory != null) {
             super.setWorkinDirectory(workinDirectory);
         }

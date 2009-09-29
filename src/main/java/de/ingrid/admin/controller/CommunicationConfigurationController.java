@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.admin.validation.CommunicationValidator;
+import de.ingrid.admin.validation.IErrorKeys;
 
 @Controller
 @RequestMapping(value = "/base/communication.html")
@@ -32,9 +33,13 @@ public class CommunicationConfigurationController {
 
     private final CommunicationInterface _communicationInterface;
 
+    private final CommunicationValidator _validator;
+
     @Autowired
-    public CommunicationConfigurationController(final CommunicationInterface communicationInterface) {
+    public CommunicationConfigurationController(final CommunicationInterface communicationInterface,
+            final CommunicationValidator validator) {
         _communicationInterface = communicationInterface;
+        _validator = validator;
     }
 
     @ModelAttribute("communication")
@@ -123,17 +128,17 @@ public class CommunicationConfigurationController {
 
             if ("submit".equals(action)) {
                 // set proxy url
-                if (validateProxyUrl(errors, commandObject).hasErrors()) {
+                if (_validator.validateProxyUrl(errors).hasErrors()) {
                     return "/base/communication";
                 }
                 setProxyUrl(communication, commandObject.getProxyServiceUrl());
 
                 if (!communicationFile.exists() || getBusCount(communication) == 0) {
-                    errors.rejectValue("busProxyServiceUrl", null, "Mindestens ein IBus muss hinzugefügt werden!");
+                    _validator.rejectError(errors, "busProxyServiceUrl", IErrorKeys.MISSING);
                     return "/base/communication";
                 }
             } else if ("add".equals(action)) {
-                if (validateBus(errors, commandObject).hasErrors()) {
+                if (_validator.validateBus(errors).hasErrors()) {
                     return "/base/communication";
                 }
                 // add new bus
@@ -164,35 +169,11 @@ public class CommunicationConfigurationController {
                 // restart communication interface
                 _communicationInterface.restart();
                 // redirect to next step
-                // return "redirect:/base/workingDir.html";
-                // temporary redirecting to welcome
-                return "redirect:/base/welcome.html";
+                return "redirect:/base/workingDir.html";
             }
         }
 
         return "/base/communication";
-    }
-
-    private final Errors validateProxyUrl(final Errors errors, final CommunicationCommandObject object) {
-        if (StringUtils.isEmptyOrWhiteSpace(object.getProxyServiceUrl())) {
-            errors.rejectValue("proxyServiceUrl", null, "Die URL darf nicht leer sein!");
-        }
-        return errors;
-    }
-
-    private final Errors validateBus(final Errors errors, final CommunicationCommandObject object) {
-        if (StringUtils.isEmptyOrWhiteSpace(object.getBusProxyServiceUrl())) {
-            errors.rejectValue("busProxyServiceUrl", null, "Die URL darf nicht leer sein!");
-        }
-        if (StringUtils.isEmptyOrWhiteSpace(object.getIp())) {
-            errors.rejectValue("ip", null, "Es muss eine IP oder Adresse angegeben werden!");
-        }
-        if (null == object.getPort()) {
-            errors.rejectValue("port", null, "Es muss ein Port angegeben werden!");
-        } else if (object.getPort() < 0) {
-            errors.rejectValue("port", null, "Der Port muss größer gleich '0' sein!");
-        }
-        return errors;
     }
 
     private final XPathService openCommunication(final File communicationFile) throws Exception {

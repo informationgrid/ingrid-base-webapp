@@ -10,23 +10,23 @@
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
 <link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript">
- var map = ${jsonMap};
- 
- function updateProviders() {
-  var select = document.getElementById('provider');
-  reset(select);
-  var partner = document.getElementById('partner').value;
-  for(var i = 0; i < map[partner].length; i++) {
-  	select.options[select.length] = new Option(map[partner][i].displayName, map[partner][0].shortName);
-  }
- }
+	var map = ${jsonMap};
 
- function reset(select) {
-  for(var i = (select.length - 1); i > 0; i--) {
-   select.options[i] = null;
-  }
- }
+    $(document).ready(function() {
+                
+        $("#partners").change(function() {
+        	var select = $("#providers");
+        	select.find("option[value]").remove();
+            var partner = $(this).val();
+            for(var i = 0; i < map[partner].length; i++) {
+                select.append("<option value='" + map[partner][i].shortName + "'>" + map[partner][i].displayName + "</option>");
+            }
+        }).trigger('change');
+        
+        $("#providers").val("${plugDescription.organisationAbbr}")
+    });
 </script> 
 </head>
 <body>
@@ -61,18 +61,20 @@
 					<tr>
 						<td>Partner:</td>
 						<td>
-							<form:select path="partner" onchange="updateProviders();"> 
-                                <form:option value="-" label="bitte wählen" />
+							<form:select path="organisation" id="partners"> 
+                                <form:option value="" label="bitte wählen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                             </form:select>
+                            <form:errors path="organisation" cssClass="error" element="div" />
 						</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Name des Anbieters:</td>
 						<td>
-							 <form:select path="provider"> 
-                                <form:option value="-" label="bitte wählen" /> 
+							 <form:select path="organisationAbbr" id="providers" > 
+                                <form:option value="" label="bitte wählen" /> 
                             </form:select>
+                            <form:errors path="organisationAbbr" cssClass="error" element="div" />
 						</td>
 					</tr>
 					<tr>
@@ -86,26 +88,26 @@
 					</tr> 
 					<tr>  
 						<td>Nachname:</td>
-						<td><form:input path="personSureName" /></td>
+						<td><form:input path="personSureName" /><form:errors path="personSureName" cssClass="error" element="div" /></td>
 					</tr> 
 					<tr>  
 						<td>Vorname:</td>
-						<td><form:input path="personName" /></td>
+						<td><form:input path="personName" /><form:errors path="personName" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Telefon:</td>
-						<td><form:input path="personPhone" /></td>
+						<td><form:input path="personPhone" /><form:errors path="personPhone" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>E-Mail:</td>
-						<td><form:input path="personMail" /></td>
+						<td><form:input path="personMail" /><form:errors path="personMail" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td colspan="2"><h3>Datenquelle:</h3></td>
 					</tr>					
 					<tr>
 						<td>Name der Datenquelle:</td>
-						<td><form:input path="dataSourceName" /></td>
+						<td><form:input path="dataSourceName" /><form:errors path="dataSourceName" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Kurzbeschreibung*:</td>
@@ -114,6 +116,7 @@
 					<tr>
 						<td>Art der Datenquelle:</td>
 						<td>
+						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						 	<table class="check">
 						 		<tr>
 						 			<td>
@@ -145,26 +148,26 @@
 					</tr>
 					<tr>
 						<td>Adresse des iPlugs:</td>
-						<td><form:input path="proxyServiceURL" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+						<td><form:input path="proxyServiceURL" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 					</tr>
 					<tr>
 						<td>Adresse des korrespondierenden iPlugs:</td>
-						<td><form:input path="correspondentProxyServiceURL" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+						<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 					</tr>
 					<tr>
 						<td colspan="2"><h3>Administrationsinterface:</h3></td>
 					</tr>					
 					<tr>
 						<td>URL:</td>
-						<td><form:input path="iplugAdminGuiUrl" /></td>
+						<td><form:input path="iplugAdminGuiUrl" /><form:errors path="iplugAdminGuiUrl" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Port:</td>
-						<td><form:input path="iplugAdminGuiPort" /></td>
+						<td><form:input path="iplugAdminGuiPort" /><form:errors path="iplugAdminGuiPort" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Administrationskennwort:</td>
-						<td><form:password path="iplugAdminPassword" /> </td>
+						<td><form:password path="iplugAdminPassword" /><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
 					</tr>			
 				</table>
 			</form:form>

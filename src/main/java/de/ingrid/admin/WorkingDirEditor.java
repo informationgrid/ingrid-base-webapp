@@ -6,7 +6,7 @@ import java.io.File;
 public class WorkingDirEditor extends PropertyEditorSupport {
 
     @Override
-    public void setAsText(String text) throws IllegalArgumentException {
+    public void setAsText(final String text) throws IllegalArgumentException {
         if (null != text && !"".equals(text)) {
             setValue(new File(text));
         }
@@ -14,7 +14,7 @@ public class WorkingDirEditor extends PropertyEditorSupport {
 
     @Override
     public String getAsText() {
-        Object value = getValue();
+        final Object value = getValue();
         return value != null ? value.toString() : "";
     }
 
