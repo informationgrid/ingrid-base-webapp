@@ -16,6 +16,10 @@ public class PlugdescriptionCommandObject extends PlugDescription {
         removeFromList(PlugDescription.PARTNER, partner);
     }
 
+    public void removeProvider(final String provider) {
+        removeFromList(PlugDescription.PROVIDER, provider);
+    }
+
     @Override
     public void addPartner(final String partner) {
         for (final String p : getPartners()) {

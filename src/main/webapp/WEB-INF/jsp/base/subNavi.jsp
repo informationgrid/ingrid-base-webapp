@@ -15,6 +15,7 @@
 		<li <c:if test="${active == 'workingDir'}">class="active"</c:if>><a href="workingDir.html">Arbeitsverzeichnis wählen</a></li>
 		<li <c:if test="${active == 'general'}">class="active"</c:if>><a href="general.html">Angaben zu Betreiber und Datenquelle</a></li>
 		<li <c:if test="${active == 'partner'}">class="active"</c:if>><a href="partner.html">Hinzufügen der Partner</a></li>
+		<li <c:if test="${active == 'provider'}">class="active"</c:if>><a href="provider.html">Hinzufügen der Anbieter</a></li>
 		<li <c:if test="${active == 'fieldQuery'}">class="active"</c:if>><a href="fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
 		<c:catch>
 		<c:import url="iplugSubNavi.jsp"></c:import>

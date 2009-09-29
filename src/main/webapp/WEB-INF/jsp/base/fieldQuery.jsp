@@ -12,7 +12,7 @@
 <link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
+    /*$(document).ready(function() {
         $("#add").click(function() {
             var bus_url = $("select[name='bus_url']").val();
             var regex = $("input[name='regex']").val();
@@ -58,7 +58,7 @@
         table.find("input").not("[type='checkbox']").not("[name='regex']").val("");
         table.find("input[name='regex']").val(".*");
         table.find("input[type='checkbox']").removeAttr("checked");
-    }
+    }*/
 </script>
 </head>
 <body>
@@ -76,12 +76,12 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Verfügbarkeit der Ergebnisse</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='partner.html';">Zurück</a>
+			<a href="#" onclick="document.location='provider.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='partner.html';">Zurück</a>
+			<a href="#" onclick="document.location='provider.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
@@ -138,6 +138,8 @@
 						<th>Erforderlich</th>
 						<th>&nbsp;</th>
 					</tr>
+					<c:forEach items="">
+					</c:forEach>
 				</table>
 				
 			</form:form>

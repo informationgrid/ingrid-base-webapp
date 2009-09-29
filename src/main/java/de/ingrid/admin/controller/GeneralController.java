@@ -3,7 +3,6 @@ package de.ingrid.admin.controller;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -16,16 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDataType;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.admin.service.CommunicationInterface;
 import de.ingrid.admin.validation.PlugDescValidator;
-import de.ingrid.utils.IBus;
-import de.ingrid.utils.IngridHits;
-import de.ingrid.utils.query.FieldQuery;
-import de.ingrid.utils.query.IngridQuery;
 
 @Controller
 @RequestMapping(value = "/base/general.html")
@@ -48,24 +44,7 @@ public class GeneralController {
 
     @ModelAttribute("partners")
     public List<Partner> getPartners() throws Exception {
-        final List<Partner> list = new ArrayList<Partner>();
-        final IBus bus = _communicationInterface.getIBus();
-        final IngridQuery ingridQuery = new IngridQuery();
-        ingridQuery.addField(new FieldQuery(false, false, "datatype", "management"));
-        ingridQuery.addField(new FieldQuery(false, false, "management_request_type", "1"));
-
-        final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
-        if (hits.length() > 0) {
-            final ArrayList partners = hits.getHits()[0].getArrayList("partner");
-            for (final Object object : partners) {
-                final Map<String, Object> map = (Map<String, Object>) object;
-                final String partnerName = (String) map.get("name");
-                final String partnerId = (String) map.get("partnerid");
-                list.add(new Partner(partnerId, partnerName));
-            }
-        }
-
-        return list;
+        return Utils.getPartners(_communicationInterface.getIBus());
     }
 
     @ModelAttribute("datatypes")
@@ -94,24 +73,7 @@ public class GeneralController {
     }
 
     private List<Provider> getProviders() throws Exception {
-        final List<Provider> list = new ArrayList<Provider>();
-        final IBus bus = _communicationInterface.getIBus();
-        final IngridQuery ingridQuery = new IngridQuery();
-        ingridQuery.addField(new FieldQuery(false, false, "datatype", "management"));
-        ingridQuery.addField(new FieldQuery(false, false, "management_request_type", "2"));
-
-        final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
-        if (hits.length() > 0) {
-            final ArrayList providers = hits.getHits()[0].getArrayList("provider");
-            for (final Object object : providers) {
-                final Map<String, Object> map = (Map<String, Object>) object;
-                final String providerName = (String) map.get("name");
-                final String providerId = (String) map.get("providerid");
-                list.add(new Provider(providerId, providerName));
-            }
-        }
-
-        return list;
+        return Utils.getProviders(_communicationInterface.getIBus());
     }
 
     private final SortedMap<String, List<Provider>> createPartnerProviderMap(final List<Partner> partners,
