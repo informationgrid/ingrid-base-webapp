@@ -115,7 +115,7 @@
                 <artifact>
                   <file>target/${project.name}-jsp.jar</file>
                   <type>jar</type>
-                  <classifier>jsp</classifier>
+                  <classifier>res</classifier>
                 </artifact>
                 <artifact>
                   <file>target/${project.name}.jar</file>
