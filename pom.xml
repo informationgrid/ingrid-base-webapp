@@ -90,7 +90,7 @@
                                         exclude(name: '**/*.xml')
                                     }
                                 }
-                                ant.zip(destfile: "target/${project.name}.zip") {
+                                ant.jar(destfile: "target/${project.name}.jar") {
                                     fileSet(dir: 'target/classes')
                                 }
                             </source>
@@ -114,11 +114,11 @@
             <artifacts>
                 <artifact>
                   <file>target/${project.name}-res.zip</file>
-                  <type>jar</type>
+                  <type>zip</type>
                   <classifier>res</classifier>
                 </artifact>
                 <artifact>
-                  <file>target/${project.name}.zip</file>
+                  <file>target/${project.name}.jar</file>
                   <type>jar</type>
                 </artifact>
               </artifacts>
