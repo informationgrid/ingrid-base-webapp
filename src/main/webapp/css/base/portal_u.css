@@ -98,3 +98,8 @@ input[type='text'], select, textarea { color:#464646; border:solid #1B78B1 1px; 
 .error { color: #ED171F; }
 input[type='button'], input[type='submit'], button { top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; border:none}
 input[type='button']:hover, input[type='submit']:hover, button:hover { background:#1B78B1; }
+
+/* -- Listings --*/
+table.data {width:100%}
+table.data th {background-color:#DDE9BD; padding:5px}
+table.data td {background-color:#F5F8EB; padding:5px}
