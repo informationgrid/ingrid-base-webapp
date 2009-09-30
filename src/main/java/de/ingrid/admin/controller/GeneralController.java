@@ -40,6 +40,7 @@ public class GeneralController {
         _communicationInterface = communicationInterface;
         _validator = validator;
         _dataTypes = dataTypes;
+        System.out.println(null == _dataTypes ? "null" : _dataTypes.length);
     }
 
     @ModelAttribute("partners")
@@ -47,7 +48,7 @@ public class GeneralController {
         return Utils.getPartners(_communicationInterface.getIBus());
     }
 
-    @ModelAttribute("datatypes")
+    @ModelAttribute("dataTypes")
     public IDataType[] injectDataTypes() {
         return _dataTypes;
     }

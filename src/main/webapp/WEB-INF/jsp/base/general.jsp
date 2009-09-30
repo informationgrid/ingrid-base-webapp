@@ -116,31 +116,10 @@
 					<tr>
 						<td>Art der Datenquelle:</td>
 						<td>
+						    <c:forEach items="${dataTypes}" var="type">
+						      <form:checkbox path="dataTypes" value="${type.name}"/><fmt:message key="dataType.${type.name}"/><br />
+						    </c:forEach>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
-						 	<table class="check">
-						 		<tr>
-						 			<td>
-									 	<form:checkboxes items="${datatypes}" path="dataTypes" itemLabel="displayName" itemValue="name" />
-						 			</td>
-						 		</tr>
-						 	</table>
-						 	<!-- table class="check">
-						 		<tr>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> UDK/UOK</td>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> Forschungsdaenbank</td>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> Metadatenbank</td>						 									 			
-						 		</tr>
-						 		<tr>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> UDK Adressen</td>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> Forschungsdaenbank</td>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> Metadatenbank</td>						 									 			
-						 		</tr>
-						 		<tr>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> CSW</td>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> Forschungsdaenbank</td>
-						 			<td><input type="checkbox" name="date" value="januar_29" /> Metadatenbank</td>						 									 			
-						 		</tr>						 								 		
-							</table-->
 						</td>
 					</tr>
 					<tr>

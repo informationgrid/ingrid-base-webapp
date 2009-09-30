@@ -99,36 +99,36 @@
 					</tr>		
 				</table>
 
-				<br/><br/>
-				<h3>Vorhandene Field Queries</h3>
-				<div id="fieldQueries"></div>
-				<table id="addedQueries">
-					<tr>
-						<th>IBus</th>
-						<th>Regex</th>
-						<th>Index Feld Name</th>
-						<th>Index Feld Wert</th>
-						<th>Option</th>
-						<th>&nbsp;</th>
-					</tr>
-					<c:set var="i" value="0" />
-					<c:forEach items="${fields}" var="field">
-					   <tr>
-					       <td>${field.busUrl}</td>
-					       <td>${field.regex}</td>
-					       <td>${field.key}</td>
-					       <td>${field.value}</td>
-					       <td>
-					           <c:choose>
-					               <c:when test="${field.prohibited}">verboten</c:when>
-					               <c:when test="${field.required}">erforderlich</c:when>
-					           </c:choose>
-					       </td>
-                           <td><button type="button" action="delete" id="${i}">Entfernen</button></td>
-					   </tr>
-					   <c:set var="i" value="${i + 1}" />
-					</c:forEach>
-				</table>
+				<c:if test="${!empty fields}">
+					<h3>Vorhandene Field Queries</h3>
+					<table class="data">
+						<tr>
+							<th>IBus</th>
+							<th>Regex</th>
+							<th>Index Feld Name</th>
+							<th>Index Feld Wert</th>
+							<th>Option</th>
+							<th>&nbsp;</th>
+						</tr>
+						<c:set var="i" value="0" />
+						<c:forEach items="${fields}" var="field">
+						   <tr>
+						       <td>${field.busUrl}</td>
+						       <td>${field.regex}</td>
+						       <td>${field.key}</td>
+						       <td>${field.value}</td>
+						       <td>
+						           <c:choose>
+						               <c:when test="${field.prohibited}">verboten</c:when>
+						               <c:when test="${field.required}">erforderlich</c:when>
+						           </c:choose>
+						       </td>
+	                           <td><button type="button" action="delete" id="${i}">Entfernen</button></td>
+						   </tr>
+						   <c:set var="i" value="${i + 1}" />
+						</c:forEach>
+					</table>
+				</c:if>
 				
 			</form:form>
 			

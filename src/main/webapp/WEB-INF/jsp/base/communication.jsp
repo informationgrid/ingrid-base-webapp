@@ -106,10 +106,8 @@
                 </table>
                 
 	            <c:if test="${!empty busses}">
-		              <table>
-		                  <tr>
-		                    <td colspan="4"><h3>Vorhandene IBusse</h3></td>
-		                  </tr>
+	                   <h3>Vorhandene IBusse</h3>
+		              <table class="data">
 		                  <tr>
 		                      <th>IBus Url</th>
 		                      <th>IP</th>

@@ -22,7 +22,7 @@
 		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basenames">
 			<list>
-				<value>classpath:messages</value>
+				<value>classpath:messages_base</value>
 			</list>
 		</property>
 		<property name="cacheSeconds" value="0" />
