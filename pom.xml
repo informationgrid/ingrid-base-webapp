@@ -85,12 +85,12 @@
                         </goals>
                         <configuration>
                             <source>
-                                ant.jar(destfile: "target/${project.name}-res.jar") {
+                                ant.zip(destfile: "target/${project.name}-res.zip") {
                                     fileSet(dir: 'src/main/webapp') {
                                         exclude(name: '**/*.xml')
                                     }
                                 }
-                                ant.jar(destfile: "target/${project.name}.jar") {
+                                ant.zip(destfile: "target/${project.name}.zip") {
                                     fileSet(dir: 'target/classes')
                                 }
                             </source>
@@ -113,12 +113,12 @@
             <configuration>
             <artifacts>
                 <artifact>
-                  <file>target/${project.name}-res.jar</file>
+                  <file>target/${project.name}-res.zip</file>
                   <type>jar</type>
                   <classifier>res</classifier>
                 </artifact>
                 <artifact>
-                  <file>target/${project.name}.jar</file>
+                  <file>target/${project.name}.zip</file>
                   <type>jar</type>
                 </artifact>
               </artifacts>
