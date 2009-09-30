@@ -18,7 +18,7 @@
 		<li <c:if test="${active == 'provider'}">class="active"</c:if>><a href="provider.html">Hinzufügen der Anbieter</a></li>
 		<li <c:if test="${active == 'fieldQuery'}">class="active"</c:if>><a href="fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
 		<c:catch>
-		<c:import url="iplugSubNavi.jsp"></c:import>
+		<c:import url="../iplug/iplugSubNavi.jsp"></c:import>
 		</c:catch>
 		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="save.html">Speichern</a></li>
 	</ul>
