@@ -9,8 +9,8 @@
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
-<link rel="StyleSheet" href="../css/portal_u.css" type="text/css" media="all" />
-<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+<link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
+<script type="text/javascript" src="../js/base/jquery-1.3.2.min.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
 	    $("button[action], .submit").click(function() {
@@ -36,7 +36,7 @@
 </head>
 <body>
 	<div id="header">
-		<img src="../images/logo.gif" width="168" height="60" alt="Portal U" />
+		<img src="../images/base/logo.gif" width="168" height="60" alt="Portal U" />
 		<h1>Konfiguration</h1>
 		<div id="language"><a href="#">Englisch</a></div>
 	</div>
@@ -51,12 +51,12 @@
 		<div class="controls">
 			<a href="#" onclick="document.location='provider.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
+			<a href="#" class="submit">Weiter</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='provider.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
+			<a href="#" class="submit">Weiter</a>
 		</div>
 		<div id="content">
 			<h2>Geben Sie Field Queries an</h2>

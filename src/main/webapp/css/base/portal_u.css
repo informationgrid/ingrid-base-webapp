@@ -39,7 +39,7 @@ h3 { font:bold 12px/15px Verdana, Arial, Helvetica, sans-serif; padding:0; margi
 /* --- Seit-Navigation --- */
 
 #navi_vertical { position:absolute; top:116px; left:0; width:240px; }
-#navi_vertical .konf { font-weight:bold; padding:12px 0; vertical-align:center; width:230px; background:transparent url(../images/konf_1hg.gif) repeat-y; margin-bottom:10px;}
+#navi_vertical .konf { font-weight:bold; padding:12px 0; vertical-align:center; width:230px; background:transparent url(../../images/base/konf_1hg.gif) repeat-y; margin-bottom:10px;}
 #navi_vertical .konf p.no { padding-left:10px; float:left; width:40px; color:#FFF; font-size:20px}
 #navi_vertical h2 { margin:0; }
 #navi_vertical .freitext { background:#F5F8EB; padding:5px 15px; margin-bottom:1px; }
@@ -47,7 +47,7 @@ h3 { font:bold 12px/15px Verdana, Arial, Helvetica, sans-serif; padding:0; margi
 #navi_vertical ul li { padding:0 20px 0 50px; margin-bottom:8px; line-height:14px; }
 #navi_vertical ul li a { color:#464646; }
 #navi_vertical ul li.active a { font-weight:bold; } 
-#navi_vertical ul li.active { background:transparent url(../images/list_active.gif) repeat-y; }
+#navi_vertical ul li.active { background:transparent url(../../images/base/list_active.gif) repeat-y; }
 
 
 /* --- Inhaltsbereich --- */
@@ -74,8 +74,8 @@ div#contentBox table.fullSize { width:95%; border:1px solid #DDE9BD; border-spac
 div#contentBox table.fullSize th, td { text-align:left; margin:0; padding:0; }
 div#contentBox table.fullSize th { background:#DDE9BD; padding:4px 10px; margin-right:10px; font-weight:bold; height:16px; vertical-align:center; }
 div#contentBox table.fullSize th a { color:#464646; }
-div#contentBox table.fullSize th.link { background:#DDE9BD url(../images/arrow_top.gif) right center no-repeat; }
-div#contentBox table.fullSize th.link:hover { background:#1B78B1 url(../images/arrow_top_ov.gif) right center no-repeat; color:#FFF; }
+div#contentBox table.fullSize th.link { background:#DDE9BD url(../../images/base/arrow_top.gif) right center no-repeat; }
+div#contentBox table.fullSize th.link:hover { background:#1B78B1 url(../../images/base/arrow_top_ov.gif) right center no-repeat; color:#FFF; }
 div#contentBox table.fullSize th.link:hover a { color:#FFF; }
 div#contentBox table.fullSize tr.odd td { background:#F5F8EB; }
 div#contentBox table.fullSize tr.even td { background:#FFF; }

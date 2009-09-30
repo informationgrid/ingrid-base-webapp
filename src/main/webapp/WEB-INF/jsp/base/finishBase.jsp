@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>Working Dir</title>
-	<link rel="stylesheet" type="text/css" href="../css/yui/reset-fonts-grids/reset-fonts-grids.css"> 
+	<link rel="stylesheet" type="text/css" href="../css/base/yui/reset-fonts-grids/reset-fonts-grids.css"> 
 </head>
 
 <body>
