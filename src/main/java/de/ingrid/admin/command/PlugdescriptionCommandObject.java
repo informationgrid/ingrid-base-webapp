@@ -2,6 +2,7 @@ package de.ingrid.admin.command;
 
 import java.io.File;
 
+import de.ingrid.admin.StringUtils;
 import de.ingrid.utils.PlugDescription;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
@@ -22,22 +23,26 @@ public class PlugdescriptionCommandObject extends PlugDescription {
 
     @Override
     public void addPartner(final String partner) {
-        for (final String p : getPartners()) {
-            if (p.equals(partner)) {
-                return;
+        if (!StringUtils.isEmptyOrWhiteSpace(partner)) {
+            for (final String p : getPartners()) {
+                if (p.equals(partner)) {
+                    return;
+                }
             }
+            super.addPartner(partner);
         }
-        super.addPartner(partner);
     }
 
     @Override
     public void addProvider(final String provider) {
-        for (final String p : getProviders()) {
-            if (p.equals(provider)) {
-                return;
+        if (!StringUtils.isEmptyOrWhiteSpace(provider)) {
+            for (final String p : getProviders()) {
+                if (p.equals(provider)) {
+                    return;
+                }
             }
+            super.addProvider(provider);
         }
-        super.addProvider(provider);
     }
 
     @Override
