@@ -85,8 +85,10 @@
                         </goals>
                         <configuration>
                             <source>
-                                ant.jar(destfile: "target/${project.name}-jsp.jar") {
-                                    fileSet(dir: 'src/main/webapp/WEB-INF/jsp')
+                                ant.jar(destfile: "target/${project.name}-res.jar") {
+                                    fileSet(dir: 'src/main/webapp') {
+                                        exclude(name: '**/*.xml')
+                                    }
                                 }
                                 ant.jar(destfile: "target/${project.name}.jar") {
                                     fileSet(dir: 'target/classes')
