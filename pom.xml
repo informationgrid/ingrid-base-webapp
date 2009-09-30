@@ -113,7 +113,7 @@
             <configuration>
             <artifacts>
                 <artifact>
-                  <file>target/${project.name}-jsp.jar</file>
+                  <file>target/${project.name}-res.jar</file>
                   <type>jar</type>
                   <classifier>res</classifier>
                 </artifact>
