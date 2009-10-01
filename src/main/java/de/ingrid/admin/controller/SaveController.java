@@ -1,7 +1,6 @@
 package de.ingrid.admin.controller;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.CommunicationInterface;
 import de.ingrid.utils.IConfigurable;
-import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.XMLSerializer;
 
 @Controller
@@ -25,7 +23,7 @@ public class SaveController {
     private final IConfigurable[] _configurables;
 
     @Autowired
-    public SaveController(CommunicationInterface communicationInterface, IConfigurable... configurables) {
+    public SaveController(final CommunicationInterface communicationInterface, final IConfigurable... configurables) {
         _communicationInterface = communicationInterface;
         _configurables = configurables;
     }
@@ -36,39 +34,19 @@ public class SaveController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public String postSave(@ModelAttribute("plugDescription") PlugdescriptionCommandObject plugdescriptionCommandObject)
-            throws IOException {
-
-        File workinDirectory = plugdescriptionCommandObject.getWorkinDirectory();
-        PlugDescription plugDescription = new PlugDescription();
-
-        // // working dir
-        // plugDescription.setWorkinDirectory(workinDirectory);
-        //
-        // // partner & provider
-        // String[] partners = plugdescriptionCommandObject.getPartners();
-        // for (String partner : partners) {
-        // plugDescription.addPartner(partner);
-        // }
-        // String[] providers = plugdescriptionCommandObject.getProviders();
-        // for (String provider : providers) {
-        // plugDescription.addProvider(provider);
-        // }
-
-        // name
-        plugDescription.setPlugId(_communicationInterface.getPeerName());
-        plugDescription.setProxyServiceURL(_communicationInterface.getPeerName());
-
-        plugDescription.putAll(plugdescriptionCommandObject);
-        // save
-        String plugDescriptionFile = System.getProperty("plugDescription");
-        workinDirectory.mkdirs();
-        XMLSerializer serializer = new XMLSerializer();
-        serializer.serialize(plugDescription, new File(plugDescriptionFile));
-
-        for (IConfigurable configurable : _configurables) {
-            configurable.configure(plugDescription);
-        }
+    public String postSave(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject)
+            throws Exception {
+        savePlugDescription(plugdescriptionCommandObject);
         return "redirect:/base/welcome.html";
+    }
+
+    private void savePlugDescription(final PlugdescriptionCommandObject plugdescriptionCommandObject) throws Exception {
+        // save
+        final XMLSerializer serializer = new XMLSerializer();
+        serializer.serialize(plugdescriptionCommandObject, new File(System.getProperty("plugDescription")));
+
+        for (final IConfigurable configurable : _configurables) {
+            configurable.configure(plugdescriptionCommandObject);
+        }
     }
 }

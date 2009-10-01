@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import net.weta.components.communication.configuration.XPathService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -59,9 +57,7 @@ public class GeneralController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
         // set up proxy service url
-        final XPathService communication = new XPathService();
-        communication.registerDocument(_communicationInterface.getCommunicationFile());
-        commandObject.setProxyServiceURL(communication.parseAttribute("/communication/client", "name"));
+        commandObject.setProxyServiceURL(_communicationInterface.getPeerName());
 
         // create map
         final SortedMap<String, List<Provider>> map = createPartnerProviderMap(partners, getProviders());
