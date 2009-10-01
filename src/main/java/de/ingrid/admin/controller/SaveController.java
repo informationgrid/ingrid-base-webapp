@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.CommunicationInterface;
 import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.XMLSerializer;
 
 @Controller
@@ -42,11 +43,15 @@ public class SaveController {
 
     private void savePlugDescription(final PlugdescriptionCommandObject plugdescriptionCommandObject) throws Exception {
         // save
+        final PlugDescription plugDescription = new PlugDescription();
+        plugDescription.putAll(plugdescriptionCommandObject);
         final XMLSerializer serializer = new XMLSerializer();
-        serializer.serialize(plugdescriptionCommandObject, new File(System.getProperty("plugDescription")));
+        serializer.serialize(plugDescription, new File(System.getProperty("plugDescription")));
 
-        for (final IConfigurable configurable : _configurables) {
-            configurable.configure(plugdescriptionCommandObject);
+        if (System.getProperty("mapping") != null) {
+            for (final IConfigurable configurable : _configurables) {
+                configurable.configure(plugDescription);
+            }
         }
     }
 }

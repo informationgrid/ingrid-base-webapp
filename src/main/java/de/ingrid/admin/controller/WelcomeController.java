@@ -1,5 +1,7 @@
 package de.ingrid.admin.controller;
 
+import java.io.File;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +16,9 @@ import de.ingrid.admin.command.PlugdescriptionCommandObject;
 public class WelcomeController {
 
     @RequestMapping(method = RequestMethod.GET)
-    public String welcome(Model model) {
-        model.addAttribute("plugDescription", new PlugdescriptionCommandObject());
+    public String welcome(final Model model) throws Exception {
+        model.addAttribute("plugDescription", new PlugdescriptionCommandObject(new File(System
+                .getProperty("plugDescription"))));
         return "base/welcome";
     }
 }

@@ -40,7 +40,7 @@
 		<h2>Admin Tools</h2>
 	</div>
 	<ul>
-	   <li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">IBus Setup</a></li>
 		<li <c:if test="${active == 'commSetup'}">class="active"</c:if>><a href="commSetup.html">Kommunikations Setup</a></li>
+	   <li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">IBus Setup</a></li>
 	</ul>
 </div>

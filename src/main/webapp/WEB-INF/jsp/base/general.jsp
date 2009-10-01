@@ -146,7 +146,7 @@
 					</tr>
 					<tr>
 						<td>Administrationskennwort:</td>
-						<td><form:password path="iplugAdminPassword" /><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
+						<td><input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" /><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
 					</tr>			
 				</table>
 			</form:form>

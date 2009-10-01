@@ -5,8 +5,26 @@ import java.io.File;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.object.IDataType;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.xml.XMLSerializer;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
+
+    // needed for xmlserializer
+    public PlugdescriptionCommandObject() {
+
+    }
+
+    public PlugdescriptionCommandObject(final File file) throws Exception {
+        if (file.exists()) {
+            final XMLSerializer serializer = new XMLSerializer();
+            serializer.aliasClass(PlugDescription.class.getName(), PlugDescription.class);
+            putAll((PlugDescription) serializer.deSerialize(file));
+        }
+    }
+
+    public String getTest() {
+        return "test";
+    }
 
     public void setDataTypes(final String... types) {
         for (final String type : types) {
