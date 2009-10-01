@@ -22,6 +22,8 @@
 		</c:catch>
 		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="save.html">Speichern</a></li>
 	</ul>
+	
+	<% if (System.getProperty("indexing") != null) { %>
 	<div class="konf">
 		<p class="no">3</p>
 		<h2>Indexierung</h2>
@@ -31,11 +33,14 @@
 		<li <c:if test="${active == 'indexing'}">class="active"</c:if>><a href="indexing.html">Indexieren</a></li>
 		<li>Suche Testen</li>
 	</ul>
+	<% } %>
+	
 	<div class="konf">
-		<p class="no">4</p>
-		<h2>Abschlieﬂen</h2>
+	   <p class="no">&nbsp;</p>
+		<h2>Admin Tools</h2>
 	</div>
 	<ul>
-		<li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">Zum IBus verbinden</a></li>
+	   <li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">IBus Setup</a></li>
+		<li <c:if test="${active == 'commSetup'}">class="active"</c:if>><a href="commSetup.html">Kommunikations Setup</a></li>
 	</ul>
 </div>

@@ -8,6 +8,7 @@ import net.weta.components.communication.messaging.IMessageHandler;
 import net.weta.components.communication.messaging.IMessageQueue;
 import net.weta.components.communication.reflect.ReflectMessageHandler;
 import net.weta.components.communication.tcp.StartCommunication;
+import net.weta.components.communication.tcp.TcpCommunication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,13 +23,13 @@ import de.ingrid.utils.IPlug;
 public class CommunicationInterface {
 
     private IBus _nonCacheableIBus;
-    private File _communicationFile;
+    private final File _communicationFile;
     private ICommunication _communication;
     private IPlug _plug;
     private static final Log LOG = LogFactory.getLog(CommunicationInterface.class);
 
     public CommunicationInterface() throws Exception {
-        String communication = System.getProperty("communication");
+        final String communication = System.getProperty("communication");
         _communicationFile = new File(communication);
         if (_communicationFile.exists()) {
             restart();
@@ -39,31 +40,54 @@ public class CommunicationInterface {
         return _nonCacheableIBus;
     }
 
-    public void restart() throws Exception {
-        LOG.info("restart communication");
+    public void shutdown() throws Exception {
         if (_communication != null) {
             LOG.info("shutdown communication");
-			_communication.shutdown();
-			int counter = 0;
-			boolean connected = false;
-			while (counter < 10 && !connected) {
-				connected = _communication.isConnected(null);
-				Thread.sleep(500);
-				counter++;
-			}
+            _communication.closeConnection(getUrl());
         }
-        LOG.info("create communication");
-        _communication = StartCommunication.create(new FileInputStream(_communicationFile));
-        LOG.info("start communication");
-        _communication.startup();
-        _nonCacheableIBus = BusClientFactory.createBusClient(_communication).getNonCacheableIBus();
-        addPlugToCommunication(_plug);
     }
 
-    private void addPlugToCommunication(IPlug plug) {
+    public void start() throws Exception {
+        for (int i = 0; i < 10; i++) {
+            // sleep till disconnected
+            if (isConnected()) {
+                Thread.sleep(500);
+            } else {
+                // connect
+                LOG.info("create communication");
+                _communication = StartCommunication.create(new FileInputStream(_communicationFile));
+                LOG.info("start communication");
+                _communication.startup();
+                _nonCacheableIBus = BusClientFactory.createBusClient(_communication).getNonCacheableIBus();
+                addPlugToCommunication(_plug);
+                // sleep till connected
+                while (!isConnected()) {
+                    Thread.sleep(500);
+                }
+                break;
+            }
+        }
+    }
+
+    public boolean isConnected() {
+        if (_communication != null) {
+            return _communication.isConnected(getUrl());
+        }
+        return false;
+    }
+
+    public void restart() throws Exception {
+        LOG.info("restart communication");
+
+        shutdown();
+
+        start();
+    }
+
+    private void addPlugToCommunication(final IPlug plug) {
         if (plug != null && _communication != null) {
-            IMessageQueue messageQueue = _communication.getMessageQueue();
-            IMessageHandler messageHandler = new ReflectMessageHandler();
+            final IMessageQueue messageQueue = _communication.getMessageQueue();
+            final IMessageHandler messageHandler = new ReflectMessageHandler();
             LOG.info("add iplug [" + plug.getClass().getSimpleName() + "] to message handler");
             ((ReflectMessageHandler) messageHandler).addObjectToCall(IPlug.class, plug);
             LOG.info("add message handler to message queue");
@@ -80,9 +104,15 @@ public class CommunicationInterface {
     }
 
     @Autowired(required = false)
-    public void setPlug(IPlug plug) {
+    public void setPlug(final IPlug plug) {
         _plug = plug;
         addPlugToCommunication(_plug);
     }
 
+    public final String getUrl() {
+        if (_communication != null) {
+            return (String) ((TcpCommunication) _communication).getServerNames().get(0);
+        }
+        return null;
+    }
 }

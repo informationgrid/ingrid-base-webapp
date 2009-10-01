@@ -25,16 +25,6 @@
 	
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Mit IBus verbinden / abmelden</h1>
-		<div class="controls">
-			<a href="#" onclick="document.location='save.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='welcome.html';">Abschließen</a>
-		</div>
-		<div class="controls cBottom">
-			<a href="#" onclick="document.location='save.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='welcome.html';">Abschließen</a>
-		</div>
 		<div id="content">
 			<h2>Die Kommunikation wird neu gestartet, Ihre Einstellungen zum IBus übertragen und Ihr IPlug angemeldet.</h2>
 			<c:if test="${heartBeat.beatable}">

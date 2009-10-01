@@ -23,7 +23,7 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
         rejectIfEmptyOrWhitespace(errors, "personMail");
 
         rejectIfEmptyOrWhitespace(errors, "dataSourceName");
-        rejectIfEmptyOrWhitespace(errors, "dataTypes");
+        rejectIfNullOrEmpty(errors, "dataTypes");
 
         rejectIfEmptyOrWhitespace(errors, "proxyServiceURL");
         rejectIfEmptyOrWhitespace(errors, "correspondentProxyServiceURL");

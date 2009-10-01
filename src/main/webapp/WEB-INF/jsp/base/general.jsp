@@ -117,7 +117,7 @@
 						<td>Art der Datenquelle:</td>
 						<td>
 						    <c:forEach items="${dataTypes}" var="type">
-						      <form:checkbox path="dataTypes" value="${type.name}"/><fmt:message key="dataType.${type.name}"/><br />
+						        <form:checkbox path="dataTypes" value="${type.name}" /><fmt:message key="dataType.${type.name}"/><br />
 						    </c:forEach>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						</td>
@@ -127,7 +127,7 @@
 					</tr>
 					<tr>
 						<td>Adresse des iPlugs:</td>
-						<td><form:input path="proxyServiceURL" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+						<td><form:input path="proxyServiceURL" readonly="true" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 					</tr>
 					<tr>
 						<td>Adresse des korrespondierenden iPlugs:</td>
