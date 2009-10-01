@@ -3,6 +3,7 @@ package de.ingrid.admin.command;
 import java.io.File;
 
 import de.ingrid.admin.StringUtils;
+import de.ingrid.admin.object.IDataType;
 import de.ingrid.utils.PlugDescription;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
@@ -10,6 +11,23 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     public void setDataTypes(final String... types) {
         for (final String type : types) {
             addDataType(type);
+        }
+    }
+
+    public void addIncludedDataTypes(final IDataType... types) {
+        // check all data types
+        for (final String dataType : getDataTypes()) {
+            // find correct idatatype
+            for (final IDataType type : types) {
+                if (type.getName().equals(dataType)) {
+                    // if found add all included data types
+                    if (type.getIncludedDataTypes() != null) {
+                        for (final IDataType include : type.getIncludedDataTypes()) {
+                            addDataType(include.getName());
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -22,25 +40,22 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     @Override
+    public void addDataType(final String type) {
+        if (!StringUtils.isEmptyOrWhiteSpace(type) && !existsInArray(getDataTypes(), type)) {
+            super.addDataType(type);
+        }
+    }
+
+    @Override
     public void addPartner(final String partner) {
-        if (!StringUtils.isEmptyOrWhiteSpace(partner)) {
-            for (final String p : getPartners()) {
-                if (p.equals(partner)) {
-                    return;
-                }
-            }
+        if (!StringUtils.isEmptyOrWhiteSpace(partner) && !existsInArray(getPartners(), partner)) {
             super.addPartner(partner);
         }
     }
 
     @Override
     public void addProvider(final String provider) {
-        if (!StringUtils.isEmptyOrWhiteSpace(provider)) {
-            for (final String p : getProviders()) {
-                if (p.equals(provider)) {
-                    return;
-                }
-            }
+        if (!StringUtils.isEmptyOrWhiteSpace(provider) && !existsInArray(getProviders(), provider)) {
             super.addProvider(provider);
         }
     }
@@ -70,5 +85,14 @@ public class PlugdescriptionCommandObject extends PlugDescription {
         if (workinDirectory != null) {
             super.setWorkinDirectory(workinDirectory);
         }
+    }
+
+    private boolean existsInArray(final String[] things, final String thing) {
+        for (final String t : things) {
+            if (t.equals(thing)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

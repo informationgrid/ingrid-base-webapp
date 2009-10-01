@@ -69,6 +69,10 @@ public class GeneralController {
         if (_validator.validateGeneral(errors).hasErrors()) {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
+
+        // add data type includes
+        commandObject.addIncludedDataTypes(_dataTypes);
+
         return "redirect:/base/partner.html";
     }
 
