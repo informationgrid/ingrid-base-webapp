@@ -87,13 +87,8 @@ public class FieldQueryController {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
             deleteFieldQuery(commandObject, field);
         } else if ("submit".equals(action)) {
-            if (System.getProperty("mapping") != null) {
-                // goto iplug step
-                return "redirect:/iplug/welcome.html";
-            } else {
-                // goto save step
-                return "redirect:/base/save.html";
-            }
+            // goto iplug step
+            return "redirect:/iplug/welcome.html";
         }
 
         return getFieldQuery(modelMap, commandObject);

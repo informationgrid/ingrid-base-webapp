@@ -19,9 +19,7 @@ public class Environment {
             throws IOException {
         _plugDescriptionService = plugDescriptionService;
         _configurables = configurables;
-        if (System.getProperty("mapping") != null) {
-            reconfigure(_configurables);
-        }
+        reconfigure(_configurables);
     }
 
     private void reconfigure(final IConfigurable[] configurables) throws IOException {

@@ -48,10 +48,8 @@ public class SaveController {
         final XMLSerializer serializer = new XMLSerializer();
         serializer.serialize(plugDescription, new File(System.getProperty("plugDescription")));
 
-        if (System.getProperty("mapping") != null) {
-            for (final IConfigurable configurable : _configurables) {
-                configurable.configure(plugDescription);
-            }
+        for (final IConfigurable configurable : _configurables) {
+            configurable.configure(plugDescription);
         }
     }
 }

@@ -92,7 +92,9 @@
                                     }
                                 }
                                 ant.jar(destfile: "target/${project.name}.jar") {
-                                    fileSet(dir: 'target/classes')
+                                    fileSet(dir: 'target/classes') {
+                                        exclude(name: '**/RedirectController.class')
+                                    }
                                 }
                             </source>
                         </configuration>

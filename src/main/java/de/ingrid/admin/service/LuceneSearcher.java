@@ -26,30 +26,30 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
     private IndexSearcher _indexSearcher;
     private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
 
-    public TopDocs search(BooleanQuery booleanQuery, int start, int length) throws Exception {
+    public TopDocs search(final BooleanQuery booleanQuery, final int start, final int length) throws Exception {
         TopDocs topDocs = _indexSearcher.search(booleanQuery, length);
-        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+        final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         int size = 0;
         final int lengthMinusStart = scoreDocs.length - start;
         if (lengthMinusStart >= 0) {
             size = Math.min(length, lengthMinusStart);
         }
-        ScoreDoc[] pagedScoreDocs = new ScoreDoc[size];
+        final ScoreDoc[] pagedScoreDocs = new ScoreDoc[size];
         System.arraycopy(scoreDocs, start, pagedScoreDocs, 0, size);
         float maxScore = -1;
-        for (ScoreDoc scoreDoc : pagedScoreDocs) {
-            float score = scoreDoc.score;
+        for (final ScoreDoc scoreDoc : pagedScoreDocs) {
+            final float score = scoreDoc.score;
             maxScore = maxScore < score ? score : maxScore;
         }
         topDocs = new TopDocs(topDocs.totalHits, pagedScoreDocs, maxScore);
         return topDocs;
     }
 
-    public Map<String, Fieldable[]> getDetails(int docId, String[] fields) throws Exception {
-        Map<String, Fieldable[]> details = new HashMap<String, Fieldable[]>();
-        Document doc = _indexSearcher.doc(docId);
-        for (String fieldName : fields) {
-            Fieldable[] values = doc.getFieldables(fieldName);
+    public Map<String, Fieldable[]> getDetails(final int docId, final String[] fields) throws Exception {
+        final Map<String, Fieldable[]> details = new HashMap<String, Fieldable[]>();
+        final Document doc = _indexSearcher.doc(docId);
+        for (final String fieldName : fields) {
+            final Fieldable[] values = doc.getFieldables(fieldName);
             if (values != null) {
                 details.put(fieldName, values);
             }
@@ -61,16 +61,17 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         _indexSearcher.close();
     }
 
-    public void configure(PlugDescription plugDescription) {
+    public void configure(final PlugDescription plugDescription) {
         LOG.debug("reconfigure...");
-        File workinDirectory = plugDescription.getWorkinDirectory();
-        File index = new File(workinDirectory, "index");
-        try {
-            _indexSearcher = new IndexSearcher(FSDirectory.getDirectory(index));
-            // TODO throw exception?
-        } catch (Exception e) {
-            e.printStackTrace();
+        final File workinDirectory = plugDescription.getWorkinDirectory();
+        final File index = new File(workinDirectory, "index");
+        if (index.exists()) {
+            try {
+                _indexSearcher = new IndexSearcher(FSDirectory.getDirectory(index));
+                // TODO throw exception?
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 }
