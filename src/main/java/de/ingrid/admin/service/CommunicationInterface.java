@@ -28,7 +28,7 @@ public class CommunicationInterface {
     }
 
     public boolean isConnected() {
-        return getBusClient().isConnected();
+        return getBusClient().allConnected();
     }
 
     public void start() throws Exception {
