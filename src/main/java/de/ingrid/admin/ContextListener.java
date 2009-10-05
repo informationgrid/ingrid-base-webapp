@@ -37,13 +37,6 @@ public class ContextListener implements ServletContextListener {
             LOG.warn("communication (" + communication + ") does not exists. please create one via ui setup.");
         }
 
-        final String mapping = System.getProperty("mapping");
-        if (null == mapping) {
-            System.setProperty("mapping", "true");
-        } else if (mapping.equals("false")) {
-            System.clearProperty("mapping");
-        }
-
         final String indexing = System.getProperty("indexing");
         if (null == indexing) {
             System.setProperty("indexing", "true");
