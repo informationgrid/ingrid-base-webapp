@@ -26,7 +26,7 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
         rejectIfNullOrEmpty(errors, "dataTypes");
 
         rejectIfEmptyOrWhitespace(errors, "proxyServiceURL");
-        rejectIfEmptyOrWhitespace(errors, "correspondentProxyServiceURL");
+        // rejectIfEmptyOrWhitespace(errors, "correspondentProxyServiceURL");
 
         rejectIfEmptyOrWhitespace(errors, "iplugAdminGuiUrl");
         rejectIfEmptyOrWhitespace(errors, "iplugAdminGuiPort");
