@@ -104,3 +104,13 @@ input[type='button']:hover, input[type='submit']:hover, button:hover { backgroun
 table.data {width:100%}
 table.data th {background-color:#DDE9BD; padding:5px}
 table.data td {background-color:#F5F8EB; padding:5px}
+
+/* --Tabs -- */
+ul.tabs {clear:both; margin-left:200px; }
+ul.tabs li {float:left; display: block; padding: 5px 15px 5px 15px; background: #F5F8EB; margin-right:5px; border:1px solid #DDE9BD; margin-bottom:10px;}
+ul.tabs li.active {background: #D1E4F1; border:1px solid #68A5D2;}
+ul.tabs li.active a {color:#000}
+
+/* --Popup Dialog -- */
+.dialog { border:1px solid #68A5D2; position:absolute; z-index:2; left:300px; top:200px; text-align:center}
+.dialog .content {width:300px; padding:20px; background:#F5F8EB;}

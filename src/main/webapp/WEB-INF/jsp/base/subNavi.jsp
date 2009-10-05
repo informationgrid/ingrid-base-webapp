@@ -29,7 +29,7 @@
 		<h2>Indexierung</h2>
 	</div>
 	<ul>
-		<li>Scheduling</li>
+		<li <c:if test="${active == 'scheduling'}">class="active"</c:if>><a href="scheduling.html">Scheduling</a></li>
 		<li <c:if test="${active == 'indexing'}">class="active"</c:if>><a href="indexing.html">Indexieren</a></li>
 		<li>Suche Testen</li>
 	</ul>

@@ -58,6 +58,10 @@
 				</table>
 			</form> 	
 		</div>
+		
+		<div class="dialog">
+			<div class="content">Daten werden indiziert. Bitte haben Sie Geduld.</div>
+		</div>	
 	</div>
 	<div id="footer" style="height:100px; width:90%"></div>
 </body>
