@@ -139,10 +139,9 @@ public class CommunicationConfigurationController {
                 }
             } else if ("add".equals(action)) {
                 // set proxy url
-                if (_validator.validateProxyUrl(errors).hasErrors()) {
-                    return "/base/communication";
+                if (!_validator.validateProxyUrl(errors).hasErrors()) {
+                    setProxyUrl(communication, commandObject.getProxyServiceUrl());
                 }
-                setProxyUrl(communication, commandObject.getProxyServiceUrl());
                 // add new bus
                 if (_validator.validateBus(errors).hasErrors()) {
                     return "/base/communication";
