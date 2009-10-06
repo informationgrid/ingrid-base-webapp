@@ -31,7 +31,7 @@
 	<ul>
 		<li <c:if test="${active == 'scheduling'}">class="active"</c:if>><a href="scheduling.html">Scheduling</a></li>
 		<li <c:if test="${active == 'indexing'}">class="active"</c:if>><a href="indexing.html">Indexieren</a></li>
-		<li>Suche Testen</li>
+		<li <c:if test="${active == 'search'}">class="active"</c:if>><a href="search.html">Suche Testen</a></li>
 	</ul>
 	<% } %>
 	
