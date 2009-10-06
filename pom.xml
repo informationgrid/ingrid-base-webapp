@@ -50,6 +50,33 @@
 			<version>1.2.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+            <groupId>de.ingrid</groupId>
+            <artifactId>ingrid-iplug</artifactId>
+            <version>1.2.2-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>quartz</groupId>
+                    <artifactId>quartz</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-compiler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jetty</groupId>
+                    <artifactId>org.mortbay.jetty</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+		<dependency>
 			<groupId>de.ingrid</groupId>
 			<artifactId>ingrid-ibus-client</artifactId>
 			<version>1.2.3-SNAPSHOT</version>
@@ -94,6 +121,7 @@
                                 ant.jar(destfile: "target/${project.name}.jar") {
                                     fileSet(dir: 'target/classes') {
                                         exclude(name: '**/RedirectController.class')
+                                        exclude(name: '**/BasePlug.class')
                                     }
                                 }
                             </source>

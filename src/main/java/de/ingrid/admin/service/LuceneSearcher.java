@@ -58,7 +58,9 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
     }
 
     public void close() throws IOException {
-        _indexSearcher.close();
+        if (_indexSearcher != null) {
+            _indexSearcher.close();
+        }
     }
 
     public void configure(final PlugDescription plugDescription) {

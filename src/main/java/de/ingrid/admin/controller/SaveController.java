@@ -10,22 +10,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.XMLSerializer;
 
 @Controller
-@SessionAttributes(value = { "plugDescription" })
+@SessionAttributes("plugDescription")
 @RequestMapping("/base/save.html")
 public class SaveController {
 
-    private final CommunicationInterface _communicationInterface;
     private final IConfigurable[] _configurables;
 
+    private final HeartBeatPlug _plug;
+
     @Autowired
-    public SaveController(final CommunicationInterface communicationInterface, final IConfigurable... configurables) {
-        _communicationInterface = communicationInterface;
+    public SaveController(final HeartBeatPlug plug, final IConfigurable... configurables) {
+        _plug = plug;
         _configurables = configurables;
     }
 
@@ -42,6 +43,9 @@ public class SaveController {
     }
 
     private void savePlugDescription(final PlugdescriptionCommandObject plugdescriptionCommandObject) throws Exception {
+        // save plug class
+        plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());
+        plugdescriptionCommandObject.setRecordLoader(_plug.isRecordLoader());
         // save
         final PlugDescription plugDescription = new PlugDescription();
         plugDescription.putAll(plugdescriptionCommandObject);
