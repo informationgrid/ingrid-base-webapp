@@ -28,14 +28,21 @@
 		<div class="controls">
 			<a href="#" onclick="document.location='save.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('scheduling').submit();">Weiter</a>
+			<a href="#" onclick="document.location='indexing.html';">Weiter</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='save.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('scheduling').submit();">Weiter</a>
+			<a href="#" onclick="document.location='indexing.html';">Weiter</a>
 		</div>
 		<div id="content">
+		    <c:if test="${!empty pattern}">
+			    <form method="post" action="deletePattern.html">
+			        <label>Pattern:</label>
+	                <span><b>${pattern}</b></span> <input type="submit" value="löschen" />
+	            </form><br />
+            </c:if>
+            
 			<h2>Geben Sie an, in welchem Zeitabstand Ihre Daten automatisch neu indexiert werden sollen</h2>
 			<form method="post" action="scheduling.html" id="scheduling">
 				<c:set var="freq" value="${paramValues['freq'][0]}"/>
@@ -47,20 +54,26 @@
 					<li <c:if test="${freq == 'advanced'}">class="active"</c:if>><a href="scheduling.html?freq=advanced">Erweitert</a></li>
 				</ul>
 				
-				<c:choose>
-					<c:when test="${freq == 'weekly'}">
-						<c:import url="schedulingWeek.jsp"/>
-					</c:when>
-					<c:when test="${freq == 'monthly'}">
-						<c:import url="schedulingMonth.jsp"/>
-					</c:when>
-					<c:when test="${freq == 'advanced'}">
-						<c:import url="schedulingAdv.jsp"/>
-					</c:when>
-					<c:otherwise>
-						<c:import url="schedulingDay.jsp"/>
-					</c:otherwise>
-				</c:choose>
+				<table id="konfigForm">
+					<c:choose>
+						<c:when test="${freq == 'weekly'}">
+							<c:import url="schedulingWeek.jsp"/>
+						</c:when>
+						<c:when test="${freq == 'monthly'}">
+							<c:import url="schedulingMonth.jsp"/>
+						</c:when>
+						<c:when test="${freq == 'advanced'}">
+							<c:import url="schedulingAdv.jsp"/>
+						</c:when>
+						<c:otherwise>
+							<c:import url="schedulingDay.jsp"/>
+						</c:otherwise>
+					</c:choose>
+					<tr>
+			            <td class="leftCol"></td>
+				        <td><input type="submit" value="speichern" /></td>
+				    </tr>
+			    </table>
 			</form>
 		</div>
 	</div>
