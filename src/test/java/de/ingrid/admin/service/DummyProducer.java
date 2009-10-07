@@ -27,7 +27,7 @@ public class DummyProducer implements IDocumentProducer {
         _dummys = new ArrayList<Document>();
         _dummys.add(createDocument("Max", "Ender", "male", "08.12.1988"));
         _dummys.add(createDocument("Marko", "Bauhardt", "male", "30.07.1978"));
-        _dummys.add(createDocument("Andreas", "KŸster", "male", "01.01.1970"));
+        _dummys.add(createDocument("Andreas", "Kuester", "male", "01.01.1970"));
         _dummys.add(createDocument("Frank", "Henze", "male", "01.01.1970"));
 
         _iterator = _dummys.iterator();

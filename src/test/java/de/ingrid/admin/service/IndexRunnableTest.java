@@ -59,7 +59,7 @@ public class IndexRunnableTest extends TestCase {
         assertEquals("male", reader.document(1).get("gender"));
 
         assertEquals("Andreas", reader.document(2).get("first"));
-        assertEquals("KŸster", reader.document(2).get("last"));
+        assertEquals("Kuester", reader.document(2).get("last"));
 
         assertEquals("Frank", reader.document(3).get("first"));
         assertNull(reader.document(3).get("nick"));

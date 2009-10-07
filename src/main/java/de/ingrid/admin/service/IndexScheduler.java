@@ -74,10 +74,10 @@ public class IndexScheduler implements IConfigurable {
 
     public void setPattern(final String pattern) {
         _pattern = pattern;
-        schedule();
         if (_patternFile != null) {
             savePatternFile();
         }
+        schedule();
     }
 
     public String getPattern() {
@@ -85,11 +85,13 @@ public class IndexScheduler implements IConfigurable {
     }
 
     public void deletePattern() {
+        LOG.debug("delete pattern");
         _pattern = null;
+        deletePatternFile();
         if (isStarted()) {
+            LOG.info("stop scheduler");
             _scheduler.stop();
         }
-        deletePatternFile();
     }
 
     public boolean isStarted() {
@@ -107,16 +109,20 @@ public class IndexScheduler implements IConfigurable {
 
     private void schedule() {
         if (_scheduleId == null) {
+            LOG.info("scheduling indexer with pattern '" + _pattern + "'");
             _scheduleId = _scheduler.schedule(_pattern, new LockRunnable(_runnable));
         } else {
+            LOG.info("rescheduling indexer with pattern '" + _pattern + "'");
             _scheduler.reschedule(_scheduleId, _pattern);
         }
         if (!isStarted()) {
+            LOG.info("start scheduler");
             _scheduler.start();
         }
     }
 
     private void loadPatternFile() {
+        LOG.debug("try to load pattern from file");
         try {
             final ObjectInputStream reader = new ObjectInputStream(new FileInputStream(_patternFile));
             _pattern = (String) reader.readObject();
@@ -127,8 +133,9 @@ public class IndexScheduler implements IConfigurable {
     }
 
     private void savePatternFile() {
+        deletePatternFile();
+        LOG.debug("saving pattern to file");
         try {
-            deletePatternFile();
             final ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile));
             writer.writeObject(_pattern);
             writer.close();
@@ -139,6 +146,7 @@ public class IndexScheduler implements IConfigurable {
 
     private void deletePatternFile() {
         if (_patternFile != null && _patternFile.exists()) {
+            LOG.debug("deleting pattern file");
             _patternFile.delete();
         }
     }
