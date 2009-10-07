@@ -2,20 +2,32 @@ package de.ingrid.admin.service;
 
 import it.sauronsoftware.cron4j.Scheduler;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
 
 @Service
-public class IndexScheduler {
+public class IndexScheduler implements IConfigurable {
 
     private final Scheduler _scheduler;
 
-    private final Runnable _runnable;
+    private final IndexRunnable _runnable;
 
     private String _scheduleId;
+
+    private String _pattern;
+
+    private File _patternFile;
 
     private static final Log LOG = LogFactory.getLog(IndexScheduler.class);
 
@@ -55,25 +67,79 @@ public class IndexScheduler {
     public IndexScheduler(final IndexRunnable runnable) {
         _runnable = runnable;
         _scheduler = new Scheduler();
-    }
-
-    public void schedule(final String pattern) {
-        if (_scheduleId == null) {
-            _scheduleId = _scheduler.schedule(pattern, new LockRunnable(_runnable));
-        } else {
-            _scheduler.reschedule(_scheduleId, pattern);
+        if (_runnable.getPlugDescription() != null) {
+            configure(_runnable.getPlugDescription());
         }
     }
 
-    public void start() {
-        _scheduler.start();
+    public void setPattern(final String pattern) {
+        _pattern = pattern;
+        schedule();
+        if (_patternFile != null) {
+            savePatternFile();
+        }
     }
 
-    public void stop() {
-        _scheduler.stop();
+    public String getPattern() {
+        return _pattern;
+    }
+
+    public void deletePattern() {
+        _pattern = null;
+        if (isStarted()) {
+            _scheduler.stop();
+        }
+        deletePatternFile();
     }
 
     public boolean isStarted() {
         return _scheduler.isStarted();
+    }
+
+    @Override
+    public void configure(final PlugDescription plugDescription) {
+        _patternFile = new File(plugDescription.getWorkinDirectory(), "pattern");
+        if (_patternFile.exists()) {
+            loadPatternFile();
+            schedule();
+        }
+    }
+
+    private void schedule() {
+        if (_scheduleId == null) {
+            _scheduleId = _scheduler.schedule(_pattern, new LockRunnable(_runnable));
+        } else {
+            _scheduler.reschedule(_scheduleId, _pattern);
+        }
+        if (!isStarted()) {
+            _scheduler.start();
+        }
+    }
+
+    private void loadPatternFile() {
+        try {
+            final ObjectInputStream reader = new ObjectInputStream(new FileInputStream(_patternFile));
+            _pattern = (String) reader.readObject();
+            reader.close();
+        } catch (final Exception e) {
+            LOG.error(e);
+        }
+    }
+
+    private void savePatternFile() {
+        try {
+            deletePatternFile();
+            final ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile));
+            writer.writeObject(_pattern);
+            writer.close();
+        } catch (final Exception e) {
+            LOG.error(e);
+        }
+    }
+
+    private void deletePatternFile() {
+        if (_patternFile != null && _patternFile.exists()) {
+            _patternFile.delete();
+        }
     }
 }

@@ -24,16 +24,16 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private IDocumentProducer _documentProducer;
     private File _indexDir;
     private boolean _produceable = false;
-    private INewIndexListener _indexClosedListener;
+    private final INewIndexListener _indexClosedListener;
     private PlugDescription _plugDescription;
 
     @Autowired
-    public IndexRunnable(@Qualifier("flipIndex") INewIndexListener indexClosedListener) {
+    public IndexRunnable(@Qualifier("flipIndex") final INewIndexListener indexClosedListener) {
         _indexClosedListener = indexClosedListener;
     }
 
     @Autowired(required = false)
-    public void setDocumentProducer(IDocumentProducer documentProducer) {
+    public void setDocumentProducer(final IDocumentProducer documentProducer) {
         _documentProducer = documentProducer;
         _produceable = true;
     }
@@ -44,10 +44,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 LOG.info("indexing starts");
                 resetDocumentCount();
                 _documentProducer.initialize();
-                IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true,
+                final IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true,
                         IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
-                    Document document = _documentProducer.next();
+                    final Document document = _documentProducer.next();
                     LOG.debug("add document to index: " + _documentCount);
                     writer.addDocument(document);
                     _documentCount++;
@@ -56,7 +56,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 writer.close();
                 LOG.info("indexing ends");
                 _indexClosedListener.indexIsCreated();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
             } finally {
                 resetDocumentCount();
@@ -79,13 +79,16 @@ public class IndexRunnable implements Runnable, IConfigurable {
         return _produceable;
     }
 
-    public void configure(PlugDescription plugDescription) {
+    public void configure(final PlugDescription plugDescription) {
         LOG.debug("reconfigure...");
         _plugDescription = plugDescription;
         if (_plugDescription != null) {
-            File workinDirectory = _plugDescription.getWorkinDirectory();
+            final File workinDirectory = _plugDescription.getWorkinDirectory();
             _indexDir = new File(workinDirectory, "newIndex");
         }
     }
 
+    public PlugDescription getPlugDescription() {
+        return _plugDescription;
+    }
 }
