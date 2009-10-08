@@ -29,7 +29,7 @@ public class WorkingDirController {
     }
 
     @InitBinder
-    public void initBinder(final WebDataBinder binder) {
+    public void initBinder(final WebDataBinder binder) throws Exception {
         binder.registerCustomEditor(File.class, new WorkingDirEditor());
     }
 
