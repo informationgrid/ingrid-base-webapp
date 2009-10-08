@@ -48,8 +48,14 @@ public class GeneralController {
     }
 
     @ModelAttribute("dataTypes")
-    public IDataType[] injectDataTypes() {
-        return _dataTypes;
+    public List<IDataType> injectDataTypes() {
+        final List<IDataType> types = new ArrayList<IDataType>();
+        for (final IDataType type : _dataTypes) {
+            if (!type.isHidden()) {
+                types.add(type);
+            }
+        }
+        return types;
     }
 
     @RequestMapping(method = RequestMethod.GET)
