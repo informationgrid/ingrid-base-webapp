@@ -50,20 +50,17 @@
 				</table>
 			</form>
 			
-			<div class="hitCount">15 Treffer für "Suchbegriff"</div>
-			
-			<div class="searchResult">
-				<h3><a href="searchDetails.html">Result Title</a></h3>
-				Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description 
-				Description Description Description Description Description Description Description
-			</div>
-			
-			<div class="searchResult">
-				<h3><a href="searchDetails.html">Result Title</a></h3>
-				Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description
-			</div>
-			
-			<br/><br/><br/>
+			<c:if test="${!empty hits}">
+				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} für "${query}"</div>
+				
+				<c:forEach items="${hits}" var="hit">
+					<div class="searchResult">
+					   <h3><a href="searchDetails.html?query=${query}&id=">${hit['title']}</a></h3>
+					   <span>${hit['abstract']}</span>
+					</div>
+				</c:forEach>
+				<br /><br />
+			</c:if>
 			
 		</div>
 	</div>
