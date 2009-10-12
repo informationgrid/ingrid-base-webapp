@@ -27,6 +27,7 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     public void setDataTypes(final String... types) {
+        remove(DATA_TYPE);
         for (final String type : types) {
             addDataType(type);
         }
