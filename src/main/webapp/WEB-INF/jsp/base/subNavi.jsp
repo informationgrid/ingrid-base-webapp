@@ -31,7 +31,6 @@
 	<ul>
 		<li <c:if test="${active == 'scheduling'}">class="active"</c:if>><a href="scheduling.html">Scheduling</a></li>
 		<li <c:if test="${active == 'indexing'}">class="active"</c:if>><a href="indexing.html">Indexieren</a></li>
-		<li <c:if test="${active == 'search'}">class="active"</c:if>><a href="search.html">Suche Testen</a></li>
 	</ul>
 	<% } %>
 	
@@ -40,6 +39,7 @@
 		<h2>Admin Tools</h2>
 	</div>
 	<ul>
+	<li <c:if test="${active == 'search'}">class="active"</c:if>><a href="search.html">Suche Testen</a></li>
 		<li <c:if test="${active == 'commSetup'}">class="active"</c:if>><a href="commSetup.html">Kommunikations Setup</a></li>
 	   <li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="heartbeat.html">HeartBeat Setup</a></li>
 	</ul>
