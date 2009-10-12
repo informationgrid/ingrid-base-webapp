@@ -55,7 +55,7 @@
 				
 				<c:forEach items="${hits}" var="hit">
 					<div class="searchResult">
-					   <h3><a href="searchDetails.html?query=${query}&id=">${hit['title']}</a></h3>
+					   <h3><a href="search.html?query=${query}</a></h3>
 					   <span>${hit['abstract']}</span>
 					</div>
 				</c:forEach>

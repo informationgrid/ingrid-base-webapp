@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.XMLSerializer;
 
@@ -45,7 +46,7 @@ public class SaveController {
     private void savePlugDescription(final PlugdescriptionCommandObject plugdescriptionCommandObject) throws Exception {
         // save plug class
         plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());
-        plugdescriptionCommandObject.setRecordLoader(_plug.isRecordLoader());
+        plugdescriptionCommandObject.setRecordLoader(_plug instanceof IRecordLoader);
         // save
         final PlugDescription plugDescription = new PlugDescription();
         plugDescription.putAll(plugdescriptionCommandObject);

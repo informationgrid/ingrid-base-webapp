@@ -42,10 +42,4 @@ public class BasePlug extends HeartBeatPlug {
         }
         return details;
     }
-
-    @Override
-    public boolean isRecordLoader() {
-        return true;
-    }
-
 }

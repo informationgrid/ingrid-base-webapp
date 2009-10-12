@@ -44,10 +44,4 @@ public class SearchController {
 		return "/base/search";
 	}
 
-	@RequestMapping(value = "/base/searchDetails.html", method = RequestMethod.GET)
-	public String showDetails() {
-		// this is still a dummy controller
-		return "/base/searchDetails";
-	}
-
 }
