@@ -35,5 +35,13 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
  		<listener-class>de.ingrid.admin.ContextListener</listener-class>
  	</listener>
    
+    <filter>
+        <filter-name>StepFilter</filter-name>
+        <filter-class>de.ingrid.admin.filter.StepFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>StepFilter</filter-name>
+        <url-pattern>*.html</url-pattern>
+    </filter-mapping>
     
 </web-app>

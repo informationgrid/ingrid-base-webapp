@@ -47,6 +47,7 @@ public class SaveController {
         // save plug class
         plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());
         plugdescriptionCommandObject.setRecordLoader(_plug instanceof IRecordLoader);
+
         // save
         final PlugDescription plugDescription = new PlugDescription();
         plugDescription.putAll(plugdescriptionCommandObject);
@@ -56,5 +57,8 @@ public class SaveController {
         for (final IConfigurable configurable : _configurables) {
             configurable.configure(plugDescription);
         }
+
+        // start heart beat
+        _plug.stopHeartBeats();
     }
 }
