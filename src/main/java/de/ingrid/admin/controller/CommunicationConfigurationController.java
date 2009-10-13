@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.CommunicationValidator;
@@ -23,10 +25,6 @@ import de.ingrid.admin.validation.IErrorKeys;
 
 @Controller
 public class CommunicationConfigurationController {
-
-    public static final String COMMUNICATION_URI = "/base/communication.html";
-
-    public static final String COMMUNICATION_VIEW = "/base/communication";
 
     public static final int DEFAULT_TIMEOUT = 10;
 
@@ -114,12 +112,12 @@ public class CommunicationConfigurationController {
         return busses;
     }
 
-    @RequestMapping(value = COMMUNICATION_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.COMMUNICATION, method = RequestMethod.GET)
     public String getCommunication() {
-        return COMMUNICATION_VIEW;
+        return IViews.COMMUNICATION;
     }
 
-    @RequestMapping(value = COMMUNICATION_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.COMMUNICATION, method = RequestMethod.POST)
     public String postCommunication(final ModelMap modelMap,
             @ModelAttribute("communication") final CommunicationCommandObject commandObject, final Errors errors,
             @RequestParam(value = "action", required = false) final String action,
@@ -176,11 +174,11 @@ public class CommunicationConfigurationController {
                 // restart communication interface
                 _communicationService.restart();
                 // redirect to next step
-                return "redirect:/base/workingDir.html";
+                return "redirect:" + IUris.WORKING_DIR;
             }
         }
 
-        return COMMUNICATION_VIEW;
+        return IViews.COMMUNICATION;
     }
 
     private final XPathService openCommunication(final File communicationFile) throws Exception {

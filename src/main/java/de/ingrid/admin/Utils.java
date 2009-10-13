@@ -13,6 +13,7 @@ import de.ingrid.utils.query.IngridQuery;
 
 public class Utils {
 
+    @SuppressWarnings("unchecked")
     public static List<Partner> getPartners(final IBus bus) throws Exception {
         final List<Partner> list = new ArrayList<Partner>();
         final IngridQuery ingridQuery = new IngridQuery();
@@ -33,6 +34,7 @@ public class Utils {
         return list;
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Provider> getProviders(final IBus bus) throws Exception {
         final List<Provider> list = new ArrayList<Provider>();
         final IngridQuery ingridQuery = new IngridQuery();

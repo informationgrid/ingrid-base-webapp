@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDataType;
@@ -26,10 +28,6 @@ import de.ingrid.admin.validation.PlugDescValidator;
 @Controller
 @SessionAttributes("plugDescription")
 public class GeneralController {
-
-    public static final String GENERAL_URI = "/base/general.html";
-
-    public static final String GENERAL_VIEW = "/base/general";
 
     private final CommunicationService _communicationInterface;
 
@@ -61,7 +59,7 @@ public class GeneralController {
         return types;
     }
 
-    @RequestMapping(value = GENERAL_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.GENERAL, method = RequestMethod.GET)
     public String getGeneral(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
@@ -72,10 +70,10 @@ public class GeneralController {
         final SortedMap<String, List<Provider>> map = createPartnerProviderMap(partners, getProviders());
         modelMap.addAttribute("jsonMap", toJsonMap(map));
 
-        return GENERAL_VIEW;
+        return IViews.GENERAL;
     }
 
-    @RequestMapping(value = GENERAL_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.GENERAL, method = RequestMethod.POST)
     public String postGeneral(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
@@ -86,7 +84,7 @@ public class GeneralController {
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
 
-        return "redirect:" + PartnerController.PARTNER_URI;
+        return "redirect:" + IUris.PARTNER;
     }
 
     private List<Provider> getProviders() throws Exception {

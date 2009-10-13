@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -24,10 +26,6 @@ import de.ingrid.admin.validation.PlugDescValidator;
 @Controller
 @SessionAttributes("plugDescription")
 public class PartnerController {
-
-    public static final String PARTNER_URI = "/base/partner.html";
-
-    public static final String PARTNER_VIEW = "/base/partner";
 
     private final CommunicationService _communicationInterface;
 
@@ -45,7 +43,7 @@ public class PartnerController {
         return Utils.getPartners(_communicationInterface.getIBus());
 	}
 
-    @RequestMapping(value = PARTNER_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.PARTNER, method = RequestMethod.GET)
     public String getPartner(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("partnerList") final List<Partner> partnerList) {
@@ -56,10 +54,10 @@ public class PartnerController {
         }
         modelMap.addAttribute("partners", partners);
 
-        return PARTNER_VIEW;
+        return IViews.PARTNER;
 	}
 
-    @RequestMapping(value = PARTNER_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.PARTNER, method = RequestMethod.POST)
     public String postPartner(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partnerList") final List<Partner> partnerList,
@@ -77,7 +75,7 @@ public class PartnerController {
             commandObject.removePartner(id);
         } else if ("submit".equals(action)) {
             if (!_validator.validatePartners(errors).hasErrors()) {
-                return "redirect:" + ProviderController.PROVIDER_URI;
+                return "redirect:" + IUris.PROVIDER;
             }
         }
 

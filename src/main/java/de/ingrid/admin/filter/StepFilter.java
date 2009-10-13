@@ -16,21 +16,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import de.ingrid.admin.IUris;
+
 public class StepFilter implements Filter {
 
     private File _plugDescription;
 
     private File _communication;
 
-    private final String _stepHome = "/base/welcome.html";
+    private final List<String> _needComm = new ArrayList<String>();
 
-    private final String _stepOne = "/base/communication.html";
-
-    private final String _stepTwo = "/base/workingDir.html";
-
-    private final List<String> _stepThree = new ArrayList<String>();
-
-    private final List<String> _stepTools = new ArrayList<String>();
+    private final List<String> _needPlug = new ArrayList<String>();
 
     protected final Logger LOG = Logger.getLogger(StepFilter.class);
 
@@ -39,12 +35,20 @@ public class StepFilter implements Filter {
         _plugDescription = new File(System.getProperty("plugDescription"));
         _communication = new File(System.getProperty("communication"));
 
-        _stepThree.add("/base/scheduling.html");
-        _stepThree.add("/base/indexing.html");
+        _needComm.add(IUris.WORKING_DIR);
+        _needComm.add(IUris.GENERAL);
+        _needComm.add(IUris.PARTNER);
+        _needComm.add(IUris.PROVIDER);
+        _needComm.add(IUris.FIELD_QUERY);
+        _needComm.add(IUris.IPLUG_WELCOME);
+        _needComm.add(IUris.SAVE);
+        _needComm.add(IUris.COMM_SETUP);
 
-        _stepTools.add("/base/commSetup.html");
-        _stepTools.add("/base/heartbeat.html");
-        _stepTools.add("/base/search.html");
+        _needPlug.add(IUris.SCHEDULING);
+        _needPlug.add(IUris.INDEXING);
+        _needPlug.add(IUris.FINISH);
+        _needPlug.add(IUris.HEARTBEAT_SETUP);
+        _needPlug.add(IUris.SEARCH);
     }
 
     @Override
@@ -59,24 +63,16 @@ public class StepFilter implements Filter {
         final HttpServletResponse res = (HttpServletResponse) response;
         final String uri = req.getRequestURI();
 
-        // only check if uri is not home or step one
-        if (!_stepHome.equals(uri) && !_stepOne.equals(uri)) {
-            if (!_communication.exists()) {
-                // if communication does not exist it must be created
-                LOG.info("communication does not exist but is necessary. redirect to communication setup...");
-                res.sendRedirect(_stepOne);
-                return;
-            } else if (!_plugDescription.exists()
-                    && (_stepThree.contains(uri) || _stepTools.get(1).equals(uri) || _stepTools.get(2).equals(uri))) {
-                // if plug description does not exist and request is one of step
-                // three or a specific admin tool it must be created
-                LOG.info("plug description does not exist but is necessary. redirect to plug description setup...");
-                res.sendRedirect(_stepTwo);
-                return;
-            }
+        if (!_communication.exists() && (_needComm.contains(uri) || _needPlug.contains(uri))) {
+            LOG.info("communication does not exist but is necessary. redirect to communication setup...");
+            res.sendRedirect(IUris.COMMUNICATION);
+            return;
+        } else if (!_plugDescription.exists() && _needPlug.contains(uri)) {
+            LOG.info("plug description does not exist but is necessary. redirect to plug description setup...");
+            res.sendRedirect(IUris.WORKING_DIR);
+            return;
         }
 
-        // everything is ok, do filter
         chain.doFilter(request, response);
     }
 

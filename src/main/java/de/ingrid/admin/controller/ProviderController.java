@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -25,10 +27,6 @@ import de.ingrid.admin.validation.PlugDescValidator;
 @SessionAttributes("plugDescription")
 public class ProviderController {
 
-    public static final String PROVIDER_URI = "/base/provider.html";
-
-    public static final String PROVIDER_VIEW = "/base/provider";
-
     private final CommunicationService _communicationInterface;
 
     private final PlugDescValidator _validator;
@@ -40,7 +38,7 @@ public class ProviderController {
         _validator = validator;
     }
 
-    @RequestMapping(value = PROVIDER_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.PROVIDER, method = RequestMethod.GET)
     public String getProvider(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) throws Exception {
 
@@ -53,10 +51,10 @@ public class ProviderController {
         }
         modelMap.addAttribute("providers", providers);
 
-        return PROVIDER_VIEW;
+        return IViews.PROVIDER;
     }
 
-    @RequestMapping(value = PROVIDER_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.PROVIDER, method = RequestMethod.POST)
     public String postProvider(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @RequestParam("action") final String action,
@@ -73,7 +71,7 @@ public class ProviderController {
             commandObject.removeProvider(id);
         } else if ("submit".equals(action)) {
             if (!_validator.validateProviders(errors).hasErrors()) {
-                return "redirect:" + FieldQueryController.FIELD_QUERY_URI;
+                return "redirect:" + IUris.FIELD_QUERY;
             }
         }
 

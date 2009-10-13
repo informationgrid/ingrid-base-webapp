@@ -8,20 +8,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 
 @Controller
 @SessionAttributes("plugDescription")
 public class WelcomeController {
 
-    public static final String WELCOME_URI = "/base/welcome.html";
-
     private static PlugdescriptionCommandObject _plugDescription;
 
-    @RequestMapping(value = WELCOME_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
     public String welcome(final ModelMap modelMap) throws Exception {
         loadPlugDescription(modelMap);
-        return "base/welcome";
+        return IViews.WELCOME;
     }
 
     public PlugdescriptionCommandObject loadPlugDescription(final ModelMap modelMap) throws Exception {

@@ -7,16 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.service.IndexScheduler;
 
 @Controller
 public class SchedulingController {
-
-    public static final String SCHEDULING_URI = "/base/scheduling.html";
-
-    public static final String SCHEDULING_VIEW = "/base/scheduling";
-
-    public static final String DELETE_PATTERN_URI = "/base/deletePattern.html";
 
     final IndexScheduler _scheduler;
 
@@ -25,13 +21,13 @@ public class SchedulingController {
         _scheduler = scheduler;
     }
 
-    @RequestMapping(value = SCHEDULING_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.SCHEDULING, method = RequestMethod.GET)
     public String getScheduling(final ModelMap modelMap) {
         modelMap.addAttribute("pattern", _scheduler.getPattern());
-        return SCHEDULING_VIEW;
+        return IViews.SCHEDULING;
 	}
 
-    @RequestMapping(value = SCHEDULING_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.SCHEDULING, method = RequestMethod.POST)
     public String postScheduling(final ModelMap modelMap,
             @RequestParam(value = "hour", required = false) final String hour,
             @RequestParam(value = "minute", required = false) final String minute,
@@ -49,10 +45,10 @@ public class SchedulingController {
         }
         _scheduler.setPattern(pattern);
 
-        return "redirect:" + IndexController.INDEXING_URI;
+        return "redirect:" + IUris.INDEXING;
 	}
 
-    @RequestMapping(value = DELETE_PATTERN_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.DELETE_PATTERN, method = RequestMethod.POST)
     public String delete(final ModelMap modelMap) {
         _scheduler.deletePattern();
         return getScheduling(modelMap);

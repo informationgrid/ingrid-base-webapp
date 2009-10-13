@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
@@ -16,10 +18,6 @@ import de.ingrid.utils.IRecordLoader;
 @Controller
 @SessionAttributes("plugDescription")
 public class SaveController {
-
-    public static final String SAVE_URI = "/base/save.html";
-
-    public static final String SAVE_VIEW = "/base/save";
 
     private final IConfigurable[] _configurables;
 
@@ -31,12 +29,12 @@ public class SaveController {
         _configurables = configurables;
     }
 
-    @RequestMapping(value = SAVE_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.SAVE, method = RequestMethod.GET)
     public String save() {
-        return SAVE_VIEW;
+        return IViews.SAVE;
     }
 
-    @RequestMapping(value = SAVE_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.SAVE, method = RequestMethod.POST)
     public String postSave(
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject,
             final PlugDescriptionService plugDescriptionService)
@@ -57,6 +55,6 @@ public class SaveController {
         // start heart beat
         _plug.startHeartBeats();
 
-        return "redirect:" + SchedulingController.SCHEDULING_URI;
+        return "redirect:" + IUris.SCHEDULING;
     }
 }

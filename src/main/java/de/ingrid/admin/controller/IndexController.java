@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.service.IndexRunnable;
 
 @Controller
 public class IndexController {
-
-    public static final String INDEXING_URI = "/base/indexing.html";
-
-    public static final String INDEXING_VIEW = "/base/indexing";
 
     private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
@@ -43,12 +41,12 @@ public class IndexController {
         return count;
     }
 
-    @RequestMapping(value = INDEXING_URI, method = RequestMethod.GET)
+    @RequestMapping(value = IUris.INDEXING, method = RequestMethod.GET)
     public String getIndexing() {
-        return INDEXING_VIEW;
+        return IViews.INDEXING;
     }
 
-    @RequestMapping(value = INDEXING_URI, method = RequestMethod.POST)
+    @RequestMapping(value = IUris.INDEXING, method = RequestMethod.POST)
     public String postIndexing() throws Exception {
         if (_indexRunnable.isProduceable()) {
             if (_thread.getState() == State.NEW) {
@@ -65,7 +63,7 @@ public class IndexController {
             LOG.warn("can not start indexer, because it is not produceable");
         }
 
-        return "redirect:" + FinishController.FINISH_URI;
+        return "redirect:" + IUris.FINISH;
 
     }
 }
