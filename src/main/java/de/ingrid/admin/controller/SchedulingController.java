@@ -12,6 +12,12 @@ import de.ingrid.admin.service.IndexScheduler;
 @Controller
 public class SchedulingController {
 
+    public static final String SCHEDULING_URI = "/base/scheduling.html";
+
+    public static final String SCHEDULING_VIEW = "/base/scheduling";
+
+    public static final String DELETE_PATTERN_URI = "/base/deletePattern.html";
+
     final IndexScheduler _scheduler;
 
     @Autowired
@@ -19,14 +25,15 @@ public class SchedulingController {
         _scheduler = scheduler;
     }
 
-	@RequestMapping(value = "/base/scheduling.html", method = RequestMethod.GET)
-	public String showView(final ModelMap modelMap) {
+    @RequestMapping(value = SCHEDULING_URI, method = RequestMethod.GET)
+    public String getScheduling(final ModelMap modelMap) {
         modelMap.addAttribute("pattern", _scheduler.getPattern());
-		return "/base/scheduling";
+        return SCHEDULING_VIEW;
 	}
 
-	@RequestMapping(value = "/base/scheduling.html", method = RequestMethod.POST)
-    public String submit(final ModelMap modelMap, @RequestParam(value = "hour", required = false) final String hour,
+    @RequestMapping(value = SCHEDULING_URI, method = RequestMethod.POST)
+    public String postScheduling(final ModelMap modelMap,
+            @RequestParam(value = "hour", required = false) final String hour,
             @RequestParam(value = "minute", required = false) final String minute,
             @RequestParam(value = "dayOfWeek", required = false) final String dayOfWeek,
             @RequestParam(value = "dayOfMonth", required = false) final String dayOfMonth,
@@ -42,13 +49,13 @@ public class SchedulingController {
         }
         _scheduler.setPattern(pattern);
 
-        return showView(modelMap);
+        return "redirect:" + IndexController.INDEXING_URI;
 	}
 
-    @RequestMapping(value = "/base/deletePattern.html", method = RequestMethod.POST)
-    public String delete() {
+    @RequestMapping(value = DELETE_PATTERN_URI, method = RequestMethod.POST)
+    public String delete(final ModelMap modelMap) {
         _scheduler.deletePattern();
-        return "redirect:/base/scheduling.html";
+        return getScheduling(modelMap);
     }
 
 }

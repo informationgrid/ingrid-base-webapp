@@ -17,13 +17,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import de.ingrid.admin.command.CommunicationCommandObject;
-import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.CommunicationValidator;
 import de.ingrid.admin.validation.IErrorKeys;
 
 @Controller
-@RequestMapping(value = "/base/communication.html")
 public class CommunicationConfigurationController {
+
+    public static final String COMMUNICATION_URI = "/base/communication.html";
+
+    public static final String COMMUNICATION_VIEW = "/base/communication";
 
     public static final int DEFAULT_TIMEOUT = 10;
 
@@ -31,14 +34,14 @@ public class CommunicationConfigurationController {
 
     public static final int DEFAULT_THREAD_COUNT = 100;
 
-    private final CommunicationInterface _communicationInterface;
+    private final CommunicationService _communicationService;
 
     private final CommunicationValidator _validator;
 
     @Autowired
-    public CommunicationConfigurationController(final CommunicationInterface communicationInterface,
+    public CommunicationConfigurationController(final CommunicationService communicationService,
             final CommunicationValidator validator) {
-        _communicationInterface = communicationInterface;
+        _communicationService = communicationService;
         _validator = validator;
     }
 
@@ -51,7 +54,7 @@ public class CommunicationConfigurationController {
         final XPathService communication = new XPathService();
 
         // open communication file
-        final File communicationFile = _communicationInterface.getCommunicationFile();
+        final File communicationFile = _communicationService.getCommunicationFile();
 
         // bus count
         Integer count = 0;
@@ -86,7 +89,7 @@ public class CommunicationConfigurationController {
     @ModelAttribute("busses")
     public List<CommunicationCommandObject> existingBusses() throws Exception {
         // open communication file
-        final File communicationFile = _communicationInterface.getCommunicationFile();
+        final File communicationFile = _communicationService.getCommunicationFile();
         if (!communicationFile.exists()) {
             return null;
         }
@@ -111,19 +114,19 @@ public class CommunicationConfigurationController {
         return busses;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = COMMUNICATION_URI, method = RequestMethod.GET)
     public String getCommunication() {
-        return "/base/communication";
+        return COMMUNICATION_VIEW;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = COMMUNICATION_URI, method = RequestMethod.POST)
     public String postCommunication(final ModelMap modelMap,
             @ModelAttribute("communication") final CommunicationCommandObject commandObject, final Errors errors,
             @RequestParam(value = "action", required = false) final String action,
             @RequestParam(value = "id", required = false) final Integer id)
             throws Exception {
         if (null != action && !"".equals(action)) {
-            final File communicationFile = _communicationInterface.getCommunicationFile();
+            final File communicationFile = _communicationService.getCommunicationFile();
             final XPathService communication = openCommunication(communicationFile);
 
             if ("submit".equals(action)) {
@@ -171,13 +174,13 @@ public class CommunicationConfigurationController {
             // submit complete?!
             if ("submit".equals(action)) {
                 // restart communication interface
-                _communicationInterface.restart();
+                _communicationService.restart();
                 // redirect to next step
                 return "redirect:/base/workingDir.html";
             }
         }
 
-        return "/base/communication";
+        return COMMUNICATION_VIEW;
     }
 
     private final XPathService openCommunication(final File communicationFile) throws Exception {

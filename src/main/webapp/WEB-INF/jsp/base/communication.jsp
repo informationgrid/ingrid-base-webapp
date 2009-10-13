@@ -100,7 +100,7 @@
                     </tr>
                     <tr>
                         <td class="leftCol">&nbsp;</td>
-                        <td><button type="button" action="add">Hinzufügen</button>
+                        <td><button type="button" action="add"><c:choose><c:when test="${!empty busses}">Hinzufügen</c:when><c:otherwise>Speichern</c:otherwise></c:choose></button>
                         </td>
                     </tr>
                 </table>

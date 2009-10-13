@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
 @SessionAttributes("plugDescription")
-@RequestMapping("/iplug/welcome.html")
 public class RedirectController {
 
-    @RequestMapping(method = RequestMethod.GET)
+    public static final String IPLUG_WELCOME_URI = "/iplug/welcome.html";
+
+    @RequestMapping(value = IPLUG_WELCOME_URI, method = RequestMethod.GET)
     public String get() {
-        return "redirect:/base/save.html";
+        return "redirect:" + SaveController.SAVE_URI;
     }
 }

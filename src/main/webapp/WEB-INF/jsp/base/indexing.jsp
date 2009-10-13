@@ -26,13 +26,13 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Index erstellen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
 			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
 			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>

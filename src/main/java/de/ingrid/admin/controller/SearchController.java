@@ -17,6 +17,10 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 @Controller
 public class SearchController {
 
+    public static final String SEARCH_VIEW = "/base/search";
+
+    public static final String SEARCH_URI = "/base/search.html";
+
     private final HeartBeatPlug _plug;
 
     @Autowired
@@ -24,7 +28,7 @@ public class SearchController {
         _plug = plug;
     }
 
-	@RequestMapping(value = "/base/search.html", method = RequestMethod.GET)
+    @RequestMapping(value = SEARCH_URI, method = RequestMethod.GET)
     public String showView(final ModelMap modelMap,
             @RequestParam(value = "query", required = false) final String queryString) throws Exception {
 	    if (queryString != null) {
@@ -41,7 +45,7 @@ public class SearchController {
             modelMap.addAttribute("hits", details);
 	    }
 
-		return "/base/search";
+        return SEARCH_VIEW;
 	}
 
 }

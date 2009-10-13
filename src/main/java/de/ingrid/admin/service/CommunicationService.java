@@ -2,25 +2,31 @@ package de.ingrid.admin.service;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.IKeys;
 import de.ingrid.ibus.client.BusClient;
 import de.ingrid.ibus.client.BusClientFactory;
 import de.ingrid.utils.IBus;
 import de.ingrid.utils.IPlug;
 
 @Service
-public class CommunicationInterface {
+public class CommunicationService {
+
+    protected static final Logger LOG = Logger.getLogger(CommunicationService.class);
 
     private final File _communicationFile;
 
-    public CommunicationInterface() throws Exception {
-        // create file
-        final String communication = System.getProperty("communication");
-        _communicationFile = new File(communication);
-        // create bus client
+    @Autowired
+    public CommunicationService(final IPlug iPlug) throws Exception {
+        _communicationFile = new File(System.getProperty(IKeys.COMMUNICATION));
+        if (!_communicationFile.exists()) {
+            LOG.warn("communication does not exist. please create one via ui setup.");
+        }
         BusClientFactory.createBusClient(_communicationFile);
+        getBusClient().setIPlug(iPlug);
     }
 
     public String getPeerName() {
@@ -47,17 +53,11 @@ public class CommunicationInterface {
         return getBusClient().getNonCacheableIBus();
     }
 
-    public BusClient getBusClient() {
-        return BusClientFactory.getBusClient();
-    }
-
     public File getCommunicationFile() {
         return _communicationFile;
     }
 
-    @Autowired(required = false)
-    public void setPlug(final IPlug plug) throws Exception {
-        getBusClient().setIPlug(plug);
+    private BusClient getBusClient() {
+        return BusClientFactory.getBusClient();
     }
-
 }

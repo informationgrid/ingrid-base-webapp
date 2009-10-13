@@ -5,43 +5,38 @@ import java.io.File;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 public class ContextListener implements ServletContextListener {
 
-    private static final Log LOG = LogFactory.getLog(ContextListener.class);
+    private static final Logger LOG = Logger.getLogger(ContextListener.class);
 
-    public void contextInitialized(final ServletContextEvent arg0) {
-        String plugDescription = System.getProperty("plugDescription");
+    public void contextInitialized(final ServletContextEvent contextEvent) {
+        // plug description
+        String plugDescription = System.getProperty(IKeys.PLUG_DESCRIPTION);
 		if (plugDescription == null) {
-            // rather doing this, then stopping the system
             plugDescription = "conf/plugDescription.xml";
-			System.setProperty("plugDescription", plugDescription);
-            // just commenting this out because it's a little bit stressful to
-			// type this again and again
-			LOG.warn("plug description is not defined. using default.");
-        }
-        if (!new File(plugDescription).exists()) {
-            LOG.warn("plug description (" + plugDescription + ") does not exists. please create one via ui setup.");
+            System.setProperty(IKeys.PLUG_DESCRIPTION, plugDescription);
+            LOG.warn("plug description is not defined. using default: " + plugDescription);
         }
 
-        String communication = System.getProperty("communication");
+        // communication
+        String communication = System.getProperty(IKeys.COMMUNICATION);
         if (communication == null) {
-			// the same here
             communication = "conf/communication.xml";
-			System.setProperty("communication", communication);
+            System.setProperty(IKeys.COMMUNICATION, communication);
 			LOG.warn("commmunication is not defined. using default.");
         }
         if (!new File(communication).exists()) {
             LOG.warn("communication (" + communication + ") does not exists. please create one via ui setup.");
         }
 
-        final String indexing = System.getProperty("indexing");
+        // indexing
+        final String indexing = System.getProperty(IKeys.INDEXING);
         if (null == indexing) {
-            System.setProperty("indexing", "true");
+            System.setProperty(IKeys.INDEXING, "true");
         } else if (indexing.equals("false")) {
-            System.clearProperty("indexing");
+            System.clearProperty(IKeys.INDEXING);
         }
     }
 

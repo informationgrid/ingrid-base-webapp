@@ -13,15 +13,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import de.ingrid.admin.service.IndexRunnable;
 
 @Controller
-@RequestMapping("/base/indexing.html")
 public class IndexController {
+
+    public static final String INDEXING_URI = "/base/indexing.html";
+
+    public static final String INDEXING_VIEW = "/base/indexing";
 
     private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
 
     @Autowired
-    public IndexController(IndexRunnable indexRunnable) {
+    public IndexController(final IndexRunnable indexRunnable) {
         _indexRunnable = indexRunnable;
         _thread = new Thread(indexRunnable);
     }
@@ -40,14 +43,13 @@ public class IndexController {
         return count;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = INDEXING_URI, method = RequestMethod.GET)
     public String getIndexing() {
-        return "/base/indexing";
+        return INDEXING_VIEW;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = INDEXING_URI, method = RequestMethod.POST)
     public String postIndexing() throws Exception {
-        String ret = "redirect:/base/indexing.html";
         if (_indexRunnable.isProduceable()) {
             if (_thread.getState() == State.NEW) {
                 LOG.info("start indexer");
@@ -57,15 +59,13 @@ public class IndexController {
                 _thread = new Thread(_indexRunnable);
                 _thread.start();
             } else {
-                // TODO reject error
-                ret = "/base/indexing";
+                LOG.info("indexer was not started");
             }
         } else {
             LOG.warn("can not start indexer, because it is not produceable");
-            // TODO reject error
-            ret = "/base/indexing";
         }
-        return ret;
+
+        return "redirect:" + FinishController.FINISH_URI;
 
     }
 }

@@ -17,27 +17,30 @@ import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.Provider;
-import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.IErrorKeys;
 import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
-@RequestMapping(value = "/base/provider.html")
 @SessionAttributes("plugDescription")
 public class ProviderController {
 
-    private final CommunicationInterface _communicationInterface;
+    public static final String PROVIDER_URI = "/base/provider.html";
+
+    public static final String PROVIDER_VIEW = "/base/provider";
+
+    private final CommunicationService _communicationInterface;
 
     private final PlugDescValidator _validator;
 
     @Autowired
-    public ProviderController(final CommunicationInterface communicationInterface, final PlugDescValidator validator)
+    public ProviderController(final CommunicationService communicationInterface, final PlugDescValidator validator)
             throws Exception {
         _communicationInterface = communicationInterface;
         _validator = validator;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = PROVIDER_URI, method = RequestMethod.GET)
     public String getProvider(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) throws Exception {
 
@@ -50,10 +53,10 @@ public class ProviderController {
         }
         modelMap.addAttribute("providers", providers);
 
-        return "/base/provider";
+        return PROVIDER_VIEW;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = PROVIDER_URI, method = RequestMethod.POST)
     public String postProvider(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @RequestParam("action") final String action,
@@ -70,7 +73,7 @@ public class ProviderController {
             commandObject.removeProvider(id);
         } else if ("submit".equals(action)) {
             if (!_validator.validateProviders(errors).hasErrors()) {
-                return "redirect:/base/fieldQuery.html";
+                return "redirect:" + FieldQueryController.FIELD_QUERY_URI;
             }
         }
 

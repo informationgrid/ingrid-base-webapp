@@ -11,20 +11,11 @@ import de.ingrid.utils.PlugDescription;
 @Service
 public class Environment {
 
-    private final IConfigurable[] _configurables;
-    private final PlugDescriptionService _plugDescriptionService;
-
     @Autowired
     public Environment(final PlugDescriptionService plugDescriptionService, final IConfigurable... configurables)
             throws IOException {
-        _plugDescriptionService = plugDescriptionService;
-        _configurables = configurables;
-        reconfigure(_configurables);
-    }
-
-    private void reconfigure(final IConfigurable[] configurables) throws IOException {
-        if (_plugDescriptionService.existsPlugdescription()) {
-            final PlugDescription plugDescription = _plugDescriptionService.readPlugDescription();
+        final PlugDescription plugDescription = plugDescriptionService.getPlugDescription();
+        if (plugDescription != null) {
             for (final IConfigurable configurable : configurables) {
                 configurable.configure(plugDescription);
             }

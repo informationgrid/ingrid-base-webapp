@@ -11,7 +11,6 @@ public class TestUtils {
                 if (file.isDirectory()) {
                     delete(file);
                 }
-                file.delete();
             }
         }
         folder.delete();

@@ -20,23 +20,26 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.FieldQueryValidator;
 import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
 
 @Controller
-@RequestMapping(value = "/base/fieldQuery.html")
 @SessionAttributes("plugDescription")
 public class FieldQueryController {
 
-    private final CommunicationInterface _communicationInterface;
+    public static final String FIELD_QUERY_URI = "/base/fieldQuery.html";
+
+    public static final String FIELD_QUERY_VIEW = "/base/fieldQuery";
+
+    private final CommunicationService _communicationInterface;
 
     private final FieldQueryValidator _validator;
 
     @Autowired
-    public FieldQueryController(final CommunicationInterface communicationInterface, final FieldQueryValidator validator) {
+    public FieldQueryController(final CommunicationService communicationInterface, final FieldQueryValidator validator) {
         _communicationInterface = communicationInterface;
         _validator = validator;
     }
@@ -62,7 +65,7 @@ public class FieldQueryController {
         return new FieldQueryCommandObject();
     }
 
-	@RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = FIELD_QUERY_URI, method = RequestMethod.GET)
     public String getFieldQuery(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) throws Exception {
 
@@ -70,10 +73,10 @@ public class FieldQueryController {
         final List<FieldQueryCommandObject> fields = getFields(commandObject.getQueryExtensions());
         modelMap.addAttribute("fields", fields);
 
-		return "/base/fieldQuery";
+        return FIELD_QUERY_VIEW;
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = FIELD_QUERY_URI, method = RequestMethod.POST)
     public String postFieldQuery(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("fieldQuery") final FieldQueryCommandObject fieldQuery, final Errors errors,

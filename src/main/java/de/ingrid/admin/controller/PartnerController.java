@@ -17,21 +17,24 @@ import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.Partner;
-import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.IErrorKeys;
 import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
-@RequestMapping(value = "/base/partner.html")
 @SessionAttributes("plugDescription")
 public class PartnerController {
 
-	private final CommunicationInterface _communicationInterface;
+    public static final String PARTNER_URI = "/base/partner.html";
+
+    public static final String PARTNER_VIEW = "/base/partner";
+
+    private final CommunicationService _communicationInterface;
 
     private final PlugDescValidator _validator;
 
 	@Autowired
-    public PartnerController(final CommunicationInterface communicationInterface, final PlugDescValidator validator)
+    public PartnerController(final CommunicationService communicationInterface, final PlugDescValidator validator)
 			throws Exception {
 		_communicationInterface = communicationInterface;
         _validator = validator;
@@ -42,7 +45,7 @@ public class PartnerController {
         return Utils.getPartners(_communicationInterface.getIBus());
 	}
 
-	@RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = PARTNER_URI, method = RequestMethod.GET)
     public String getPartner(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("partnerList") final List<Partner> partnerList) {
@@ -53,10 +56,10 @@ public class PartnerController {
         }
         modelMap.addAttribute("partners", partners);
 
-		return "/base/partner";
+        return PARTNER_VIEW;
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = PARTNER_URI, method = RequestMethod.POST)
     public String postPartner(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partnerList") final List<Partner> partnerList,
@@ -74,7 +77,7 @@ public class PartnerController {
             commandObject.removePartner(id);
         } else if ("submit".equals(action)) {
             if (!_validator.validatePartners(errors).hasErrors()) {
-                return "redirect:/base/provider.html";
+                return "redirect:" + ProviderController.PROVIDER_URI;
             }
         }
 

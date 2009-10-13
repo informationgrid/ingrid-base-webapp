@@ -18,8 +18,11 @@ import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
 @SessionAttributes("plugDescription")
-@RequestMapping(value = "/base/workingDir.html")
 public class WorkingDirController {
+
+    public static final String WORKING_DIR_URI = "/base/workingDir.html";
+
+    public static final String WORKING_DIR_VIEW = "/base/workingDir";
 
     private final PlugDescValidator _validator;
 
@@ -33,17 +36,18 @@ public class WorkingDirController {
         binder.registerCustomEditor(File.class, new WorkingDirEditor());
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = WORKING_DIR_URI, method = RequestMethod.GET)
     public String getWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription) {
-        return "/base/workingDir";
+        return WORKING_DIR_VIEW;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = WORKING_DIR_URI, method = RequestMethod.POST)
     public String postWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription,
             final BindingResult errors) {
         if (_validator.validateWorkingDir(errors).hasErrors()) {
-            return "/base/workingDir";
+            return WORKING_DIR_VIEW;
         }
-        return "redirect:/base/general.html";
+        plugDescription.getWorkinDirectory().mkdirs();
+        return "redirect:" + GeneralController.GENERAL_URI;
     }
 }

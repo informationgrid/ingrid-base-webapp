@@ -136,6 +136,7 @@ public class IndexScheduler implements IConfigurable {
         deletePatternFile();
         LOG.debug("saving pattern to file");
         try {
+
             final ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile));
             writer.writeObject(_pattern);
             writer.close();

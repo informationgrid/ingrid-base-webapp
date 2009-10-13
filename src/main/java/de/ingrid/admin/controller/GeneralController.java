@@ -20,22 +20,25 @@ import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDataType;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
-import de.ingrid.admin.service.CommunicationInterface;
+import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
-@RequestMapping(value = "/base/general.html")
 @SessionAttributes("plugDescription")
 public class GeneralController {
 
-    private final CommunicationInterface _communicationInterface;
+    public static final String GENERAL_URI = "/base/general.html";
+
+    public static final String GENERAL_VIEW = "/base/general";
+
+    private final CommunicationService _communicationInterface;
 
     private final IDataType[] _dataTypes;
 
     private final PlugDescValidator _validator;
 
     @Autowired
-    public GeneralController(final CommunicationInterface communicationInterface, final PlugDescValidator validator,
+    public GeneralController(final CommunicationService communicationInterface, final PlugDescValidator validator,
             final IDataType... dataTypes) throws Exception {
         _communicationInterface = communicationInterface;
         _validator = validator;
@@ -58,7 +61,7 @@ public class GeneralController {
         return types;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = GENERAL_URI, method = RequestMethod.GET)
     public String getGeneral(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
@@ -69,10 +72,10 @@ public class GeneralController {
         final SortedMap<String, List<Provider>> map = createPartnerProviderMap(partners, getProviders());
         modelMap.addAttribute("jsonMap", toJsonMap(map));
 
-        return "/base/general";
+        return GENERAL_VIEW;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = GENERAL_URI, method = RequestMethod.POST)
     public String postGeneral(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
@@ -83,7 +86,7 @@ public class GeneralController {
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
 
-        return "redirect:/base/partner.html";
+        return "redirect:" + PartnerController.PARTNER_URI;
     }
 
     private List<Provider> getProviders() throws Exception {

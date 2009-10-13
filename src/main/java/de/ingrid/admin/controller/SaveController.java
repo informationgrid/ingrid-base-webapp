@@ -1,7 +1,5 @@
 package de.ingrid.admin.controller;
 
-import java.io.File;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -10,16 +8,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IRecordLoader;
-import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.xml.XMLSerializer;
 
 @Controller
 @SessionAttributes("plugDescription")
-@RequestMapping("/base/save.html")
 public class SaveController {
+
+    public static final String SAVE_URI = "/base/save.html";
+
+    public static final String SAVE_VIEW = "/base/save";
 
     private final IConfigurable[] _configurables;
 
@@ -31,34 +31,32 @@ public class SaveController {
         _configurables = configurables;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = SAVE_URI, method = RequestMethod.GET)
     public String save() {
-        return "/base/save";
+        return SAVE_VIEW;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public String postSave(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject)
+    @RequestMapping(value = SAVE_URI, method = RequestMethod.POST)
+    public String postSave(
+            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject,
+            final PlugDescriptionService plugDescriptionService)
             throws Exception {
-        savePlugDescription(plugdescriptionCommandObject);
-        return "redirect:/base/welcome.html";
-    }
 
-    private void savePlugDescription(final PlugdescriptionCommandObject plugdescriptionCommandObject) throws Exception {
-        // save plug class
+        // set class and record loader
         plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());
         plugdescriptionCommandObject.setRecordLoader(_plug instanceof IRecordLoader);
 
-        // save
-        final PlugDescription plugDescription = new PlugDescription();
-        plugDescription.putAll(plugdescriptionCommandObject);
-        final XMLSerializer serializer = new XMLSerializer();
-        serializer.serialize(plugDescription, new File(System.getProperty("plugDescription")));
+        // save plug description
+        plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
 
+        // reconfigure all configurables
         for (final IConfigurable configurable : _configurables) {
-            configurable.configure(plugDescription);
+            configurable.configure(plugDescriptionService.getPlugDescription());
         }
 
         // start heart beat
-        _plug.stopHeartBeats();
+        _plug.startHeartBeats();
+
+        return "redirect:" + SchedulingController.SCHEDULING_URI;
     }
 }
