@@ -6,6 +6,8 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 
+import de.ingrid.admin.search.IQueryParser;
+import de.ingrid.admin.search.TitleQueryParser;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 

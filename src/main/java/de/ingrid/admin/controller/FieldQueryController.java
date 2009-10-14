@@ -30,7 +30,7 @@ import de.ingrid.utils.query.FieldQuery;
 
 @Controller
 @SessionAttributes("plugDescription")
-public class FieldQueryController {
+public class FieldQueryController extends AbstractController {
 
     private final CommunicationService _communicationInterface;
 
@@ -88,8 +88,7 @@ public class FieldQueryController {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
             deleteFieldQuery(commandObject, field);
         } else if ("submit".equals(action)) {
-            // goto iplug step
-            return "redirect:" + IUris.IPLUG_WELCOME;
+            return redirect(IUris.IPLUG_WELCOME);
         }
 
         return getFieldQuery(modelMap, commandObject);

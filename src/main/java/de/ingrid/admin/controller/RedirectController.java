@@ -9,10 +9,10 @@ import de.ingrid.admin.IUris;
 
 @Controller
 @SessionAttributes("plugDescription")
-public class RedirectController {
+public class RedirectController extends AbstractController {
 
     @RequestMapping(value = IUris.IPLUG_WELCOME, method = RequestMethod.GET)
     public String get() {
-        return "redirect:" + IUris.SAVE;
+        return redirect(IUris.SAVE);
     }
 }

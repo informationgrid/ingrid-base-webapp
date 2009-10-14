@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.service.IndexRunnable;
+import de.ingrid.admin.search.IndexRunnable;
 
 @Controller
-public class IndexController {
+public class IndexController extends AbstractController {
 
     private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
@@ -63,7 +63,7 @@ public class IndexController {
             LOG.warn("can not start indexer, because it is not produceable");
         }
 
-        return "redirect:" + IUris.FINISH;
+        return redirect(IUris.FINISH);
 
     }
 }

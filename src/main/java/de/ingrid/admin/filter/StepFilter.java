@@ -44,6 +44,12 @@ public class StepFilter implements Filter {
         _needComm.add(IUris.SAVE);
         _needComm.add(IUris.COMM_SETUP);
 
+        _needComm.add(IUris.SCHEDULING);
+        _needComm.add(IUris.INDEXING);
+        _needComm.add(IUris.FINISH);
+        _needComm.add(IUris.HEARTBEAT_SETUP);
+        _needComm.add(IUris.SEARCH);
+
         _needPlug.add(IUris.SCHEDULING);
         _needPlug.add(IUris.INDEXING);
         _needPlug.add(IUris.FINISH);
@@ -63,7 +69,7 @@ public class StepFilter implements Filter {
         final HttpServletResponse res = (HttpServletResponse) response;
         final String uri = req.getRequestURI();
 
-        if (!_communication.exists() && (_needComm.contains(uri) || _needPlug.contains(uri))) {
+        if (!_communication.exists() && _needComm.contains(uri)) {
             LOG.info("communication does not exist but is necessary. redirect to communication setup...");
             res.sendRedirect(IUris.COMMUNICATION);
             return;

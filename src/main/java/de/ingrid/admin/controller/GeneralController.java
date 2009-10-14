@@ -27,7 +27,7 @@ import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
 @SessionAttributes("plugDescription")
-public class GeneralController {
+public class GeneralController extends AbstractController {
 
     private final CommunicationService _communicationInterface;
 
@@ -84,7 +84,7 @@ public class GeneralController {
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
 
-        return "redirect:" + IUris.PARTNER;
+        return redirect(IUris.PARTNER);
     }
 
     private List<Provider> getProviders() throws Exception {

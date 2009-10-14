@@ -1,4 +1,4 @@
-package de.ingrid.admin.query;
+package de.ingrid.admin.search;
 
 import org.apache.lucene.search.BooleanQuery;
 

@@ -7,6 +7,10 @@ import junit.framework.TestCase;
 import org.apache.lucene.index.IndexReader;
 
 import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.search.FlipIndexListener;
+import de.ingrid.admin.search.IndexRunnable;
+import de.ingrid.admin.search.LuceneSearcher;
+import de.ingrid.admin.search.RestartSearcherListener;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexRunnableTest extends TestCase {

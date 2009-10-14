@@ -20,7 +20,7 @@ import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
 @SessionAttributes("plugDescription")
-public class WorkingDirController {
+public class WorkingDirController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
@@ -46,6 +46,6 @@ public class WorkingDirController {
             return IViews.WORKING_DIR;
         }
         plugDescription.getWorkinDirectory().mkdirs();
-        return "redirect:" + IUris.GENERAL;
+        return redirect(IUris.GENERAL);
     }
 }

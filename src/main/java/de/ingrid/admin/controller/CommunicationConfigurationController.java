@@ -24,7 +24,7 @@ import de.ingrid.admin.validation.CommunicationValidator;
 import de.ingrid.admin.validation.IErrorKeys;
 
 @Controller
-public class CommunicationConfigurationController {
+public class CommunicationConfigurationController extends AbstractController {
 
     public static final int DEFAULT_TIMEOUT = 10;
 
@@ -127,25 +127,28 @@ public class CommunicationConfigurationController {
             final File communicationFile = _communicationService.getCommunicationFile();
             final XPathService communication = openCommunication(communicationFile);
 
+            boolean tryToAdd = false;
+
             if ("submit".equals(action)) {
                 // set proxy url
                 if (_validator.validateProxyUrl(errors).hasErrors()) {
-                    return "/base/communication";
+                    return IViews.COMMUNICATION;
                 }
                 setProxyUrl(communication, commandObject.getProxyServiceUrl());
 
                 if (!communicationFile.exists() || getBusCount(communication) == 0) {
-                    _validator.rejectError(errors, "busProxyServiceUrl", IErrorKeys.MISSING);
-                    return "/base/communication";
+                    tryToAdd = true;
                 }
-            } else if ("add".equals(action)) {
+            }
+
+            if ("add".equals(action) || tryToAdd) {
                 // set proxy url
                 if (!_validator.validateProxyUrl(errors).hasErrors()) {
                     setProxyUrl(communication, commandObject.getProxyServiceUrl());
                 }
                 // add new bus
                 if (_validator.validateBus(errors).hasErrors()) {
-                    return "/base/communication";
+                    return IViews.COMMUNICATION;
                 }
                 if (communicationFile.exists()) {
                     addBus(communication, commandObject.getBusProxyServiceUrl(), commandObject.getIp(), commandObject
@@ -171,10 +174,16 @@ public class CommunicationConfigurationController {
 
             // submit complete?!
             if ("submit".equals(action)) {
+                if (!communicationFile.exists() || getBusCount(communication) == 0) {
+                    _validator.rejectError(errors, "busProxyServiceUrl", IErrorKeys.MISSING);
+                    return IViews.COMMUNICATION;
+                }
                 // restart communication interface
                 _communicationService.restart();
-                // redirect to next step
-                return "redirect:" + IUris.WORKING_DIR;
+                if (_communicationService.isConnected()) {
+                    // redirect to next step
+                    return redirect(IUris.WORKING_DIR);
+                }
             }
         }
 

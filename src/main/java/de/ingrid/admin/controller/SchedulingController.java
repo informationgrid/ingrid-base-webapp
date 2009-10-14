@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.service.IndexScheduler;
+import de.ingrid.admin.search.IndexScheduler;
 
 @Controller
-public class SchedulingController {
+public class SchedulingController extends AbstractController {
 
     final IndexScheduler _scheduler;
 
@@ -45,7 +45,7 @@ public class SchedulingController {
         }
         _scheduler.setPattern(pattern);
 
-        return "redirect:" + IUris.INDEXING;
+        return redirect(IUris.INDEXING);
 	}
 
     @RequestMapping(value = IUris.DELETE_PATTERN, method = RequestMethod.POST)

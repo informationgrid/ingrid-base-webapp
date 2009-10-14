@@ -1,4 +1,4 @@
-package de.ingrid.admin.service;
+package de.ingrid.admin.search;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.object.ILuceneSearcher;
-import de.ingrid.admin.query.IQueryParser;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.ISearcher;

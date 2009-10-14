@@ -17,15 +17,19 @@ import de.ingrid.utils.IRecordLoader;
 
 @Controller
 @SessionAttributes("plugDescription")
-public class SaveController {
+public class SaveController extends AbstractController {
 
     private final IConfigurable[] _configurables;
 
     private final HeartBeatPlug _plug;
 
+    private final PlugDescriptionService _plugDescriptionService;
+
     @Autowired
-    public SaveController(final HeartBeatPlug plug, final IConfigurable... configurables) {
+    public SaveController(final HeartBeatPlug plug, final PlugDescriptionService plugDescriptionService,
+            final IConfigurable... configurables) {
         _plug = plug;
+        _plugDescriptionService = plugDescriptionService;
         _configurables = configurables;
     }
 
@@ -36,8 +40,7 @@ public class SaveController {
 
     @RequestMapping(value = IUris.SAVE, method = RequestMethod.POST)
     public String postSave(
-            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject,
-            final PlugDescriptionService plugDescriptionService)
+            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject)
             throws Exception {
 
         // set class and record loader
@@ -45,16 +48,16 @@ public class SaveController {
         plugdescriptionCommandObject.setRecordLoader(_plug instanceof IRecordLoader);
 
         // save plug description
-        plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
+        _plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
 
         // reconfigure all configurables
         for (final IConfigurable configurable : _configurables) {
-            configurable.configure(plugDescriptionService.getPlugDescription());
+            configurable.configure(_plugDescriptionService.getPlugDescription());
         }
 
         // start heart beat
         _plug.startHeartBeats();
 
-        return "redirect:" + IUris.SCHEDULING;
+        return redirect(IUris.SCHEDULING);
     }
 }

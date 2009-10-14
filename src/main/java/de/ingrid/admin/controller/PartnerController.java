@@ -25,7 +25,7 @@ import de.ingrid.admin.validation.PlugDescValidator;
 
 @Controller
 @SessionAttributes("plugDescription")
-public class PartnerController {
+public class PartnerController extends AbstractController {
 
     private final CommunicationService _communicationInterface;
 
@@ -75,7 +75,7 @@ public class PartnerController {
             commandObject.removePartner(id);
         } else if ("submit".equals(action)) {
             if (!_validator.validatePartners(errors).hasErrors()) {
-                return "redirect:" + IUris.PROVIDER;
+                return redirect(IUris.PROVIDER);
             }
         }
 

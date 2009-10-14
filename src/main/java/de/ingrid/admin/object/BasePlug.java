@@ -1,4 +1,4 @@
-package de.ingrid.admin.service;
+package de.ingrid.admin.object;
 
 import org.springframework.stereotype.Service;
 

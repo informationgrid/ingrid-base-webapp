@@ -7,4 +7,6 @@ public interface IKeys {
     public static final String COMMUNICATION = "communication";
 
     public static final String INDEXING = "indexing";
+
+    public static final String REDIRECT = "redirect:";
 }

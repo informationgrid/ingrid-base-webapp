@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 
 import org.mockito.MockitoAnnotations;
 
+import de.ingrid.admin.search.IndexRunnable;
+import de.ingrid.admin.search.IndexScheduler;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexSchedulerTest extends TestCase {

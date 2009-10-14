@@ -1,4 +1,4 @@
-package de.ingrid.admin.service;
+package de.ingrid.admin.search;
 
 import it.sauronsoftware.cron4j.Scheduler;
 

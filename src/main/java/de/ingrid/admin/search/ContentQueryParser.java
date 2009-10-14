@@ -1,4 +1,4 @@
-package de.ingrid.admin.query;
+package de.ingrid.admin.search;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
