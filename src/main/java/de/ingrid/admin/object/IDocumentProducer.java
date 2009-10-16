@@ -2,12 +2,12 @@ package de.ingrid.admin.object;
 
 import org.apache.lucene.document.Document;
 
-public interface IDocumentProducer {
+import de.ingrid.utils.IConfigurable;
 
-    boolean hasNext();
-    
-    Document next();
+public interface IDocumentProducer extends IConfigurable {
 
-    void initialize() throws Exception;
+	boolean hasNext();
+
+	Document next();
 
 }

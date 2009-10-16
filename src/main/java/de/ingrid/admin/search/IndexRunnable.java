@@ -43,7 +43,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
             try {
                 LOG.info("indexing starts");
                 resetDocumentCount();
-                _documentProducer.initialize();
+				_documentProducer.configure(_plugDescription);
                 final IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true,
                         IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
