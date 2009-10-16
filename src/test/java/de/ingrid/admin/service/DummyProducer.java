@@ -10,6 +10,7 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.utils.PlugDescription;
 
 public class DummyProducer implements IDocumentProducer {
 
@@ -22,16 +23,6 @@ public class DummyProducer implements IDocumentProducer {
         return _iterator.hasNext();
     }
 
-    @Override
-    public void initialize() throws Exception {
-        _dummys = new ArrayList<Document>();
-        _dummys.add(createDocument("Max", "Ender", "male", "08.12.1988"));
-        _dummys.add(createDocument("Marko", "Bauhardt", "male", "30.07.1978"));
-        _dummys.add(createDocument("Andreas", "Kuester", "male", "01.01.1970"));
-        _dummys.add(createDocument("Frank", "Henze", "male", "01.01.1970"));
-
-        _iterator = _dummys.iterator();
-    }
 
     @Override
     public Document next() {
@@ -50,4 +41,16 @@ public class DummyProducer implements IDocumentProducer {
     private Field createField(final String key, final String value) {
         return new Field(key, value, Store.YES, Index.ANALYZED);
     }
+
+	@Override
+	public void configure(PlugDescription arg0) {
+		_dummys = new ArrayList<Document>();
+		_dummys.add(createDocument("Max", "Ender", "male", "08.12.1988"));
+		_dummys.add(createDocument("Marko", "Bauhardt", "male", "30.07.1978"));
+		_dummys.add(createDocument("Andreas", "Kuester", "male", "01.01.1970"));
+		_dummys.add(createDocument("Frank", "Henze", "male", "01.01.1970"));
+
+		_iterator = _dummys.iterator();
+
+	}
 }
