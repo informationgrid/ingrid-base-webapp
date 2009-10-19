@@ -11,7 +11,7 @@ import de.ingrid.admin.IKeys;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.xml.XMLSerializer;
+import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 @Service
 public class PlugDescriptionService {
@@ -53,8 +53,8 @@ public class PlugDescriptionService {
         } else {
             _plugDescription = plugDescription;
         }
-        final XMLSerializer serializer = new XMLSerializer();
-        serializer.serialize(_plugDescription, _plugDescriptionFile);
+		new PlugdescriptionSerializer().serialize(_plugDescription,
+				_plugDescriptionFile);
     }
 
     public boolean existsPlugDescription() {
@@ -62,6 +62,7 @@ public class PlugDescriptionService {
     }
 
     private PlugDescription loadPlugDescription() throws IOException {
-        return (PlugDescription) new XMLSerializer().deSerialize(_plugDescriptionFile);
+		return new PlugdescriptionSerializer()
+				.deSerialize(_plugDescriptionFile);
     }
 }
