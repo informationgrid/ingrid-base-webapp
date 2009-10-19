@@ -3,6 +3,7 @@ package de.ingrid.admin.object;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.iplug.HeartBeatPlug;
+import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
@@ -13,7 +14,7 @@ public class BasePlug extends HeartBeatPlug {
 
 
     public BasePlug() {
-        super(60000);
+		super(60000, new PlugDescriptionFieldFilters());
     }
 
     @Override

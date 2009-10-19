@@ -106,12 +106,9 @@ public class IngridIndexSearcher implements ISearcher, IDetailer, IConfigurable 
         return details;
     }
 
+	@Override
     public void configure(PlugDescription plugDescription) {
         LOG.debug("reconfigure...");
         _plugId = plugDescription.getPlugId();
-        // TODO need to reconfigure?
-        if (_luceneSearcher instanceof IConfigurable) {
-            ((IConfigurable) _luceneSearcher).configure(plugDescription);
-        }
     }
 }
