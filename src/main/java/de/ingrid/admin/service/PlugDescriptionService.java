@@ -16,53 +16,59 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 @Service
 public class PlugDescriptionService {
 
-    protected static final Logger LOG = Logger.getLogger(PlugDescriptionService.class);
+	protected static final Logger LOG = Logger
+			.getLogger(PlugDescriptionService.class);
 
-    private final File _plugDescriptionFile;
+	private final File _plugDescriptionFile;
 
-    private PlugDescription _plugDescription;
+	private PlugDescription _plugDescription;
 
-    private final HeartBeatPlug _plug;
+	private final HeartBeatPlug _plug;
 
-    @Autowired
-    public PlugDescriptionService(final HeartBeatPlug plug) throws IOException {
-        _plug = plug;
-        _plugDescriptionFile = new File(System.getProperty(IKeys.PLUG_DESCRIPTION));
-        if (existsPlugDescription()) {
-            _plugDescription = loadPlugDescription();
-            _plug.configure(_plugDescription);
-            _plug.startHeartBeats();
-        } else {
-            LOG.warn("plug description does not exist. please create one via ui setup.");
-        }
-    }
+	@Autowired
+	public PlugDescriptionService(final HeartBeatPlug plug) throws IOException {
+		_plug = plug;
+		_plugDescriptionFile = new File(System
+				.getProperty(IKeys.PLUG_DESCRIPTION));
+		if (existsPlugDescription()) {
+			_plugDescription = loadPlugDescription();
+			_plug.configure(_plugDescription);
+			_plug.startHeartBeats();
+		} else {
+			LOG
+					.warn("plug description does not exist. please create one via ui setup.");
+		}
+	}
 
-    public PlugDescription getPlugDescription() throws IOException {
-        if (_plugDescription == null && existsPlugDescription()) {
-            _plugDescription = loadPlugDescription();
-        }
-        return _plugDescription;
-    }
+	public PlugDescription getPlugDescription() throws IOException {
+		if (_plugDescription == null && existsPlugDescription()) {
+			_plugDescription = loadPlugDescription();
+		}
+		return _plugDescription;
+	}
 
-    @SuppressWarnings("unchecked")
-    public void savePlugDescription(final PlugDescription plugDescription) throws Exception {
-        LOG.info("saving plug description.");
-        if (plugDescription instanceof PlugdescriptionCommandObject) {
-            _plugDescription = new PlugDescription();
-            _plugDescription.putAll(plugDescription);
-        } else {
-            _plugDescription = plugDescription;
-        }
-		new PlugdescriptionSerializer().serialize(_plugDescription,
-				_plugDescriptionFile);
-    }
+	@SuppressWarnings("unchecked")
+	public void savePlugDescription(final PlugDescription plugDescription)
+			throws Exception {
+		LOG.info("saving plug description.");
+		PlugDescription tmpDesc = plugDescription;
+		if (plugDescription instanceof PlugdescriptionCommandObject) {
+			tmpDesc.putAll(plugDescription);
+		}
+		PlugdescriptionSerializer serializer = new PlugdescriptionSerializer();
+		serializer.serialize(tmpDesc, _plugDescriptionFile);
+		// load again to set the serialized folder
+		_plugDescription = loadPlugDescription();
+	}
 
-    public boolean existsPlugDescription() {
-        return _plugDescriptionFile.exists();
-    }
+	public boolean existsPlugDescription() {
+		return _plugDescriptionFile.exists();
+	}
 
-    private PlugDescription loadPlugDescription() throws IOException {
+	private PlugDescription loadPlugDescription() throws IOException {
+		LOG.info("load plugdescription from file: "
+				+ _plugDescriptionFile.getAbsolutePath());
 		return new PlugdescriptionSerializer()
 				.deSerialize(_plugDescriptionFile);
-    }
+	}
 }
