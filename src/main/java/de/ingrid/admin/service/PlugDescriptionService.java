@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.XMLSerializer;
 
@@ -20,10 +22,16 @@ public class PlugDescriptionService {
 
     private PlugDescription _plugDescription;
 
-    public PlugDescriptionService() throws IOException {
+    private final HeartBeatPlug _plug;
+
+    @Autowired
+    public PlugDescriptionService(final HeartBeatPlug plug) throws IOException {
+        _plug = plug;
         _plugDescriptionFile = new File(System.getProperty(IKeys.PLUG_DESCRIPTION));
         if (existsPlugDescription()) {
             _plugDescription = loadPlugDescription();
+            _plug.configure(_plugDescription);
+            _plug.startHeartBeats();
         } else {
             LOG.warn("plug description does not exist. please create one via ui setup.");
         }
