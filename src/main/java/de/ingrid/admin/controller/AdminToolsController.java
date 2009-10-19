@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.service.CommunicationService;
@@ -23,7 +22,7 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 @Controller
-public class AdminToolsController {
+public class AdminToolsController extends AbstractController {
 
 	private final CommunicationService _communication;
 
@@ -49,8 +48,7 @@ public class AdminToolsController {
 	}
 
 	@RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.POST)
-	public String postCommSetup(final ModelMap modelMap,
-			@RequestParam("action") final String action) throws Exception {
+    public String postCommSetup(@RequestParam("action") final String action) throws Exception {
 		if ("shutdown".equals(action)) {
 			_communication.shutdown();
 		} else if ("restart".equals(action)) {
@@ -58,7 +56,7 @@ public class AdminToolsController {
 		} else if ("start".equals(action)) {
 			_communication.start();
 		}
-		return getCommSetup(modelMap);
+        return redirect(IUris.COMM_SETUP);
 	}
 
 	@RequestMapping(value = IUris.HEARTBEAT_SETUP, method = RequestMethod.GET)
@@ -78,7 +76,7 @@ public class AdminToolsController {
 			_plug.stopHeartBeats();
 			_plug.startHeartBeats();
 		}
-		return IKeys.REDIRECT + IUris.HEARTBEAT_SETUP;
+        return redirect(IUris.HEARTBEAT_SETUP);
 	}
 
 	@RequestMapping(value = IUris.SEARCH, method = RequestMethod.GET)
