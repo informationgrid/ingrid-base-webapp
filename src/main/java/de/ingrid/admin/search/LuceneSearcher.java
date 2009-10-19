@@ -72,9 +72,10 @@ public class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 		final File index = new File(workinDirectory, "index");
 		if (index.exists()) {
 			try {
+				LOG.info("open index: " + index.getAbsolutePath());
 				_indexSearcher = new IndexSearcher(FSDirectory
 						.getDirectory(index));
-				// TODO throw exception?
+				LOG.info("number of docs: " + _indexSearcher.maxDoc());
 			} catch (final Exception e) {
 				e.printStackTrace();
 			}
