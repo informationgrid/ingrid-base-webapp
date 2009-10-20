@@ -53,7 +53,8 @@ public class PlugDescriptionService {
 		LOG.info("saving plug description.");
 		PlugDescription tmpDesc = plugDescription;
 		if (plugDescription instanceof PlugdescriptionCommandObject) {
-			tmpDesc.putAll(plugDescription);
+            tmpDesc = new PlugDescription();
+            tmpDesc.putAll(plugDescription);
 		}
 		PlugdescriptionSerializer serializer = new PlugdescriptionSerializer();
 		serializer.serialize(tmpDesc, _plugDescriptionFile);
