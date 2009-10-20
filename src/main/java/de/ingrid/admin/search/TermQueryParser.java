@@ -24,7 +24,13 @@ public abstract class TermQueryParser implements IQueryParser {
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
         TermQuery[] ingridTerms = ingridQuery.getTerms();
         for (TermQuery ingridTermQuery : ingridTerms) {
+            if (ingridTermQuery == null) {
+                continue;
+            }
             String value = ingridTermQuery.getTerm();
+            if (value == null) {
+                continue;
+            }
             if (value.indexOf(" ") == -1 && !value.endsWith("*")) {
                 Term term = new Term(_field, value);
                 org.apache.lucene.search.TermQuery termQuery = new org.apache.lucene.search.TermQuery(term);

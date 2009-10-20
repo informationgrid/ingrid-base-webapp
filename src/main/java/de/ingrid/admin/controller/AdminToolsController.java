@@ -87,7 +87,7 @@ public class AdminToolsController extends AbstractController {
             modelMap.addAttribute("totalHitCount", results.length());
 
             final IngridHit[] hits = results.getHits();
-            final IngridHitDetail[] details = _plug.getDetails(hits, query, new String[] { "title", "summary" });
+            final IngridHitDetail[] details = _plug.getDetails(hits, query, new String[] {});
 
             modelMap.addAttribute("hitCount", details.length);
             modelMap.addAttribute("hits", details);
