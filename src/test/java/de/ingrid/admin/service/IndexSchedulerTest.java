@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.mockito.MockitoAnnotations;
 
+import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IndexScheduler;
 import de.ingrid.utils.PlugDescription;
@@ -27,7 +28,10 @@ public class IndexSchedulerTest extends TestCase {
 
             final PlugDescription pd = new PlugDescription();
             final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
-            assertTrue(file.exists() ? true : file.mkdirs());
+            if (file.exists()) {
+                TestUtils.delete(file);
+            }
+            assertTrue(file.mkdirs());
             pd.setWorkinDirectory(file);
 
             configure(pd);

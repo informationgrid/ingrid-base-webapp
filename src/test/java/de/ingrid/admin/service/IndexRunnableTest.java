@@ -1,16 +1,16 @@
 package de.ingrid.admin.service;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
 import org.apache.lucene.index.IndexReader;
 
 import de.ingrid.admin.TestUtils;
-import de.ingrid.admin.search.FlipIndexListener;
+import de.ingrid.admin.search.IQueryParser;
 import de.ingrid.admin.search.IndexRunnable;
-import de.ingrid.admin.search.LuceneSearcher;
-import de.ingrid.admin.search.RestartSearcherListener;
+import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexRunnableTest extends TestCase {
@@ -28,13 +28,8 @@ public class IndexRunnableTest extends TestCase {
         _plugDescription = new PlugDescription();
         _plugDescription.setWorkinDirectory(_file);
 
-        final LuceneSearcher luceneSearcher = new LuceneSearcher();
-        luceneSearcher.configure(_plugDescription);
-        final RestartSearcherListener restartSearcherListener = new RestartSearcherListener(luceneSearcher);
-        restartSearcherListener.configure(_plugDescription);
-        final FlipIndexListener flipIndexListener = new FlipIndexListener(restartSearcherListener);
-        flipIndexListener.configure(_plugDescription);
-        _indexRunnable = new IndexRunnable(flipIndexListener);
+        IngridIndexSearcher searcher = new IngridIndexSearcher(new ArrayList<IQueryParser>());
+        _indexRunnable = new IndexRunnable(searcher);
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setDocumentProducer(new DummyProducer());
         _indexRunnable.run();

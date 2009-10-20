@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.admin.object.INewIndexListener;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
@@ -24,12 +23,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private IDocumentProducer _documentProducer;
     private File _indexDir;
     private boolean _produceable = false;
-    private final INewIndexListener _indexClosedListener;
     private PlugDescription _plugDescription;
+    private final IConfigurable _ingridIndexSearcher;
 
     @Autowired
-    public IndexRunnable(@Qualifier("flipIndex") final INewIndexListener indexClosedListener) {
-        _indexClosedListener = indexClosedListener;
+    public IndexRunnable(@Qualifier("ingridIndexSearcher") final IConfigurable ingridIndexSearcher) {
+        _ingridIndexSearcher = ingridIndexSearcher;
     }
 
     @Autowired(required = false)
@@ -43,19 +42,19 @@ public class IndexRunnable implements Runnable, IConfigurable {
             try {
                 LOG.info("indexing starts");
                 resetDocumentCount();
-				_documentProducer.configure(_plugDescription);
-                final IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true,
-                        IndexWriter.MaxFieldLength.LIMITED);
+                // _documentProducer.configure(_plugDescription);
+                final IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
                     final Document document = _documentProducer.next();
                     LOG.debug("add document to index: " + _documentCount);
                     writer.addDocument(document);
                     _documentCount++;
                 }
+                LOG.info("number of produced documents: " + _documentCount);
                 writer.optimize();
                 writer.close();
                 LOG.info("indexing ends");
-                _indexClosedListener.indexIsCreated();
+                _ingridIndexSearcher.configure(_plugDescription);
             } catch (final Exception e) {
                 e.printStackTrace();
             } finally {
@@ -80,12 +79,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     public void configure(final PlugDescription plugDescription) {
-        LOG.debug("reconfigure...");
+        LOG.debug("configure plugdescription and new index dir...");
+        resetDocumentCount();
         _plugDescription = plugDescription;
         if (_plugDescription != null) {
             final File workinDirectory = _plugDescription.getWorkinDirectory();
             _indexDir = new File(workinDirectory, "newIndex");
         }
+        // run();
     }
 
     public PlugDescription getPlugDescription() {
