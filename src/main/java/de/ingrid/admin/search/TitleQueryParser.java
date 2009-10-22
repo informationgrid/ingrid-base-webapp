@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class TitleQueryParser extends TermQueryParser {
 
     public TitleQueryParser() {
-        super("title", Occur.SHOULD);
+        super("title", Occur.SHOULD, null);
     }
 
 }

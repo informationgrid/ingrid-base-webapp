@@ -1,5 +1,6 @@
 package de.ingrid.admin.search;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -7,7 +8,8 @@ import org.springframework.stereotype.Service;
 @Qualifier("contentParser")
 public class ContentQueryParser extends TermQueryParser {
 
-    public ContentQueryParser() {
-        super("content");
+    @Autowired
+    public ContentQueryParser(Stemmer stemmer) {
+        super("content", null, stemmer);
     }
 }
