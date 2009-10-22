@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class Filter implements Externalizable {
 
 	public static enum FilterType {
-		GREATER_THAN, LOWER_THAN, CONTAINS, NOT_CONTAINS, EQUAL, NOT_EQUAL
+        GREATER_THAN, LOWER_THAN, CONTAINS, NOT_CONTAINS, EQUAL, NOT_EQUAL, BEFORE, AFTER
 	}
 
 	private Comparable<? extends Serializable> _expression;
