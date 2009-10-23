@@ -1,13 +1,12 @@
 package de.ingrid.admin.search;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,22 +27,21 @@ import de.ingrid.utils.query.IngridQuery;
 public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, IDetailer, IConfigurable {
 
     private String _plugId;
-    private final List<IQueryParser> _queryParsers;
     private static final Log LOG = LogFactory.getLog(IngridIndexSearcher.class);
+    private final QueryParsers _queryParsers;
 
     @Autowired
-    public IngridIndexSearcher(List<IQueryParser> queryParsers) {
+    public IngridIndexSearcher(QueryParsers queryParsers) {
         _queryParsers = queryParsers;
     }
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
         LOG.debug("incoming query: " + ingridQuery);
-        BooleanQuery booleanQuery = new BooleanQuery();
-        for (IQueryParser queryParser : _queryParsers) {
-            queryParser.parse(ingridQuery, booleanQuery);
-        }
-        LOG.debug("outgoing lucene query: " + booleanQuery);
-        TopDocs topDocs = search(booleanQuery, start, length);
+
+        Query luceneQuery = _queryParsers.parse(ingridQuery);
+
+        LOG.debug("outgoing lucene query: " + luceneQuery);
+        TopDocs topDocs = search(luceneQuery, start, length);
         LOG.debug("found hits: " + topDocs.scoreDocs.length + "/" + topDocs.totalHits);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         IngridHit[] ingridHitArray = new IngridHit[scoreDocs.length];

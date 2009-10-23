@@ -9,8 +9,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
@@ -24,7 +25,7 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
     private IndexSearcher _indexSearcher;
     private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
 
-    public TopDocs search(final BooleanQuery booleanQuery, final int start, final int length) throws Exception {
+    public TopDocs search(final Query booleanQuery, final int start, final int length) throws Exception {
         TopDocs topDocs = _indexSearcher.search(booleanQuery, length);
         final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         int size = 0;
@@ -71,10 +72,12 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
             try {
                 if (_indexSearcher == null) {
                     LOG.info("open new index: " + index);
-                    _indexSearcher = new IndexSearcher(FSDirectory.getDirectory(index));
+                    _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
                 } else {
+                    LOG.info("close existing index: " + index);
+                    _indexSearcher.close();
                     LOG.info("re-open existing index: " + index);
-                    _indexSearcher.getIndexReader().reopen();
+                    _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
                 }
                 LOG.info("number of docs: " + _indexSearcher.maxDoc());
             } catch (final Exception e) {

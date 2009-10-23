@@ -1,16 +1,15 @@
 package de.ingrid.admin.service;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
 import org.apache.lucene.index.IndexReader;
 
 import de.ingrid.admin.TestUtils;
-import de.ingrid.admin.search.IQueryParser;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IngridIndexSearcher;
+import de.ingrid.admin.search.QueryParsers;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexRunnableTest extends TestCase {
@@ -28,7 +27,7 @@ public class IndexRunnableTest extends TestCase {
         _plugDescription = new PlugDescription();
         _plugDescription.setWorkinDirectory(_file);
 
-        IngridIndexSearcher searcher = new IngridIndexSearcher(new ArrayList<IQueryParser>());
+        IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers());
         _indexRunnable = new IndexRunnable(searcher);
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setDocumentProducer(new DummyProducer());

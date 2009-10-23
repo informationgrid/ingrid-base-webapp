@@ -10,7 +10,7 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
 
-public abstract class TermQueryParser implements IQueryParser {
+public abstract class TermQueryParser extends AbstractParser {
 
     private static Logger LOG = Logger.getLogger(TermQueryParser.class);
 
@@ -48,19 +48,7 @@ public abstract class TermQueryParser implements IQueryParser {
                 } else {
                     boolean required = ingridTermQuery.isRequred();
                     boolean prohibited = ingridTermQuery.isProhibited();
-                    if (required) {
-                        if (prohibited) {
-                            occur = Occur.MUST_NOT;
-                        } else {
-                            occur = Occur.MUST;
-                        }
-                    } else {
-                        if (prohibited) {
-                            occur = Occur.MUST_NOT;
-                        } else {
-                            occur = Occur.SHOULD;
-                        }
-                    }
+                    occur = transform(required, prohibited);
                 }
                 booleanQuery.add(termQuery, occur);
             }
