@@ -12,15 +12,90 @@
 		<h2>Allgemein & Datenmapping</h2>
 	</div>
 	<ul>
-		<li <c:if test="${active == 'workingDir'}">class="active"</c:if>><a href="../base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
-		<li <c:if test="${active == 'general'}">class="active"</c:if>><a href="../base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
-		<li <c:if test="${active == 'partner'}">class="active"</c:if>><a href="../base/partner.html">Hinzufügen der Partner</a></li>
-		<li <c:if test="${active == 'provider'}">class="active"</c:if>><a href="../base/provider.html">Hinzufügen der Anbieter</a></li>
-		<li <c:if test="${active == 'fieldQuery'}">class="active"</c:if>><a href="../base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
+
+		<!-- workingDir -->
+		<c:choose>
+			<c:when test="${communicationClickable == 'false'}">
+				<li>Arbeitsverzeichnis wählen</li>
+			</c:when>
+			<c:when test="${active != 'workingDir'}">
+				<li><a href="../base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
+			</c:otherwise>
+		</c:choose>
+
+		<!-- general -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Angaben zu Betreiber und Datenquelle</li>
+			</c:when>
+			<c:when test="${active != 'general'}">
+				<li><a href="../base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
+			</c:otherwise>
+		</c:choose>
+		
+		<!-- partner -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Hinzufügen der Partner</li>
+			</c:when>
+			<c:when test="${active != 'partner'}">
+				<li><a href="../base/partner.html">Hinzufügen der Partner</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/partner.html">Hinzufügen der Partner</a></li>
+			</c:otherwise>
+		</c:choose>
+
+		<!-- provider -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Hinzufügen der Provider</li>
+			</c:when>
+			<c:when test="${active != 'provider'}">
+				<li><a href="../base/provider.html">Hinzufügen der Provider</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/provider.html">Hinzufügen der Provider</a></li>
+			</c:otherwise>
+		</c:choose>
+
+		<!-- fieldQuery -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Verfügbarkeit der Ergebnisse</li>
+			</c:when>
+			<c:when test="${active != 'fieldQuery'}">
+				<li><a href="../base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
+			</c:otherwise>
+		</c:choose>
+
+		<!-- iplug sub navi  -->		
 		<c:catch>
 		<c:import url="../iplug/iplugSubNavi.jsp"></c:import>
 		</c:catch>
-		<li <c:if test="${active == 'save'}">class="active"</c:if>><a href="../base/save.html">Speichern</a></li>
+		
+		<!-- save -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Speichern</li>
+			</c:when>
+			<c:when test="${active != 'save'}">
+				<li><a href="../base/save.html">Speichern</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/save.html">Speichern</a></li>
+			</c:otherwise>
+		</c:choose>
+		
 	</ul>
 	
 	<% if (System.getProperty("indexing") != null) { %>
@@ -29,8 +104,33 @@
 		<h2>Indexierung</h2>
 	</div>
 	<ul>
-		<li <c:if test="${active == 'scheduling'}">class="active"</c:if>><a href="../base/scheduling.html">Scheduling</a></li>
-		<li <c:if test="${active == 'indexing'}">class="active"</c:if>><a href="../base/indexing.html">Indexieren</a></li>
+
+		<!-- scheduling -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Scheduling</li>
+			</c:when>
+			<c:when test="${active != 'scheduling'}">
+				<li><a href="../base/scheduling.html">Scheduling</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/scheduling.html">Scheduling</a></li>
+			</c:otherwise>
+		</c:choose>
+
+		<!-- indexing -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Indexieren</li>
+			</c:when>
+			<c:when test="${active != 'indexing'}">
+				<li><a href="../base/indexing.html">Indexieren</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/indexing.html">Indexieren</a></li>
+			</c:otherwise>
+		</c:choose>
+	
 	</ul>
 	<% } %>
 	
@@ -39,8 +139,44 @@
 		<h2>Admin Tools</h2>
 	</div>
 	<ul>
-        <li <c:if test="${active == 'commSetup'}">class="active"</c:if>><a href="../base/commSetup.html">Kommunikations Setup</a></li>
-        <li <c:if test="${active == 'heartbeat'}">class="active"</c:if>><a href="../base/heartbeat.html">HeartBeat Setup</a></li>
-        <li <c:if test="${active == 'search'}">class="active"</c:if>><a href="../base/search.html">Suche Testen</a></li>
+	
+		<!-- communication -->
+		<c:choose>
+			<c:when test="${communicationClickable == 'false'}">
+				<li>Kommunikations Setup</li>
+			</c:when>
+			<c:when test="${active != 'commSetup'}">
+				<li><a href="../base/commSetup.html">Kommunikations Setup</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/commSetup.html">Kommunikations Setup</a></li>
+			</c:otherwise>
+		</c:choose>
+
+		<!-- heartbeat -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>HeartBeat Setup</li>
+			</c:when>
+			<c:when test="${active != 'heartbeat'}">
+				<li><a href="../base/heartbeat.html">HeartBeat Setup</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/heartbeat.html">HeartBeat Setup</a></li>
+			</c:otherwise>
+		</c:choose>
+	
+		<!-- search -->
+		<c:choose>
+			<c:when test="${plugdescriptionClickable == 'false'}">
+				<li>Suche Testen</li>
+			</c:when>
+			<c:when test="${active != 'search'}">
+				<li><a href="../base/search.html">Suche Testen</a></li>
+			</c:when>
+			<c:otherwise>
+				<li class="active"><a href="../base/search.html">Suche Testen</a></li>
+			</c:otherwise>
+		</c:choose>
 	</ul>
 </div>

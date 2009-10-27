@@ -63,11 +63,17 @@ public class StepFilter implements Filter {
     }
 
     @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest req = (HttpServletRequest) request;
         final HttpServletResponse res = (HttpServletResponse) response;
         final String uri = req.getRequestURI();
+
+        if (!_communication.exists()) {
+            req.setAttribute("communicationClickable", "false");
+        }
+        if (!_plugDescription.exists()) {
+            req.setAttribute("plugdescriptionClickable", "false");
+        }
 
         if (!_communication.exists() && _needComm.contains(uri)) {
             LOG.info("communication does not exist but is necessary. redirect to communication setup...");
