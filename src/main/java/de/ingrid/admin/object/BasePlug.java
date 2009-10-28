@@ -1,5 +1,6 @@
 package de.ingrid.admin.object;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.iplug.HeartBeatPlug;
@@ -15,8 +16,9 @@ import de.ingrid.utils.query.IngridQuery;
 @Service
 public class BasePlug extends HeartBeatPlug {
 
-    public BasePlug() {
-        super(60000, new PlugDescriptionFieldFilters(), new IMetadataInjector[] {}, new IPreProcessor[] {}, new IPostProcessor[] {});
+    @Autowired
+    public BasePlug(IMetadataInjector[] metadataInjectors, IPreProcessor[] preProcessors, IPostProcessor[] postProcessors) {
+        super(60000, new PlugDescriptionFieldFilters(), metadataInjectors, preProcessors, postProcessors);
     }
 
     @Override
