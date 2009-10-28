@@ -129,7 +129,8 @@
 								}
 								}
 								ant.jar(destfile: "target/${project.name}.jar") {
-								fileSet(dir: 'target/classes') {
+								fileSet(dir:
+								'target/classes') {
 								exclude(name: '**/RedirectController.class')
 								exclude(name: '**/BasePlug.class')
 								}
@@ -195,7 +196,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<archiveClasses>true</archiveClasses>
+					<archive>
+						<manifestEntries>
+							<iPlug-Type>IPLUG_BASE</iPlug-Type>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
