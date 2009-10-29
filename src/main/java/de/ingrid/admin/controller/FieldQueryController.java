@@ -156,6 +156,7 @@ public class FieldQueryController extends AbstractController {
         for (final Pattern pattern : patterns) {
             if (pattern.pattern() == fieldQuery.getRegex()) {
                 fieldQueries = extension.getFieldQueries(pattern);
+                break;
             }
         }
         // find correct field query
