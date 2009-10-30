@@ -1,6 +1,5 @@
 package de.ingrid.admin.controller;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
-import de.ingrid.utils.xml.PlugdescriptionSerializer;
 
 @Controller
 public class AdminToolsController extends AbstractController {
@@ -31,13 +29,7 @@ public class AdminToolsController extends AbstractController {
     @Autowired
     public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug) throws Exception {
         _communication = communication;
-
         _plug = plug;
-        final File file = new File(System.getProperty("plugDescription"));
-        if (file.exists()) {
-            final PlugdescriptionSerializer serializer = new PlugdescriptionSerializer();
-            _plug.configure(serializer.deSerialize(file));
-        }
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.GET)
