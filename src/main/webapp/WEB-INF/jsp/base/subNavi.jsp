@@ -80,7 +80,7 @@
 
 		<!-- iplug sub navi  -->		
 		<c:catch>
-		<c:import url="/iplug/iplugSubNavi.jsp"></c:import>
+		<c:import url="../iplug/iplugSubNavi.jsp"></c:import>
 		</c:catch>
 		
 		<!-- save -->
