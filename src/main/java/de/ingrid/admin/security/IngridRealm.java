@@ -1,6 +1,5 @@
 package de.ingrid.admin.security;
 
-import java.net.URL;
 import java.security.Principal;
 import java.util.Set;
 
@@ -20,10 +19,7 @@ public class IngridRealm implements UserRealm {
     private final Log LOG = LogFactory.getLog(IngridRealm.class);
 
     public IngridRealm() {
-        URL resource = IngridRealm.class.getResource("/ingrid.auth");
-        if (resource != null) {
-            System.setProperty("java.security.auth.login.config", resource.getFile());
-        }
+        System.setProperty("java.security.auth.login.config", System.getProperty("user.dir") + "/conf/nutchgui.auth");
     }
 
     @Override
