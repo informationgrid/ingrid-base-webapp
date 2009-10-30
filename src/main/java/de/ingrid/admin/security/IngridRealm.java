@@ -19,7 +19,7 @@ public class IngridRealm implements UserRealm {
     private final Log LOG = LogFactory.getLog(IngridRealm.class);
 
     public IngridRealm() {
-        System.setProperty("java.security.auth.login.config", System.getProperty("user.dir") + "/conf/nutchgui.auth");
+        System.setProperty("java.security.auth.login.config", System.getProperty("user.dir") + "/conf/ingrid.auth");
     }
 
     @Override
