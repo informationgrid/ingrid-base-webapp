@@ -10,11 +10,11 @@
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
-<link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
+<link rel="StyleSheet" href="../../css/base/portal_u.css" type="text/css" media="all" />
 </head>
 <body>
 	<div id="header">
-		<img src="../images/base/logo.gif" width="168" height="60" alt="Portal U" />
+		<img src="../../images/base/logo.gif" width="168" height="60" alt="Portal U" />
 		<h1>Konfiguration</h1>
 		<%
 		java.security.Principal  principal = request.getUserPrincipal();
@@ -35,7 +35,32 @@
 		
 		<div id="content">
 			<br/>
-			<h2>Herzlich willkommen zur IPlug Konfiguration</h2>
+				        <div>
+				        	<p>&nbsp;</p>
+				            <form method="post" action="j_security_check" id="login">
+				                <fieldset>
+				                  <legend>Login</legend>
+				                  	<row>
+					                    <label>Name</label>
+					                    <field>
+						                    <input type="text" name="j_username"/>
+					                    </field>
+				                    </row>
+				                    <row>
+				                    	<label>Passwort</label>
+				                    	<field>
+				                    		<input type="password" name="j_password" />
+				                    	</field>
+				                    </row>
+				                </fieldset>
+				                  <input type="submit" value="Login"/>
+				            </form>
+				        </div>
+						<c:if test="${!securityEnabled}">
+					       	<script>
+					       		document.getElementById('login').submit();
+					       	</script>
+				        </c:if>
 			
 		</div>
 	</div>

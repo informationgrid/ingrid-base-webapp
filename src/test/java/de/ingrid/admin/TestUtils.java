@@ -10,6 +10,8 @@ public class TestUtils {
             for (final File file : files) {
                 if (file.isDirectory()) {
                     delete(file);
+                } else {
+                    file.delete();
                 }
             }
         }

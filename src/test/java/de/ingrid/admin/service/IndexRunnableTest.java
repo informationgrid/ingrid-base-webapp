@@ -23,15 +23,23 @@ public class IndexRunnableTest extends TestCase {
     @Override
     protected void setUp() {
         _file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
-        assertTrue(_file.exists() ? true : _file.mkdirs());
+        TestUtils.delete(_file);
+        assertTrue(_file.mkdirs());
         _plugDescription = new PlugDescription();
         _plugDescription.setWorkinDirectory(_file);
 
         IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers());
         _indexRunnable = new IndexRunnable(searcher);
         _indexRunnable.configure(_plugDescription);
-        _indexRunnable.setDocumentProducer(new DummyProducer());
+        DummyProducer dummyProducer = new DummyProducer();
+        dummyProducer.configure(_plugDescription);
+        _indexRunnable.setDocumentProducer(dummyProducer);
         _indexRunnable.run();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            fail();
+        }
     }
 
     @Override

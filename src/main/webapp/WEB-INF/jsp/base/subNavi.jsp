@@ -5,7 +5,7 @@
 		<h2>Kommunikation</h2>
 	</div>
 	<ul>
-		<li <c:if test="${active == 'communication'}">class="active"</c:if>><a href="../base/communication.html">Kommunikation bearbeiten</a></li>
+		<li <c:if test="${active == 'communication'}">class="active"</c:if>><a href="<%=request.getContextPath()%>/base/communication.html">Kommunikation bearbeiten</a></li>
 	</ul>
 	<div class="konf">
 		<p class="no">2</p>
@@ -19,10 +19,10 @@
 				<li>Arbeitsverzeichnis wählen</li>
 			</c:when>
 			<c:when test="${active != 'workingDir'}">
-				<li><a href="../base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
 			</c:otherwise>
 		</c:choose>
 
@@ -32,10 +32,10 @@
 				<li>Angaben zu Betreiber und Datenquelle</li>
 			</c:when>
 			<c:when test="${active != 'general'}">
-				<li><a href="../base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
 			</c:otherwise>
 		</c:choose>
 		
@@ -45,10 +45,10 @@
 				<li>Hinzufügen der Partner</li>
 			</c:when>
 			<c:when test="${active != 'partner'}">
-				<li><a href="../base/partner.html">Hinzufügen der Partner</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/partner.html">Hinzufügen der Partner</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/partner.html">Hinzufügen der Partner</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/partner.html">Hinzufügen der Partner</a></li>
 			</c:otherwise>
 		</c:choose>
 
@@ -58,10 +58,10 @@
 				<li>Hinzufügen der Provider</li>
 			</c:when>
 			<c:when test="${active != 'provider'}">
-				<li><a href="../base/provider.html">Hinzufügen der Provider</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/provider.html">Hinzufügen der Provider</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/provider.html">Hinzufügen der Provider</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/provider.html">Hinzufügen der Provider</a></li>
 			</c:otherwise>
 		</c:choose>
 
@@ -71,16 +71,16 @@
 				<li>Verfügbarkeit der Ergebnisse</li>
 			</c:when>
 			<c:when test="${active != 'fieldQuery'}">
-				<li><a href="../base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
 			</c:otherwise>
 		</c:choose>
 
 		<!-- iplug sub navi  -->		
 		<c:catch>
-		<c:import url="../iplug/iplugSubNavi.jsp"></c:import>
+		<c:import url="/iplug/iplugSubNavi.jsp"></c:import>
 		</c:catch>
 		
 		<!-- save -->
@@ -89,10 +89,10 @@
 				<li>Speichern</li>
 			</c:when>
 			<c:when test="${active != 'save'}">
-				<li><a href="../base/save.html">Speichern</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/save.html">Speichern</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/save.html">Speichern</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/save.html">Speichern</a></li>
 			</c:otherwise>
 		</c:choose>
 		
@@ -111,10 +111,10 @@
 				<li>Scheduling</li>
 			</c:when>
 			<c:when test="${active != 'scheduling'}">
-				<li><a href="../base/scheduling.html">Scheduling</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/scheduling.html">Scheduling</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/scheduling.html">Scheduling</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/scheduling.html">Scheduling</a></li>
 			</c:otherwise>
 		</c:choose>
 
@@ -124,10 +124,10 @@
 				<li>Indexieren</li>
 			</c:when>
 			<c:when test="${active != 'indexing'}">
-				<li><a href="../base/indexing.html">Indexieren</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/indexing.html">Indexieren</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/indexing.html">Indexieren</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/indexing.html">Indexieren</a></li>
 			</c:otherwise>
 		</c:choose>
 	
@@ -146,10 +146,10 @@
 				<li>Kommunikations Setup</li>
 			</c:when>
 			<c:when test="${active != 'commSetup'}">
-				<li><a href="../base/commSetup.html">Kommunikations Setup</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/commSetup.html">Kommunikations Setup</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/commSetup.html">Kommunikations Setup</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/commSetup.html">Kommunikations Setup</a></li>
 			</c:otherwise>
 		</c:choose>
 
@@ -159,10 +159,10 @@
 				<li>HeartBeat Setup</li>
 			</c:when>
 			<c:when test="${active != 'heartbeat'}">
-				<li><a href="../base/heartbeat.html">HeartBeat Setup</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/heartbeat.html">HeartBeat Setup</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/heartbeat.html">HeartBeat Setup</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/heartbeat.html">HeartBeat Setup</a></li>
 			</c:otherwise>
 		</c:choose>
 	
@@ -172,10 +172,10 @@
 				<li>Suche Testen</li>
 			</c:when>
 			<c:when test="${active != 'search'}">
-				<li><a href="../base/search.html">Suche Testen</a></li>
+				<li><a href="<%=request.getContextPath()%>/base/search.html">Suche Testen</a></li>
 			</c:when>
 			<c:otherwise>
-				<li class="active"><a href="../base/search.html">Suche Testen</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>/base/search.html">Suche Testen</a></li>
 			</c:otherwise>
 		</c:choose>
 	</ul>

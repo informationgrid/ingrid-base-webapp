@@ -10,11 +10,11 @@
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
-<link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
+<link rel="StyleSheet" href="../../css/base/portal_u.css" type="text/css" media="all" />
 </head>
 <body>
 	<div id="header">
-		<img src="../images/base/logo.gif" width="168" height="60" alt="Portal U" />
+		<img src="../../images/base/logo.gif" width="168" height="60" alt="Portal U" />
 		<h1>Konfiguration</h1>
 		<%
 		java.security.Principal  principal = request.getUserPrincipal();
@@ -31,13 +31,12 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Konfiguration abgeschlossen</h1>
+		<h1 id="head">Iplug Konfiguration</h1>
 		
 		<div id="content">
-			<h2>Herzlichen Glückwunsch! Ihr IPlug ist jetzt konfiguriert.</h2>
-			<p>
-				Sie können den Browser jetzt schließen.
-			</p>
+			<br/>
+			<h2>Herzlich willkommen zur IPlug Konfiguration</h2>
+			
 		</div>
 	</div>
 	<div id="footer" style="height:100px; width:90%"></div>

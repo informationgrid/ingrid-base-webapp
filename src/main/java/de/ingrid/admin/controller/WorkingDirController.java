@@ -24,6 +24,8 @@ public class WorkingDirController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
+    private static PlugdescriptionCommandObject _plugDescription;
+
     @Autowired
     public WorkingDirController(final PlugDescValidator validator) {
         _validator = validator;
@@ -34,14 +36,21 @@ public class WorkingDirController extends AbstractController {
         binder.registerCustomEditor(File.class, new WorkingDirEditor());
     }
 
+    @ModelAttribute("plugDescription")
+    public PlugdescriptionCommandObject loadPlugDescription() throws Exception {
+        if (_plugDescription == null) {
+            _plugDescription = new PlugdescriptionCommandObject(new File(System.getProperty("plugDescription")));
+        }
+        return _plugDescription;
+    }
+
     @RequestMapping(value = IUris.WORKING_DIR, method = RequestMethod.GET)
     public String getWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription) {
         return IViews.WORKING_DIR;
     }
 
     @RequestMapping(value = IUris.WORKING_DIR, method = RequestMethod.POST)
-    public String postWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription,
-            final BindingResult errors) {
+    public String postWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription, final BindingResult errors) {
         if (_validator.validateWorkingDir(errors).hasErrors()) {
             return IViews.WORKING_DIR;
         }

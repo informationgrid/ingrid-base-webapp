@@ -28,9 +28,11 @@ public class IndexSchedulerTest extends TestCase {
 
             final PlugDescription pd = new PlugDescription();
             final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
+            System.out.println(file.exists());
             if (file.exists()) {
                 TestUtils.delete(file);
             }
+            System.out.println(file.exists());
             assertTrue(file.mkdirs());
             pd.setWorkinDirectory(file);
 
