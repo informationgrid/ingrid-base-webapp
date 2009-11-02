@@ -38,23 +38,27 @@
 				        <div>
 				        	<p>&nbsp;</p>
 				            <form method="post" action="j_security_check" id="login">
-				                <fieldset>
-				                  <legend>Login</legend>
-				                  	<row>
-					                    <label>Name</label>
-					                    <field>
-						                    <input type="text" name="j_username"/>
-					                    </field>
-				                    </row>
-				                    <row>
-				                    	<label>Passwort</label>
-				                    	<field>
-				                    		<input type="password" name="j_password" />
-				                    	</field>
-				                    </row>
-				                </fieldset>
-				                  <input type="submit" value="Login"/>
-				            </form>
+					            <table id="konfigForm">
+									<tr>
+										<td class="leftCol">Name:</td>
+										<td>
+										     <input type="text" name="j_username"/>
+										</td>
+									</tr>
+									<tr>
+										<td class="leftCol">Passwort:</td>
+										<td>
+										     <input type="password" name="j_password" />
+										</td>
+									</tr>
+									<tr>
+										<td class="leftCol">&nbsp;</td>
+										<td>
+										     <input type="submit" value="Login" />
+										</td>
+									</tr>
+								</table>
+				            </form>   
 				        </div>
 						<c:if test="${!securityEnabled}">
 					       	<script>
