@@ -62,7 +62,7 @@
 					<li <c:if test="${freq == 'advanced'}">class="active"</c:if>><a href="scheduling.html?freq=advanced">Erweitert</a></li>
 				</ul>
 				
-				<table id="konfigForm">
+				<table id="konfigForm" style="clear:both">
 					<c:choose>
 						<c:when test="${freq == 'weekly'}">
 							<c:import url="schedulingWeek.jsp"/>
