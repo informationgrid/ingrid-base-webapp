@@ -21,8 +21,11 @@
         	var select = $("#providers");
         	select.find("option[value]").remove();
             var partner = $(this).val();
-            for(var i = 0; i < map[partner].length; i++) {
-                select.append("<option value='" + map[partner][i].shortName + "'>" + map[partner][i].displayName + "</option>");
+            // at first call it's normally empty / not selected
+            if (map[partner]) {
+                for(var i = 0; i < map[partner].length; i++) {
+                    select.append("<option value='" + map[partner][i].shortName + "'>" + map[partner][i].displayName + "</option>");
+                }
             }
         }).trigger('change');
         

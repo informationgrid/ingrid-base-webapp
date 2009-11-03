@@ -16,7 +16,11 @@
 		<!-- workingDir -->
 		<c:choose>
 			<c:when test="${communicationClickable == 'false'}">
-				<li>Arbeitsverzeichnis wählen</li>
+				<li
+                <c:if test="${active == 'workingDir'}">
+                    class="active"
+                </c:if>
+                >Arbeitsverzeichnis wählen</li>
 			</c:when>
 			<c:when test="${active != 'workingDir'}">
 				<li><a href="<%=request.getContextPath()%>/base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
@@ -29,7 +33,11 @@
 		<!-- general -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Angaben zu Betreiber und Datenquelle</li>
+			    <li
+                <c:if test="${active == 'general'}">
+                    class="active"
+                </c:if>
+                >Angaben zu Betreiber und Datenquelle</li>
 			</c:when>
 			<c:when test="${active != 'general'}">
 				<li><a href="<%=request.getContextPath()%>/base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
@@ -42,7 +50,11 @@
 		<!-- partner -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Hinzufügen der Partner</li>
+				<li
+                <c:if test="${active == 'partner'}">
+                    class="active"
+                </c:if>
+                >Hinzufügen der Partner</li>
 			</c:when>
 			<c:when test="${active != 'partner'}">
 				<li><a href="<%=request.getContextPath()%>/base/partner.html">Hinzufügen der Partner</a></li>
@@ -55,7 +67,11 @@
 		<!-- provider -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Hinzufügen der Provider</li>
+				<li
+                <c:if test="${active == 'provider'}">
+                    class="active"
+                </c:if>
+                >Hinzufügen der Provider</li>
 			</c:when>
 			<c:when test="${active != 'provider'}">
 				<li><a href="<%=request.getContextPath()%>/base/provider.html">Hinzufügen der Provider</a></li>
@@ -68,7 +84,11 @@
 		<!-- fieldQuery -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Verfügbarkeit der Ergebnisse</li>
+				<li
+                <c:if test="${active == 'fieldQuery'}">
+                    class="active"
+                </c:if>
+                >Verfügbarkeit der Ergebnisse</li>
 			</c:when>
 			<c:when test="${active != 'fieldQuery'}">
 				<li><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
@@ -86,7 +106,11 @@
 		<!-- save -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Speichern</li>
+				<li
+                <c:if test="${active == 'save'}">
+                    class="active"
+                </c:if>
+                >Speichern</li>
 			</c:when>
 			<c:when test="${active != 'save'}">
 				<li><a href="<%=request.getContextPath()%>/base/save.html">Speichern</a></li>
@@ -108,7 +132,11 @@
 		<!-- scheduling -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Scheduling</li>
+				<li
+                <c:if test="${active == 'scheduling'}">
+                    class="active"
+                </c:if>
+                >Scheduling</li>
 			</c:when>
 			<c:when test="${active != 'scheduling'}">
 				<li><a href="<%=request.getContextPath()%>/base/scheduling.html">Scheduling</a></li>
@@ -121,7 +149,11 @@
 		<!-- indexing -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Indexieren</li>
+				<li
+                <c:if test="${active == 'indexing'}">
+                    class="active"
+                </c:if>
+                >Indexieren</li>
 			</c:when>
 			<c:when test="${active != 'indexing'}">
 				<li><a href="<%=request.getContextPath()%>/base/indexing.html">Indexieren</a></li>
@@ -143,7 +175,11 @@
 		<!-- communication -->
 		<c:choose>
 			<c:when test="${communicationClickable == 'false'}">
-				<li>Kommunikations Setup</li>
+				<li
+                <c:if test="${active == 'commSetup'}">
+                    class="active"
+                </c:if>
+                >Kommunikations Setup</li>
 			</c:when>
 			<c:when test="${active != 'commSetup'}">
 				<li><a href="<%=request.getContextPath()%>/base/commSetup.html">Kommunikations Setup</a></li>
@@ -156,7 +192,11 @@
 		<!-- heartbeat -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>HeartBeat Setup</li>
+				<li
+                <c:if test="${active == 'heartbeat'}">
+                    class="active"
+                </c:if>
+                >HeartBeat Setup</li>
 			</c:when>
 			<c:when test="${active != 'heartbeat'}">
 				<li><a href="<%=request.getContextPath()%>/base/heartbeat.html">HeartBeat Setup</a></li>
@@ -169,7 +209,11 @@
 		<!-- search -->
 		<c:choose>
 			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li>Suche Testen</li>
+				<li
+                <c:if test="${active == 'search'}">
+                    class="active"
+                </c:if>
+                >Suche Testen</li>
 			</c:when>
 			<c:when test="${active != 'search'}">
 				<li><a href="<%=request.getContextPath()%>/base/search.html">Suche Testen</a></li>
