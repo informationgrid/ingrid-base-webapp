@@ -17,7 +17,7 @@ function getState(){
 	$.get("/base/indexState.html", function(data){
 		  document.getElementById('dialog').style.display = '';
 		  console.log(data);
-		  if(data == 'ANY_FINISH_STATE'){
+		  if(data == 'TERMINATED'){
 			document.location.href = '/base/finish.html'
 		  }else{
 			setTimout(getState, 50);
@@ -25,6 +25,9 @@ function getState(){
 	}, "text");
 }
 </script>
+<c:if test="${started == 'true'}">
+	<script>getState();</script>
+</c:if>
 </head>
 <body>
 	<div id="header">
@@ -51,13 +54,13 @@ function getState(){
 			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
-			<a href="#" onclick="getState(); document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
-			<a href="#" onclick="getState(); document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div id="content">
 			<h2>Sie können Ihre Daten jetzt indizieren, um im Anschluß die Suche zu testen.</h2>
@@ -71,7 +74,8 @@ function getState(){
 							<br/><br/>
 							
 							Index Status: ${state}<br/>
-							Anzahl der zu indizierenden Dokumente: ${documentCount}
+							Anzahl der zu indizierenden Dokumente: ${count}
+							
 						</td>
 					</tr>
 							

@@ -43,12 +43,13 @@ public class IndexController extends AbstractController {
     }
 
     @RequestMapping(value = IUris.INDEXING, method = RequestMethod.GET)
-    public String getIndexing() {
+    public String getIndexing(ModelMap model) {
+    	model.addAttribute("count", injectDocumentCount());
         return IViews.INDEXING;
     }
 
     @RequestMapping(value = IUris.INDEXING, method = RequestMethod.POST)
-    public void postIndexing() throws Exception {
+    public String postIndexing(ModelMap model) throws Exception {
         if (_indexRunnable.isProduceable()) {
             if (_thread.getState() == State.NEW) {
                 LOG.info("start indexer");
@@ -64,7 +65,8 @@ public class IndexController extends AbstractController {
             LOG.warn("can not start indexer, because it is not produceable");
         }
 
-        //return redirect(IUris.FINISH);
+        model.addAttribute("started", true);
+        return IUris.INDEXING;
 
     }
     
