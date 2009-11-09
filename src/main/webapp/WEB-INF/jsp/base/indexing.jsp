@@ -20,7 +20,7 @@ function getState(){
 		  if(data == 'TERMINATED'){
 			document.location.href = '/base/finish.html'
 		  }else{
-			setTimout(getState, 50);
+			setTimeout(getState, 500);
 		  }
 	}, "text");
 }
@@ -74,7 +74,7 @@ function getState(){
 							<br/><br/>
 							
 							Index Status: ${state}<br/>
-							Anzahl der zu indizierenden Dokumente: ${count}
+							Anzahl der zu indizierenden Dokumente: ${documentCount}
 							
 						</td>
 					</tr>

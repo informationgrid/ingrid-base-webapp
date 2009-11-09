@@ -35,16 +35,15 @@ public class IndexController extends AbstractController {
 
     @ModelAttribute("documentCount")
     public int injectDocumentCount() {
-        int count = 0;
+        int documentCount = 0;
         if (_indexRunnable != null) {
-            count = _indexRunnable.getDocumentCount();
+        	documentCount = _indexRunnable.getDocumentCount();
         }
-        return count;
+        return documentCount;
     }
 
     @RequestMapping(value = IUris.INDEXING, method = RequestMethod.GET)
     public String getIndexing(ModelMap model) {
-    	model.addAttribute("count", injectDocumentCount());
         return IViews.INDEXING;
     }
 
