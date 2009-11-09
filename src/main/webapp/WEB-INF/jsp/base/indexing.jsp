@@ -37,13 +37,13 @@
 			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
-			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+			<a href="#" onclick="document.getElementById('dialog').style.display = ''; document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
-			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+			<a href="#" onclick="document.getElementById('dialog').style.display = ''; document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div id="content">
 			<h2>Sie können Ihre Daten jetzt indizieren, um im Anschluß die Suche zu testen.</h2>
@@ -58,8 +58,6 @@
 							
 							Index Status: ${state}<br/>
 							Anzahl der zu indizierenden Dokumente: ${count}
-							
-							<br/>todo: link back scheduling
 						</td>
 					</tr>
 							
@@ -67,7 +65,7 @@
 			</form> 	
 		</div>
 		
-		<div class="dialog">
+		<div class="dialog" id="dialog" style="display:none">
 			<div class="content">Daten werden indiziert. Bitte haben Sie Geduld.</div>
 		</div>	
 	</div>
