@@ -72,9 +72,10 @@ function getState(){
 							Die Indizierung kann übersprungen werden, um automatisiert wie unter "Scheduling" angegeben zu erfolgen.
 							
 							<br/><br/>
-							
+							<!-- 
 							Index Status: ${state}<br/>
 							Anzahl der zu indizierenden Dokumente: ${documentCount}
+							 -->
 							
 						</td>
 					</tr>
