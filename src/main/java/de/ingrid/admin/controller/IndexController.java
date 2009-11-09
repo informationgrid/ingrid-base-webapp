@@ -66,7 +66,7 @@ public class IndexController extends AbstractController {
         }
 
         model.addAttribute("started", true);
-        return IUris.INDEXING;
+        return IViews.INDEXING;
 
     }
     
