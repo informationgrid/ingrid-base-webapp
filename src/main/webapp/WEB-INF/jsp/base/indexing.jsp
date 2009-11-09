@@ -20,7 +20,7 @@ function getState(){
 		  if(data == 'TERMINATED'){
 			document.location.href = '/base/finish.html'
 		  }else{
-			setTimeout(getState, 500);
+			setTimeout(getState, 1000);
 		  }
 	}, "text");
 }
