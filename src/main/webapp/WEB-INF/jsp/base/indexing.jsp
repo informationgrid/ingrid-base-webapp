@@ -11,6 +11,20 @@
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
 <link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
+<script type="text/javascript" src="../js/base/jquery-1.3.2.min.js"></script>
+<script>
+function getState(){
+	$.get("/base/indexState.html", function(data){
+		  document.getElementById('dialog').style.display = '';
+		  console.log(data);
+		  if(data == 'ANY_FINISH_STATE'){
+			document.location.href = '/base/finish.html'
+		  }else{
+			setTimout(getState, 50);
+		  }
+	}, "text");
+}
+</script>
 </head>
 <body>
 	<div id="header">
@@ -37,13 +51,13 @@
 			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
-			<a href="#" onclick="document.getElementById('dialog').style.display = ''; document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+			<a href="#" onclick="getState(); document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
-			<a href="#" onclick="document.getElementById('dialog').style.display = ''; document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+			<a href="#" onclick="getState(); document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div id="content">
 			<h2>Sie können Ihre Daten jetzt indizieren, um im Anschluß die Suche zu testen.</h2>
@@ -57,7 +71,7 @@
 							<br/><br/>
 							
 							Index Status: ${state}<br/>
-							Anzahl der zu indizierenden Dokumente: ${count}
+							Anzahl der zu indizierenden Dokumente: ${documentCount}
 						</td>
 					</tr>
 							

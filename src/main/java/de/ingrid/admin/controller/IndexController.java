@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,7 +48,7 @@ public class IndexController extends AbstractController {
     }
 
     @RequestMapping(value = IUris.INDEXING, method = RequestMethod.POST)
-    public String postIndexing() throws Exception {
+    public void postIndexing() throws Exception {
         if (_indexRunnable.isProduceable()) {
             if (_thread.getState() == State.NEW) {
                 LOG.info("start indexer");
@@ -63,7 +64,13 @@ public class IndexController extends AbstractController {
             LOG.warn("can not start indexer, because it is not produceable");
         }
 
-        return redirect(IUris.FINISH);
+        //return redirect(IUris.FINISH);
 
+    }
+    
+    @RequestMapping(value = IUris.INDEX_STATE, method = RequestMethod.GET)
+    public String getIndexState(ModelMap model){
+    	model.addAttribute("state", _thread.getState());
+    	return "/base/indexState";
     }
 }

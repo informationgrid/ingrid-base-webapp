@@ -25,6 +25,8 @@ public class IUris {
     public static final String DELETE_PATTERN = "/base/deletePattern.html";
 
     public static final String INDEXING = "/base/indexing.html";
+    
+    public static final String INDEX_STATE = "/base/indexState.html";
 
     public static final String FINISH = "/base/finish.html";
 
