@@ -55,6 +55,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 writer.close();
                 LOG.info("indexing ends");
                 _ingridIndexSearcher.configure(_plugDescription);
+                _documentProducer.configure(_plugDescription);
             } catch (final Exception e) {
                 e.printStackTrace();
             } finally {
