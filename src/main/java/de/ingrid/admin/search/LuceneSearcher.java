@@ -85,4 +85,9 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
             }
         }
     }
+
+    @Override
+    public Document doc(int id) throws IOException {
+        return _indexSearcher.doc(id);
+    }
 }

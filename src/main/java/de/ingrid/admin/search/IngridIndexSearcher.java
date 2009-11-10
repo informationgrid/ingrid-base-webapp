@@ -1,10 +1,13 @@
 package de.ingrid.admin.search;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -15,16 +18,18 @@ import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IDetailer;
+import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.ISearcher;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
 
 @Service
 @Qualifier("ingridIndexSearcher")
-public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, IDetailer, IConfigurable {
+public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, IDetailer, IRecordLoader, IConfigurable {
 
     private String _plugId;
     private static final Log LOG = LogFactory.getLog(IngridIndexSearcher.class);
@@ -106,6 +111,21 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
         super.configure(plugDescription);
         LOG.info("configure plug id...");
         _plugId = plugDescription.getPlugId();
+    }
+
+    @Override
+    public Record getRecord(IngridHit hit) throws Exception {
+        int documentId = hit.getDocumentId();
+        Document document = doc(documentId);
+        List fields = document.getFields();
+        Record record = new Record();
+        for (Object object : fields) {
+            Field field = (Field) object;
+            String name = field.name();
+            String stringValue = field.stringValue();
+            record.put(name, stringValue);
+        }
+        return record;
     }
 
 }
