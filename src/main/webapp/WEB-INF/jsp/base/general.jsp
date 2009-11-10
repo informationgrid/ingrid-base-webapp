@@ -17,8 +17,6 @@
 
     $(document).ready(function() {
                 
-        $("#providers").val("${plugDescription.organisationAbbr}");
-        
         $("#partners").change(function() {
         	var select = $("#providers");
         	select.find("option[value]").remove();
@@ -30,6 +28,8 @@
                 }
             }
         }).trigger('change');
+        
+        $("#providers").val("${plugDescription.organisationAbbr}");
         
     });
 </script> 
