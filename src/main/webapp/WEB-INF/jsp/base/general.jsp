@@ -17,7 +17,7 @@
 
     $(document).ready(function() {
                 
-        $("#providers").val("${plugDescription.organisationAbbr}")
+        $("#providers").val("${plugDescription.organisationAbbr}");
         
         $("#partners").change(function() {
         	var select = $("#providers");
