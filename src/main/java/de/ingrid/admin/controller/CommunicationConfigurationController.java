@@ -80,8 +80,8 @@ public class CommunicationConfigurationController extends AbstractController {
                     "/communication/client/connections/server/socket", "port")));
         }
         String proxyServiceUrl = commandObject.getProxyServiceUrl();
-        String userName = System.getProperty("user.name");
-        proxyServiceUrl = proxyServiceUrl.endsWith("#" + userName) ? proxyServiceUrl : proxyServiceUrl + "#" + userName;
+        final String userName = System.getProperty("user.name");
+        proxyServiceUrl = proxyServiceUrl.endsWith("_" + userName) ? proxyServiceUrl : proxyServiceUrl + "_" + userName;
         commandObject.setProxyServiceUrl(proxyServiceUrl);
 
         // return command object
