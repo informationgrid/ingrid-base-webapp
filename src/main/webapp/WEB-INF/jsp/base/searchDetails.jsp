@@ -33,10 +33,6 @@
     
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Details zum Suchergebnis</h1>
-        
-            ${record != null}<br />
-            
-            ${record}
             
     </div>
     <div id="footer" style="height:100px; width:90%"></div>
