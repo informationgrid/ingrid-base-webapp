@@ -33,19 +33,11 @@
     
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Details zum Suchergebnis</h1>
-            
-            <!--c:choose>
-                <c:when test="${record != null}">
-	                <h3>record ist da</h3>
-                </c:when>
-                <c:otherwise>
-                    <h3>record ist NICHT da</h3>
-                </c:otherwise>
-            </c:choose-->
-            
+        
             ${record != null}<br />
             
             ${record}
+            
     </div>
     <div id="footer" style="height:100px; width:90%"></div>
 </body>
