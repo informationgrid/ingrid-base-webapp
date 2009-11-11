@@ -25,7 +25,7 @@ public class IUris {
     public static final String DELETE_PATTERN = "/base/deletePattern.html";
 
     public static final String INDEXING = "/base/indexing.html";
-    
+
     public static final String INDEX_STATE = "/base/indexState.html";
 
     public static final String FINISH = "/base/finish.html";
@@ -35,4 +35,6 @@ public class IUris {
     public static final String HEARTBEAT_SETUP = "/base/heartbeat.html";
 
     public static final String SEARCH = "/base/search.html";
+
+    public static final String SEARCH_DETAILS = "/base/searchDetails.html";
 }

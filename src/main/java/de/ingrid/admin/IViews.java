@@ -29,4 +29,6 @@ public class IViews {
     public static final String HEARTBEAT_SETUP = "/base/heartbeat";
 
     public static final String SEARCH = "/base/search";
+
+    public static final String SEARCH_DETAILS = "/base/searchDetails";
 }

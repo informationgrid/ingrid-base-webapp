@@ -9,13 +9,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.iplug.HeartBeatPlug;
+import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
@@ -83,8 +86,25 @@ public class AdminToolsController extends AbstractController {
 
             modelMap.addAttribute("hitCount", details.length);
             modelMap.addAttribute("hits", details);
+            modelMap.addAttribute("details", _plug instanceof IRecordLoader);
         }
 
         return IViews.SEARCH;
+    }
+
+    @RequestMapping(value = IUris.SEARCH_DETAILS, method = RequestMethod.GET)
+    public String showDetails(final ModelMap modelMap, @RequestParam("id") final Integer id) throws Exception {
+        if (!(_plug instanceof IRecordLoader) || id == null) {
+            return IKeys.REDIRECT + IUris.SEARCH;
+        }
+
+        final IngridHit hit = new IngridHit();
+        hit.setDocumentId(id);
+
+        final IRecordLoader loader = (IRecordLoader) _plug;
+        final Record record = loader.getRecord(hit);
+        modelMap.addAttribute("record", record);
+
+        return IViews.SEARCH_DETAILS;
     }
 }
