@@ -49,12 +49,14 @@ public class StepFilter implements Filter {
         _needComm.add(IUris.FINISH);
         _needComm.add(IUris.HEARTBEAT_SETUP);
         _needComm.add(IUris.SEARCH);
+        _needComm.add(IUris.SEARCH_DETAILS);
 
         _needPlug.add(IUris.SCHEDULING);
         _needPlug.add(IUris.INDEXING);
         _needPlug.add(IUris.FINISH);
         _needPlug.add(IUris.HEARTBEAT_SETUP);
         _needPlug.add(IUris.SEARCH);
+        _needPlug.add(IUris.SEARCH_DETAILS);
     }
 
     @Override
