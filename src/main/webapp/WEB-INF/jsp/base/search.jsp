@@ -63,7 +63,16 @@
 				
 				<c:forEach items="${hits}" var="hit">
 					<div class="searchResult">
-					   <h3><a href="search.html?query=${query}">${hit['title']}</a></h3>
+					   <h3>
+					       <c:choose>
+					           <c:when test="${details}">
+								   <a href="searchDetails.html?query=${hit.documentId}">${hit['title']}</a>
+					           </c:when>
+					           <c:otherwise>
+					               <a href="#">${hit['title']}</a>
+					           </c:otherwise>
+					       </c:choose>
+					   </h3>
 					   <span>${hit['abstract']}</span>
 					</div>
 				</c:forEach>

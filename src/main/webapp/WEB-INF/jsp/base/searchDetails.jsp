@@ -33,10 +33,10 @@
     
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Details zum Suchergebnis</h1>
-        <table>
+        <table id="konfigForm">
             <c:forEach items="${record}" var="pair">
                 <tr>
-                    <th>${pair.key}</th>
+                    <td class="leftCol">${pair.key}</td>
                     <td>${pair.value}</td>
                 </tr>
             </c:forEach>
