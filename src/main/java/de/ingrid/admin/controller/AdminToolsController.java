@@ -95,19 +95,17 @@ public class AdminToolsController extends AbstractController {
     @RequestMapping(value = IUris.SEARCH_DETAILS, method = RequestMethod.GET)
     public String showDetails(final ModelMap modelMap, @RequestParam(value = "id", required = false) final Integer id)
             throws Exception {
-        System.out.println("#1");
         if (!(_plug instanceof IRecordLoader) || id == null) {
-            System.out.println("#2");
             return IKeys.REDIRECT + IUris.SEARCH;
         }
-        System.out.println("#3");
+
         final IngridHit hit = new IngridHit();
         hit.setDocumentId(id);
-        System.out.println("#4");
+
         final IRecordLoader loader = (IRecordLoader) _plug;
         final Record record = loader.getRecord(hit);
         modelMap.addAttribute("record", record);
-        System.out.println("#5");
+
         return IViews.SEARCH_DETAILS;
     }
 }

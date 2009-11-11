@@ -33,6 +33,14 @@
     
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Details zum Suchergebnis</h1>
+        <table>
+            <c:forEach items="${record}" var="pair">
+                <tr>
+                    <th>${pair.key}</th>
+                    <td>${pair.value}</td>
+                </tr>
+            </c:forEach>
+        </table>
             
     </div>
     <div id="footer" style="height:100px; width:90%"></div>
