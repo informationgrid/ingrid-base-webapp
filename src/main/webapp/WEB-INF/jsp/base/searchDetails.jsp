@@ -33,15 +33,16 @@
     
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Details zum Suchergebnis</h1>
-        <table id="konfigForm">
-            <c:forEach items="${record}" var="pair">
-                <tr>
-                    <td class="leftCol">${pair.key}</td>
-                    <td>${pair.value}</td>
-                </tr>
-            </c:forEach>
-        </table>
-            
+        <div id="content">
+	        <table id="konfigForm">
+	            <c:forEach items="${record}" var="pair">
+	                <tr>
+	                    <td class="leftCol">${pair.key}</td>
+	                    <td>${pair.value}</td>
+	                </tr>
+	            </c:forEach>
+	        </table>
+        </div>
     </div>
     <div id="footer" style="height:100px; width:90%"></div>
 </body>
