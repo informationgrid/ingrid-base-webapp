@@ -66,7 +66,7 @@
 					   <h3>
 					       <c:choose>
 					           <c:when test="${details}">
-								   <a href="searchDetails.html?query=${hit.key}">${hit.value['title']}</a>
+								   <a href="searchDetails.html?id=${hit.key}">${hit.value['title']}</a>
 					           </c:when>
 					           <c:otherwise>
 					               <a href="#">${hit.value['title']}</a>
