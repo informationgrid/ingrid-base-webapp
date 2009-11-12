@@ -24,6 +24,7 @@ import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
 
@@ -123,7 +124,9 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             Field field = (Field) object;
             String name = field.name();
             String stringValue = field.stringValue();
-            record.put(name, stringValue);
+            Column column = new Column(null, name, null, true);
+            column.setTargetName(name);
+            record.addColumn(column, stringValue);
         }
         return record;
     }
