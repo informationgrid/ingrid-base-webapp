@@ -66,14 +66,14 @@
 					   <h3>
 					       <c:choose>
 					           <c:when test="${details}">
-								   <a href="searchDetails.html?query=${hit.documentId}">${hit['title']}</a>
+								   <a href="searchDetails.html?query=${hit.key}">${hit.value['title']}</a>
 					           </c:when>
 					           <c:otherwise>
-					               <a href="#">${hit['title']}</a>
+					               <a href="#">${hit.value['title']}</a>
 					           </c:otherwise>
 					       </c:choose>
 					   </h3>
-					   <span>${hit['abstract']}</span>
+					   <span>${hit.value['abstract']}</span>
 					</div>
 				</c:forEach>
 				<br /><br />

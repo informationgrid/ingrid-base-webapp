@@ -1,6 +1,8 @@
 package de.ingrid.admin.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -84,8 +86,18 @@ public class AdminToolsController extends AbstractController {
             final IngridHit[] hits = results.getHits();
             final IngridHitDetail[] details = _plug.getDetails(hits, query, new String[] {});
 
+            // convert details to map
+            // this is necessary because it's not possible to acces the document
+            // id by ${hit.documentId}
+            final Map<Integer, IngridHitDetail> detailsMap = new HashMap<Integer, IngridHitDetail>();
+            if (details != null) {
+                for (final IngridHitDetail detail : details) {
+                    detailsMap.put(detail.getDocumentId(), detail);
+                }
+            }
+
             modelMap.addAttribute("hitCount", details.length);
-            modelMap.addAttribute("hits", details);
+            modelMap.addAttribute("hits", detailsMap);
             modelMap.addAttribute("details", _plug instanceof IRecordLoader);
         }
 
