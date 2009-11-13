@@ -34,12 +34,17 @@
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Details zum Suchergebnis</h1>
         <div id="content">
+	        <h3>${values['title']}</h3>
+	        <p>${values['summary']}</p>
+	        <hr />
 	        <table id="konfigForm">
-	            <c:forEach items="${record}" var="pair">
-	                <tr>
-	                    <td class="leftCol">${pair.key}</td>
-	                    <td>${pair.value}</td>
-	                </tr>
+	            <c:forEach items="${values}" var="value">
+	                <c:if test="${value.key != 'title && value.key != 'summary'}">
+		                <tr>
+		                    <td class="leftCol">${value.key}</td>
+		                    <td>${value.value}</td>
+		                </tr>
+	                </c:if>
 	            </c:forEach>
 	        </table>
         </div>

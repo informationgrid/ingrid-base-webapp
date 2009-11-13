@@ -20,6 +20,7 @@ import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
@@ -87,8 +88,8 @@ public class AdminToolsController extends AbstractController {
             final IngridHitDetail[] details = _plug.getDetails(hits, query, new String[] {});
 
             // convert details to map
-            // this is necessary because it's not possible to acces the document
-            // id by ${hit.documentId}
+            // this is necessary because it's not possible to access the
+            // document-id by ${hit.documentId}
             final Map<Integer, IngridHitDetail> detailsMap = new HashMap<Integer, IngridHitDetail>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
@@ -116,7 +117,17 @@ public class AdminToolsController extends AbstractController {
 
         final IRecordLoader loader = (IRecordLoader) _plug;
         final Record record = loader.getRecord(hit);
-        modelMap.addAttribute("record", record);
+
+        final Map<String, String> values = new HashMap<String, String>();
+        values.put("title", "Kein Titel");
+        values.put("summary", "Keine Beschreibung");
+        final Column[] columns = record.getColumns();
+        if (columns != null) {
+            for (final Column col : columns) {
+                values.put(col.getTargetName(), record.getValueAsString(col));
+            }
+        }
+        modelMap.addAttribute("values", values);
 
         return IViews.SEARCH_DETAILS;
     }
