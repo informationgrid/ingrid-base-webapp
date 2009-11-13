@@ -39,7 +39,7 @@
 	        <hr />
 	        <table id="konfigForm">
 	            <c:forEach items="${values}" var="value">
-	                <c:if test="${value.key != 'title && value.key != 'summary'}">
+	                <c:if test="${value.key != 'title' && value.key != 'summary'}">
 		                <tr>
 		                    <td class="leftCol">${value.key}</td>
 		                    <td>${value.value}</td>
