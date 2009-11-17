@@ -97,6 +97,25 @@
 				<li class="active"><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
 			</c:otherwise>
 		</c:choose>
+		<!--
+		<c:if test="${renderExtras == 'true'}">
+			<c:choose>
+			    <c:when test="${plugdescriptionClickable == 'false'}">
+			        <li
+			        <c:if test="${active == 'extras'}">
+			            class="active"
+			        </c:if>
+			        >Weitere Einstellungen</li>
+			    </c:when>
+			    <c:when test="${active != 'extras'}">
+			        <li><a href="../base/extras.html">Weitere Einstellungen</a></li>
+			    </c:when>
+			    <c:otherwise>
+			        <li class="active">Weitere Einstellungen</li>
+			    </c:otherwise>
+			</c:choose>
+		</c:if>-->
+
 
 		<!-- iplug sub navi  -->		
 		<c:catch>

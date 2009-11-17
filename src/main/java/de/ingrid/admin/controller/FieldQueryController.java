@@ -88,7 +88,8 @@ public class FieldQueryController extends AbstractController {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
             deleteFieldQuery(commandObject, field);
         } else if ("submit".equals(action)) {
-            return redirect(IUris.IPLUG_WELCOME);
+            // redirect to the first page of iPlug specific data
+            return redirect(IUris.EXTRAS);
         }
 
         return getFieldQuery(modelMap, commandObject);
