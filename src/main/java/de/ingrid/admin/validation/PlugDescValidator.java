@@ -1,5 +1,8 @@
 package de.ingrid.admin.validation;
 
+import java.net.InetAddress;
+import java.net.Socket;
+
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 
@@ -29,6 +32,19 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
 
         rejectIfEmptyOrWhitespace(errors, "iplugAdminGuiUrl");
         rejectIfEmptyOrWhitespace(errors, "iplugAdminGuiPort");
+        try {
+            final String property = System.getProperty("jetty.port");
+            // if jetty.port is not set, we are in developer mode and use port 8088
+            final Integer jettyPort = property == null ? 8088 : Integer.parseInt(property);
+            final Integer port = (Integer) errors.getFieldValue("iplugAdminGuiPort");
+            if (!port.equals(jettyPort)) {
+                final Socket socket = new Socket(InetAddress.getLocalHost(), port);
+                socket.close();
+                // no errors? then the socket is already taken
+                rejectError(errors, "iplugAdminGuiPort", IErrorKeys.INVALID);
+            }
+        } catch (final Exception e) {
+        }
         rejectIfEmptyOrWhitespace(errors, "iplugAdminPassword");
 
         return errors;
