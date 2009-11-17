@@ -66,7 +66,6 @@
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div id="content">
-			<p> Mit * gezeichnete Felder sind optional</p>
 			<h2>Allgemeine Angaben zum Betreiber</h2>
 			<form:form method="post" action="general.html" modelAttribute="plugDescription"> 
 				<table id="konfigForm">
@@ -93,7 +92,7 @@
 						<td colspan="2"><h3>Ansprechpartner:</h3></td>
 					</tr>
 					<tr>
-						<td>Titel*:</td>
+						<td>Titel:</td>
 						<td>
 							<form:input path="personTitle" />
 						</td>
@@ -122,7 +121,7 @@
 						<td><form:input path="dataSourceName" /><form:errors path="dataSourceName" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
-						<td>Kurzbeschreibung*:</td>
+						<td>Kurzbeschreibung:</td>
 						<td><form:textarea path="dataSourceDescription" /></td>
 					</tr>
 					<tr>
@@ -142,7 +141,7 @@
 						<td><form:input path="proxyServiceURL" readonly="true" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 					</tr>
 					<tr>
-						<td>Adresse des korrespondierenden iPlugs*:</td>
+						<td>Adresse des korrespondierenden iPlugs:</td>
 						<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 					</tr>
 					<tr>
