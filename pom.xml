@@ -138,7 +138,7 @@
 									fileSet(dir: 'target/classes') {
 										exclude(name: '**/RedirectController.class')
 										exclude(name: '**/BasePlug.class')
-										exclude(name: '**/DummyDataType.class')
+										exclude(name: '**/DefaultDataType.class')
 									}
 								}
                             </source>
