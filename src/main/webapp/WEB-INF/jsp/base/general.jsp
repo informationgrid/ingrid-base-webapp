@@ -137,10 +137,6 @@
 						<td colspan="2"><h3>Iplug:</h3></td>
 					</tr>
 					<tr>
-						<td>Adresse des iPlugs:</td>
-						<td><form:input path="proxyServiceURL" readonly="true" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
-					</tr>
-					<tr>
 						<td>Adresse des korrespondierenden iPlugs:</td>
 						<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 					</tr>
