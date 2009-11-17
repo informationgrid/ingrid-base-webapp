@@ -81,4 +81,9 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<error-code>403</error-code>
 		<location>/base/auth/roleFailure.html</location>
 	</error-page>
+	
+	<error-page>
+	   <exception-type>org.springframework.web.HttpSessionRequiredException</exception-type>
+	   <location>/</location>
+	</error-page>
 </web-app>
