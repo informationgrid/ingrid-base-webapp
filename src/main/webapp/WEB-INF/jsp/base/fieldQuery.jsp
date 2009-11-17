@@ -67,6 +67,11 @@
 			<a href="#" class="submit">Weiter</a>
 		</div>
 		<div id="content">
+		    <p>Hier haben Sie die Möglichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen IBussen reagieren soll.</p>
+		    <p>Im Feld <b>IBus</b> wählen Sie aus, auf welchen IBus diese Regel angewendet werden soll.<br />
+		    Das Feld <b>Regex</b> gibt an, welchen regulären Ausdruck die Anfrage erfüllen muss, damit die Regel angewendet wird.<br />
+		    In <b>Index Feld Name</b> und <b>Index Feld Wert</b> geben Sie an, mit welchen Parametern die Anfrage erweitert werden soll, bevor sie verarbeitet wird.<br />
+		    Bei der Auswahl der <b>Option</b> können sie entscheiden, ob das oben genannte Feld verhanden sein muss (erforderlich) oder nicht vorhanden sein darf (verboten), um die Anfrage zu bearbeiten.</p>
 			<h2>Geben Sie Field Queries an</h2>
 			<form:form method="post" action="fieldQuery.html" modelAttribute="fieldQuery">
 			     <input type="hidden" name="action" value="submit" />
@@ -139,6 +144,13 @@
 				</c:if>
 				
 			</form:form>
+			
+			<h4><u>Beispiele:</u></h4>
+            <p>Für Anfragen des IBus <i>"/test-bus:gross-gewaesser"</i>, die das Wort <i>"wasser"</i> enthalten, wollen sie NUR diejenigen Treffer zurückliefern, die im Index das Feld <i>"Typ"</i> den Wert <i>"See"</i> haben.<br />
+            Demnach müssen sie folgende angaben machen: <b>IBus</b>: <i>/test-bus:gross-gewaesser</i>, <b>Regex</b>: <i>wasser</i>, <b>Index Feld Name</b>: <i>Typ</i>, <b>Index Feld Wert</b>: <i>See</i>, <b>Option</b>: <i>erforderlich</i>.<br />
+            <br />
+            Für Anfragen des IBus <i>"/test-bus:ansprechpartner"</i>, die <i>Telefonnummern</i> enthalten, wollen sie NICHT diejenigen Treffer zurückliefern, die im Index das Feld <i>"Freigabe"</i> den Wert <i>"privat"</i> haben.<br />
+            Die Angaben könnten lauten: <b>IBus</b>: <i>/test-bus:messwerte</i>, <b>Regex</b>: <i>[0-9]+</i>, <b>Index Feld Name</b>: <i>Freigabe</i>, <b>Index Feld Wert</b>: <i>privat</i>, <b>Option</b>: <i>verboten</i>.</p>
 			
 		</div>
 	</div>
