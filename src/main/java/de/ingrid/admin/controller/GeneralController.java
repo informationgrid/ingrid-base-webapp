@@ -63,6 +63,22 @@ public class GeneralController extends AbstractController {
     public String getGeneral(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
+
+        // set up proxy service url
+        commandObject.setProxyServiceURL(_communicationInterface.getPeerName());
+
+        // test if plug is a igc plug
+        boolean isIgc = false;
+        if (_dataTypes != null) {
+            for (final IDataType type : _dataTypes) {
+                if (type.getName().equals(IDataType.DSC_ECS)) {
+                    isIgc = true;
+                    break;
+                }
+            }
+        }
+        modelMap.addAttribute("isIgc", isIgc);
+
         // create map
         final SortedMap<String, List<Provider>> map = createPartnerProviderMap(partners, getProviders());
         modelMap.addAttribute("jsonMap", toJsonMap(map));
@@ -74,8 +90,6 @@ public class GeneralController extends AbstractController {
     public String postGeneral(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
-        // set up proxy service url
-        commandObject.setProxyServiceURL(_communicationInterface.getPeerName());
 
         if (_validator.validateGeneral(errors).hasErrors()) {
             return getGeneral(modelMap, commandObject, errors, partners);

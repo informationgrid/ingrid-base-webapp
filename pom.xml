@@ -130,16 +130,16 @@
 						<configuration>
 							<source>
 								ant.zip(destfile: "target/${project.name}-res.zip") {
-								fileSet(dir: 'src/main/webapp') {
-								exclude(name: '**/*.xml')
-								}
+									fileSet(dir: 'src/main/webapp') {
+									   exclude(name: '**/*.xml')
+									}
 								}
 								ant.jar(destfile: "target/${project.name}.jar") {
-								fileSet(dir:
-								'target/classes') {
-								exclude(name: '**/RedirectController.class')
-								exclude(name: '**/BasePlug.class')
-								}
+									fileSet(dir: 'target/classes') {
+										exclude(name: '**/RedirectController.class')
+										exclude(name: '**/BasePlug.class')
+										exclude(name: '**/DummyDataType.class')
+									}
 								}
                             </source>
 						</configuration>

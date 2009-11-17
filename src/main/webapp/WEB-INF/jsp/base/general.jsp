@@ -68,6 +68,7 @@
 		<div id="content">
 			<h2>Allgemeine Angaben zum Betreiber</h2>
 			<form:form method="post" action="general.html" modelAttribute="plugDescription"> 
+			    <c:if test="${isIgc}"><form:hidden path="proxyServiceURL" /></c:if>
 				<table id="konfigForm">
 					<tr>
 						<td>Partner:</td>
@@ -133,13 +134,19 @@
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						</td>
 					</tr>
-					<tr>
-						<td colspan="2"><h3>Iplug:</h3></td>
-					</tr>
-					<tr>
-						<td>Adresse des korrespondierenden iPlugs:</td>
-						<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
-					</tr>
+					<c:if test="${isIgc}">
+						<tr>
+							<td colspan="2"><h3>Iplug:</h3></td>
+						</tr>
+						<tr>
+							<td>Adresse des iPlugs:</td>
+							<td><form:input path="proxyServiceURL" readonly="true" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+						</tr>
+						<tr>
+							<td>Adresse des korrespondierenden iPlugs:</td>
+							<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+						</tr>
+					</c:if>
 					<tr>
 						<td colspan="2"><h3>Administrationsinterface:</h3></td>
 					</tr>					
