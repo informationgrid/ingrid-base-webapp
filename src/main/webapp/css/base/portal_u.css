@@ -86,11 +86,12 @@ div#contentBox table.fullSize td a { display:block; padding:4px 10px; margin:0; 
 table#konfigForm { margin-bottom:80px; width:100%; }
 table#konfigForm td { vertical-align:top; padding:0 10px 6px 0; }
 table#konfigForm td.leftCol { width:180px; }
+table#konfigForm td.rightCol { color: #888; width: 200px; }
 
 
 /* --- Formular Styles --- */
 
-input[type='text'], select, textarea { color:#464646; border:solid #1B78B1 1px; font:normal 11px Verdana, Arial, Helvetica, sans-serif; background-color:#FFF; width:90%; margin:0; padding:1px 0 2px 3px; }
+input[type='text'], select, textarea { color:#464646; border:solid #1B78B1 1px; font:normal 11px Verdana, Arial, Helvetica, sans-serif; background-color:#FFF; width:95%; margin:0; padding:1px 0 2px 3px; }
 .check { margin-top:20px; }
 .check input { border:0; width:20px; text-align:left; }
 .long { width:395px; margin-top:-18px; }

@@ -8,6 +8,7 @@
             </c:forEach>
            </select>
        </td>
+   <td class="rightCol">Der Tag im Monat, an dem der Prozess starten soll.</td>
    </tr>
 <tr>
 	<td class="leftCol">Stunde:</td>
@@ -18,6 +19,7 @@
 </c:forEach>
 		</select>
 	</td>
+	<td class="rightCol">Die Stunde des Tages, an dem der Prozess starten soll.</td>
 </tr>
 <tr>
 	<td class="leftCol">Minute:</td>
@@ -28,4 +30,5 @@
 </c:forEach>
 		</select>
 	</td>
+	<td class="rightCol">Die Minute der Stunde, an dem der Prozess starten soll.</td>
 </tr>

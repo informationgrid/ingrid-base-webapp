@@ -95,6 +95,7 @@
                                 </c:forEach>
                             </div>
 						</td>
+						<td class="rightCol">Weitere Partner dieses IPlugs.</td>
 					</tr>
 							
 				</table>

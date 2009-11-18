@@ -8,6 +8,7 @@
 			</c:forEach>
 		</select>
 	</td>
+	<td class="rightCol">Die Stunde der Uhrzeit, an dem der Prozess starten soll.</td>
 </tr>
 <tr>
 	<td class="leftCol">Minute:</td>
@@ -18,4 +19,5 @@
 			</c:forEach>
 		</select>
 	</td>
+	<td class="rightCol">Die Minute der Uhrzeit, an dem der Prozess starten soll.</td>
 </tr>

@@ -34,8 +34,9 @@
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">HeartBeat Setup</h1>
         <div id="content">
+            <p>Hier sehen sie den Status der HeartBeats zu den IBus(sen).</p>
             
-            <span>Status:
+            <span><b>Status:</b>
                 <c:choose>
                     <c:when test="${enabled}"><span class="success">sendet</span></c:when>
                     <c:otherwise><span class="error">sendet nicht</span></c:otherwise>
@@ -60,6 +61,10 @@
                     </form>
                  </c:otherwise>
              </c:choose>
+             <br />
+             <p>Sie haben die Möglichkeit die HeartBeats zu stoppen, starten und neu zu starten.
+             <br />Üblicherweiße sollte hier "<span class="success">sendet</span>" zu sehen sein.<br />
+             Ist dies nicht der Falll, sondern erscheint hier "<span class="error">sendet nicht</span>", kann sich das IPlug an mindestens einen IBus nicht anmelden.</p>
         
         </div>
     </div>

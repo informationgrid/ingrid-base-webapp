@@ -79,6 +79,7 @@
                             </form:select>
                             <form:errors path="organisation" cssClass="error" element="div" />
 						</td>
+						<td class="rightCol">Der Partner der dieses IPlug betreibt.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Name des Anbieters:</td>
@@ -88,42 +89,50 @@
                             </form:select>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
 						</td>
+						<td class="rightCol">Der Anbieter der dieses IPlug betreibt.</td>
 					</tr>
 					<tr>
-						<td colspan="2"><h3>Ansprechpartner:</h3></td>
+						<td colspan="3"><h3>Ansprechpartner:</h3></td>
 					</tr>
 					<tr>
 						<td>Titel:</td>
 						<td>
 							<form:input path="personTitle" />
 						</td>
+						<td class="rightCol">Der Titel des Ansprechpartners (optional).</td>
 					</tr> 
 					<tr>  
 						<td>Nachname:</td>
 						<td><form:input path="personSureName" /><form:errors path="personSureName" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der Name des Ansprechpartners.</td>
 					</tr> 
 					<tr>  
 						<td>Vorname:</td>
 						<td><form:input path="personName" /><form:errors path="personName" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der Vorname des Ansprechpartners.</td>
 					</tr>
 					<tr>
 						<td>Telefon:</td>
 						<td><form:input path="personPhone" /><form:errors path="personPhone" cssClass="error" element="div" /></td>
+						<td class="rightCol">Die Telefonnummer unter der der Ansprechpartner erreichbar ist.</td>
 					</tr>
 					<tr>
 						<td>E-Mail:</td>
 						<td><form:input path="personMail" /><form:errors path="personMail" cssClass="error" element="div" /></td>
+						<td class="rightCol">Die E-Mail Adresse des Ansprechpartners.</td>
 					</tr>
 					<tr>
-						<td colspan="2"><h3>Datenquelle:</h3></td>
+						<td colspan="3"><h3>Datenquelle:</h3></td>
 					</tr>					
 					<tr>
 						<td>Name der Datenquelle:</td>
 						<td><form:input path="dataSourceName" /><form:errors path="dataSourceName" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der Name der die Datenquelle bezeichnet.</td>
 					</tr>
 					<tr>
 						<td>Kurzbeschreibung:</td>
 						<td><form:textarea path="dataSourceDescription" /></td>
+						<td class="rightCol">Eine kurze Beschreibung des Inhalts und der Anforderung der Datenquelle (optional).</td>
 					</tr>
 					<tr>
 						<td>Art der Datenquelle:</td>
@@ -133,18 +142,21 @@
 						    </c:forEach>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						</td>
+						<td class="rightCol">Der Datenquellen Typ (mehrere Felder auswählbar).</td>
 					</tr>
 					<c:if test="${isIgc}">
 						<tr>
-							<td colspan="2"><h3>Iplug:</h3></td>
+							<td colspan="3"><h3>IPlug:</h3></td>
 						</tr>
 						<tr>
 							<td>Adresse des iPlugs:</td>
 							<td><form:input path="proxyServiceURL" readonly="true" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+							<td class="rightCol">Der bereits angegebene Name des IPlugs.</td>
 						</tr>
 						<tr>
-							<td>Adresse des korrespondierenden iPlugs:</td>
+							<td>Adresse des korrespondierenden IPlugs:</td>
 							<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+							<td class="rightCol">Name des korrespondierenden IPlugs</td>
 						</tr>
 					</c:if>
 					<tr>
@@ -153,14 +165,17 @@
 					<tr>
 						<td>URL:</td>
 						<td><form:input path="iplugAdminGuiUrl" /><form:errors path="iplugAdminGuiUrl" cssClass="error" element="div" /></td>
+						<td class="rightCol">Die Adresse unter der dieses Administrationsinterface erreichbar sein soll.</td>
 					</tr>
 					<tr>
 						<td>Port:</td>
 						<td><form:input path="iplugAdminGuiPort" /><form:errors path="iplugAdminGuiPort" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der Port unter der dieses Administrationsinterface erreichbar sein soll.</td>
 					</tr>
 					<tr>
 						<td>Administrationskennwort:</td>
 						<td><input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" /><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
+						<td class="rightCol">Das Kennwort mit dessen Hilfe man sich Authentifiziert.</td>
 					</tr>			
 				</table>
 			</form:form>

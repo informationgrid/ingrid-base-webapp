@@ -68,10 +68,6 @@
 		</div>
 		<div id="content">
 		    <p>Hier haben Sie die Möglichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen IBussen reagieren soll.</p>
-		    <p>Im Feld <b>IBus</b> wählen Sie aus, auf welchen IBus diese Regel angewendet werden soll.<br />
-		    Das Feld <b>Regex</b> gibt an, welchen regulären Ausdruck die Anfrage erfüllen muss, damit die Regel angewendet wird.<br />
-		    In <b>Index Feld Name</b> und <b>Index Feld Wert</b> geben Sie an, mit welchen Parametern die Anfrage erweitert werden soll, bevor sie verarbeitet wird.<br />
-		    Bei der Auswahl der <b>Option</b> können sie entscheiden, ob das oben genannte Feld verhanden sein muss (erforderlich) oder nicht vorhanden sein darf (verboten), um die Anfrage zu bearbeiten.</p>
 			<h2>Geben Sie Field Queries an</h2>
 			<form:form method="post" action="fieldQuery.html" modelAttribute="fieldQuery">
 			     <input type="hidden" name="action" value="submit" />
@@ -85,18 +81,22 @@
 						    </form:select>
 						    <form:errors path="busUrl" cssClass="error" element="div" />
 						</td>
+						<td class="rightCol">Auf welchen IBus diese Regel angewendet werden soll.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Regex:</td>
 						<td><form:input path="regex" /><form:errors path="regex" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Index Feld Name:</td>
 						<td><form:input path="key" /><form:errors path="key" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der Name des Feldes mit dem die Anfrage erweitert werden soll.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Index Feld Wert:</td>
 						<td><form:input path="value" /><form:errors path="value" cssClass="error" element="div" /></td>
+						<td class="rightCol">Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Option:</td>
@@ -105,10 +105,11 @@
 							<form:radiobutton path="option" value="required" label="erforderlich"/>
 							<form:errors path="option" cssClass="error" element="div" />
 						</td>
+						<td class="rightCol">Einstellung, ob das Feld erforderlich sein muss oder es nicht vorhanden sein darf.</td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
-						<td><button type="button" action="add">Hinzufügen</button></td>
+						<td colspan="2"><button type="button" action="add">Hinzufügen</button></td>
 					</tr>		
 				</table>
 
