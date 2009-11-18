@@ -1,7 +1,5 @@
 package de.ingrid.admin.security;
 
-import java.io.File;
-
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -10,20 +8,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import de.ingrid.admin.IKeys;
+import de.ingrid.admin.service.PlugDescriptionService;
 
 @Controller
 public class LoginController {
 
     @ModelAttribute("securityEnabled")
-    public Boolean injectAuthenticate() {
-        String pd = System.getProperty(IKeys.PLUG_DESCRIPTION);
-        File file = new File(pd);
-        return file.exists();
+    public Boolean injectAuthenticate(final PlugDescriptionService pds) {
+        return pds.existsPlugDescription();
     }
 
     @RequestMapping(value = "/base/auth/login.html", method = RequestMethod.GET)
-    public String login(Model model, HttpSession session) {
+    public String login(final Model model, final HttpSession session) {
         return "/base/login";
     }
 
@@ -38,7 +34,7 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/base/auth/logout.html", method = RequestMethod.GET)
-    public String logout(HttpSession session) {
+    public String logout(final HttpSession session) {
         session.invalidate();
         return "redirect:/base/welcome.html";
     }
