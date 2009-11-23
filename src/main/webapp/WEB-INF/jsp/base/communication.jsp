@@ -73,47 +73,46 @@
                 <input type="hidden" name="id" value="" />
                 <table id="konfigForm">
                     <tr>
-                        <td colspan="3"><h3>Ihr IPlug:</h3></td>
+                        <td colspan="2"><h3>Ihr IPlug:</h3></td>
                     </tr>
                     <tr>
                         <td class="leftCol">Eigene Proxy Service Url:</td>
                         <td>
-                            <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" />
+                            <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" /><br />
+                            <span>Der Name mit den man diesen IPlug identifiziert.</span>
                             <form:errors path="proxyServiceUrl" cssClass="error" element="div" />
                         </td>
-                        <td class="rightCol">Der Name mit den man diesen IPlug identifiziert.</td>
                     </tr>
                     <tr>
-                        <td colspan="3"><h3>IBus angaben:</h3></td>
+                        <td colspan="2"><h3>IBus angaben:</h3></td>
                     </tr>
                     <tr>
                         <td class="leftCol">IBus Proxy Service Url:</td>
                         <td>
-                            <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" />
+                            <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" /><br />
+                            <span>Der Name des IBus mit dem sich der IPlug verbinden soll.</span>
                             <form:errors path="busProxyServiceUrl" cssClass="error" element="div" />
                         </td>
-                        <td class="rightCol">Der Name des IBus mit dem sich der IPlug verbinden soll.</td>
                     </tr>
                     <tr>
                         <td class="leftCol">IP:</td>
                         <td>
-                            <input type="text" name="ip" value="${communication.ip}" />
+                            <input type="text" name="ip" value="${communication.ip}" /><br />
+                            <span>Die IP-Adresse des IBus.</span>
                             <form:errors path="ip" cssClass="error" element="div" />
                         </td>
-                        <td class="rightCol">Die IP-Adresse des IBus.</td>
                     </tr>
                     <tr>
                         <td class="leftCol">Port:</td>
                         <td>
-                            <input type="text" name="port" value="${communication.port}" />
+                            <input type="text" name="port" value="${communication.port}" /><br />
+                            <span>Der Port des IBus.</span>
                             <form:errors path="port" cssClass="error" element="div" />
                         </td>
-                        <td class="rightCol">Der Port des IBus.</td>
                     </tr>
                     <tr>
                         <td class="leftCol">&nbsp;</td>
-                        <td colspan="2"><button type="button" action="add"><c:choose><c:when test="${!empty busses}">Hinzufügen</c:when><c:otherwise>Speichern</c:otherwise></c:choose></button>
-                        </td>
+                        <td><button type="button" action="add"><c:choose><c:when test="${!empty busses}">Hinzufügen</c:when><c:otherwise>Speichern</c:otherwise></c:choose></button></td>
                     </tr>
                 </table>
                 

@@ -80,7 +80,8 @@
                                 <c:forEach items="${providerList}" var="provider">
                                     <option value="${provider.shortName}">${provider.displayName}</option>
                                 </c:forEach>
-                            </select>
+                            </select><br />
+                            <span>Weitere Anbieter dieses IPlugs.</span>
                             <form:errors path="providers" cssClass="error" element="div" />
                             <br/>
                             <br/>
@@ -95,7 +96,6 @@
                                 </c:forEach>
                             </div>
                         </td>
-                        <td class="rightCol">Weitere Anbieter dieses IPlugs.</td>
                     </tr>
                             
                 </table>

@@ -6,9 +6,9 @@
 			<c:forEach var="i" begin="0" end="23">
 				<option value="${i}">${i}</option>
 			</c:forEach>
-		</select>
+		</select><br />
+        <span>Die Stunde der Uhrzeit, an dem der Prozess starten soll.</span>
 	</td>
-	<td class="rightCol">Die Stunde der Uhrzeit, an dem der Prozess starten soll.</td>
 </tr>
 <tr>
 	<td class="leftCol">Minute:</td>
@@ -17,7 +17,7 @@
 			<c:forEach var="i" begin="0" end="59" step="15">
 				<option value="${i}">${i}</option>
 			</c:forEach>
-		</select>
+		</select><br />
+		<span>Die Minute der Uhrzeit, an dem der Prozess starten soll.</span>
 	</td>
-	<td class="rightCol">Die Minute der Uhrzeit, an dem der Prozess starten soll.</td>
 </tr>

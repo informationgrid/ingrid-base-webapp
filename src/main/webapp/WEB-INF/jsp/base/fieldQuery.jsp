@@ -78,38 +78,35 @@
 						<td>
 						    <form:select path="busUrl">
 						      <form:options items="${busUrls}" />
-						    </form:select>
+						    </form:select><br />
+						    <span>Auf welchen IBus diese Regel angewendet werden soll.</span>
 						    <form:errors path="busUrl" cssClass="error" element="div" />
 						</td>
-						<td class="rightCol">Auf welchen IBus diese Regel angewendet werden soll.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Regex:</td>
-						<td><form:input path="regex" /><form:errors path="regex" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</td>
+						<td><form:input path="regex" /><br /><span>Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td class="leftCol">Index Feld Name:</td>
-						<td><form:input path="key" /><form:errors path="key" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der Name des Feldes mit dem die Anfrage erweitert werden soll.</td>
+						<td><form:input path="key" /><br /><span>Der Name des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="key" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td class="leftCol">Index Feld Wert:</td>
-						<td><form:input path="value" /><form:errors path="value" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</td>
+						<td><form:input path="value" /><br /><span>Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="value" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td class="leftCol">Option:</td>
 						<td>
 							<form:radiobutton path="option" value="prohibited" label="verboten"/>
-							<form:radiobutton path="option" value="required" label="erforderlich"/>
+							<form:radiobutton path="option" value="required" label="erforderlich"/><br />
+                            <span>Einstellung, ob das Feld erforderlich sein muss oder es nicht vorhanden sein darf.</span>
 							<form:errors path="option" cssClass="error" element="div" />
 						</td>
-						<td class="rightCol">Einstellung, ob das Feld erforderlich sein muss oder es nicht vorhanden sein darf.</td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
-						<td colspan="2"><button type="button" action="add">Hinzufügen</button></td>
+						<td><button type="button" action="add">Hinzufügen</button></td>
 					</tr>		
 				</table>
 

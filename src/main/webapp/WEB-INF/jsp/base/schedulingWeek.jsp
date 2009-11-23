@@ -10,9 +10,9 @@
             <option value="5">Freitag</option>
             <option value="6">Samstag</option>
             <option value="7">Sonntag</option>
-        </select>
+        </select><br />
+        <span>Der Wochentag, an dem der Prozess starten soll.</span>
     </td>
-    <td class="rightCol">Der Wochentag, an dem der Prozess starten soll.</td>
 </tr>
 <tr>
 	<td class="leftCol">Stunde:</td>
@@ -21,9 +21,9 @@
 			<c:forEach var="i" begin="0" end="23">
                 <option value="${i}">${i}</option>
             </c:forEach>
-		</select>
+		</select><br />
+        <span>Die Stunde des Tages, an dem der Prozess starten soll.</span>
 	</td>
-	<td class="rightCol">Die Stunde des Tages, an dem der Prozess starten soll.</td>
 </tr>
 <tr>
 	<td class="leftCol">Minute:</td>
@@ -32,7 +32,7 @@
 			<c:forEach var="i" begin="0" end="59" step="15">
                 <option value="${i}">${i}</option>
 			</c:forEach>
-		</select>
+		</select><br />
+        <span>Die Minute der Stunde, an dem der Prozess starten soll.</span>
 	</td>
-	<td class="rightCol">Die Minute der Stunde, an dem der Prozess starten soll.</td>
 </tr>

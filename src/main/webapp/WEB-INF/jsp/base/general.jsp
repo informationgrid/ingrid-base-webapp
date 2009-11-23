@@ -76,87 +76,79 @@
 							<form:select path="organisation" id="partners"> 
                                 <form:option value="" label="bitte wählen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
-                            </form:select>
+                            </form:select><br />
+                            <span>Der Partner der dieses IPlug betreibt.</span>
                             <form:errors path="organisation" cssClass="error" element="div" />
 						</td>
-						<td class="rightCol">Der Partner der dieses IPlug betreibt.</td>
 					</tr>
 					<tr>
 						<td class="leftCol">Name des Anbieters:</td>
 						<td>
 							 <form:select path="organisationAbbr" id="providers" > 
                                 <form:option value="" label="bitte wählen" /> 
-                            </form:select>
+                            </form:select><br />
+                            <span>Der Anbieter der dieses IPlug betreibt.</span>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
 						</td>
-						<td class="rightCol">Der Anbieter der dieses IPlug betreibt.</td>
 					</tr>
 					<tr>
-						<td colspan="3"><h3>Ansprechpartner:</h3></td>
+						<td colspan="2"><h3>Ansprechpartner:</h3></td>
 					</tr>
 					<tr>
 						<td>Titel:</td>
 						<td>
-							<form:input path="personTitle" />
+							<form:input path="personTitle" /><br />
+                            <span>Der Titel des Ansprechpartners (optional).</span>
 						</td>
-						<td class="rightCol">Der Titel des Ansprechpartners (optional).</td>
 					</tr> 
 					<tr>  
 						<td>Nachname:</td>
-						<td><form:input path="personSureName" /><form:errors path="personSureName" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der Name des Ansprechpartners.</td>
+						<td><form:input path="personSureName" /><br /><span>Der Name des Ansprechpartners.</span><form:errors path="personSureName" cssClass="error" element="div" /></td>
 					</tr> 
 					<tr>  
 						<td>Vorname:</td>
-						<td><form:input path="personName" /><form:errors path="personName" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der Vorname des Ansprechpartners.</td>
+						<td><form:input path="personName" /><br /><span>Der Vorname des Ansprechpartners.</span><form:errors path="personName" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Telefon:</td>
-						<td><form:input path="personPhone" /><form:errors path="personPhone" cssClass="error" element="div" /></td>
-						<td class="rightCol">Die Telefonnummer unter der der Ansprechpartner erreichbar ist.</td>
+						<td><form:input path="personPhone" /><br /><span>Die Telefonnummer unter der der Ansprechpartner erreichbar ist.</span><form:errors path="personPhone" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>E-Mail:</td>
-						<td><form:input path="personMail" /><form:errors path="personMail" cssClass="error" element="div" /></td>
-						<td class="rightCol">Die E-Mail Adresse des Ansprechpartners.</td>
+						<td><form:input path="personMail" /><br /><span>Die E-Mail Adresse des Ansprechpartners.</span><form:errors path="personMail" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
-						<td colspan="3"><h3>Datenquelle:</h3></td>
+						<td colspan="2"><h3>Datenquelle:</h3></td>
 					</tr>					
 					<tr>
 						<td>Name der Datenquelle:</td>
-						<td><form:input path="dataSourceName" /><form:errors path="dataSourceName" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der Name der die Datenquelle bezeichnet.</td>
+						<td><form:input path="dataSourceName" /><br /><span>Der Name der die Datenquelle bezeichnet.</span><form:errors path="dataSourceName" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Kurzbeschreibung:</td>
-						<td><form:textarea path="dataSourceDescription" /></td>
-						<td class="rightCol">Eine kurze Beschreibung des Inhalts und der Anforderung der Datenquelle (optional).</td>
+						<td><form:textarea path="dataSourceDescription" /><br /><span>Eine kurze Beschreibung des Inhalts und der Anforderung der Datenquelle (optional).</span></td>
 					</tr>
 					<tr>
 						<td>Art der Datenquelle:</td>
 						<td>
 						    <c:forEach items="${dataTypes}" var="type">
 						        <form:checkbox path="dataTypes" value="${type.name}" /><fmt:message key="dataType.${type.name}"/><br />
-						    </c:forEach>
+						    </c:forEach><br />
+                            <span>Der Datenquellen Typ (mehrere Felder auswählbar).</span>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						</td>
-						<td class="rightCol">Der Datenquellen Typ (mehrere Felder auswählbar).</td>
 					</tr>
 					<c:if test="${isIgc}">
 						<tr>
-							<td colspan="3"><h3>IPlug:</h3></td>
+							<td colspan="2"><h3>IPlug:</h3></td>
 						</tr>
 						<tr>
 							<td>Adresse des iPlugs:</td>
-							<td><form:input path="proxyServiceURL" readonly="true" /><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
-							<td class="rightCol">Der bereits angegebene Name des IPlugs.</td>
+							<td><form:input path="proxyServiceURL" readonly="true" /><br /><span>Der bereits angegebene Name des IPlugs.</span><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 						</tr>
 						<tr>
 							<td>Adresse des korrespondierenden IPlugs:</td>
-							<td><form:input path="correspondentProxyServiceURL" /><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
-							<td class="rightCol">Name des korrespondierenden IPlugs</td>
+							<td><form:input path="correspondentProxyServiceURL" /><br /><span>Name des korrespondierenden IPlugs.</span><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
 						</tr>
 					</c:if>
 					<tr>
@@ -164,18 +156,15 @@
 					</tr>					
 					<tr>
 						<td>URL:</td>
-						<td><form:input path="iplugAdminGuiUrl" /><form:errors path="iplugAdminGuiUrl" cssClass="error" element="div" /></td>
-						<td class="rightCol">Die Adresse unter der dieses Administrationsinterface erreichbar sein soll.</td>
+						<td><form:input path="iplugAdminGuiUrl" /><br /><span>Die Adresse unter der dieses Administrationsinterface erreichbar sein soll.</span><form:errors path="iplugAdminGuiUrl" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Port:</td>
-						<td><form:input path="iplugAdminGuiPort" /><form:errors path="iplugAdminGuiPort" cssClass="error" element="div" /></td>
-						<td class="rightCol">Der Port unter der dieses Administrationsinterface erreichbar sein soll.</td>
+						<td><form:input path="iplugAdminGuiPort" /><br /><span>Der Port unter der dieses Administrationsinterface erreichbar sein soll.</span><form:errors path="iplugAdminGuiPort" cssClass="error" element="div" /></td>
 					</tr>
 					<tr>
 						<td>Administrationskennwort:</td>
-						<td><input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" /><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
-						<td class="rightCol">Das Kennwort mit dessen Hilfe man sich Authentifiziert.</td>
+						<td><input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" /><br /><span>Das Kennwort mit dessen Hilfe man sich Authentifiziert.</span><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
 					</tr>			
 				</table>
 			</form:form>

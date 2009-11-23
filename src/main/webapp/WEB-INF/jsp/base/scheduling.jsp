@@ -79,7 +79,7 @@
 					</c:choose>
 					<tr>
 			            <td class="leftCol"></td>
-				        <td colspan="2"><input type="submit" value="speichern" /></td>
+				        <td><input type="submit" value="speichern" /></td>
 				    </tr>
 			    </table>
 			</form>
