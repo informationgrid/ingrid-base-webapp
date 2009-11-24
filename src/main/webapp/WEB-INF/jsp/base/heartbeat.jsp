@@ -38,13 +38,17 @@
             
             <span><b>Status:</b>
                 <c:choose>
-                    <c:when test="${enabled}">
-                        <c:choose>
-                            <c:when test="${accurate}"><span class="success">sendet</span></c:when>
-                            <c:otherwise><span class="error">sendet fehlerhaft</span></c:otherwise>
-                        </c:choose>
+                    <c:when test="${accurate}">
+                        <span class="success">sendet</span>
                     </c:when>
-                    <c:otherwise><span class="error">sendet nicht</span></c:otherwise>
+                    <c:otherwise>
+                        <span class="error">
+			                <c:choose>
+			                    <c:when test="${enabled}">sendet fehlerhaft</c:when>
+			                    <c:otherwise>sendet nicht</c:otherwise>
+			                </c:choose>
+                        </span>
+                    </c:otherwise>
                 </c:choose>
             </span><br />
             <br />
