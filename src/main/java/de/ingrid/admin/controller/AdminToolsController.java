@@ -59,6 +59,7 @@ public class AdminToolsController extends AbstractController {
     @RequestMapping(value = IUris.HEARTBEAT_SETUP, method = RequestMethod.GET)
     public String getHeartbeat(final ModelMap modelMap) {
         modelMap.addAttribute("enabled", _plug.sendingHeartBeats());
+        modelMap.addAttribute("accurate", _plug.sendingAccurate());
         return IViews.HEARTBEAT_SETUP;
     }
 
