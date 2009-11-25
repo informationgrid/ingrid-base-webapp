@@ -34,6 +34,7 @@
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">HeartBeat Setup</h1>
         <div id="content">
+	        <br />
             <p>Hier sehen sie den Status der HeartBeats zu den IBus(sen).</p>
             
             <span><b>Status:</b>

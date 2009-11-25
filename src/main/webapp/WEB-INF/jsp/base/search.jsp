@@ -33,17 +33,8 @@
 	
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Suche testen</h1>
-		<div class="controls">
-			<a href="#" onclick="document.location='indexing.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='finish.html';">Weiter</a>
-		</div>
-		<div class="controls cBottom">
-			<a href="#" onclick="document.location='indexing.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='finish.html';">Weiter</a>
-		</div>
 		<div id="content">
+			<br />
 			<h2>Sie können den erstellten Index testen. Geben Sie eine Suchanfrage ein</h2>
 			<form method="get" action="search.html">
 				<table id="konfigForm">

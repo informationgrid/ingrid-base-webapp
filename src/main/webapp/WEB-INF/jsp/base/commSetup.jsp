@@ -35,6 +35,7 @@
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Kommunikations Setup</h1>
         <div id="content">
+            <br />
 	        <p>Hier sehen sie den Status der Verbindung zu den IBus(sen).</p>
             
             <span><b>Status:</b>

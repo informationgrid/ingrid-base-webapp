@@ -14,93 +14,49 @@
 	<ul>
 
 		<!-- workingDir -->
+		<li <c:if test="${active == 'workingDir'}">class="active"</c:if>>
 		<c:choose>
-			<c:when test="${communicationClickable == 'false'}">
-				<li
-                <c:if test="${active == 'workingDir'}">
-                    class="active"
-                </c:if>
-                >Arbeitsverzeichnis wählen</li>
-			</c:when>
-			<c:when test="${active != 'workingDir'}">
-				<li><a href="<%=request.getContextPath()%>/base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/workingDir.html">Arbeitsverzeichnis wählen</a></li>
-			</c:otherwise>
+            <c:when test="${communicationExists}"><a href="<%=request.getContextPath()%>/base/workingDir.html">Arbeitsverzeichnis wählen</a></c:when>
+            <c:otherwise>Arbeitsverzeichnis wählen</c:otherwise>
 		</c:choose>
+		</li>
 
 		<!-- general -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-			    <li
-                <c:if test="${active == 'general'}">
-                    class="active"
-                </c:if>
-                >Angaben zu Betreiber und Datenquelle</li>
-			</c:when>
-			<c:when test="${active != 'general'}">
-				<li><a href="<%=request.getContextPath()%>/base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/general.html">Angaben zu Betreiber und Datenquelle</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'general'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/general.html">Angaben zu Betreiber und Datenquelle</a></c:when>
+            <c:otherwise>Angaben zu Betreiber und Datenquelle</c:otherwise>
+        </c:choose>
+        </li>
 		
 		<!-- partner -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'partner'}">
-                    class="active"
-                </c:if>
-                >Hinzufügen der Partner</li>
-			</c:when>
-			<c:when test="${active != 'partner'}">
-				<li><a href="<%=request.getContextPath()%>/base/partner.html">Hinzufügen der Partner</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/partner.html">Hinzufügen der Partner</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'partner'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/partner.html">Hinzufügen der Partner</a></c:when>
+            <c:otherwise>Hinzufügen der Provider</c:otherwise>
+        </c:choose>
+        </li>
 
 		<!-- provider -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'provider'}">
-                    class="active"
-                </c:if>
-                >Hinzufügen der Provider</li>
-			</c:when>
-			<c:when test="${active != 'provider'}">
-				<li><a href="<%=request.getContextPath()%>/base/provider.html">Hinzufügen der Provider</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/provider.html">Hinzufügen der Provider</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'provider'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/provider.html">Hinzufügen der Provider</a></c:when>
+            <c:otherwise>Hinzufügen der Provider</c:otherwise>
+        </c:choose>
+        </li>
 
 		<!-- fieldQuery -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'fieldQuery'}">
-                    class="active"
-                </c:if>
-                >Verfügbarkeit der Ergebnisse</li>
-			</c:when>
-			<c:when test="${active != 'fieldQuery'}">
-				<li><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'fieldQuery'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></c:when>
+            <c:otherwise>Verfügbarkeit der Ergebnisse</c:otherwise>
+        </c:choose>
+        </li>
+        
 		<!--
 		<c:if test="${renderExtras == 'true'}">
 			<c:choose>
-			    <c:when test="${plugdescriptionClickable == 'false'}">
+			    <c:when test="${!plugdescriptionExists}">
 			        <li
 			        <c:if test="${active == 'extras'}">
 			            class="active"
@@ -116,28 +72,18 @@
 			</c:choose>
 		</c:if>-->
 
-
 		<!-- iplug sub navi  -->		
 		<c:catch>
 		<c:import url="../iplug/iplugSubNavi.jsp"></c:import>
 		</c:catch>
 		
 		<!-- save -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'save'}">
-                    class="active"
-                </c:if>
-                >Speichern</li>
-			</c:when>
-			<c:when test="${active != 'save'}">
-				<li><a href="<%=request.getContextPath()%>/base/save.html">Speichern</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/save.html">Speichern</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'save'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/save.html">Speichern</a></c:when>
+            <c:otherwise>Speichern</c:otherwise>
+        </c:choose>
+        </li>
 		
 	</ul>
 	
@@ -149,38 +95,20 @@
 	<ul>
 
 		<!-- scheduling -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'scheduling'}">
-                    class="active"
-                </c:if>
-                >Scheduling</li>
-			</c:when>
-			<c:when test="${active != 'scheduling'}">
-				<li><a href="<%=request.getContextPath()%>/base/scheduling.html">Scheduling</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/scheduling.html">Scheduling</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'scheduling'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/scheduling.html">Scheduling</a></c:when>
+            <c:otherwise>Scheduling</c:otherwise>
+        </c:choose>
+        </li>
 
 		<!-- indexing -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'indexing'}">
-                    class="active"
-                </c:if>
-                >Indexieren</li>
-			</c:when>
-			<c:when test="${active != 'indexing'}">
-				<li><a href="<%=request.getContextPath()%>/base/indexing.html">Indexieren</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/indexing.html">Indexieren</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'indexing'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/indexing.html">Indexieren</a></c:when>
+            <c:otherwise>Indexieren</c:otherwise>
+        </c:choose>
+        </li>
 	
 	</ul>
 	<% } %>
@@ -192,54 +120,36 @@
 	<ul>
 	
 		<!-- communication -->
-		<c:choose>
-			<c:when test="${communicationClickable == 'false'}">
-				<li
-                <c:if test="${active == 'commSetup'}">
-                    class="active"
-                </c:if>
-                >Kommunikations Setup</li>
-			</c:when>
-			<c:when test="${active != 'commSetup'}">
-				<li><a href="<%=request.getContextPath()%>/base/commSetup.html">Kommunikations Setup</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/commSetup.html">Kommunikations Setup</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'commSetup'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${communicationExists}"><a href="<%=request.getContextPath()%>/base/commSetup.html">Kommunikations Setup</a></c:when>
+            <c:otherwise>Kommunikations Setup</c:otherwise>
+        </c:choose>
+        </li>
 
 		<!-- heartbeat -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'heartbeat'}">
-                    class="active"
-                </c:if>
-                >HeartBeat Setup</li>
-			</c:when>
-			<c:when test="${active != 'heartbeat'}">
-				<li><a href="<%=request.getContextPath()%>/base/heartbeat.html">HeartBeat Setup</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/heartbeat.html">HeartBeat Setup</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'heartbeat'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/heartbeat.html">HeartBeat Setup</a></c:when>
+            <c:otherwise>HeartBeat Setup</c:otherwise>
+        </c:choose>
+        </li>
 	
 		<!-- search -->
-		<c:choose>
-			<c:when test="${plugdescriptionClickable == 'false'}">
-				<li
-                <c:if test="${active == 'search'}">
-                    class="active"
-                </c:if>
-                >Suche Testen</li>
-			</c:when>
-			<c:when test="${active != 'search'}">
-				<li><a href="<%=request.getContextPath()%>/base/search.html">Suche Testen</a></li>
-			</c:when>
-			<c:otherwise>
-				<li class="active"><a href="<%=request.getContextPath()%>/base/search.html">Suche Testen</a></li>
-			</c:otherwise>
-		</c:choose>
+		<li <c:if test="${active == 'search'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/search.html">Suche Testen</a></c:when>
+            <c:otherwise>Suche Testen</c:otherwise>
+        </c:choose>
+        </li>
+		
+		<!-- cache -->
+		<li <c:if test="${active == 'cache'}">class="active"</c:if>>
+        <c:choose>
+            <c:when test="${plugdescriptionExists}"><a href="<%=request.getContextPath()%>/base/cache.html">Caching Einstellungen</a></c:when>
+            <c:otherwise>Caching Einstellungen</c:otherwise>
+        </c:choose>
+        </li>
+
 	</ul>
 </div>
