@@ -1,11 +1,24 @@
 package de.ingrid.admin.service;
 
+import java.io.IOException;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import de.ingrid.utils.PlugDescription;
 
 @Service
 public class CacheService {
 
-    public static final String NAME = "ingrid-cache";
+    protected static final Logger LOG = Logger.getLogger(CacheService.class);
+
+    public static final String INGRID_CACHE = "ingrid-cache";
+
+    public static final String DEFAULT_CACHE = "default";
 
     private boolean _active = true;
 
@@ -14,6 +27,90 @@ public class CacheService {
     private boolean _diskStore = false;
 
     private int _elements = 1000;
+
+    private PlugDescriptionService _plugDescriptionService;
+
+    public CacheService() {
+    }
+
+    @Autowired
+    public CacheService(final PlugDescriptionService plugDescriptionService) throws IOException {
+        _plugDescriptionService = plugDescriptionService;
+        loadFromPlugDescription();
+        updateIngridCache();
+    }
+
+    public void loadFromPlugDescription() throws IOException {
+        if (_plugDescriptionService != null) {
+            // load setting
+            LOG.info("load cache settings from plug description");
+            final PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
+            if (plugDescription.containsKey(PlugDescription.CACHE_ACTIVE)) {
+                _active = plugDescription.getCacheActive();
+            }
+            if (plugDescription.containsKey(PlugDescription.CACHED_ELEMENTS)) {
+                _elements = plugDescription.getCachedElements();
+            }
+            if (plugDescription.containsKey(PlugDescription.CACHED_IN_DISK_STORE)) {
+                _diskStore = plugDescription.getCachedInDiskStore();
+            }
+            if (plugDescription.containsKey(PlugDescription.CACHED_LIFE_TIME)) {
+                _lifeTime = plugDescription.getCachedLifeTime();
+            }
+        } else {
+            LOG.warn("try to use function without necessary plug description service");
+        }
+    }
+
+    public void updateCache(CacheService service) throws Exception {
+        if (_plugDescriptionService != null) {
+            if (service == null) {
+                service = this;
+            }
+            _active = service.getActive();
+            _lifeTime = service.getLifeTime();
+            _elements = service.getElementsCount();
+            _diskStore = service.getDiskStore();
+
+            // update plug description
+            LOG.info("updating cache setting in plug description");
+            final PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
+            plugDescription.setCacheActive(_active);
+            plugDescription.setCachedLifeTime(_lifeTime);
+            plugDescription.setCachedElements(_elements);
+            plugDescription.setCachedInDiskStore(_diskStore);
+            _plugDescriptionService.savePlugDescription(plugDescription);
+        } else {
+            LOG.warn("try to use function without necessary plug description service");
+        }
+    }
+
+    public void updateIngridCache() {
+        final CacheManager manager = CacheManager.getInstance();
+
+        // clear the cache
+        if (manager.cacheExists(INGRID_CACHE)) {
+            LOG.info("removing " + INGRID_CACHE + " cache");
+            manager.removeCache(INGRID_CACHE);
+        }
+        if (manager.cacheExists(DEFAULT_CACHE)) {
+            LOG.info("removing "+DEFAULT_CACHE+" cache");
+            manager.removeCache(DEFAULT_CACHE);
+        }
+
+        // update cache
+        if (_active) {
+            LOG.info("elements: " + _elements);
+            LOG.info("diskStore: " + _diskStore);
+            LOG.info("lifeTime: " + _lifeTime + "min");
+            final int lifeTime = getLifeTimeInSeconds();
+            final Cache cache = new Cache(INGRID_CACHE, _elements, _diskStore, getEternal(), lifeTime, lifeTime);
+            manager.addCache(cache);
+            LOG.info("cache is now activated");
+        } else {
+            LOG.info("cache is now deactivated");
+        }
+    }
 
     public void setActive(final boolean active) {
         _active = active;
@@ -53,12 +150,5 @@ public class CacheService {
 
     public boolean getEternal() {
         return _lifeTime <= 0;
-    }
-
-    public void set(final CacheService service) {
-        _active = service.getActive();
-        _lifeTime = service.getLifeTime();
-        _diskStore = service.getDiskStore();
-        _elements = service.getElementsCount();
     }
 }

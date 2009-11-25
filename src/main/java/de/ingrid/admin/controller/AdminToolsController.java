@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +18,7 @@ import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
@@ -42,13 +40,15 @@ public class AdminToolsController extends AbstractController {
 
     private final CacheService _cacheService;
 
+    private final PlugDescriptionService _plugDescriptionService;
 
     @Autowired
     public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug,
-            final CacheService cacheService) throws Exception {
+            final CacheService cacheService, final PlugDescriptionService plugDescriptionService) throws Exception {
         _communication = communication;
         _plug = plug;
         _cacheService = cacheService;
+        _plugDescriptionService = plugDescriptionService;
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.GET)
@@ -155,32 +155,8 @@ public class AdminToolsController extends AbstractController {
     @RequestMapping(value = IUris.CACHING, method = RequestMethod.POST)
     public String cachingPost(final ModelMap modelMap, @ModelAttribute("cache") final CacheService cacheService)
             throws Exception {
-        _cacheService.set(cacheService);
-        final CacheManager manager = CacheManager.getInstance();
-
-        // clear the cache
-        if (manager.cacheExists(CacheService.NAME)) {
-            LOG.info("removing " + CacheService.NAME + " cache");
-            manager.removeCache(CacheService.NAME);
-        }
-        if (manager.cacheExists("default")) {
-            LOG.info("removing default cache");
-            manager.removeCache("default");
-        }
-
-        // add cache
-        if (_cacheService.getActive()) {
-            LOG.info("cache is now activated");
-            final int lifeTime = _cacheService.getLifeTimeInSeconds();
-            LOG.info("elements: " + _cacheService.getElementsCount());
-            LOG.info("diskStore: " + _cacheService.getDiskStore());
-            LOG.info("lifeTime: " + _cacheService.getLifeTime() + "min");
-            final Cache cache = new Cache(CacheService.NAME, _cacheService.getElementsCount(), _cacheService
-                    .getDiskStore(), _cacheService.getEternal(), lifeTime, lifeTime);
-            manager.addCache(cache);
-        } else {
-            LOG.info("cache is now deactivated");
-        }
+        _cacheService.updateCache(cacheService);
+        _cacheService.updateIngridCache();
 
         return cachingGet(modelMap);
     }
