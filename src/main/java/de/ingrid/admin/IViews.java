@@ -15,7 +15,7 @@ public class IViews {
     public static final String PROVIDER = "/base/provider";
 
     public static final String FIELD_QUERY = "/base/fieldQuery";
-    
+
     public static final String EXTRAS = "/base/extras";
 
     public static final String SAVE = "/base/save";
@@ -33,4 +33,6 @@ public class IViews {
     public static final String SEARCH = "/base/search";
 
     public static final String SEARCH_DETAILS = "/base/searchDetails";
+
+    public static final String CACHING = "/base/cache";
 }

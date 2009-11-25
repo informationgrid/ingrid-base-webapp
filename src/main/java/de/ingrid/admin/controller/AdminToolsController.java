@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IRecordLoader;
@@ -28,14 +34,21 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 @Controller
 public class AdminToolsController extends AbstractController {
 
+    protected static final Logger LOG = Logger.getLogger(AdminToolsController.class);
+
     private final CommunicationService _communication;
 
     private final HeartBeatPlug _plug;
 
+    private final CacheService _cacheService;
+
+
     @Autowired
-    public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug) throws Exception {
+    public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug,
+            final CacheService cacheService) throws Exception {
         _communication = communication;
         _plug = plug;
+        _cacheService = cacheService;
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.GET)
@@ -131,5 +144,44 @@ public class AdminToolsController extends AbstractController {
         modelMap.addAttribute("values", values);
 
         return IViews.SEARCH_DETAILS;
+    }
+
+    @RequestMapping(value = IUris.CACHING, method = RequestMethod.GET)
+    public String cachingGet(final ModelMap modelMap) {
+        modelMap.addAttribute("cache", _cacheService);
+        return IViews.CACHING;
+    }
+
+    @RequestMapping(value = IUris.CACHING, method = RequestMethod.POST)
+    public String cachingPost(final ModelMap modelMap, @ModelAttribute("cache") final CacheService cacheService)
+            throws Exception {
+        _cacheService.set(cacheService);
+        final CacheManager manager = CacheManager.getInstance();
+
+        // clear the cache
+        if (manager.cacheExists(CacheService.NAME)) {
+            LOG.info("removing " + CacheService.NAME + " cache");
+            manager.removeCache(CacheService.NAME);
+        }
+        if (manager.cacheExists("default")) {
+            LOG.info("removing default cache");
+            manager.removeCache("default");
+        }
+
+        // add cache
+        if (_cacheService.getActive()) {
+            LOG.info("cache is now activated");
+            final int lifeTime = _cacheService.getLifeTimeInSeconds();
+            LOG.info("elements: " + _cacheService.getElementsCount());
+            LOG.info("diskStore: " + _cacheService.getDiskStore());
+            LOG.info("lifeTime: " + _cacheService.getLifeTime() + "min");
+            final Cache cache = new Cache(CacheService.NAME, _cacheService.getElementsCount(), _cacheService
+                    .getDiskStore(), _cacheService.getEternal(), lifeTime, lifeTime);
+            manager.addCache(cache);
+        } else {
+            LOG.info("cache is now deactivated");
+        }
+
+        return cachingGet(modelMap);
     }
 }

@@ -50,6 +50,7 @@ public class StepFilter implements Filter {
         _needComm.add(IUris.HEARTBEAT_SETUP);
         _needComm.add(IUris.SEARCH);
         _needComm.add(IUris.SEARCH_DETAILS);
+        _needComm.add(IUris.CACHING);
 
         _needPlug.add(IUris.SCHEDULING);
         _needPlug.add(IUris.INDEXING);
@@ -57,6 +58,7 @@ public class StepFilter implements Filter {
         _needPlug.add(IUris.HEARTBEAT_SETUP);
         _needPlug.add(IUris.SEARCH);
         _needPlug.add(IUris.SEARCH_DETAILS);
+        _needPlug.add(IUris.CACHING);
     }
 
     @Override
@@ -70,12 +72,8 @@ public class StepFilter implements Filter {
         final HttpServletResponse res = (HttpServletResponse) response;
         final String uri = req.getRequestURI();
 
-        if (!_communication.exists()) {
-            req.setAttribute("communicationClickable", "false");
-        }
-        if (!_plugDescription.exists()) {
-            req.setAttribute("plugdescriptionClickable", "false");
-        }
+        req.setAttribute("communicationExists", _communication.exists());
+        req.setAttribute("plugdescriptionExists", _plugDescription.exists());
 
         if (!_communication.exists() && _needComm.contains(uri)) {
             LOG.info("communication does not exist but is necessary. redirect to communication setup...");

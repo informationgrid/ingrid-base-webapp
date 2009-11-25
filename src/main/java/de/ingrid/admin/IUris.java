@@ -15,7 +15,7 @@ public class IUris {
     public static final String PROVIDER = "/base/provider.html";
 
     public static final String FIELD_QUERY = "/base/fieldQuery.html";
-    
+
     public static final String EXTRAS = "/base/extras.html";
 
     public static final String IPLUG_WELCOME = "/iplug/welcome.html";
@@ -39,4 +39,6 @@ public class IUris {
     public static final String SEARCH = "/base/search.html";
 
     public static final String SEARCH_DETAILS = "/base/searchDetails.html";
+
+    public static final String CACHING = "/base/cache.html";
 }
