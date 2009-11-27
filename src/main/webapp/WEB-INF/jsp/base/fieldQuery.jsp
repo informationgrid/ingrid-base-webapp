@@ -105,9 +105,11 @@
 						</td>
 					</tr>
 					<tr>
-						<td>&nbsp;</td>
-						<td><button type="button" action="add">Hinzufügen</button></td>
-					</tr>		
+						<td colspan="2">
+							<hr />
+							<button type="button" action="add">Hinzufügen</button>
+						</td>
+					</tr>
 				</table>
 
 				<c:if test="${!empty fields}">

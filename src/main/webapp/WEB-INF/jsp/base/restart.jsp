@@ -2,6 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<%@page import="de.ingrid.admin.security.IngridPrincipal.SuperAdmin"%>
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
@@ -24,52 +25,19 @@
 		<%
 		}
 		%>
+		
 	</div>
 	
 	<div id="help"><a href="#">[?]</a></div>
 	
-	<c:set var="active" value="search" scope="request"/>
-	<c:import url="subNavi.jsp"></c:import>
-	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Suche testen</h1>
-		<div id="content">
-			<br />
-			<h2>Sie können das iPlug jetzt testen. Geben Sie dazu eine Suchanfrage ein!</h2>
-			<form method="get" action="search.html">
-				<table id="konfigForm">
-					<tr>
-						<td class="leftCol">Suchbegriff:</td>
-						<td><input type="text" name="query" value=""/></td>
-					</tr>
-					<tr>
-						<td class="leftCol">&nbsp;</td>
-						<td><input type="submit" value="Suchen"/></td>
-					</tr>
-				</table>
-			</form>
-			
-			<c:if test="${!empty hits}">
-				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} für "${query}"</div>
-				
-				<c:forEach items="${hits}" var="hit">
-					<div class="searchResult">
-					   <h3>
-					       <c:choose>
-					           <c:when test="${details}">
-								   <a href="searchDetails.html?id=${hit.key}">${hit.value['title']}</a>
-					           </c:when>
-					           <c:otherwise>
-					               <a href="#">${hit.value['title']}</a>
-					           </c:otherwise>
-					       </c:choose>
-					   </h3>
-					   <span>${hit.value['abstract']}</span>
-					</div>
-				</c:forEach>
-				<br /><br />
-			</c:if>
-			
+		<h1 id="head">iPlug muss neu gestartet werden!</h1>
+		<div id="content" style="position: relative; text-align:center; top:100px">
+			<p>
+			    <h2>Ihre Angaben wurden gespeichert. Da der Port der Administrationsseite geändert wurde,
+			    müssen Sie nun das iPlug neu starten.</h2>
+			    Rufen Sie dafür "sh start.sh restart" von der Kommandozeile im Wurzelverzeichnis des iPlugs auf!
+			</p>
 		</div>
 	</div>
 	<div id="footer" style="height:100px; width:90%"></div>

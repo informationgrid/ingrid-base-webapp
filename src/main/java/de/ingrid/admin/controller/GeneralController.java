@@ -83,6 +83,11 @@ public class GeneralController extends AbstractController {
         final SortedMap<String, List<Provider>> map = createPartnerProviderMap(partners, getProviders());
         modelMap.addAttribute("jsonMap", toJsonMap(map));
 
+        // put original port in plugdescription if not already done
+        if (!commandObject.containsKey("originalPort")) {
+            commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
+        }
+        
         return IViews.GENERAL;
     }
 

@@ -45,17 +45,19 @@ public class CacheService {
             // load setting
             LOG.info("load cache settings from plug description");
             final PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
-            if (plugDescription.containsKey(PlugDescription.CACHE_ACTIVE)) {
-                _active = plugDescription.getCacheActive();
-            }
-            if (plugDescription.containsKey(PlugDescription.CACHED_ELEMENTS)) {
-                _elements = plugDescription.getCachedElements();
-            }
-            if (plugDescription.containsKey(PlugDescription.CACHED_IN_DISK_STORE)) {
-                _diskStore = plugDescription.getCachedInDiskStore();
-            }
-            if (plugDescription.containsKey(PlugDescription.CACHED_LIFE_TIME)) {
-                _lifeTime = plugDescription.getCachedLifeTime();
+            if (plugDescription != null) {
+                if (plugDescription.containsKey(PlugDescription.CACHE_ACTIVE)) {
+                    _active = plugDescription.getCacheActive();
+                }
+                if (plugDescription.containsKey(PlugDescription.CACHED_ELEMENTS)) {
+                    _elements = plugDescription.getCachedElements();
+                }
+                if (plugDescription.containsKey(PlugDescription.CACHED_IN_DISK_STORE)) {
+                    _diskStore = plugDescription.getCachedInDiskStore();
+                }
+                if (plugDescription.containsKey(PlugDescription.CACHED_LIFE_TIME)) {
+                    _lifeTime = plugDescription.getCachedLifeTime();
+                }
             }
         } else {
             LOG.warn("try to use function without necessary plug description service");

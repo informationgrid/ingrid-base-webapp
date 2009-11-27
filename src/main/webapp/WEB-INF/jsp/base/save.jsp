@@ -45,9 +45,12 @@
 			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('save').submit();">Speichern</a>
 		</div>
-		<div id="content">
-			<h2>Die Konfiguration ist abgeschlossen. Ihre Angaben werden gespeichert.</h2>
+		<div id="content" style="position: relative; text-align:center; top:100px">
 			<form:form action="save.html" method="post" id="save">
+			     <button type="button" onclick="document.getElementById('save').submit();">Speichern</button>
+			     <p>
+			         <h2>Die Konfiguration ist abgeschlossen. Ihre Angaben werden gespeichert.</h2>
+			     </p>
 			</form:form>
 		</div>
 	</div>

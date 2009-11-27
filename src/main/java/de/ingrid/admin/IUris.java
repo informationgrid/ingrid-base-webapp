@@ -41,4 +41,6 @@ public class IUris {
     public static final String SEARCH_DETAILS = "/base/searchDetails.html";
 
     public static final String CACHING = "/base/cache.html";
+    
+    public static final String RESTART = "/base/restart.html";
 }

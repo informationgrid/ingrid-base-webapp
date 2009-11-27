@@ -67,34 +67,39 @@
             <a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
         </div>
         <div id="content">
-            <h2>Geben Sie mindestens einen Partner an, für den diese Datenquelle konfiguriert wird.</h2>
+            <h2>Geben Sie mindestens einen Anbieter an, für den diese Datenquelle konfiguriert wird.</h2>
             <form:form method="post" action="provider.html" modelAttribute="plugDescription">
                  <input type="hidden" name="action" value="submit" />
                  <input type="hidden" name="id" value="" />
                 <table id="konfigForm">
                     <tr>
-                        <td class="leftCol">Partner:</td>
+                        <td class="leftCol">Anbieter:</td>
                         <td>
                             <select name="provider"> 
                                 <option value="">bitte wählen</option>
                                 <c:forEach items="${providerList}" var="provider">
                                     <option value="${provider.shortName}">${provider.displayName}</option>
                                 </c:forEach>
-                            </select><br />
-                            <span>Weitere Anbieter dieses IPlugs.</span>
-                            <form:errors path="providers" cssClass="error" element="div" />
-                            <br/>
-                            <br/>
+                            </select>
+                        </td>
+                        <td class="rightCol">
                             <button type="button" action="add">Hinzufügen</button>
-                            <br/>
-                            <br/>
-                            <div id="providers">
+                        </td>
+                    </tr>
+                    <tr><td colspan=3><br /><hr /><br /></td></tr>
+                    <tr>
+                        <td>
+                            <span>Weitere Anbieter dieses IPlugs:</span>
+                        </td>
+                        <td>
+                            <form:errors path="providers" cssClass="error" element="div" />
+                            <!-- <div id="providers">  -->
                                 <c:set var="i" value="1" />
                                 <c:forEach items="${providers}" var="provider">
-                                    <b>${i}. Provider:</b> ${provider.displayName} <button type="button" action="delete" id="${provider.shortName}">Entfernen</button><br />
+                                    <b>${i}. Anbieter:</b> ${provider.displayName}</td><td><button type="button" action="delete" id="${provider.shortName}">Entfernen</button></td></tr><tr><td></td><td>
                                     <c:set var="i" value="${i + 1}" />
                                 </c:forEach>
-                            </div>
+                            <!-- </div> -->
                         </td>
                     </tr>
                             

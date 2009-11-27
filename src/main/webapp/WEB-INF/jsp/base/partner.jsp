@@ -80,21 +80,27 @@
                                 <c:forEach items="${partnerList}" var="partner">
                                     <option value="${partner.shortName}">${partner.displayName}</option>
                                 </c:forEach>
-                            </select><br />
-                                <span>Weitere Partner dieses IPlugs.</span>
-                            <form:errors path="partners" cssClass="error" element="div" />
-                            <br/>
-                            <br/>
+                            </select>
+                        </td>
+                        <td class="rightCol">
                             <button type="button" action="add">Hinzufügen</button>
-                            <br/>
-                            <br/>
-                            <div id="partners">
+                        </td>
+                    </tr>
+                    <tr><td colspan=3><br /><hr /><br /></td></tr>
+                    <tr>
+                        <td>
+                            <span>Weitere Partner dieses IPlugs:</span>
+                        </td>
+                        <td>
+                            <form:errors path="partners" cssClass="error" element="div" />
+
+                            <!-- <div id="partners">-->
                                 <c:set var="i" value="1" />
                                 <c:forEach items="${partners}" var="partner">
-                                    <b>${i}. Partner:</b> ${partner.displayName} <button type="button" action="delete" id="${partner.shortName}">Entfernen</button><br />
+                                    <b>${i}. Partner:</b> ${partner.displayName}</td><td><button type="button" action="delete" id="${partner.shortName}">Entfernen</button></td></tr><tr><td></td><td>
                                     <c:set var="i" value="${i + 1}" />
                                 </c:forEach>
-                            </div>
+                            <!-- </div>-->
 						</td>
 					</tr>
 							

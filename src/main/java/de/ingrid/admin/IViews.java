@@ -35,4 +35,6 @@ public class IViews {
     public static final String SEARCH_DETAILS = "/base/searchDetails";
 
     public static final String CACHING = "/base/cache";
+    
+    public static final String RESTART = "/base/restart";
 }

@@ -86,6 +86,7 @@ div#contentBox table.fullSize td a { display:block; padding:4px 10px; margin:0; 
 table#konfigForm { margin-bottom:80px; width:100%; }
 table#konfigForm td { vertical-align:top; padding:0 10px 6px 0; }
 table#konfigForm td.leftCol { width:180px; }
+table#konfigForm td.rightCol { width:123px; }
 
 
 /* --- Formular Styles --- */
@@ -96,7 +97,7 @@ input[type='text'], select, textarea { color:#464646; border:solid #1B78B1 1px; 
 .long { width:395px; margin-top:-18px; }
 .error { color: #ED171F; }
 .success { color: #18AF23; }
-input[type='button'], input[type='submit'], button { top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; border:none}
+input[type='button'], input[type='submit'], button { min-width: 110px; top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; border:none}
 input[type='button']:hover, input[type='submit']:hover, button:hover { background:#1B78B1; }
 
 /* -- Listings --*/
