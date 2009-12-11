@@ -87,7 +87,7 @@ public class GeneralController extends AbstractController {
         if (!commandObject.containsKey("originalPort")) {
             commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
         }
-        
+
         return IViews.GENERAL;
     }
 
@@ -102,7 +102,6 @@ public class GeneralController extends AbstractController {
 
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
-
         return redirect(IUris.PARTNER);
     }
 

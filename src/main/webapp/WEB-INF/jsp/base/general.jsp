@@ -29,7 +29,12 @@
             }
         }).trigger('change');
         
-        $("#providers").val("${plugDescription.organisationAbbr}");
+        $("#provider_full").val("${plugDescription.organisation}");
+        $("#providers").val("${plugDescription.organisationAbbr}").change(function() {
+            var provider = $(this).val();
+            var full = $(this).find("option[value='" + provider + "']").html();
+            $("#provider_full").val(full);
+        });
         
     });
 </script> 
@@ -73,7 +78,7 @@
 					<tr>
 						<td>Partner:</td>
 						<td>
-							<form:select path="organisation" id="partners"> 
+							<form:select path="organisationPartnerAbbr" id="partners"> 
                                 <form:option value="" label="bitte wählen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                             </form:select><br />
@@ -89,6 +94,7 @@
                             </form:select><br />
                             <span>Der Anbieter der dieses IPlug betreibt.</span>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
+                            <form:hidden path="organisation" id="provider_full" />
 						</td>
 					</tr>
 					<tr>

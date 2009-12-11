@@ -81,15 +81,15 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     @Override
-    public void setOrganisation(final String partner) {
-        super.setOrganisation(partner);
-        addPartner(partner);
-    }
-
-    @Override
     public void setOrganisationAbbr(final String provider) {
         super.setOrganisationAbbr(provider);
         addProvider(provider);
+    }
+
+    @Override
+    public void setOrganisationPartnerAbbr(final String partner) {
+        super.setOrganisationPartnerAbbr(partner);
+        addPartner(partner);
     }
 
     @Override
