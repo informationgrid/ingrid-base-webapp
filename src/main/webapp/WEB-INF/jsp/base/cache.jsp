@@ -56,7 +56,7 @@
                     </tr>
                     <tr>
                         <td class="leftCol">&nbsp;</td>
-                        <td><input type="submit" value="Cach bearbeiten" /></td>
+                        <td><input type="submit" value="Cache bearbeiten" /></td>
                     </tr>
                 </table>
             </form:form>

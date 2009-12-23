@@ -47,7 +47,7 @@ public class PlugDescriptionService {
             tmpDesc = new PlugDescription();
             tmpDesc.putAll(plugDescription);
 		}
-		PlugdescriptionSerializer serializer = new PlugdescriptionSerializer();
+		final PlugdescriptionSerializer serializer = new PlugdescriptionSerializer();
 		serializer.serialize(tmpDesc, _plugDescriptionFile);
 		// load again to set the serialized folder
 		_plugDescription = loadPlugDescription();
