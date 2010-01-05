@@ -35,10 +35,14 @@ public class GeneralController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
+    private final CommunicationService _communicationService;
+
     @Autowired
-    public GeneralController(final CommunicationService communicationInterface, final PlugDescValidator validator,
+    public GeneralController(final CommunicationService communicationInterface,
+            final CommunicationService communicationService, final PlugDescValidator validator,
             final IDataType... dataTypes) throws Exception {
         _communicationInterface = communicationInterface;
+        _communicationService = communicationService;
         _validator = validator;
         _dataTypes = dataTypes;
     }
@@ -96,7 +100,7 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
-        if (_validator.validateGeneral(errors).hasErrors()) {
+        if (_validator.validateGeneral(errors, !_communicationService.hasErrors()).hasErrors()) {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
 
@@ -115,21 +119,12 @@ public class GeneralController extends AbstractController {
         for (final Partner pa : partners) {
             final List<Provider> list = new ArrayList<Provider>();
             final Iterator<Provider> it = providers.iterator();
-            if (pa.getShortName().equals("bund")) {
-                while (it.hasNext()) {
-                    final Provider pr = it.next();
-                    if (pr.getShortName().startsWith("bu")) {
-                        list.add(pr);
-                        it.remove();
-                    }
-                }
-            } else {
-                while (it.hasNext()) {
-                    final Provider pr = it.next();
-                    if (pr.getShortName().startsWith(pa.getShortName())) {
-                        list.add(pr);
-                        it.remove();
-                    }
+            final String shortName = pa.getShortName().substring(0, 2);
+            while (it.hasNext()) {
+                final Provider pr = it.next();
+                if (pr.getShortName().startsWith(shortName)) {
+                    list.add(pr);
+                    it.remove();
                 }
             }
             map.put(pa.getShortName(), list);

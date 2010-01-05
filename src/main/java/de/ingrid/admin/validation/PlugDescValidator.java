@@ -16,9 +16,12 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
         return errors;
     }
 
-    public final Errors validateGeneral(final Errors errors) {
-        rejectIfEmptyOrWhitespace(errors, "organisation");
-        rejectIfEmptyOrWhitespace(errors, "organisationAbbr");
+    public final Errors validateGeneral(final Errors errors, final boolean hasBusConnection) {
+        if (hasBusConnection) {
+            rejectIfEmptyOrWhitespace(errors, "organisation");
+            rejectIfEmptyOrWhitespace(errors, "organisationAbbr");
+        }
+        rejectIfEmptyOrWhitespace(errors, "organisationPartnerAbbr");
 
         rejectIfEmptyOrWhitespace(errors, "personSureName");
         rejectIfEmptyOrWhitespace(errors, "personName");
@@ -55,8 +58,10 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
         return errors;
     }
 
-    public final Errors validateProviders(final Errors errors) {
-        rejectIfNullOrEmpty(errors, "providers");
+    public final Errors validateProviders(final Errors errors, final boolean hasBusConnection) {
+        if (hasBusConnection) {
+            rejectIfNullOrEmpty(errors, "providers");
+        }
         return errors;
     }
 }

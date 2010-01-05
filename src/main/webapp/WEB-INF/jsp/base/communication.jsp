@@ -68,6 +68,16 @@
 		</div>
 		<div id="content">
 		
+            <c:if test="${noBus}">
+                <div class="error">
+                    Es konnte keine Verbindung zu einem der hinzugefügten Busse hergestellt werden.<br />
+                    Bitte überprüfen Sie Ihre Angaben.<br />
+                    <br />
+                    <button onclick="document.location='workingDir.html';">Offline fortfahren</button>
+                </div>
+                <br />
+            </c:if>
+		
             <form:form method="post" action="communication.html" modelAttribute="communication">
                 <input type="hidden" name="action" value="submit" />
                 <input type="hidden" name="id" value="" />
@@ -84,7 +94,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2"><h3>IBus angaben:</h3></td>
+                        <td colspan="2"><h3>IBus Angaben:</h3></td>
                     </tr>
                     <tr>
                         <td class="leftCol">IBus Proxy Service Url:</td>

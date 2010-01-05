@@ -31,10 +31,14 @@ public class ProviderController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
+    private final CommunicationService _communicationService;
+
     @Autowired
-    public ProviderController(final CommunicationService communicationInterface, final PlugDescValidator validator)
+    public ProviderController(final CommunicationService communicationInterface,
+            final CommunicationService communicationService, final PlugDescValidator validator)
             throws Exception {
         _communicationInterface = communicationInterface;
+        _communicationService = communicationService;
         _validator = validator;
     }
 
@@ -70,7 +74,7 @@ public class ProviderController extends AbstractController {
         } else if ("delete".equals(action)) {
             commandObject.removeProvider(id);
         } else if ("submit".equals(action)) {
-            if (!_validator.validateProviders(errors).hasErrors()) {
+            if (!_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {
                 return redirect(IUris.FIELD_QUERY);
             }
         }

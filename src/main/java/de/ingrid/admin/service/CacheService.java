@@ -43,9 +43,9 @@ public class CacheService {
     public void loadFromPlugDescription() throws IOException {
         if (_plugDescriptionService != null) {
             // load setting
-            LOG.info("load cache settings from plug description");
             final PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
             if (plugDescription != null) {
+                LOG.info("load cache settings from plug description");
                 if (plugDescription.containsKey(PlugDescription.CACHE_ACTIVE)) {
                     _active = plugDescription.getCacheActive();
                 }

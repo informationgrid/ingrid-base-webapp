@@ -116,6 +116,11 @@ public class CommunicationConfigurationController extends AbstractController {
         return busses;
     }
 
+    @ModelAttribute("noBus")
+    public Boolean noBus() {
+        return _communicationService.hasErrors();
+    }
+
     @RequestMapping(value = IUris.COMMUNICATION, method = RequestMethod.GET)
     public String getCommunication() {
         return IViews.COMMUNICATION;
@@ -188,6 +193,7 @@ public class CommunicationConfigurationController extends AbstractController {
                     // redirect to next step
                     return redirect(IUris.WORKING_DIR);
                 }
+                modelMap.addAttribute("noBus", _communicationService.hasErrors());
             }
         }
 
