@@ -83,7 +83,7 @@ public class CommunicationService {
     }
 
     public boolean hasErrors() {
-        return _error;
+        return _error || !isConnected();
     }
 
     private BusClient getBusClient() {
