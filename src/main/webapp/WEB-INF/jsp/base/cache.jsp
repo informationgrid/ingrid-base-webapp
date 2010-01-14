@@ -20,7 +20,7 @@
         java.security.Principal  principal = request.getUserPrincipal();
         if(principal != null && !(principal instanceof IngridPrincipal.SuperAdmin)) {
         %>
-            <div id="language"><a href="<%=request.getContextPath()%>/base/auth/logout.html">Logout</a></div>
+            <div id="language"><a href="../base/auth/logout.html">Logout</a></div>
         <%
         }
         %>
@@ -36,7 +36,7 @@
         <h1 id="head">Caching Einstellungen</h1>
         <div id="content">
             <br />
-	        <form:form action="/base/cache.html" method="post" modelAttribute="cache">
+	        <form:form action="../base/cache.html" method="post" modelAttribute="cache">
                 <table id="konfigForm">
                     <tr>
                         <td class="leftCol">Cache:</td>

@@ -20,7 +20,7 @@
 		java.security.Principal  principal = request.getUserPrincipal();
 		if(principal != null && !(principal instanceof IngridPrincipal.SuperAdmin)) {
 		%>
-			<div id="language"><a href="<%=request.getContextPath()%>/base/auth/logout.html">Logout</a></div>
+			<div id="language"><a href="../base/auth/logout.html">Logout</a></div>
 		<%
 		}
 		%>
@@ -47,17 +47,17 @@
             <br />
             <c:choose>
                 <c:when test="${connected}">
-                    <form action="/base/commSetup.html" method="post">
+                    <form action="../base/commSetup.html" method="post">
                         <input type="hidden" name="action" value="shutdown" />
                         <input type="submit" name="submit" value="Verbindung trennen" />
                     </form><br />
-                    <form action="/base/commSetup.html" method="post">
+                    <form action="../base/commSetup.html" method="post">
                         <input type="hidden" name="action" value="restart" />
                         <input type="submit" name="submit" value="Verbindung neu starten" />
                     </form>
                  </c:when>
                  <c:otherwise>
-                    <form action="/base/commSetup.html" method="post">
+                    <form action="../base/commSetup.html" method="post">
                         <input type="hidden" name="action" value="start" />
                         <input type="submit" name="submit" value="Verbindung starten" />
                     </form>

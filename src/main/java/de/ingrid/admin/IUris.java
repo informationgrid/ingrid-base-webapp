@@ -18,7 +18,7 @@ public class IUris {
 
     public static final String EXTRAS = "/base/extras.html";
 
-    public static final String IPLUG_WELCOME = "/iplug/welcome.html";
+    public static final String IPLUG_WELCOME = "/iplug-pages/welcome.html";
 
     public static final String SAVE = "/base/save.html";
 

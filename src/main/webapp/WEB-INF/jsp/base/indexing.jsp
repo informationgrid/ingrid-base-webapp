@@ -14,7 +14,7 @@
 <script type="text/javascript" src="../js/base/jquery-1.3.2.min.js"></script>
 <script>
 function getState(){
-	$.get("/base/indexState.html", function(data){
+	$.get("../base/indexState.html", function(data){
 		  document.getElementById('dialog').style.display = '';
 		  if(data == 'TERMINATED'){
 			document.location.href = '/base/finish.html';
@@ -36,7 +36,7 @@ function getState(){
 		java.security.Principal  principal = request.getUserPrincipal();
 		if(principal != null && !(principal instanceof IngridPrincipal.SuperAdmin)) {
 		%>
-			<div id="language"><a href="<%=request.getContextPath()%>/base/auth/logout.html">Logout</a></div>
+			<div id="language"><a href="../base/auth/logout.html">Logout</a></div>
 		<%
 		}
 		%>
