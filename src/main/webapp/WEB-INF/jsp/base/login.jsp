@@ -31,7 +31,7 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Iplug Konfiguration</h1>
+		<h1 id="head">iPlug Konfiguration</h1>
 		
 		<div id="content">
 			<br/>

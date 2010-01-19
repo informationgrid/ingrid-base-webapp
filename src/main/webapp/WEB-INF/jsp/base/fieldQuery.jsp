@@ -67,19 +67,19 @@
 			<a href="#" class="submit">Weiter</a>
 		</div>
 		<div id="content">
-		    <p>Hier haben Sie die Möglichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen IBussen reagieren soll.</p>
+		    <p>Hier haben Sie die Möglichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen iBussen reagieren soll.</p>
 			<h2>Geben Sie Field Queries an</h2>
 			<form:form method="post" action="fieldQuery.html" modelAttribute="fieldQuery">
 			     <input type="hidden" name="action" value="submit" />
                  <input type="hidden" name="id" value="" />
 				<table id="konfigForm">
 					<tr>
-						<td class="leftCol">IBus:</td>
+						<td class="leftCol">iBus:</td>
 						<td>
 						    <form:select path="busUrl">
 						      <form:options items="${busUrls}" />
 						    </form:select><br />
-						    <span>Auf welchen IBus diese Regel angewendet werden soll.</span>
+						    <span>Auf welchen iBus diese Regel angewendet werden soll.</span>
 						    <form:errors path="busUrl" cssClass="error" element="div" />
 						</td>
 					</tr>
@@ -116,7 +116,7 @@
 					<h3>Vorhandene Field Queries</h3>
 					<table class="data">
 						<tr>
-							<th>IBus</th>
+							<th>iBus</th>
 							<th>Regex</th>
 							<th>Index Feld Name</th>
 							<th>Index Feld Wert</th>
@@ -146,11 +146,11 @@
 			</form:form>
 			
 			<h4><u>Beispiele:</u></h4>
-            <p>Für Anfragen des IBus <i>"/test-bus:gross-gewaesser"</i>, die das Wort <i>"wasser"</i> enthalten, wollen sie NUR diejenigen Treffer zurückliefern, die im Index das Feld <i>"Typ"</i> den Wert <i>"See"</i> haben.<br />
-            Demnach müssen sie folgende angaben machen: <b>IBus</b>: <i>/test-bus:gross-gewaesser</i>, <b>Regex</b>: <i>wasser</i>, <b>Index Feld Name</b>: <i>Typ</i>, <b>Index Feld Wert</b>: <i>See</i>, <b>Option</b>: <i>erforderlich</i>.<br />
+            <p style="margin-bottom: 30px;">Für Anfragen des iBus <i>"/test-bus:gross-gewaesser"</i>, die das Wort <i>"wasser"</i> enthalten, wollen sie NUR diejenigen Treffer zurückliefern, die im Index das Feld <i>"Typ"</i> den Wert <i>"See"</i> haben.<br />
+            Demnach müssen sie folgende angaben machen: <b>iBus</b>: <i>/test-bus:gross-gewaesser</i>, <b>Regex</b>: <i>wasser</i>, <b>Index Feld Name</b>: <i>Typ</i>, <b>Index Feld Wert</b>: <i>See</i>, <b>Option</b>: <i>erforderlich</i>.<br />
             <br />
-            Für Anfragen des IBus <i>"/test-bus:ansprechpartner"</i>, die <i>Telefonnummern</i> enthalten, wollen sie NICHT diejenigen Treffer zurückliefern, die im Index das Feld <i>"Freigabe"</i> den Wert <i>"privat"</i> haben.<br />
-            Die Angaben könnten lauten: <b>IBus</b>: <i>/test-bus:messwerte</i>, <b>Regex</b>: <i>[0-9]+</i>, <b>Index Feld Name</b>: <i>Freigabe</i>, <b>Index Feld Wert</b>: <i>privat</i>, <b>Option</b>: <i>verboten</i>.</p>
+            Für Anfragen des iBus <i>"/test-bus:ansprechpartner"</i>, die <i>Telefonnummern</i> enthalten, wollen sie NICHT diejenigen Treffer zurückliefern, die im Index das Feld <i>"Freigabe"</i> den Wert <i>"privat"</i> haben.<br />
+            Die Angaben könnten lauten: <b>iBus</b>: <i>/test-bus:messwerte</i>, <b>Regex</b>: <i>[0-9]+</i>, <b>Index Feld Name</b>: <i>Freigabe</i>, <b>Index Feld Wert</b>: <i>privat</i>, <b>Option</b>: <i>verboten</i>.</p>
 			
 		</div>
 	</div>

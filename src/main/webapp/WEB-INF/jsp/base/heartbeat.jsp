@@ -35,7 +35,7 @@
         <h1 id="head">HeartBeat Setup</h1>
         <div id="content">
 	        <br />
-            <p>Hier sehen sie den Status der HeartBeats zu den IBus(sen).</p>
+            <p>Hier sehen sie den Status der HeartBeats zu den iBus(sen).</p>
             
             <span><b>Status:</b>
                 <c:choose>
@@ -73,8 +73,8 @@
              </c:choose>
              <br />
              <p>Sie haben die Möglichkeit die HeartBeats zu stoppen, starten und neu zu starten.
-             <br />Üblicherweiße sollte hier "<span class="success">sendet</span>" zu sehen sein.<br />
-             Ist dies nicht der Falll, sondern erscheint hier "<span class="error">sendet nicht</span>" oder "<span class="error">sendet fehlerhaft</span>", kann sich das IPlug an mindestens einen IBus nicht anmelden oder es treten Fehler während des Sendens auf.</p>
+             <br />Üblicherweise sollte hier "<span class="success">sendet</span>" zu sehen sein.<br />
+             Ist dies nicht der Falll, sondern erscheint hier "<span class="error">sendet nicht</span>" oder "<span class="error">sendet fehlerhaft</span>", kann sich das iPlug an mindestens einen iBus nicht anmelden oder es treten Fehler während des Sendens auf.</p>
         
         </div>
     </div>

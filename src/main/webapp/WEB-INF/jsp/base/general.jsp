@@ -82,7 +82,7 @@
                                 <form:option value="" label="bitte wählen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                             </form:select><br />
-                            <span>Der Partner der dieses IPlug betreibt.</span>
+                            <span>Der Partner der dieses iPlug betreibt.</span>
                             <form:errors path="organisation" cssClass="error" element="div" />
 						</td>
 					</tr>
@@ -92,7 +92,7 @@
 							 <form:select path="organisationAbbr" id="providers" > 
                                 <form:option value="" label="bitte wählen" /> 
                             </form:select><br />
-                            <span>Der Anbieter der dieses IPlug betreibt.</span>
+                            <span>Der Anbieter der dieses iPlug betreibt.</span>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
                             <form:hidden path="organisation" id="provider_full" />
 						</td>
@@ -146,15 +146,15 @@
 					</tr>
 					<c:if test="${isIgc}">
 						<tr>
-							<td colspan="2"><h3>IPlug:</h3></td>
+							<td colspan="2"><h3>iPlug:</h3></td>
 						</tr>
 						<tr>
 							<td>Adresse des iPlugs:</td>
-							<td><form:input path="proxyServiceURL" readonly="true" /><br /><span>Der bereits angegebene Name des IPlugs.</span><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+							<td><form:input path="proxyServiceURL" readonly="true" /><br /><span>Der bereits angegebene Name des iPlugs.</span><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;iPlug Name&gt;</td>
 						</tr>
 						<tr>
-							<td>Adresse des korrespondierenden IPlugs:</td>
-							<td><form:input path="correspondentProxyServiceURL" /><br /><span>Name des korrespondierenden IPlugs.</span><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;IPlug Name&gt;</td>
+							<td>Adresse des korrespondierenden iPlugs:</td>
+							<td><form:input path="correspondentProxyServiceURL" /><br /><span>Name des korrespondierenden iPlugs.</span><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;iPlug Name&gt;</td>
 						</tr>
 					</c:if>
 					<tr>

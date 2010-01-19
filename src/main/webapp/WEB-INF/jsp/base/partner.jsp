@@ -89,7 +89,7 @@
                     <tr><td colspan=3><br /><hr /><br /></td></tr>
                     <tr>
                         <td>
-                            <span>Weitere Partner dieses IPlugs:</span>
+                            <span>Weitere Partner dieses iPlugs:</span>
                         </td>
                         <td>
                             <form:errors path="partners" cssClass="error" element="div" />

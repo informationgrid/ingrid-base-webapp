@@ -34,7 +34,7 @@
 		<h1 id="head">Konfiguration abgeschlossen</h1>
 		
 		<div id="content">
-			<h2>Herzlichen Glückwunsch! Ihr IPlug ist jetzt konfiguriert.</h2>
+			<h2>Herzlichen Glückwunsch! Ihr iPlug ist jetzt konfiguriert.</h2>
 			<p>
 				Sie können den Browser jetzt schließen.
 			</p>

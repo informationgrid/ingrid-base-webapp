@@ -36,7 +36,7 @@
         <h1 id="head">Kommunikations Setup</h1>
         <div id="content">
             <br />
-	        <p>Hier sehen sie den Status der Verbindung zu den IBus(sen).</p>
+	        <p>Hier sehen sie den Status der Verbindung zu den iBus(sen).</p>
             
             <span><b>Status:</b>
 	            <c:choose>
@@ -65,8 +65,8 @@
              </c:choose>
              <br />
              <p>Sie haben die Möglichkeit die Verbindung zu trennen, aufzubauen und neu zu starten.
-             <br />Üblicherweiße sollte hier "<span class="success">verbunden</span>" zu sehen sein.<br />
-             Ist dies nicht der Falll, sondern erscheint hier "<span class="error">nicht verbunden</span>", besteht mindestens zu einem der IBusse keine Verbindung.</p>
+             <br />Üblicherweise sollte hier "<span class="success">verbunden</span>" zu sehen sein.<br />
+             Ist dies nicht der Falll, sondern erscheint hier "<span class="error">nicht verbunden</span>", besteht mindestens zu einem der iBusse keine Verbindung.</p>
         </div>
     </div>
     <div id="footer" style="height:100px; width:90%"></div>
