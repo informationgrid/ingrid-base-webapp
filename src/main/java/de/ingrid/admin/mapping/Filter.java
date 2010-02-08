@@ -16,12 +16,8 @@ public class Filter implements Externalizable {
 
 	private FilterType _filterType = FilterType.GREATER_THAN;
 
-	public Filter() {
-		// externalizable
-	}
-
-	public Filter(Comparable<? extends Serializable> expression,
-			FilterType filterType) {
+	public Filter(final Comparable<? extends Serializable> expression,
+			final FilterType filterType) {
 		_expression = expression;
 		_filterType = filterType;
 	}
@@ -34,13 +30,13 @@ public class Filter implements Externalizable {
 		return _filterType;
 	}
 
-	public void readExternal(ObjectInput in) throws IOException,
+	public void readExternal(final ObjectInput in) throws IOException,
 			ClassNotFoundException {
 		_filterType = FilterType.valueOf(in.readUTF());
 		_expression = (Comparable<? extends Serializable>) in.readObject();
 	}
 
-	public void writeExternal(ObjectOutput out) throws IOException {
+	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeUTF(_filterType.name());
 		out.writeObject(_expression);
 	}
