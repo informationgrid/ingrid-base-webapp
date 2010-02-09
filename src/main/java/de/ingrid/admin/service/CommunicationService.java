@@ -29,8 +29,8 @@ public class CommunicationService {
         _communicationFile = new File(System.getProperty(IKeys.COMMUNICATION));
         if (!_communicationFile.exists()) {
             LOG.warn("communication does not exist. please create one via ui setup.");
-            getBusClient();
         }
+        getBusClient();
     }
 
     public String getPeerName() {
