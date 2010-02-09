@@ -6,6 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,6 +28,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final IConfigurable _ingridIndexSearcher;
+    private String[] _dataTypes;
 
     @Autowired
     public IndexRunnable(@Qualifier("ingridIndexSearcher") final IConfigurable ingridIndexSearcher) {
@@ -46,6 +50,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 final IndexWriter writer = new IndexWriter(_indexDir, new StandardAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
                     final Document document = _documentProducer.next();
+                    for (final String dataType : _dataTypes) {
+                        document.add(new Field("datatype", dataType, Store.NO, Index.NOT_ANALYZED));
+                    }
                     LOG.debug("add document to index: " + _documentCount);
                     writer.addDocument(document);
                     _documentCount++;
@@ -83,6 +90,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         LOG.debug("configure plugdescription and new index dir...");
         resetDocumentCount();
         _plugDescription = plugDescription;
+        _dataTypes = plugDescription.getDataTypes();
         if (_plugDescription != null) {
             final File workinDirectory = _plugDescription.getWorkinDirectory();
             _indexDir = new File(workinDirectory, "newIndex");
