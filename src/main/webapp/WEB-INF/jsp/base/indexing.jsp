@@ -17,7 +17,7 @@ function getState(){
 	$.get("../base/indexState.html", function(data){
 		  document.getElementById('dialog').style.display = '';
 		  if(data == 'TERMINATED'){
-			document.location.href = '/base/finish.html';
+			document.location.href = '../base/finish.html';
 		  }else{
 			setTimeout(getState, 1000);
 		  }
