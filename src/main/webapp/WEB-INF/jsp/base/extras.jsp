@@ -34,17 +34,17 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Weitere Einstellungen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='fieldQuery.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/fieldQuery.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('extrasConfig').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='fieldQuery.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/fieldQuery.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('extrasConfig').submit();">Weiter</a>
 		</div>
 		<div id="content">
-			<form:form method="post" action="extras.html" modelAttribute="extrasConfig">
+			<form:form method="post" action="../base/extras.html" modelAttribute="extrasConfig">
 				<table id="konfigForm">
 					<c:if test="${showShowInUnranked == 'true'}">
 						<tr>

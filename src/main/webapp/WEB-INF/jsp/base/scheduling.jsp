@@ -34,32 +34,32 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Scheduling</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='save.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='indexing.html';">Weiter</a>
+			<a href="#" onclick="document.location='../base/save.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/indexing.html';">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='save.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='indexing.html';">Weiter</a>
+			<a href="#" onclick="document.location='../base/save.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/indexing.html';">Weiter</a>
 		</div>
 		<div id="content">
 		    <c:if test="${!empty pattern}">
-			    <form method="post" action="deletePattern.html">
+			    <form method="post" action="../base/deletePattern.html">
 			        <label>Pattern:</label>
 	                <span><b>${pattern}</b></span> <input type="submit" value="löschen" />
 	            </form><br />
             </c:if>
             
 			<h2>Geben Sie an, in welchem Zeitabstand Ihre Daten automatisch neu indexiert werden sollen</h2>
-			<form method="post" action="scheduling.html" id="scheduling">
+			<form method="post" action="../base/scheduling.html" id="scheduling">
 				<c:set var="freq" value="${paramValues['freq'][0]}"/>
 
 				<ul class="tabs">
-					<li <c:if test="${empty freq}">class="active"</c:if>><a href="scheduling.html">Täglich</a></li>
-					<li <c:if test="${freq == 'weekly'}">class="active"</c:if>><a href="scheduling.html?freq=weekly">Wöchentlich</a></li>
-					<li <c:if test="${freq == 'monthly'}">class="active"</c:if>><a href="scheduling.html?freq=monthly">Monatlich</a></li>
-					<li <c:if test="${freq == 'advanced'}">class="active"</c:if>><a href="scheduling.html?freq=advanced">Erweitert</a></li>
+					<li <c:if test="${empty freq}">class="active"</c:if>><a href="../base/scheduling.html">Täglich</a></li>
+					<li <c:if test="${freq == 'weekly'}">class="active"</c:if>><a href="../base/scheduling.html?freq=weekly">Wöchentlich</a></li>
+					<li <c:if test="${freq == 'monthly'}">class="active"</c:if>><a href="../base/scheduling.html?freq=monthly">Monatlich</a></li>
+					<li <c:if test="${freq == 'advanced'}">class="active"</c:if>><a href="../base/scheduling.html?freq=advanced">Erweitert</a></li>
 				</ul>
 				
 				<table id="konfigForm" style="clear:both">

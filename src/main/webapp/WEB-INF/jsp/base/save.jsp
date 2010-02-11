@@ -37,16 +37,16 @@
 		<h1 id="head">Konfiguration Speichern</h1>
 		<div class="controls">
 			<a href="#" onclick="history.back();">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('save').submit();">Speichern</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="history.back();">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('save').submit();">Speichern</a>
 		</div>
 		<div id="content" style="position: relative; text-align:center; top:100px">
-			<form:form action="save.html" method="post" id="save">
+			<form:form action="../base/save.html" method="post" id="save">
 			     <button type="button" onclick="document.getElementById('save').submit();">Speichern</button>
 			     <p>
 			         <h2>Die Konfiguration ist abgeschlossen. Ihre Angaben werden gespeichert.</h2>

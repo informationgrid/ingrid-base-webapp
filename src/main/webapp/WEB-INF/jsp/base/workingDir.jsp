@@ -34,18 +34,18 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Arbeitsverzeichnis wählen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div id="content">
 			<h2>Geben Sie den Pfad zum Ordner an, in dem der Index abgelegt werden soll</h2>
-			<form:form method="post" action="workingDir.html" modelAttribute="plugDescription">
+			<form:form method="post" action="../base/workingDir.html" modelAttribute="plugDescription">
 				<table id="konfigForm">
 					<tr>
 						<td class="leftCol">Pfad zum Ordner:</td>

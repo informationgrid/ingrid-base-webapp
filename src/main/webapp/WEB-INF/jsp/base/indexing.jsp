@@ -50,20 +50,20 @@ function getState(){
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Index erstellen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
+			<a href="#" onclick="document.location='../base/scheduling.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/finish.html';">Überspringen</a>
 			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='scheduling.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='finish.html';">Überspringen</a>
+			<a href="#" onclick="document.location='../base/scheduling.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/finish.html';">Überspringen</a>
 			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div id="content">
 			<h2>Sie können Ihre Daten jetzt indizieren, um im Anschluß die Suche zu testen.</h2>
-			<form action="indexing.html" method="post" id="indexing">
+			<form action="../base/indexing.html" method="post" id="indexing">
 				<table id="konfigForm">
 					<tr>
 						<td>

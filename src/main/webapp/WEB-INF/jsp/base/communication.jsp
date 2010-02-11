@@ -57,14 +57,14 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Hinzufügen des iBus</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='welcome.html';" class="submit">Weiter</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/welcome.html';" class="submit">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='welcome.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='welcome.html';" class="submit">Weiter</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/welcome.html';" class="submit">Weiter</a>
 		</div>
 		<div id="content">
 		
@@ -78,7 +78,7 @@
                 <br />
             </c:if>
 		
-            <form:form method="post" action="communication.html" modelAttribute="communication">
+            <form:form method="post" action="../base/communication.html" modelAttribute="communication">
                 <input type="hidden" name="action" value="submit" />
                 <input type="hidden" name="id" value="" />
                 <table id="konfigForm">

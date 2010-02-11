@@ -36,7 +36,7 @@
 		<div id="content">
 			<br />
 			<h2>Sie können das iPlug jetzt testen. Geben Sie dazu eine Suchanfrage ein!</h2>
-			<form method="get" action="search.html">
+			<form method="get" action="../base/search.html">
 				<table id="konfigForm">
 					<tr>
 						<td class="leftCol">Suchbegriff:</td>
@@ -57,7 +57,7 @@
 					   <h3>
 					       <c:choose>
 					           <c:when test="${details}">
-								   <a href="searchDetails.html?id=${hit.key}">${hit.value['title']}</a>
+								   <a href="../base/searchDetails.html?id=${hit.key}">${hit.value['title']}</a>
 					           </c:when>
 					           <c:otherwise>
 					               <a href="#">${hit.value['title']}</a>

@@ -57,19 +57,19 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Verfügbarkeit der Ergebnisse</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='provider.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/provider.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" class="submit">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='provider.html';">Zurück</a>
-			<a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+			<a href="#" onclick="document.location='../base/provider.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" class="submit">Weiter</a>
 		</div>
 		<div id="content">
 		    <p>Hier haben Sie die Möglichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen iBussen reagieren soll.</p>
 			<h2>Geben Sie Field Queries an</h2>
-			<form:form method="post" action="fieldQuery.html" modelAttribute="fieldQuery">
+			<form:form method="post" action="../base/fieldQuery.html" modelAttribute="fieldQuery">
 			     <input type="hidden" name="action" value="submit" />
                  <input type="hidden" name="id" value="" />
 				<table id="konfigForm">

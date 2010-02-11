@@ -30,7 +30,7 @@
 	 					<div class="hd">Please enter your information</div> 
 	    				<div class="bd"> 
 	    				
-	        				<form:form name="dlgForm" method="POST" action="finishBase.html" modelAttribute="plugDescription"> 
+	        				<form:form name="dlgForm" method="POST" action="../base/finishBase.html" modelAttribute="plugDescription"> 
             					<p>Alle allgemeinen Informationen sind konfiguriert. Bitte konfigurieren Sie ihr iPlug weiter.</p> 
 	            				<label for="next">Next</label>
 	            				<input type="submit" value="Weiter" /> 

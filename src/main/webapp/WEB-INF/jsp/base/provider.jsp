@@ -57,18 +57,18 @@
     <div id="contentBox" class="contentMiddle">
         <h1 id="head">Hinzufügen der Anbieter</h1>
         <div class="controls">
-            <a href="#" onclick="document.location='partner.html';">Zurück</a>
-            <a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+            <a href="#" onclick="document.location='../base/partner.html';">Zurück</a>
+            <a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
             <a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
         </div>
         <div class="controls cBottom">
-            <a href="#" onclick="document.location='partner.html';">Zurück</a>
-            <a href="#" onclick="document.location='welcome.html';">Abbrechen</a>
+            <a href="#" onclick="document.location='../base/partner.html';">Zurück</a>
+            <a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
             <a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
         </div>
         <div id="content">
             <h2>Geben Sie mindestens einen Anbieter an, für den diese Datenquelle konfiguriert wird.</h2>
-            <form:form method="post" action="provider.html" modelAttribute="plugDescription">
+            <form:form method="post" action="../base/provider.html" modelAttribute="plugDescription">
                  <input type="hidden" name="action" value="submit" />
                  <input type="hidden" name="id" value="" />
                 <table id="konfigForm">
