@@ -40,7 +40,7 @@
 		<!-- provider -->
 		<li <c:if test="${active == 'provider'}">class="active"</c:if>>
         <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/provider.html">Hinzufügen der Provider</a></c:when>
+            <c:when test="${plugdescriptionExists}"><a href="../base/provider.html">Hinzufügen der Anbieter</a></c:when>
             <c:otherwise>Hinzufügen der Provider</c:otherwise>
         </c:choose>
         </li>
