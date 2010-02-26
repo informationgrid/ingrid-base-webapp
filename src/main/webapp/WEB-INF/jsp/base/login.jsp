@@ -27,8 +27,10 @@
 	</div>
 	
 	<div id="help"><a href="#">[?]</a></div>
-	
-	<c:import url="subNavi.jsp"></c:import>
+
+    <!-- since we are a directory deeper (virtually) we have to modify relatives links in the navi -->	
+	<c:import url="subNavi.jsp" var="subNavigation"></c:import>
+    ${fn:replace(subNavigation, "../", "../../")}
 	
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">iPlug Konfiguration</h1>
