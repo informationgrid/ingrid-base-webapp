@@ -1,7 +1,5 @@
 package de.ingrid.admin.controller;
 
-import java.io.File;
-
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -12,33 +10,23 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.service.PlugDescriptionService;
 
 @Controller
 @SessionAttributes("plugDescription")
 public class WelcomeController {
 
-    private static PlugdescriptionCommandObject _plugDescription;
+    private final PlugDescriptionService _service;
+
+    public WelcomeController(final PlugDescriptionService service) {
+        _service = service;
+    }
 
     @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
     public String welcome(final HttpSession session) throws Exception {
-        loadPlugDescription(session);
-        return IViews.WELCOME;
-    }
-
-    public PlugdescriptionCommandObject loadPlugDescription(final HttpSession session) throws Exception {
-        // reset _plugDescription if the file does not exist
-        boolean pdExists = (new File(System.getProperty("plugDescription"))).exists();
-        if (_plugDescription == null || !pdExists) {
-            _plugDescription = new PlugdescriptionCommandObject(new File(System.getProperty("plugDescription")));
-        }
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
-            session.setAttribute(IKeys.PLUG_DESCRIPTION, _plugDescription);
+            session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.getPlugDescription());
         }
-        return _plugDescription;
-    }
-    
-    public static void invalidatePlugDescription() {
-        _plugDescription = null;
+        return IViews.WELCOME;
     }
 }
