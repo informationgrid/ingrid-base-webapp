@@ -35,4 +35,8 @@ public class WelcomeController {
         }
         return _plugDescription;
     }
+    
+    public static void invalidatePlugDescription() {
+        _plugDescription = null;
+    }
 }

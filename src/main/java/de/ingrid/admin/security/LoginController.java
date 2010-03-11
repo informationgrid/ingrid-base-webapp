@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import de.ingrid.admin.controller.WelcomeController;
 import de.ingrid.admin.service.PlugDescriptionService;
 
 @Controller
@@ -44,6 +45,7 @@ public class LoginController {
     @RequestMapping(value = "/base/auth/logout.html", method = RequestMethod.GET)
     public String logout(final HttpSession session) {
         session.invalidate();
+        WelcomeController.invalidatePlugDescription();
         return "redirect:/base/welcome.html";
     }
 
