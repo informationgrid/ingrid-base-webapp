@@ -27,7 +27,9 @@ public class WelcomeController {
     }
 
     public PlugdescriptionCommandObject loadPlugDescription(final HttpSession session) throws Exception {
-        if (_plugDescription == null) {
+        // reset _plugDescription if the file does not exist
+        boolean pdExists = (new File(System.getProperty("plugDescription"))).exists();
+        if (_plugDescription == null || !pdExists) {
             _plugDescription = new PlugdescriptionCommandObject(new File(System.getProperty("plugDescription")));
         }
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
