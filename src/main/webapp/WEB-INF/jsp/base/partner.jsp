@@ -97,7 +97,7 @@
                             <!-- <div id="partners">-->
                                 <c:set var="i" value="1" />
                                 <c:forEach items="${partners}" var="partner">
-                                    <b>${i}. Partner:</b> ${partner.displayName}</td><td><button type="button" action="delete" id="${partner.shortName}">Entfernen</button></td></tr><tr><td></td><td>
+                                    <b>${i}. Partner:</b> ${partner.displayName}</td><td><c:if test="${partner.shortName != plugDescription.organisationPartnerAbbr}"><button type="button" action="delete" id="${partner.shortName}">Entfernen</button></c:if></td></tr><tr><td></td><td>
                                     <c:set var="i" value="${i + 1}" />
                                 </c:forEach>
                             <!-- </div>-->

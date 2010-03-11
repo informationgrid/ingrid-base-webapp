@@ -72,7 +72,9 @@ public class PartnerController extends AbstractController {
                 commandObject.addPartner(partner);
             }
         } else if ("delete".equals(action)) {
-            commandObject.removePartner(id);
+            if (!id.equals(commandObject.getOrganisationPartnerAbbr())) {
+                commandObject.removePartner(id);
+            }
         } else if ("submit".equals(action)) {
             if (!_validator.validatePartners(errors).hasErrors()) {
                 return redirect(IUris.PROVIDER);

@@ -72,7 +72,9 @@ public class ProviderController extends AbstractController {
                 commandObject.addProvider(provider);
             }
         } else if ("delete".equals(action)) {
-            commandObject.removeProvider(id);
+            if (!id.equals(commandObject.getOrganisationAbbr())) {
+                commandObject.removeProvider(id);
+            }
         } else if ("submit".equals(action)) {
             if (!_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {
                 return redirect(IUris.FIELD_QUERY);

@@ -102,7 +102,11 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     public int getOriginalPort() {
-        return Integer.parseInt(System.getProperty(IKeys.PORT));
+        try {
+            return Integer.parseInt(System.getProperty(IKeys.PORT));
+        } catch (final Exception e) {
+            return 8088;
+        }
     }
 
     public String getOriginalWorkingDir() {

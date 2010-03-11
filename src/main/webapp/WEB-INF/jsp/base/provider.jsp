@@ -96,7 +96,7 @@
                             <!-- <div id="providers">  -->
                                 <c:set var="i" value="1" />
                                 <c:forEach items="${providers}" var="provider">
-                                    <b>${i}. Anbieter:</b> ${provider.displayName}</td><td><button type="button" action="delete" id="${provider.shortName}">Entfernen</button></td></tr><tr><td></td><td>
+                                    <b>${i}. Anbieter:</b> ${provider.displayName}</td><td><c:if test="${provider.shortName != plugDescription.organisationAbbr}"><button type="button" action="delete" id="${provider.shortName}">Entfernen</button></c:if></td></tr><tr><td></td><td>
                                     <c:set var="i" value="${i + 1}" />
                                 </c:forEach>
                             <!-- </div> -->
