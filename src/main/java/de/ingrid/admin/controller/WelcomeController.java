@@ -32,10 +32,7 @@ public class WelcomeController {
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
             // create a new PlugDescription only here when trying to be accessed via admin page
             // and not during initialisation of iPlug (otherwise errors for empty file will occur)
-            if (_service.existsPlugDescription())
-                session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.getPlugDescription());
-            else
-                session.setAttribute(IKeys.PLUG_DESCRIPTION, new PlugdescriptionCommandObject(new File(System.getProperty("plugDescription"))));
+            session.setAttribute(IKeys.PLUG_DESCRIPTION, new PlugdescriptionCommandObject(new File(System.getProperty("plugDescription"))));
         }
         return IViews.WELCOME;
     }
