@@ -1,5 +1,7 @@
 package de.ingrid.admin.controller;
 
+import java.io.File;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
 
 @Controller
@@ -27,7 +30,12 @@ public class WelcomeController {
     @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
     public String welcome(final HttpSession session) throws Exception {
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
-            session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.getPlugDescription());
+            // create a new PlugDescription only here when trying to be accessed via admin page
+            // and not during initialisation of iPlug (otherwise errors for empty file will occur)
+            if (_service.existsPlugDescription())
+                session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.getPlugDescription());
+            else
+                session.setAttribute(IKeys.PLUG_DESCRIPTION, new PlugdescriptionCommandObject(new File(System.getProperty("plugDescription"))));
         }
         return IViews.WELCOME;
     }
