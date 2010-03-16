@@ -32,16 +32,16 @@
 		<!-- partner -->
 		<li <c:if test="${active == 'partner'}">class="active"</c:if>>
         <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/partner.html">Hinzufügen der Partner</a></c:when>
-            <c:otherwise>Hinzufügen der Provider</c:otherwise>
+            <c:when test="${plugdescriptionExists}"><a href="../base/partner.html">Hinzufügen von weiteren Partnern</a></c:when>
+            <c:otherwise>Hinzufügen von weiteren Partnern</c:otherwise>
         </c:choose>
         </li>
 
 		<!-- provider -->
 		<li <c:if test="${active == 'provider'}">class="active"</c:if>>
         <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/provider.html">Hinzufügen der Anbieter</a></c:when>
-            <c:otherwise>Hinzufügen der Provider</c:otherwise>
+            <c:when test="${plugdescriptionExists}"><a href="../base/provider.html">Hinzufügen von weiteren Anbietern</a></c:when>
+            <c:otherwise>Hinzufügen von weiteren Anbietern</c:otherwise>
         </c:choose>
         </li>
 
