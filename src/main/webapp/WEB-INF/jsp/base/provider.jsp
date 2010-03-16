@@ -67,7 +67,7 @@
             <a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
         </div>
         <div id="content">
-            <h2>Geben Sie mindestens einen Anbieter an, für den diese Datenquelle konfiguriert wird.</h2>
+            <h2>Geben Sie zusätzliche Anbieter an, für die Daten in dieser Datenquelle abgelegt werden. Diese Einstellung steuert, ob die Datenquelle bei Anfragen angesprochen wird, die auf bestimmte Anbieter eingeschränkt wurden.</h2>
             <form:form method="post" action="../base/provider.html" modelAttribute="plugDescription">
                  <input type="hidden" name="action" value="submit" />
                  <input type="hidden" name="id" value="" />
