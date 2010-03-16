@@ -55,7 +55,7 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Hinzufügen der Partner</h1>
+		<h1 id="head">Hinzufügen von weiteren Partnern</h1>
 		<div class="controls">
 			<a href="#" onclick="document.location='../base/general.html';">Zurück</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
