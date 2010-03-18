@@ -78,8 +78,8 @@
 						</c:otherwise>
 					</c:choose>
 					<tr>
-			            <td class="leftCol"></td>
-				        <td><input type="submit" value="speichern" /></td>
+			            <td class="leftCol">&nbsp;</td>
+			            <td><input type="submit" value="speichern" /></td>
 				    </tr>
 			    </table>
 			</form>

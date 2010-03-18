@@ -118,3 +118,5 @@ ul.tabs li.active a {color:#000}
 /* -- Search Result -- */
 .hitCount {text-align:right; margin-right:40px}
 .searchResult {clear:both; margin:0px 40px 20px 190px;}
+
+.auto { width: auto; }

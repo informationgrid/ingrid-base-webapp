@@ -1,23 +1,20 @@
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <tr>
-	<td class="leftCol">Stunde:</td>
+	<td class="leftCol">Uhrzeit:</td>
 	<td>
-		<select name="hour">
+		<label>um&nbsp;</label>
+		<select class="auto" name="hour">
 			<c:forEach var="i" begin="0" end="23">
 				<option value="${i}">${i}</option>
 			</c:forEach>
-		</select><br />
-        <span>Die Stunde der Uhrzeit, an dem der Prozess starten soll.</span>
-	</td>
-</tr>
-<tr>
-	<td class="leftCol">Minute:</td>
-	<td>
-		<select name="minute">
+		</select>
+		<label>:</label>
+		
+		<select class="auto" name="minute">
 			<c:forEach var="i" begin="0" end="59" step="15">
 				<option value="${i}">${i}</option>
 			</c:forEach>
-		</select><br />
-		<span>Die Minute der Uhrzeit, an dem der Prozess starten soll.</span>
+		</select>
+		<label>&nbsp;Uhr</label>
 	</td>
 </tr>
