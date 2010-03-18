@@ -57,6 +57,11 @@ public class PlugDescriptionService {
 		return _plugDescriptionFile.exists();
 	}
 
+    public PlugDescription reloadPlugDescription() throws IOException {
+        _plugDescription = loadPlugDescription();
+        return _plugDescription;
+    }
+
 	private PlugDescription loadPlugDescription() throws IOException {
 		LOG.info("load plugdescription from file: "
 				+ _plugDescriptionFile.getAbsolutePath());
