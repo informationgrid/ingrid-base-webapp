@@ -11,6 +11,34 @@
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
 <link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
+
+<script type="text/javascript" src="../js/base/jquery-1.3.2.min.js"></script>
+<script type="text/javascript"><!--
+	$(document).ready(function() {
+		var divs = $("table#multiple div[value]").each(function() {
+			var el = $(this);
+			el.text(el.attr("value") + ".");
+			el.addClass("value");
+		}).toggle(function() {
+			$(this).addClass("marked");
+		}, function() {
+			$(this).removeClass("marked");
+		});
+
+		var form = $("form#submitform").submit(function() {
+			var marked = divs.filter(".marked");
+			if (marked.size() > 0) {
+				var value = "";
+				marked.each(function(i) {
+					value += $(this).attr("value");
+					if (i < (marked.size() - 1)) value += ",";
+				});
+				$("input[name='_dayOfMonth']").attr("name", "dayOfMonth").val(value);
+				$("select[name='dayOfMonth']").attr("name", "_dayOfMonth");
+			}
+		});
+	});
+// --></script>
 </head>
 <body>
 	<div id="header">
@@ -52,7 +80,7 @@
             </c:if>
             
 			<h2>Geben Sie an, in welchem Zeitabstand Ihre Daten automatisch neu indexiert werden sollen</h2>
-			<form method="post" action="../base/scheduling.html" id="scheduling">
+			<form id="submitform" method="post" action="../base/scheduling.html" id="scheduling">
 				<c:set var="freq" value="${paramValues['freq'][0]}"/>
 
 				<ul class="tabs">
