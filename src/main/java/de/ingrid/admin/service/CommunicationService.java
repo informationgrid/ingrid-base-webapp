@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import de.ingrid.admin.IKeys;
 import de.ingrid.ibus.client.BusClient;
 import de.ingrid.ibus.client.BusClientFactory;
+import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IBus;
 import de.ingrid.utils.IPlug;
 
@@ -43,6 +44,12 @@ public class CommunicationService {
         return busClient == null ? false : busClient.allConnected();
     }
 
+    private void reconfigure() {
+        if (_iPlug instanceof HeartBeatPlug) {
+            ((HeartBeatPlug) _iPlug).reconfigure();
+        }
+    }
+
     public void start() {
         try {
             getBusClient().start();
@@ -51,6 +58,7 @@ public class CommunicationService {
             LOG.warn("some of the busses are not available");
             _error = true;
         }
+        reconfigure();
     }
 
     public void shutdown() throws Exception {
@@ -61,6 +69,7 @@ public class CommunicationService {
             LOG.warn("some of the busses are not available");
             _error = true;
         }
+        reconfigure();
     }
 
     public void restart() {
@@ -71,6 +80,7 @@ public class CommunicationService {
             LOG.warn("some of the busses are not available");
             _error = true;
         }
+        reconfigure();
     }
 
     public IBus getIBus() {

@@ -32,8 +32,12 @@ public class PlugDescriptionService {
 	}
 
 	public PlugDescription getPlugDescription() throws IOException {
-		if (_plugDescription == null && existsPlugDescription()) {
-			_plugDescription = loadPlugDescription();
+		if (_plugDescription == null) {
+		    if (existsPlugDescription()) {
+		        _plugDescription = loadPlugDescription();
+		    } else {
+                _plugDescription = new PlugdescriptionCommandObject(_plugDescriptionFile);
+		    }
 		}
 		return _plugDescription;
 	}
@@ -58,8 +62,8 @@ public class PlugDescriptionService {
 	}
 
     public PlugDescription reloadPlugDescription() throws IOException {
-        _plugDescription = loadPlugDescription();
-        return _plugDescription;
+        _plugDescription = null;
+        return getPlugDescription();
     }
 
 	private PlugDescription loadPlugDescription() throws IOException {
