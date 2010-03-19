@@ -27,7 +27,7 @@ public class WelcomeController {
     @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
     public String welcome(final HttpSession session) throws Exception {
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
-            session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.reloadPlugDescription());
+            session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.getCommandObect());
         }
         return IViews.WELCOME;
     }

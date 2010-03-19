@@ -32,15 +32,15 @@ public class PlugDescriptionService {
 	}
 
 	public PlugDescription getPlugDescription() throws IOException {
-		if (_plugDescription == null) {
-		    if (existsPlugDescription()) {
-		        _plugDescription = loadPlugDescription();
-		    } else {
-                _plugDescription = new PlugdescriptionCommandObject(_plugDescriptionFile);
-		    }
+        if (_plugDescription == null && existsPlugDescription()) {
+            _plugDescription = loadPlugDescription();
 		}
 		return _plugDescription;
 	}
+
+    public PlugdescriptionCommandObject getCommandObect() throws IOException {
+        return new PlugdescriptionCommandObject(_plugDescriptionFile);
+    }
 
 	@SuppressWarnings("unchecked")
 	public void savePlugDescription(final PlugDescription plugDescription)
