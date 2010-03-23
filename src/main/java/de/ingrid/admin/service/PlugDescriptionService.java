@@ -21,8 +21,7 @@ public class PlugDescriptionService {
 
 	private PlugDescription _plugDescription;
 
-
-	public PlugDescriptionService() throws IOException {
+    public PlugDescriptionService() throws IOException {
 		_plugDescriptionFile = new File(System.getProperty(IKeys.PLUG_DESCRIPTION));
 		if (existsPlugDescription()) {
 			_plugDescription = loadPlugDescription();
@@ -32,7 +31,7 @@ public class PlugDescriptionService {
 	}
 
 	public PlugDescription getPlugDescription() throws IOException {
-        if (_plugDescription == null && existsPlugDescription()) {
+	    if (_plugDescription == null && existsPlugDescription()) {
             _plugDescription = loadPlugDescription();
 		}
 		return _plugDescription;
