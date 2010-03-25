@@ -28,6 +28,8 @@ public class IngridRealm implements UserRealm {
         Principal principal = null;
         try {
             RequestCallbackHandler handler = new RequestCallbackHandler(request);
+            String[] url = request.getRequestURL().toString().split("/base/");
+            request.getSession().setAttribute("org.mortbay.jetty.URI", url[0].concat("/base/welcome.html"));
             LoginContext loginContext = new LoginContext("IngridLogin", handler);
             loginContext.login();
             Subject subject = loginContext.getSubject();
