@@ -51,10 +51,11 @@ public class ProviderController extends AbstractController {
 
         final List<Provider> providers = new ArrayList<Provider>();
         for (final String shortName : commandObject.getProviders()) {
-        	if(getByShortName(providerList, shortName)==null){
+        	Provider p = getByShortName(providerList, shortName);
+            if(p == null){
         		commandObject.removeProvider(shortName);
         	}else{
-        		providers.add(getByShortName(providerList, shortName));	
+        		providers.add(p);	
         	}
         }
         modelMap.addAttribute("providers", providers);
@@ -88,7 +89,7 @@ public class ProviderController extends AbstractController {
         return getProvider(modelMap, commandObject);
     }
 
-    private List<Provider> getProviders(final String... partners) throws Exception {
+    List<Provider> getProviders(final String... partners) throws Exception {
         final List<Provider> providerList = new ArrayList<Provider>();
         for (final Provider provider : Utils.getProviders(_communicationInterface.getIBus())) {
             if (hasPartner(partners, provider)) {
