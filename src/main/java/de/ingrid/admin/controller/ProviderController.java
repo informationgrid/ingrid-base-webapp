@@ -51,7 +51,11 @@ public class ProviderController extends AbstractController {
 
         final List<Provider> providers = new ArrayList<Provider>();
         for (final String shortName : commandObject.getProviders()) {
-            providers.add(getByShortName(providerList, shortName));
+        	if(getByShortName(providerList, shortName)==null){
+        		commandObject.removeProvider(shortName);
+        	}else{
+        		providers.add(getByShortName(providerList, shortName));	
+        	}
         }
         modelMap.addAttribute("providers", providers);
 
