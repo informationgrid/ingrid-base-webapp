@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.command.Command;
+import de.ingrid.admin.command.FileDeleteCommand;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
@@ -17,7 +19,7 @@ import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IRecordLoader;
 
 @Controller
-@SessionAttributes("plugDescription")
+@SessionAttributes({"plugDescription", "postCommandObject"})
 public class SaveController extends AbstractController {
 
     private final IConfigurable[] _configurables;
@@ -41,7 +43,8 @@ public class SaveController extends AbstractController {
 
     @RequestMapping(value = IUris.SAVE, method = RequestMethod.POST)
     public String postSave(
-            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject)
+            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject,
+            @ModelAttribute("postCommandObject") final Command postCommandObject)
             throws Exception {
         
         boolean restart = false;
@@ -61,6 +64,12 @@ public class SaveController extends AbstractController {
         
         // save plug description
         _plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
+        
+        // execute additional command objects
+        if(postCommandObject != null){
+        	postCommandObject.execute();
+        	postCommandObject.clear();
+        }
 
         // redirect to the restart page
         if (restart)

@@ -11,14 +11,15 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.command.Command;
 import de.ingrid.admin.service.PlugDescriptionService;
 
 @Controller
-@SessionAttributes("plugDescription")
+@SessionAttributes({"plugDescription", "postCommandObject"})
 public class WelcomeController {
 
     private final PlugDescriptionService _service;
-
+    
     @Autowired
     public WelcomeController(final PlugDescriptionService service) {
         _service = service;
@@ -28,6 +29,9 @@ public class WelcomeController {
     public String welcome(final HttpSession session) throws Exception {
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
             session.setAttribute(IKeys.PLUG_DESCRIPTION, _service.getCommandObect());
+        }
+        if (session.getAttribute("postCommandObject") == null) {
+            session.setAttribute("postCommandObject", new Command());
         }
         return IViews.WELCOME;
     }
