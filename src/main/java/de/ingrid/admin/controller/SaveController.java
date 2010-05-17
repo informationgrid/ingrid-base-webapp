@@ -11,7 +11,6 @@ import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.command.Command;
-import de.ingrid.admin.command.FileDeleteCommand;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;

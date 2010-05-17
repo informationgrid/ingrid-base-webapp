@@ -1,10 +1,11 @@
 package de.ingrid.admin.command;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to add and to execute registrated 
+ * Class to add/remove and to execute added command object like synchronize of plug description and mapping directory.
  *
  */
 public class Command {
@@ -27,6 +28,17 @@ public class Command {
 	}
 	
 	/**
+	 * Remove a command from list.
+	 * 
+	 * @param command
+	 */
+	public void remove(Command command){
+		if(commandList != null && !commandList.isEmpty()){
+			commandList.remove(command);
+		}
+	}
+	
+	/**
 	 * Execution of all command in a command list.
 	 */
 	public void execute(){
@@ -35,8 +47,12 @@ public class Command {
 		}
 	}
 	
+	/**
+	 * Remove all command objects from command list.
+	 */
 	public void clear(){
-		commandList.clear();
+		if(commandList != null && !commandList.isEmpty()){
+			commandList.clear();			
+		}
 	}
-	
 }
