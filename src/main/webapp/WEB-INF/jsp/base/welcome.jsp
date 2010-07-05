@@ -35,7 +35,7 @@
 		
 		<div id="content">
 			<br/>
-			<h2>Herzlich willkommen zur iPlug Konfiguration</h2>
+			<h2>Herzlich willkommen zur iPlug Konfiguration!</h2>
 			
 		</div>
 	</div>
