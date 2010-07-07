@@ -55,7 +55,7 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Hinzufügen von weiteren Partnern</h1>
+		<h1 id="head">Weitere Partner hinzufügen</h1>
 		<div class="controls">
 			<a href="#" onclick="document.location='../base/general.html';">Zurück</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
@@ -67,7 +67,7 @@
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div id="content">
-			<h2>Geben Sie zusätzliche Partner an, für die Daten in dieser Datenquelle abgelegt werden. Diese Einstellung steuert, ob die Datenquelle bei Anfragen angesprochen wird, die auf bestimmte Partner eingeschränkt wurden.</h2>
+			<p>Geben Sie zusätzliche Partner an, für die Daten in dieser Datenquelle abgelegt werden. Diese Einstellung steuert, ob die Datenquelle bei Anfragen angesprochen wird, die auf bestimmte Partner eingeschränkt wurden.</p>
 			<form:form method="post" action="../base/partner.html" modelAttribute="plugDescription">
 			     <input type="hidden" name="action" value="submit" />
 			     <input type="hidden" name="id" value="" />

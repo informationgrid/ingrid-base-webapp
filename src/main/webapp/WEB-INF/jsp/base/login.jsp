@@ -44,13 +44,13 @@
 									<tr>
 										<td class="leftCol">Name:</td>
 										<td>
-										     <input type="text" name="j_username"/>
+										     <input style="width: 200px;" type="text" name="j_username"/>
 										</td>
 									</tr>
 									<tr>
 										<td class="leftCol">Passwort:</td>
 										<td>
-										     <input type="password" name="j_password" />
+										     <input style="width: 200px;" type="password" name="j_password" />
 										</td>
 									</tr>
 									<tr>
