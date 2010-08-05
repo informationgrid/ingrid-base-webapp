@@ -9,6 +9,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -36,8 +40,13 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     private static final Log LOG = LogFactory.getLog(IngridIndexSearcher.class);
     private final QueryParsers _queryParsers;
 
+    // NOTICE:
+    // We use autowiring for "QueryParsers" instance BUT DEFINE THE "QueryParsers" BEAN IN XML with a qualifier !
+    // The bean is created by the factory, then autowiring takes place and the bean is injected here !
+    // This way we can set the order and the instances of the parsers in XML !
+    // The "XMLconfigured" qualifier identifies the instance defined in XML !
     @Autowired
-    public IngridIndexSearcher(QueryParsers queryParsers) {
+    public IngridIndexSearcher(@Qualifier("XMLconfigured") QueryParsers queryParsers) {
         _queryParsers = queryParsers;
     }
 
@@ -46,7 +55,11 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
 
         Query luceneQuery = _queryParsers.parse(ingridQuery);
 
-        LOG.debug("outgoing lucene query: " + luceneQuery);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("outgoing lucene query: " + luceneQuery);
+            explainQuery(luceneQuery);
+        }
+
         TopDocs topDocs = search(luceneQuery, start, length);
         LOG.debug("found hits: " + topDocs.scoreDocs.length + "/" + topDocs.totalHits);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
@@ -131,4 +144,25 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
         return record;
     }
 
+    private void explainQuery(Query query) {
+        if (query instanceof BooleanQuery) {
+            BooleanClause[] clauses = ((BooleanQuery) query).getClauses();
+            LOG.debug("BQ  { ");
+            for (int i = 0; i < clauses.length; i++) {
+            	LOG.debug("Clause (" + clauses[i].getOccur() + ")  { ");
+                explainQuery(clauses[i].getQuery());
+                LOG.debug("} ");
+            }
+            LOG.debug("} ");
+        } else if (query instanceof PhraseQuery) {
+            Term[] terms = ((PhraseQuery) query).getTerms();
+            LOG.debug("PQ { ");
+            for (int i = 0; i < terms.length; i++) {
+            	LOG.debug("Term (" + terms[i].field() + " : " + terms[i].text() + ")");
+            }
+            LOG.debug("} ");
+        } else {
+        	LOG.debug("unkown query type");
+        }
+    }
 }
