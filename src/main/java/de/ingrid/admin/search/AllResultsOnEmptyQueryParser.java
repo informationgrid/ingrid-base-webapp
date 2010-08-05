@@ -12,7 +12,11 @@ public class AllResultsOnEmptyQueryParser extends AbstractParser {
     @Override
     public void parse(final IngridQuery ingridQuery, final BooleanQuery booleanQuery) {
     	
-        if (booleanQuery.getClauses().length == 0) {
+    	// NOTICE: is also called on sub clauses BUT WE ONLY PROCESS THE TOP INGRID QUERY.
+    	// all other ones are subclasses !
+    	boolean isTopQuery = (ingridQuery.getClass().equals(IngridQuery.class));
+        if (isTopQuery && booleanQuery.getClauses().length == 0) {
+        	// all processed and "empty" Lucene query
         	booleanQuery.add(new MatchAllDocsQuery(), transform(false, false));
         }
     }
