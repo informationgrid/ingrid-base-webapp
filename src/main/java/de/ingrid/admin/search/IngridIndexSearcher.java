@@ -51,7 +51,11 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     }
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
-        LOG.debug("incoming query: " + ingridQuery);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("incoming query: " + ingridQuery);
+            LOG.debug("start: " + start);
+            LOG.debug("length: " + length);
+        }
 
         Query luceneQuery = _queryParsers.parse(ingridQuery);
 

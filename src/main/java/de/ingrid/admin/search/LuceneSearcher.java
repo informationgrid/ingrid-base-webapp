@@ -26,7 +26,12 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
     private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
 
     public TopDocs search(final Query booleanQuery, final int start, final int length) throws Exception {
-        TopDocs topDocs = _indexSearcher.search(booleanQuery, length);
+    	// determine max num to fetch
+    	int maxNumDocs = _indexSearcher.maxDoc();
+    	if (maxNumDocs < length) {
+    		maxNumDocs = length;
+    	}
+        TopDocs topDocs = _indexSearcher.search(booleanQuery, maxNumDocs);
         final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         int size = 0;
         final int lengthMinusStart = scoreDocs.length - start;
