@@ -61,12 +61,12 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Angaben zu Betreiber und Datenquelle</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/workingDir.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/workingDir.html';">Zurï¿½ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/workingDir.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/workingDir.html';">Zurï¿½ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
@@ -79,7 +79,7 @@
 						<td>Partner:</td>
 						<td>
 							<form:select path="organisationPartnerAbbr" id="partners"> 
-                                <form:option value="" label="bitte wählen" />
+                                <form:option value="" label="bitte wï¿½hlen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                             </form:select><br />
                             <span>Der Partner der dieses iPlug betreibt.</span>
@@ -90,7 +90,7 @@
 						<td class="leftCol">Name des Anbieters:</td>
 						<td>
 							 <form:select path="organisationAbbr" id="providers" > 
-                                <form:option value="" label="bitte wählen" /> 
+                                <form:option value="" label="bitte wï¿½hlen" /> 
                             </form:select><br />
                             <span>Der Anbieter der dieses iPlug betreibt.</span>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
@@ -140,7 +140,7 @@
 						    <c:forEach items="${dataTypes}" var="type">
 						        <form:checkbox path="dataTypes" value="${type.name}" /><fmt:message key="dataType.${type.name}"/><br />
 						    </c:forEach><br />
-                            <span>Der Datenquellen Typ (mehrere Felder auswählbar).</span>
+                            <span>Der Datenquellen Typ (mehrere Felder auswï¿½hlbar).</span>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						</td>
 					</tr>
@@ -170,7 +170,7 @@
 					</tr>
 					<tr>
 						<td>Administrationskennwort:</td>
-						<td><input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" /><br /><span>Das Kennwort mit dessen Hilfe man sich Authentifiziert.</span><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
+						<td><input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" /><br /><span>Das Kennwort mit dessen Hilfe man sich authentifiziert.</span><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
 					</tr>			
 				</table>
 			</form:form>
