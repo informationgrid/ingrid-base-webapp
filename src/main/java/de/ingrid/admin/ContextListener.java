@@ -15,7 +15,7 @@ public class ContextListener implements ServletContextListener {
         // plug description
         String plugDescription = System.getProperty(IKeys.PLUG_DESCRIPTION);
 		if (plugDescription == null) {
-            plugDescription = "conf/plugDescription.xml";
+            plugDescription = "conf/plugdescription.xml";
             System.setProperty(IKeys.PLUG_DESCRIPTION, plugDescription);
             LOG.warn("plug description is not defined. using default: " + plugDescription);
         }

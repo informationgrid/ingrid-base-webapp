@@ -26,7 +26,7 @@ public class PlugDescriptionService {
 		if (existsPlugDescription()) {
 			_plugDescription = loadPlugDescription();
 		} else {
-			LOG.warn("plug description does not exist. please create one via ui setup.");
+			LOG.warn("plug description does not exist (mind case sensitive file names). please create one via ui setup.");
 		}
 	}
 
