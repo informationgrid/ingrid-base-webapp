@@ -43,6 +43,7 @@ public class IndexSchedulerTest extends TestCase {
         public void run() {
             _counter++;
             try {
+                System.out.println("DummyRunnable: Sleep for " + (_time/1000) + " sec.");
                 Thread.sleep(_time);
             } catch (final InterruptedException e) {
                 e.printStackTrace();
@@ -81,19 +82,23 @@ public class IndexSchedulerTest extends TestCase {
     }
 
     public void testScheduling10() throws Exception {
+        System.out.println("Sleep for 10 sec.");
         _runnable.setTime(1000L * 10L);
         _scheduler.setPattern("* * * * *");
 
         assertEquals(0, _runnable.getCount());
+        System.out.println("Sleep for 61 sec.");
         Thread.sleep(1000L * 61L);
         assertEquals(1, _runnable.getCount());
     }
 
     public void testScheduling70() throws Exception {
+        System.out.println("Sleep for 70 sec.");
         _runnable.setTime(1000L * 70L);
         _scheduler.setPattern("* * * * *");
 
         assertEquals(0, _runnable.getCount());
+        System.out.println("Sleep for 121 sec.");
         Thread.sleep(1000L * 121L);
         assertEquals(1, _runnable.getCount());
     }
