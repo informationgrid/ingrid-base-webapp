@@ -90,6 +90,14 @@
 	</dependencies>
 	<build>
 		<plugins>
+	      <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-eclipse-plugin</artifactId>
+	        <inherited>true</inherited>
+	        <configuration>
+	          <useProjectReferences>false</useProjectReferences>
+	        </configuration>
+	      </plugin>
 			<plugin>
 				<groupId>org.codehaus.groovy.maven</groupId>
 				<artifactId>gmaven-plugin</artifactId>

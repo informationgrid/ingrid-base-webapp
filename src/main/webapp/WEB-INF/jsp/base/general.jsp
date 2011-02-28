@@ -140,7 +140,7 @@
 						    <c:forEach items="${dataTypes}" var="type">
 						        <form:checkbox path="dataTypes" value="${type.name}" /><fmt:message key="dataType.${type.name}"/><br />
 						    </c:forEach><br />
-                            <span>Der Datenquellen Typ (mehrere Felder ausw�hlbar).</span>
+                            <span>Der Datenquellen Typ (mehrere Felder ausw&auml;hlbar).</span>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />
 						</td>
 					</tr>

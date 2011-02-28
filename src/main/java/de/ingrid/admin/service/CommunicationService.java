@@ -74,6 +74,9 @@ public class CommunicationService {
 
     public void restart() {
         try {
+            if (_iPlug instanceof HeartBeatPlug) {
+                ((HeartBeatPlug) _iPlug).stopHeartBeats();
+            }
             getBusClient().restart();
             _error = false;
         } catch (final Exception e) {

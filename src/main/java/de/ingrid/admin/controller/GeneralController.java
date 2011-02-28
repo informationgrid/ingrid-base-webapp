@@ -75,7 +75,7 @@ public class GeneralController extends AbstractController {
         boolean isIgc = false;
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
-                if (type.getName().equals(IDataType.DSC_ECS)) {
+                if (type.getName().equals(IDataType.DSC_ECS) || type.getName().equals(IDataType.DSC_ECS_ADDRESS)) {
                     isIgc = true;
                     break;
                 }
