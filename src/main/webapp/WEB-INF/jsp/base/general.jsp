@@ -150,7 +150,7 @@
 						</tr>
 						<tr>
 							<td>Adresse des iPlugs:</td>
-							<td><form:input path="proxyServiceURL" readonly="true" /><br /><span>Der bereits angegebene Name des iPlugs.</span><form:errors path="proxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;iPlug Name&gt;</td>
+							<td>${plugDescription.proxyServiceUrl}<br /><span>Der bereits angegebene Name des iPlugs.</span></td>
 						</tr>
 						<tr>
 							<td>Adresse des korrespondierenden iPlugs:</td>
