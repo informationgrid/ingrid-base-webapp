@@ -53,10 +53,19 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
         final Map<String, Fieldable[]> details = new HashMap<String, Fieldable[]>();
         final Document doc = _indexSearcher.doc(docId);
         for (final String fieldName : fields) {
-            final Fieldable[] values = doc.getFieldables(fieldName);
-            if (values != null) {
-                details.put(fieldName, values);
-            }
+        	// check fieldname also in lowercase if different !
+        	String[] fieldNamesToCheck = new String[]{ fieldName };
+        	if (!fieldName.equals(fieldName.toLowerCase())) {
+        		fieldNamesToCheck = new String[]{ fieldName, fieldName.toLowerCase() };
+        	}
+        	for (String fieldNameToCheck : fieldNamesToCheck) {
+                final Fieldable[] values = doc.getFieldables(fieldNameToCheck);
+                if (values != null && values.length > 0) {
+                    details.put(fieldName, values);
+                    // use first found field, do not evaluate further for lowercase field !
+                    break;
+                }
+        	}
         }
         return details;
     }
