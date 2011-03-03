@@ -20,7 +20,9 @@ public class ContentQueryParser implements IQueryParser {
 
     @Autowired
     public ContentQueryParser(Stemmer stemmer) {
-    	this.termQueryParser = new TermQueryParser("content", null, stemmer);
+//    	this.termQueryParser = new TermQueryParser("content", null, stemmer);
+    	// do NOT use stemmer ! language specific !
+    	this.termQueryParser = new TermQueryParser("content", null, null);
     	this.phraseQueryParser = new PhraseQueryParser("content", null);
     	this.prefixQueryParser = new PrefixQueryParser("content", null);
     }
