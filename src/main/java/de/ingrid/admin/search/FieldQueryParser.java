@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 
+/**
+ * Generic mapping of FieldQuery(s) from IngridQuery to LuceneQuery.
+ */
 @Service
 public class FieldQueryParser extends AbstractParser {
 
@@ -27,7 +30,5 @@ public class FieldQueryParser extends AbstractParser {
                 booleanQuery.add(luceneTermQuery, occur);
             }
         }
-
     }
-
 }

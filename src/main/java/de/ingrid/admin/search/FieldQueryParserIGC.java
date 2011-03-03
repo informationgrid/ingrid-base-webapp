@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -18,8 +19,10 @@ import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.udk.DoublePadding;
 
+/**
+ * Maps FieldQuery(s) from IngridQuery to LuceneQuery and handles all IGC specials (time, coords ..).
+ */
 @Service
 public class FieldQueryParserIGC extends AbstractParser {
 
@@ -38,7 +41,6 @@ public class FieldQueryParserIGC extends AbstractParser {
     @Override
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
         FieldQuery[] fields = ingridQuery.getFields();
-        
         processGeoAndTimeQueries(fields, booleanQuery);
     }
 
@@ -50,13 +52,13 @@ public class FieldQueryParserIGC extends AbstractParser {
             String indexField = query.getFieldName();
             String value = query.getFieldValue().toLowerCase();
             if (indexField.equals("x1")) {
-                geoMap.put(indexField, DoublePadding.padding(Double.parseDouble(value)));
+                geoMap.put(indexField, value);
             } else if (indexField.equals("x2")) {
-                geoMap.put(indexField, DoublePadding.padding(Double.parseDouble(value)));
+                geoMap.put(indexField, value);
             } else if (indexField.equals("y1")) {
-                geoMap.put(indexField, DoublePadding.padding(Double.parseDouble(value)));
+                geoMap.put(indexField, value);
             } else if (indexField.equals("y2")) {
-                geoMap.put(indexField, DoublePadding.padding(Double.parseDouble(value)));
+                geoMap.put(indexField, value);
             } else if (indexField.equals("coord")) {
                 List<String> list = (List<String>) geoMap.get(indexField);
                 if (list == null) {
@@ -78,7 +80,7 @@ public class FieldQueryParserIGC extends AbstractParser {
                 list.add(value);
                 timeMap.put(indexField, list);
             } else if ("incl_meta".equals(indexField) && "on".equals(value)) {
-                booleanQuery.add(new org.apache.lucene.search.TermQuery(new Term(query.getFieldName(), query
+                booleanQuery.add(new TermQuery(new Term(query.getFieldName(), query
                         .getFieldValue().toLowerCase())), Occur.SHOULD);
             } else {
                 final String term = query.getFieldValue().toLowerCase();
@@ -92,7 +94,7 @@ public class FieldQueryParserIGC extends AbstractParser {
                     }
                     booleanQuery.add(phraseQuery, transform(query.isRequred(), query.isProhibited()));
                 } else {
-                    booleanQuery.add(new org.apache.lucene.search.TermQuery(new Term(field, term)),
+                    booleanQuery.add(new TermQuery(new Term(field, term)),
                     		transform(query.isRequred(), query.isProhibited()));
                 }
             }
@@ -137,20 +139,14 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Term x1Term1 = new Term("x1", x1);
-            Term x2Term1 = new Term("x2", x2);
-            Term y1Term1 = new Term("y1", y1);
-            Term y2Term1 = new Term("y2", y2);
-
-            Term x1TermMin = new Term("x1", DoublePadding.padding(5.3));
-            Term x2TermMax = new Term("x2", DoublePadding.padding(14.77));
-            Term y1TermMin = new Term("y1", DoublePadding.padding(46.76));
-            Term y2TermMax = new Term("y2", DoublePadding.padding(54.73));
-
-            Query xRangeQuery1 = new org.apache.lucene.search.RangeQuery(x1TermMin, x1Term1, true);
-            Query xRangeQuery2 = new org.apache.lucene.search.RangeQuery(x2Term1, x2TermMax, true);
-            Query yRangeQuery1 = new org.apache.lucene.search.RangeQuery(y1TermMin, y1Term1, true);
-            Query yRangeQuery2 = new org.apache.lucene.search.RangeQuery(y2Term1, y2TermMax, true);
+            Query xRangeQuery1 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(5.3), new Double(x1), true, true);
+            Query xRangeQuery2 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x2), new Double(14.77), true, true);
+            Query yRangeQuery1 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(46.76), new Double(y1), true, true);
+            Query yRangeQuery2 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y2), new Double(54.73), true, true);
 
             booleanQuery.add(xRangeQuery1, Occur.MUST);
             booleanQuery.add(xRangeQuery2, Occur.MUST);
@@ -171,10 +167,10 @@ public class FieldQueryParserIGC extends AbstractParser {
             Term y1Term1 = new Term("y1", y1);
             Term y2Term1 = new Term("y2", y2);
 
-            Query xTermQuery1 = new org.apache.lucene.search.TermQuery(x1Term1);
-            Query xTermQuery2 = new org.apache.lucene.search.TermQuery(x2Term1);
-            Query yTermQuery1 = new org.apache.lucene.search.TermQuery(y1Term1);
-            Query yTermQuery2 = new org.apache.lucene.search.TermQuery(y2Term1);
+            Query xTermQuery1 = new TermQuery(x1Term1);
+            Query xTermQuery2 = new TermQuery(x2Term1);
+            Query yTermQuery1 = new TermQuery(y1Term1);
+            Query yTermQuery2 = new TermQuery(y2Term1);
 
             booleanQuery.add(xTermQuery1, Occur.MUST);
             booleanQuery.add(xTermQuery2, Occur.MUST);
@@ -207,16 +203,6 @@ public class FieldQueryParserIGC extends AbstractParser {
     private static BooleanQuery prepareIntersectGeoQuery(String x1, String x2, String y1, String y2, int x_case) {
 
         BooleanQuery booleanQuery = new BooleanQuery();
-        Term x1Term1 = new Term("x1", x1);
-        Term x1Term2 = new Term("x1", x2);
-        Term x2Term1 = new Term("x2", x1);
-        Term x2Term2 = new Term("x2", x2);
-        Term y1Term1 = new Term("y1", y1);
-        Term y1Term2 = new Term("y1", y2);
-        Term y2Term1 = new Term("y2", y1);
-        Term y2Term2 = new Term("y2", y2);
-        Term y1TermMin = new Term("y1", DoublePadding.padding(46.76));
-        Term y2TermMax = new Term("y2", DoublePadding.padding(54.73));
 
         switch (x_case) {
         case FIRST_X_CASE:
@@ -225,23 +211,23 @@ public class FieldQueryParserIGC extends AbstractParser {
             BooleanQuery yQueryFistCase = new BooleanQuery();
             BooleanQuery yOutside = new BooleanQuery();
 
-            org.apache.lucene.search.RangeQuery xRangeQuery1 = new org.apache.lucene.search.RangeQuery(x1Term1,
-                    x1Term2, true);
-            org.apache.lucene.search.RangeQuery xRangeQuery2 = new org.apache.lucene.search.RangeQuery(x2Term1,
-                    x2Term2, true);
-            org.apache.lucene.search.RangeQuery xRangeQuery3 = new org.apache.lucene.search.RangeQuery(x1Term1,
-                    x1Term2, true);
-            org.apache.lucene.search.RangeQuery xRangeQuery4 = new org.apache.lucene.search.RangeQuery(x2Term1,
-                    x2Term2, true);
+            Query xRangeQuery1 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x2), true, true);
+            Query xRangeQuery2 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(x2), true, true);
+            Query xRangeQuery3 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x2), true, true);
+            Query xRangeQuery4 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(x2), true, true);
 
-            org.apache.lucene.search.RangeQuery yRangeQuery1 = new org.apache.lucene.search.RangeQuery(y1Term1,
-                    y1Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery2 = new org.apache.lucene.search.RangeQuery(y2Term1,
-                    y2Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery3 = new org.apache.lucene.search.RangeQuery(y1TermMin,
-                    y1Term1, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery4 = new org.apache.lucene.search.RangeQuery(y2Term1,
-                    y2TermMax, true);
+            Query yRangeQuery1 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y1), new Double(y2), true, true);
+            Query yRangeQuery2 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(y2), true, true);
+            Query yRangeQuery3 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(46.76), new Double(y1), true, true);
+            Query yRangeQuery4 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(54.73), true, true);
 
             // must: true, false must_not: false, true should: false, false
             xQuery1FirstCase.add(xRangeQuery1, Occur.MUST);
@@ -262,14 +248,15 @@ public class FieldQueryParserIGC extends AbstractParser {
             break;
 
         case SECOND_X_CASE:
-            org.apache.lucene.search.RangeQuery xRangeQuery1SecondCase = new org.apache.lucene.search.RangeQuery(
-                    x1Term1, x1Term2, true);
-            org.apache.lucene.search.RangeQuery xRangeQuery2SecondCase = new org.apache.lucene.search.RangeQuery(
-                    x2Term1, x2Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery1SecondCase = new org.apache.lucene.search.RangeQuery(
-                    y1Term1, y1Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery2SecondCase = new org.apache.lucene.search.RangeQuery(
-                    y2Term1, y2Term2, true);
+            Query xRangeQuery1SecondCase = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x2), true, true);
+            Query xRangeQuery2SecondCase = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(x2), true, true);
+            Query yRangeQuery1SecondCase = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y1), new Double(y2), true, true);
+            Query yRangeQuery2SecondCase = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(y2), true, true);
+
             booleanQuery.add(xRangeQuery1SecondCase, Occur.MUST);
             booleanQuery.add(xRangeQuery2SecondCase, Occur.MUST);
             booleanQuery.add(yRangeQuery1SecondCase, Occur.MUST_NOT);
@@ -278,14 +265,16 @@ public class FieldQueryParserIGC extends AbstractParser {
 
         case THIRD_X_CASE:
             BooleanQuery thirdCase = new BooleanQuery();
-            org.apache.lucene.search.RangeQuery xRangeQuery1ThirdCase = new org.apache.lucene.search.RangeQuery(
-                    x1Term1, x1Term2, true);
-            org.apache.lucene.search.RangeQuery xRangeQuery2ThirdCase = new org.apache.lucene.search.RangeQuery(
-                    x2Term1, x2Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery1ThirdCase = new org.apache.lucene.search.RangeQuery(
-                    y1Term1, y1Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery2ThirdCase = new org.apache.lucene.search.RangeQuery(
-                    y2Term1, y2Term2, true);
+
+            Query xRangeQuery1ThirdCase = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x2), true, true);
+            Query xRangeQuery2ThirdCase = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(x2), true, true);
+            Query yRangeQuery1ThirdCase = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y1), new Double(y2), true, true);
+            Query yRangeQuery2ThirdCase = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(y2), true, true);
+
             thirdCase.add(yRangeQuery1ThirdCase, Occur.SHOULD);
             thirdCase.add(yRangeQuery2ThirdCase, Occur.SHOULD);
             booleanQuery.add(xRangeQuery1ThirdCase, Occur.MUST_NOT);
@@ -307,32 +296,19 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Term x1Term1 = new Term("x1", x1);
-            Term x1Term2 = new Term("x1", x2);
-
-            Term y1Term1 = new Term("y1", y1);
-            Term y1Term2 = new Term("y1", y2);
-
-            Term x2Term1 = new Term("x2", x1);
-            Term x2Term2 = new Term("x2", x2);
-
-            Term y2Term1 = new Term("y2", y1);
-            Term y2Term2 = new Term("y2", y2);
-
-            org.apache.lucene.search.RangeQuery xRangeQuery1 = new org.apache.lucene.search.RangeQuery(x1Term1,
-                    x1Term2, true);
-            org.apache.lucene.search.RangeQuery xRangeQuery2 = new org.apache.lucene.search.RangeQuery(x2Term1,
-                    x2Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery1 = new org.apache.lucene.search.RangeQuery(y1Term1,
-                    y1Term2, true);
-            org.apache.lucene.search.RangeQuery yRangeQuery2 = new org.apache.lucene.search.RangeQuery(y2Term1,
-                    y2Term2, true);
+            Query xRangeQuery1 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x2), true, true);
+            Query xRangeQuery2 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(x2), true, true);
+            Query yRangeQuery1 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y1), new Double(y2), true, true);
+            Query yRangeQuery2 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(y2), true, true);
 
             booleanQuery.add(xRangeQuery1, Occur.MUST);
             booleanQuery.add(xRangeQuery2, Occur.MUST);
             booleanQuery.add(yRangeQuery1, Occur.MUST);
             booleanQuery.add(yRangeQuery2, Occur.MUST);
-
         }
     }
 
@@ -410,22 +386,14 @@ public class FieldQueryParserIGC extends AbstractParser {
             // e.g. 2006-04-05 -> 20040405
             t1 = t1.replaceAll("-", "");
             t2 = t2.replaceAll("-", "");
-            Term termT1Min = new Term("t1", t1);
-            Term termT1Max = new Term("t1", t2);
-
-            Term termT2Min = new Term("t2", t1);
-            Term termT2Max = new Term("t2", t2);
 
             // we must match also documents where t0 are in this range
-            Term termT0Min = new Term("t0", t1);
-            Term termT0Max = new Term("t0", t2);
-
-            org.apache.lucene.search.RangeQuery rangeQueryt0 = new org.apache.lucene.search.RangeQuery(termT0Min,
-                    termT0Max, true);
-            org.apache.lucene.search.RangeQuery rangeQuery11 = new org.apache.lucene.search.RangeQuery(termT1Min,
-                    termT1Max, true);
-            org.apache.lucene.search.RangeQuery rangeQuery12 = new org.apache.lucene.search.RangeQuery(termT2Min,
-                    termT2Max, true);
+            Query rangeQueryt0 = NumericRangeQuery.newLongRange("t0",
+            		new Long(t1), new Long(t2), true, true);
+            Query rangeQuery11 = NumericRangeQuery.newLongRange("t1",
+            		new Long(t1), new Long(t2), true, true);
+            Query rangeQuery12 = NumericRangeQuery.newLongRange("t2",
+            		new Long(t1), new Long(t2), true, true);
 
             // connect with AND
             BooleanQuery booleanQueryT1T2 = new BooleanQuery();
@@ -440,7 +408,7 @@ public class FieldQueryParserIGC extends AbstractParser {
         } else if (null != t0) {
             t0 = t0.replaceAll("-", "");
             Term termT0 = new Term("t0", t0);
-            query.add(new org.apache.lucene.search.TermQuery(termT0), Occur.MUST);
+            query.add(new TermQuery(termT0), Occur.MUST);
         }
     }
 
@@ -452,28 +420,22 @@ public class FieldQueryParserIGC extends AbstractParser {
             // e.g. 2006-04-05 -> 20040405
             t1 = t1.replaceAll("-", "");
             t2 = t2.replaceAll("-", "");
-            Term termT1Min = new Term("t1", "00000000");
-            Term termT2Max = new Term("t2", "99999999");
-            Term termT1Max = new Term("t1", t1);
-            Term termT2Min = new Term("t2", t2);
 
-            org.apache.lucene.search.RangeQuery rangeQuery11 = new org.apache.lucene.search.RangeQuery(termT1Min,
-                    termT1Max, true);
-            org.apache.lucene.search.RangeQuery rangeQuery12 = new org.apache.lucene.search.RangeQuery(termT2Min,
-                    termT2Max, true);
+            Query rangeQuery11 = NumericRangeQuery.newLongRange("t1",
+            		new Long("00000000"), new Long(t1), true, true);
+            Query rangeQuery12 = NumericRangeQuery.newLongRange("t2",
+            		new Long(t2), new Long("99999999"), true, true);
 
             query.add(rangeQuery11, Occur.MUST);
             query.add(rangeQuery12, Occur.MUST);
         } else if (null != t0) {
             t0 = t0.replaceAll("-", "");
-            Term termT1 = new Term("t1", t0);
-            Term termT2 = new Term("t2", t0);
-            Term min = new Term("t1", "00000000");
-            Term max = new Term("t2", "99999999");
-            org.apache.lucene.search.RangeQuery rangeQueryT1 = new org.apache.lucene.search.RangeQuery(min, termT1,
-                    false);
-            org.apache.lucene.search.RangeQuery rangeQueryT2 = new org.apache.lucene.search.RangeQuery(termT2, max,
-                    false);
+
+            Query rangeQueryT1 = NumericRangeQuery.newLongRange("t1",
+            		new Long("00000000"), new Long(t0), false, false);
+            Query rangeQueryT2 = NumericRangeQuery.newLongRange("t2",
+            		new Long(t0), new Long("99999999"), false, false);
+
             query.add(rangeQueryT1, Occur.MUST);
             query.add(rangeQueryT2, Occur.MUST);
         }
@@ -491,23 +453,17 @@ public class FieldQueryParserIGC extends AbstractParser {
 
             // (ti2:[tq1 TO tq2] && ti1:[00000000 TO tq1]) || (ti1:[tq1 TO tq2]
             // && ti2:[tq2 TO 99999999])
-            Term termT1Min = new Term("t1", "00000000");
-            Term termT1Date1 = new Term("t1", t1);
-            Term termT1Date2 = new Term("t1", t2);
 
-            Term termT2Max = new Term("t2", "99999999");
-            Term termT2Date1 = new Term("t2", t1);
-            Term termT2Date2 = new Term("t2", t2);
+            Query rangeQuery11 = NumericRangeQuery.newLongRange("t1",
+            		new Long("00000000"), new Long(t1), true, true);
+            Query rangeQuery12 = NumericRangeQuery.newLongRange("t2",
+            		new Long(t1), new Long(t2), true, true);
 
-            org.apache.lucene.search.RangeQuery rangeQuery11 = new org.apache.lucene.search.RangeQuery(termT1Min,
-                    termT1Date1, true);
-            org.apache.lucene.search.RangeQuery rangeQuery12 = new org.apache.lucene.search.RangeQuery(termT2Date1,
-                    termT2Date2, true);
+            Query rangeQuery21 = NumericRangeQuery.newLongRange("t1",
+            		new Long(t1), new Long(t2), true, true);
+            Query rangeQuery22 = NumericRangeQuery.newLongRange("t2",
+            		new Long(t2), new Long("99999999"), true, true);
 
-            org.apache.lucene.search.RangeQuery rangeQuery21 = new org.apache.lucene.search.RangeQuery(termT1Date1,
-                    termT1Date2, true);
-            org.apache.lucene.search.RangeQuery rangeQuery22 = new org.apache.lucene.search.RangeQuery(termT2Date2,
-                    termT2Max, true);
 
             BooleanQuery booleanQueryTime = new BooleanQuery();
             BooleanQuery first = new BooleanQuery();
@@ -528,9 +484,9 @@ public class FieldQueryParserIGC extends AbstractParser {
             Term termT2 = new Term("t2", t0);
 
             BooleanQuery booleanQueryTime = new BooleanQuery();
-            booleanQueryTime.add(new org.apache.lucene.search.TermQuery(termT0), Occur.SHOULD);
-            booleanQueryTime.add(new org.apache.lucene.search.TermQuery(termT1), Occur.SHOULD);
-            booleanQueryTime.add(new org.apache.lucene.search.TermQuery(termT2), Occur.SHOULD);
+            booleanQueryTime.add(new TermQuery(termT0), Occur.SHOULD);
+            booleanQueryTime.add(new TermQuery(termT1), Occur.SHOULD);
+            booleanQueryTime.add(new TermQuery(termT2), Occur.SHOULD);
             query.add(booleanQueryTime, Occur.MUST);
         }
     }

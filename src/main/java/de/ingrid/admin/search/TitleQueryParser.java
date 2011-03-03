@@ -15,18 +15,12 @@ import de.ingrid.utils.query.IngridQuery;
 public class TitleQueryParser implements IQueryParser {
 
     private TermQueryParser termQueryParser = null;
-    private PhraseQueryParser phraseQueryParser = null;
-    private PrefixQueryParser prefixQueryParser = null;
 
     public TitleQueryParser() {
     	this.termQueryParser = new TermQueryParser("title", Occur.SHOULD, null);
-    	this.phraseQueryParser = new PhraseQueryParser("title", Occur.SHOULD);
-    	this.prefixQueryParser = new PrefixQueryParser("title", Occur.SHOULD);
     }
 
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
     	termQueryParser.parse(ingridQuery, booleanQuery);
-    	phraseQueryParser.parse(ingridQuery, booleanQuery);
-    	prefixQueryParser.parse(ingridQuery, booleanQuery);
     }
 }
