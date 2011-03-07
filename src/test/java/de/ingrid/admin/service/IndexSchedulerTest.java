@@ -6,9 +6,13 @@ import junit.framework.TestCase;
 
 import org.mockito.MockitoAnnotations;
 
+import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IndexScheduler;
+import de.ingrid.admin.search.IngridIndexSearcher;
+import de.ingrid.admin.search.QueryParsers;
+import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexSchedulerTest extends TestCase {
@@ -22,21 +26,9 @@ public class IndexSchedulerTest extends TestCase {
 
         private int _counter = 0;
 
-        public DummyRunnable(final long time) {
-            super(null);
+        public DummyRunnable(final long time, IConfigurable ingridIndexSearcher, PlugDescriptionService pdService) {
+            super(ingridIndexSearcher, pdService);
             _time = time;
-
-            final PlugDescription pd = new PlugDescription();
-            final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
-            System.out.println(file.exists());
-            if (file.exists()) {
-                TestUtils.delete(file);
-            }
-            System.out.println(file.exists());
-            assertTrue(file.mkdirs());
-            pd.setWorkinDirectory(file);
-
-            configure(pd);
         }
 
         @Override
@@ -62,7 +54,24 @@ public class IndexSchedulerTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        _runnable = new DummyRunnable(1000L);
+
+        final PlugDescription pd = new PlugDescription();
+        final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
+        System.out.println(file.exists());
+        if (file.exists()) {
+            TestUtils.delete(file);
+        }
+        System.out.println(file.exists());
+        assertTrue(file.mkdirs());
+        pd.setWorkinDirectory(file);
+        // store our location of pd as system property to be fetched by pdService
+        System.setProperty(IKeys.PLUG_DESCRIPTION, new File(file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
+
+        IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers());
+        PlugDescriptionService pdService = new PlugDescriptionService();
+        _runnable = new DummyRunnable(1000L, searcher, pdService);
+        _runnable.configure(pd);
+
         _scheduler = new IndexScheduler(_runnable);
     }
 

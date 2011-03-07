@@ -1,11 +1,13 @@
 package de.ingrid.admin.service;
 
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
 import org.apache.lucene.index.IndexReader;
 
+import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IngridIndexSearcher;
@@ -21,15 +23,19 @@ public class IndexRunnableTest extends TestCase {
     private File _file;
 
     @Override
-    protected void setUp() {
+    protected void setUp() throws IOException {
         _file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
         TestUtils.delete(_file);
         assertTrue(_file.mkdirs());
         _plugDescription = new PlugDescription();
         _plugDescription.setWorkinDirectory(_file);
+        _plugDescription.addDataType("testDataType");
+        // store our location of pd as system property to be fetched by pdService
+        System.setProperty(IKeys.PLUG_DESCRIPTION, new File(_file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
 
         IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers());
-        _indexRunnable = new IndexRunnable(searcher);
+        PlugDescriptionService pdService = new PlugDescriptionService();
+        _indexRunnable = new IndexRunnable(searcher, pdService);
         _indexRunnable.configure(_plugDescription);
         DummyProducer dummyProducer = new DummyProducer();
         dummyProducer.configure(_plugDescription);
