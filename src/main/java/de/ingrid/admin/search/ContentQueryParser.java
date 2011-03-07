@@ -12,19 +12,26 @@ import de.ingrid.utils.query.IngridQuery;
  */
 @Service
 @Qualifier("contentParser")
-public class ContentQueryParser implements IQueryParser {
+public class ContentQueryParser extends AbstractParser {
+
+    private static final String CONTENT = "content";
 
     private TermQueryParser termQueryParser = null;
+    private WildCardTermQueryParser wildCardTermQueryParser = null;
+    private FuzzyTermQueryParser fuzzyTermQueryParser = null;
 
     @Autowired
     public ContentQueryParser(Stemmer stemmer) {
-//    	this.termQueryParser = new TermQueryParser("content", null, stemmer);
+//    	this.termQueryParser = new TermQueryParser(CONTENT, null, stemmer);
     	// do NOT use stemmer ! language specific !
-    	this.termQueryParser = new TermQueryParser("content", null, null);
+    	this.termQueryParser = new TermQueryParser(CONTENT, null, null);
+    	this.wildCardTermQueryParser = new WildCardTermQueryParser(CONTENT, null);
+    	this.fuzzyTermQueryParser = new FuzzyTermQueryParser(CONTENT, null);
     }
-
 
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
     	termQueryParser.parse(ingridQuery, booleanQuery);
+    	wildCardTermQueryParser.parse(ingridQuery, booleanQuery);
+    	fuzzyTermQueryParser.parse(ingridQuery, booleanQuery);
     }
 }
