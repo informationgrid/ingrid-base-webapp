@@ -130,6 +130,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
     /** Add all field names of the given index to the given plug description ! */
     public static void addFieldNamesToPlugdescription(Directory indexDir, PlugDescription pd)
     throws IOException {
+    	// remove all fields
+    	pd.remove(PlugDescription.FIELDS);
+
         final IndexReader reader = IndexReader.open(indexDir, true);
         Iterator iter = reader.getFieldNames(FieldOption.ALL).iterator();
         while (iter.hasNext()) {
