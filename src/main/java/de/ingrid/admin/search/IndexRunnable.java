@@ -131,6 +131,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
     public static void addFieldNamesToPlugdescription(Directory indexDir, PlugDescription pd)
     throws IOException {
     	// remove all fields
+        if (LOG.isInfoEnabled()) {
+            LOG.info("New Index, remove old field names from PD and add the ones from new index.");                    	
+        }
     	pd.remove(PlugDescription.FIELDS);
 
         final IndexReader reader = IndexReader.open(indexDir, true);
