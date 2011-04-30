@@ -12,6 +12,7 @@ import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -41,8 +42,10 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     private final QueryParsers _queryParsers;
 
     // NOTICE:
-    // We use autowiring for "QueryParsers" instance BUT DEFINE THE "QueryParsers" BEAN IN XML with a qualifier !
-    // The bean is created by the factory, then autowiring takes place and the bean is injected here !
+    // We use autowiring for "QueryParsers" instance BUT DEFINE THE
+    // "QueryParsers" BEAN IN XML with a qualifier !
+    // The bean is created by the factory, then autowiring takes place and the
+    // bean is injected here !
     // This way we can set the order and the instances of the parsers in XML !
     // The "XMLconfigured" qualifier identifies the instance defined in XML !
     @Autowired
@@ -114,7 +117,8 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
         return value;
     }
 
-    public IngridHitDetail[] getDetails(IngridHit[] ingridHits, IngridQuery ingridQuery, String[] fields) throws Exception {
+    public IngridHitDetail[] getDetails(IngridHit[] ingridHits, IngridQuery ingridQuery, String[] fields)
+            throws Exception {
         IngridHitDetail[] details = new IngridHitDetail[ingridHits.length];
         for (int i = 0; i < ingridHits.length; i++) {
             IngridHit ingridHit = ingridHits[i];
@@ -153,7 +157,7 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             BooleanClause[] clauses = ((BooleanQuery) query).getClauses();
             LOG.debug("BQ  { ");
             for (int i = 0; i < clauses.length; i++) {
-            	LOG.debug("Clause (" + clauses[i].getOccur() + ")  { ");
+                LOG.debug("Clause (" + clauses[i].getOccur() + ")  { ");
                 explainQuery(clauses[i].getQuery());
                 LOG.debug("} ");
             }
@@ -162,11 +166,16 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             Term[] terms = ((PhraseQuery) query).getTerms();
             LOG.debug("PQ { ");
             for (int i = 0; i < terms.length; i++) {
-            	LOG.debug("Term (" + terms[i].field() + " : " + terms[i].text() + ")");
+                LOG.debug("Term (" + terms[i].field() + " : " + terms[i].text() + ")");
             }
             LOG.debug("} ");
+        } else if (query instanceof NumericRangeQuery) {
+            NumericRangeQuery nrfq = ((NumericRangeQuery) query);
+            LOG.debug("NRQ { ");
+            LOG.debug(nrfq.getField() + "( min:" + nrfq.getMin() + " - max:" + nrfq.getMax() + ")");
+            LOG.debug("} ");
         } else {
-        	LOG.debug("unkown query type");
+            LOG.debug("unkown query type: " + query.getClass().getName());
         }
     }
 }
