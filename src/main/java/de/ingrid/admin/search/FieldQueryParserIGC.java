@@ -83,7 +83,7 @@ public class FieldQueryParserIGC extends AbstractParser {
                 booleanQuery.add(new TermQuery(new Term(query.getFieldName(), query
                         .getFieldValue().toLowerCase())), Occur.SHOULD);
             } else {
-                final String term = query.getFieldValue().toLowerCase();
+                final String term = filterTerm(query.getFieldValue().toLowerCase());
                 final String field = query.getFieldName();
 
                 if (term.indexOf(' ') > -1) {

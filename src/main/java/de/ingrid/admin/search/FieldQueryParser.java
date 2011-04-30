@@ -1,7 +1,10 @@
 package de.ingrid.admin.search;
 
+import java.util.StringTokenizer;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.springframework.stereotype.Service;
@@ -19,15 +22,23 @@ public class FieldQueryParser extends AbstractParser {
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
         FieldQuery[] fields = ingridQuery.getFields();
         for (FieldQuery fieldQuery : fields) {
-            final String term = fieldQuery.getFieldValue().toLowerCase();
+            // filter term with standard analyzer, because the term was indexed using the standard analyzer
+            final String term = filterTerm(fieldQuery.getFieldValue());
             final String field = fieldQuery.getFieldName();
 
+            Occur occur = transform(fieldQuery.isRequred(), fieldQuery.isProhibited());
             // check if it is no phrase query
             if (term.indexOf(' ') == -1) {
-                Occur occur = transform(fieldQuery.isRequred(), fieldQuery.isProhibited());
                 Term luceneTerm = new Term(field, term);
                 TermQuery luceneTermQuery = new TermQuery(luceneTerm);
                 booleanQuery.add(luceneTermQuery, occur);
+            } else {
+                PhraseQuery phraseQuery = new PhraseQuery();
+                StringTokenizer tokenizer = new StringTokenizer(term);
+                while (tokenizer.hasMoreTokens()) {
+                    phraseQuery.add(new Term(field, tokenizer.nextToken()));
+                }
+                booleanQuery.add(phraseQuery, occur);
             }
         }
     }
