@@ -5,6 +5,8 @@ abstract public class AbstractDataType implements IDataType {
     private final String _name;
 
     private boolean _hidden = false;
+    
+    private boolean _force = false;
 
     private final IDataType[] _includes;
 
@@ -29,5 +31,14 @@ abstract public class AbstractDataType implements IDataType {
 
     public IDataType[] getIncludedDataTypes() {
         return _includes;
+    }
+
+    
+    public void setForceActive(boolean force) {
+        this._force = force;
+    }
+
+    public boolean getIsForced() {
+        return _force;
     }
 }

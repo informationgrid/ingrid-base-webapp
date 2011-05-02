@@ -32,4 +32,6 @@ public interface IDataType {
     boolean isHidden();
 
     IDataType[] getIncludedDataTypes();
+    
+    boolean getIsForced();
 }

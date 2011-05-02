@@ -61,12 +61,12 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Angaben zu Betreiber und Datenquelle</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/workingDir.html';">Zur�ck</a>
+			<a href="#" onclick="document.location='../base/workingDir.html';">Zur&uuml;ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/workingDir.html';">Zur�ck</a>
+			<a href="#" onclick="document.location='../base/workingDir.html';">Zur&uuml;ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
@@ -79,7 +79,7 @@
 						<td>Partner:</td>
 						<td>
 							<form:select path="organisationPartnerAbbr" id="partners"> 
-                                <form:option value="" label="bitte w�hlen" />
+                                <form:option value="" label="bitte w&auml;hlen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                             </form:select><br />
                             <span>Der Partner der dieses iPlug betreibt.</span>
@@ -90,7 +90,7 @@
 						<td class="leftCol">Name des Anbieters:</td>
 						<td>
 							 <form:select path="organisationAbbr" id="providers" > 
-                                <form:option value="" label="bitte w�hlen" /> 
+                                <form:option value="" label="bitte w&auml;hlen" /> 
                             </form:select><br />
                             <span>Der Anbieter der dieses iPlug betreibt.</span>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
@@ -138,7 +138,15 @@
 						<td>Art der Datenquelle:</td>
 						<td>
 						    <c:forEach items="${dataTypes}" var="type">
-						        <form:checkbox path="dataTypes" value="${type.name}" /><fmt:message key="dataType.${type.name}"/><br />
+						        <c:choose>
+                                    <c:when test="${type.isForced == 'true'}">
+                                        <form:checkbox path="dataTypes" value="${type.name}" disabled="true" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <form:checkbox path="dataTypes" value="${type.name}" />
+                                    </c:otherwise>
+                                </c:choose> 
+                                <fmt:message key="dataType.${type.name}"/><br />
 						    </c:forEach><br />
                             <span>Der Datenquellen Typ (mehrere Felder ausw&auml;hlbar).</span>
 						    <form:errors path="dataTypes" cssClass="error" element="div" />

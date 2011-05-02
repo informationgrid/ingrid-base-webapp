@@ -92,6 +92,8 @@ public class GeneralController extends AbstractController {
             commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
         }
 
+        addForcedDatatypes(commandObject);
+        
         return IViews.GENERAL;
     }
 
@@ -104,6 +106,8 @@ public class GeneralController extends AbstractController {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
 
+        addForcedDatatypes(commandObject);
+        
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
         return redirect(IUris.PARTNER);
@@ -151,5 +155,15 @@ public class GeneralController extends AbstractController {
         }
         result.append("}");
         return result.toString();
+    }
+
+    private void addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
+        if (_dataTypes != null) {
+            for (final IDataType type : _dataTypes) {
+                if (type.getIsForced()) {
+                    commandObject.addDataType(type.getName());
+                }
+            }
+        }
     }
 }
