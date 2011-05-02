@@ -1,5 +1,7 @@
 package de.ingrid.admin.controller;
 
+import it.sauronsoftware.cron4j.InvalidPatternException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -43,7 +45,18 @@ public class SchedulingController extends AbstractController {
                     + (dayOfMonth != null ? dayOfMonth : "*") + " * "
                     + (dayOfWeek != null ? dayOfWeek : "*");
         }
-        _scheduler.setPattern(pattern);
+        
+        try {
+            _scheduler.setPattern(pattern);
+        } catch (InvalidPatternException e) {
+            modelMap.addAttribute("error", "Invalid pattern!");
+            _scheduler.deletePattern();
+            return IViews.SCHEDULING;
+        } catch (Exception e) {
+            modelMap.addAttribute("error", "An error occured!");
+            _scheduler.deletePattern();
+            return IViews.SCHEDULING;
+        }
 
         return redirect(IUris.INDEXING);
 	}

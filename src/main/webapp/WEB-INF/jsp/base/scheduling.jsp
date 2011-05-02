@@ -79,6 +79,10 @@
 	            </form><br />
             </c:if>
             
+            <c:if test="${!empty error}">
+                <div class="error" ><fmt:message key="Scheduling.pattern.invalid" /></div>
+            </c:if>
+            
 			<h2>Geben Sie an, in welchem Zeitabstand Ihre Daten automatisch neu indexiert werden sollen</h2>
 			<form id="submitform" method="post" action="../base/scheduling.html" id="scheduling">
 				<c:set var="freq" value="${paramValues['freq'][0]}"/>
