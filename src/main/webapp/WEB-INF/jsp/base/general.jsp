@@ -79,7 +79,7 @@
 						<td>Partner:</td>
 						<td>
 							<form:select path="organisationPartnerAbbr" id="partners"> 
-                                <form:option value="" label="bitte w&auml;hlen" />
+                                <form:option value="" label="bitte wählen" />
                                 <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                             </form:select><br />
                             <span>Der Partner der dieses iPlug betreibt.</span>
@@ -90,7 +90,7 @@
 						<td class="leftCol">Name des Anbieters:</td>
 						<td>
 							 <form:select path="organisationAbbr" id="providers" > 
-                                <form:option value="" label="bitte w&auml;hlen" /> 
+                                <form:option value="" label="bitte wählen" /> 
                             </form:select><br />
                             <span>Der Anbieter der dieses iPlug betreibt.</span>
                             <form:errors path="organisationAbbr" cssClass="error" element="div" />
