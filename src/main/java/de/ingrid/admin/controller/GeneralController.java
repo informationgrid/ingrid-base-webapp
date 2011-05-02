@@ -102,12 +102,12 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
+        addForcedDatatypes(commandObject);
+        
         if (_validator.validateGeneral(errors, !_communicationService.hasErrors()).hasErrors()) {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
 
-        addForcedDatatypes(commandObject);
-        
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
         return redirect(IUris.PARTNER);
