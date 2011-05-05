@@ -111,8 +111,10 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     private String getValue(String key, Map<String, Fieldable[]> titleAndSummary) {
         String value = "";
         Fieldable[] fieldables = titleAndSummary.get(key);
-        for (Fieldable fieldable : fieldables) {
-            value += fieldable.stringValue() + " ";
+        if (fieldables != null) {
+            for (Fieldable fieldable : fieldables) {
+                value += fieldable.stringValue() + " ";
+            }
         }
         return value;
     }
