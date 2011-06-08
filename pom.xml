@@ -8,7 +8,7 @@
 	<groupId>de.ingrid</groupId>
 	<artifactId>ingrid-base-webapp</artifactId>
 	<packaging>war</packaging>
-	<version>3.1.0-SNAPSHOT</version>
+	<version>3.0.1-SNAPSHOT</version>
 	<name>ingrid-base-webapp</name>
 	<scm>
 		<connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-base-webapp/trunk</connection>
@@ -22,6 +22,23 @@
           <url>http://harrison.its-technidata.de/archiva/repository/ingrid-all</url>
         </repository>
 	</repositories>
+  <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-utils</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>de.ingrid</groupId>
+        <artifactId>ingrid-ibus</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- ==================== DEPENDENCIES ==================== -->
 	<dependencies>
         <dependency>
             <groupId>de.ingrid</groupId>

@@ -24,6 +24,8 @@ import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.tool.PlugDescriptionUtil;
+import de.ingrid.utils.tool.QueryUtil;
 
 @Service
 public class IndexRunnable implements Runnable, IConfigurable {
@@ -132,17 +134,27 @@ public class IndexRunnable implements Runnable, IConfigurable {
     throws IOException {
     	// remove all fields
         if (LOG.isInfoEnabled()) {
-            LOG.info("New Index, remove old field names from PD and add the ones from new index.");                    	
+            LOG.info("New Index, remove all field names from PD.");                    	
         }
     	pd.remove(PlugDescription.FIELDS);
 
+    	// first add "metainfo" field, so plug won't be filtered when field is part of query !
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Add meta fields to PD.");                    	
+        }
+    	PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_METAINFO);
+
+    	// then add fields from index
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Add fields from new index to PD.");                    	
+        }
         final IndexReader reader = IndexReader.open(indexDir, true);
         Iterator iter = reader.getFieldNames(FieldOption.ALL).iterator();
         while (iter.hasNext()) {
             String fieldName = (String)iter.next();
             pd.addField(fieldName);
             if (LOG.isDebugEnabled()) {
-                LOG.debug("add index field " + fieldName + " to plugdescription.");                    	
+                LOG.debug("added index field " + fieldName + " to plugdescription.");                    	
             }
         }
         reader.close();

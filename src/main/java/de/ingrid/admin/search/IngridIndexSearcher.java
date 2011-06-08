@@ -32,6 +32,7 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.tool.QueryUtil;
 
 @Service
 @Qualifier("ingridIndexSearcher")
@@ -59,6 +60,9 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             LOG.debug("start: " + start);
             LOG.debug("length: " + length);
         }
+
+    	// remove "meta" field from query so search works !
+    	QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
 
         Query luceneQuery = _queryParsers.parse(ingridQuery);
 
