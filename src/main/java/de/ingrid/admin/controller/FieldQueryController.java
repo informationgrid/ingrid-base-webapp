@@ -31,6 +31,10 @@ import de.ingrid.utils.query.FieldQuery;
 @Controller
 @SessionAttributes("plugDescription")
 public class FieldQueryController extends AbstractController {
+    
+    private static String QUERYTYPE_ALLOW  = "allow";
+    private static String QUERYTYPE_DENY   = "deny";
+    private static String QUERYTYPE_MODIFY = "modify";
 
     private final CommunicationService _communicationInterface;
 
@@ -78,11 +82,17 @@ public class FieldQueryController extends AbstractController {
     public String postFieldQuery(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("fieldQuery") final FieldQueryCommandObject fieldQuery, final Errors errors,
-            @RequestParam("action") final String action, @RequestParam(value = "id", required = false) final Integer id)
+            @RequestParam("action") final String action, @RequestParam(value = "id", required = false) final Integer id,
+            @RequestParam("behaviour") final String behaviour)
             throws Exception {
         if ("add".equals(action)) {
-            if (!_validator.validate(errors).hasErrors()) {
-                addFieldQuery(commandObject, fieldQuery);
+            System.out.println("behaviour: " + behaviour);
+            if (behaviour.equals(QUERYTYPE_MODIFY)) {
+                if (!_validator.validate(errors).hasErrors()) {
+                    addFieldQuery(commandObject, fieldQuery, behaviour);
+                }
+            } else {
+                addFieldQuery(commandObject, fieldQuery, behaviour);
             }
         } else if ("delete".equals(action)) {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
@@ -98,6 +108,7 @@ public class FieldQueryController extends AbstractController {
     private List<FieldQueryCommandObject> getFields(final Map<String, QueryExtension> extensions) {
         final List<FieldQueryCommandObject> fields = new ArrayList<FieldQueryCommandObject>();
         if (extensions != null) {
+            int pos = -1;
             for (final String key : extensions.keySet()) {
                 final QueryExtension extension = extensions.get(key);
                 final Set<Pattern> patterns = extension.getPatterns();
@@ -114,7 +125,19 @@ public class FieldQueryController extends AbstractController {
                             } else if (fieldQuery.isRequred()) {
                                 fq.setRequired();
                             }
-                            fields.add(fq);
+                            
+                            // order patterns for better readability
+                            if ("metainfo".equals(fieldQuery.getFieldName())) {
+                                if ("query_allow".equals(fieldQuery.getFieldValue())) {
+                                    fields.add(pos+1, fq);
+                                } else if ("query_deny".equals(fieldQuery.getFieldValue())) {
+                                    fields.add(++pos, fq);
+                                } else {
+                                    fields.add(fq);
+                                }
+                            } else {
+                                fields.add(fq);
+                            }
                         }
                     }
                 }
@@ -124,7 +147,7 @@ public class FieldQueryController extends AbstractController {
     }
 
     private void addFieldQuery(final PlugdescriptionCommandObject commandObject,
-            final FieldQueryCommandObject fieldQuery) {
+            final FieldQueryCommandObject fieldQuery, String behaviour) {
         // get container
         QueryExtensionContainer container = commandObject.getQueryExtensionContainer();
         if (null == container) {
@@ -142,8 +165,15 @@ public class FieldQueryController extends AbstractController {
         }
         // create field query
         final Pattern pattern = Pattern.compile(fieldQuery.getRegex());
-        final FieldQuery fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), fieldQuery.getKey(),
+        FieldQuery fq = null;
+        if (behaviour.equals(QUERYTYPE_MODIFY)) {
+            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), fieldQuery.getKey(),
                 fieldQuery.getValue());
+        } else if (behaviour.equals(QUERYTYPE_DENY)) {
+            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_deny");
+        } else if (behaviour.equals(QUERYTYPE_ALLOW)) {
+            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_allow");
+        }
         extension.addFieldQuery(pattern, fq);
     }
 
