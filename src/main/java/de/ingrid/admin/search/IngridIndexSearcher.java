@@ -61,6 +61,11 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             LOG.debug("length: " + length);
         }
 
+        // check if query is rejected and return 0 hits instead of search within the iplug
+        if (ingridQuery.isRejected()) {
+            return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
+        }
+        
     	// remove "meta" field from query so search works !
     	QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
 
