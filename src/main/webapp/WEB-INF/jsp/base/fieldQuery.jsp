@@ -107,7 +107,7 @@
                                 <option value="modify" selected="selected">Modifizieren</option>
                             </select>
                             <br />
-                            <span>Wie soll die Anfrage behandelt werden? Ablehnen mit 0 Treffern, Akzeptieren oder Modifizieren.</span>
+                            <span>Wie soll die Anfrage behandelt werden? Ablehnen mit 0 Treffern, Erlauben oder Modifizieren. Beim 'Erlauben' werden alle Anfragen verworfen, die nicht mit diesem regulären Ausdruck übereinstimmen! Werden mehrerer solcher 'Erlauben'-Regeln eingetragen, so müssen alle diese Regeln mit der Anfrage übereinstimmen, ansonsten wird die Anfrage abgewiesen.</span>
                         </td>
                     </tr>
                     <tr id="rowIndexFieldName">
