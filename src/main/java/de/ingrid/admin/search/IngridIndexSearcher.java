@@ -38,7 +38,8 @@ import de.ingrid.utils.tool.QueryUtil;
 @Qualifier("ingridIndexSearcher")
 public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, IDetailer, IRecordLoader, IConfigurable {
 
-    private String _plugId;
+	private String _plugId;
+	private PlugDescription _plugDescription;
     private static final Log LOG = LogFactory.getLog(IngridIndexSearcher.class);
     private final QueryParsers _queryParsers;
 
@@ -105,9 +106,24 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             String[] values = getValues(field, details);
             ingridHitDetail.put(field, values);
         }
+        addPlugDescriptionInformations(ingridHitDetail, fields);
         return ingridHitDetail;
     }
 
+    private void addPlugDescriptionInformations(IngridHitDetail detail, String[] fields) {
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i].equals(PlugDescription.PARTNER)) {
+            	if(_plugDescription != null){
+            		detail.setArray(PlugDescription.PARTNER, _plugDescription.getPartners());	
+            	}
+            } else if (fields[i].equals(PlugDescription.PROVIDER)) {
+            	if(_plugDescription != null){
+            		detail.setArray(PlugDescription.PROVIDER, _plugDescription.getProviders());
+            	}
+            }
+        }
+    }
+    
     private String[] getValues(String field, Map<String, Fieldable[]> details) {
         Fieldable[] fieldables = details.get(field);
         String[] values = new String[fieldables.length];
@@ -143,6 +159,7 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     public void configure(PlugDescription plugDescription) {
         super.configure(plugDescription);
         LOG.info("configure plug id...");
+        _plugDescription=plugDescription;
         _plugId = plugDescription.getPlugId();
     }
 
