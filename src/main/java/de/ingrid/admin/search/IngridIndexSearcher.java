@@ -16,6 +16,7 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,13 +63,14 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             LOG.debug("length: " + length);
         }
 
-        // check if query is rejected and return 0 hits instead of search within the iplug
+        // check if query is rejected and return 0 hits instead of search within
+        // the iplug
         if (ingridQuery.isRejected()) {
             return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
         }
-        
-    	// remove "meta" field from query so search works !
-    	QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
+
+        // remove "meta" field from query so search works !
+        QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
 
         Query luceneQuery = _queryParsers.parse(ingridQuery);
 
@@ -189,6 +191,11 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
                 explainQuery(clauses[i].getQuery());
                 LOG.debug("} ");
             }
+            LOG.debug("} ");
+        } else if (query instanceof TermQuery) {
+            Term term = ((TermQuery) query).getTerm();
+            LOG.debug("TQ { ");
+            LOG.debug("Term (" + term.field() + " : " + term.text() + ")");
             LOG.debug("} ");
         } else if (query instanceof PhraseQuery) {
             Term[] terms = ((PhraseQuery) query).getTerms();

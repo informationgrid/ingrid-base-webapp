@@ -16,7 +16,7 @@ public class TitleQueryParserTest extends TestCase {
     public void testParseTitle() throws Exception {
         IngridQuery ingridQuery = QueryStringParser.parse("foo");
         BooleanQuery booleanQuery = new BooleanQuery();
-        IQueryParser parser = new TitleQueryParser();
+        IQueryParser parser = new TitleQueryParser(new StandardStemmer());
         parser.parse(ingridQuery, booleanQuery);
         assertEquals(1, booleanQuery.getClauses().length);
         BooleanClause booleanClause = booleanQuery.getClauses()[0];

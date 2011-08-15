@@ -94,14 +94,6 @@ public class TermQueryParser extends AbstractParser {
     }
 
     private void addTermQuery(BooleanQuery booleanQuery, String value, Occur occur) {
-/*
-    	// filter and use phrase like in former AbstractSearcher ? NO ...
-        String filteredTerm = filterTerm(value);
-        if (filteredTerm.indexOf(" ") > -1) {
-            addPhraseQuery(booleanQuery, filteredTerm, occur);
-            return;
-        }
-*/
         if (_stemmer != null) {
             try {
                 value = _stemmer.stem(value);
@@ -110,8 +102,14 @@ public class TermQueryParser extends AbstractParser {
             }            		
     	}
 
-        Term term = new Term(_field, value);
-        org.apache.lucene.search.TermQuery termQuery = new org.apache.lucene.search.TermQuery(term);
-        booleanQuery.add(termQuery, occur);
+        // filter and use phrase like in former AbstractSearcher ? NO ...
+        if (value.indexOf(" ") > -1) {
+            addPhraseQuery(booleanQuery, value, occur);
+            return;
+        } else {
+            Term term = new Term(_field, value);
+            org.apache.lucene.search.TermQuery termQuery = new org.apache.lucene.search.TermQuery(term);
+            booleanQuery.add(termQuery, occur);
+        }
     }
 }

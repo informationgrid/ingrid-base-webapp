@@ -22,9 +22,7 @@ public class ContentQueryParser extends AbstractParser {
 
     @Autowired
     public ContentQueryParser(Stemmer stemmer) {
-//    	this.termQueryParser = new TermQueryParser(CONTENT, null, stemmer);
-    	// do NOT use stemmer ! language specific !
-    	this.termQueryParser = new TermQueryParser(CONTENT, null, null);
+    	this.termQueryParser = new TermQueryParser(CONTENT, null, stemmer);
     	this.wildCardTermQueryParser = new WildCardTermQueryParser(CONTENT, null);
     	this.fuzzyTermQueryParser = new FuzzyTermQueryParser(CONTENT, null);
     }

@@ -40,8 +40,15 @@ public class FieldQueryParserIGC extends AbstractParser {
 
     @Override
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
+        if (log.isDebugEnabled()) {
+            log.debug("incoming ingrid query:" + ingridQuery.toString());
+            log.debug("incoming boolean query:" + booleanQuery.toString());
+        }
         FieldQuery[] fields = ingridQuery.getFields();
         processGeoAndTimeQueries(fields, booleanQuery);
+        if (log.isDebugEnabled()) {
+            log.debug("resulting query:" + booleanQuery.toString());
+        }
     }
 
     private void processGeoAndTimeQueries(FieldQuery[] fields, BooleanQuery booleanQuery) {
@@ -129,6 +136,9 @@ public class FieldQueryParserIGC extends AbstractParser {
                     prepareExactGeoQuery(booleanQuery, geoMap);
                 }
             }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("resulting query:" + booleanQuery.toString());
         }
     }
 
@@ -338,9 +348,8 @@ public class FieldQueryParserIGC extends AbstractParser {
             }
         }
         if (log.isDebugEnabled()) {
-            log.debug("resulting query after prepareTime:" + query.toString());
+            log.debug("resulting query:" + query.toString());
         }
-
     }
 
     private static void prepareInsideOrIncludeQuery(BooleanQuery query, Map<String,Object> timeMap) {

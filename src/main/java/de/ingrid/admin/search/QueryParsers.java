@@ -3,6 +3,7 @@ package de.ingrid.admin.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -14,6 +15,9 @@ import de.ingrid.utils.query.IngridQuery;
 @Service
 public class QueryParsers extends AbstractParser {
 
+    
+    private static Logger log = Logger.getLogger(QueryParsers.class);
+    
 	// Injected by Spring (XML based !)
     private List<IQueryParser> _queryParsers;
 
@@ -49,8 +53,17 @@ public class QueryParsers extends AbstractParser {
 
     @Override
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
+        if (log.isDebugEnabled()) {
+            log.debug("incoming ingrid query:" + ingridQuery.toString());
+        }
         for (IQueryParser queryParser : _queryParsers) {
+            if (log.isDebugEnabled()) {
+                log.debug("incoming boolean query:" + booleanQuery.toString());
+            }
             queryParser.parse(ingridQuery, booleanQuery);
+            if (log.isDebugEnabled()) {
+                log.debug(queryParser.toString() + ": resulting boolean query:" + booleanQuery.toString());
+            }
         }
     }
 

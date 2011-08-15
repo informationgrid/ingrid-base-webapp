@@ -19,4 +19,14 @@ public class QueryParsersTest extends TestCase {
         Query query = transformer.parse(ingridQuery);
         assertEquals("+(+foo:bar -bar:foo) +a:b", query.toString());
     }
+
+    public void testTermWithDash() throws Exception {
+        QueryParsers transformer = new QueryParsers();
+        IQueryParser[] parserArray = new IQueryParser[] { new ContentQueryParser(new StandardStemmer()), new TitleQueryParser(new StandardStemmer()), new FieldQueryParserIGC(), new RangeQueryParser(), new WildCardFieldQueryParser(), new AllResultsOnEmptyQueryParser() };
+        transformer.setQueryParsers(Arrays.asList(parserArray));
+        IngridQuery ingridQuery = QueryStringParser.parse("FFH-Gebiete");
+        Query query = transformer.parse(ingridQuery);
+        assertEquals("+content:\"ffh gebiete\" title:\"ffh gebiete\"", query.toString());
+    }
+
 }
