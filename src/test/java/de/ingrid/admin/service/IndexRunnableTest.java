@@ -105,5 +105,7 @@ public class IndexRunnableTest extends TestCase {
         
         assertEquals(1, iis.search(QueryStringParser.parse("first:Andreas"), 0, 10).length());
 
+        _indexRunnable.getIngridIndexSearcher().close();
+        
     }
 }
