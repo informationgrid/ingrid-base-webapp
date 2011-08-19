@@ -76,4 +76,21 @@ public class IndexRunnableTest extends TestCase {
         assertEquals("Frank", reader.document(3).get("first"));
         assertNull(reader.document(3).get("nick"));
     }
+    
+    public void testFlipIndex() throws Exception {
+        IndexReader reader = IndexReader.open(new File(_file, "index"));
+
+        assertEquals(4, reader.maxDoc());
+        
+        _indexRunnable.run();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            fail();
+        }
+        
+        reader = IndexReader.open(new File(_file, "index"));
+        assertEquals(4, reader.maxDoc());
+
+    }
 }

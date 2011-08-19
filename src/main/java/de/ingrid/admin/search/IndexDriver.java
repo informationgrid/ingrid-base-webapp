@@ -54,7 +54,9 @@ public class IndexDriver {
                 .getServletContext(), "org.springframework.web.servlet.FrameworkServlet.CONTEXT.springapp");
         IndexRunnable r = (IndexRunnable) wac.getBean("indexRunnable");
         r.run();
+        System.out.println("Try to stopping the iPlug...");
         server.stop();
+        System.out.println("iPlug is stopped.");
     }
 
 }

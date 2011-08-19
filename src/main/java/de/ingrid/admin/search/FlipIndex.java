@@ -21,7 +21,9 @@ public abstract class FlipIndex implements IConfigurable {
             LOG.info("delete index: " + oldIndex);
             delete(oldIndex);
             LOG.info("rename index: " + newIndex);
-            newIndex.renameTo(oldIndex);
+            if (!newIndex.renameTo(oldIndex)) {
+                LOG.warn("Unable to rename '" + newIndex.getAbsolutePath() + "' to '" + oldIndex.getAbsolutePath() + "'");
+            }
         }
     }
 
@@ -33,10 +35,14 @@ public abstract class FlipIndex implements IConfigurable {
                 if (file.isDirectory()) {
                     delete(file);
                 }
-                file.delete();
+                if (!file.delete()) {
+                    LOG.warn("Unable to delete file: " + file.getAbsolutePath());
+                }
             }
         }
-        folder.delete();
+        if (!folder.delete()) {
+            LOG.warn("Unable to delete folder: " + folder.getAbsolutePath());
+        }
     }
 
 }
