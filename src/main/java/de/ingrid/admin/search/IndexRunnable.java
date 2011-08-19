@@ -128,6 +128,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
     public PlugDescription getPlugDescription() {
         return _plugDescription;
     }
+    
+    public IngridIndexSearcher getIngridIndexSearcher() {
+    	return (IngridIndexSearcher) _ingridIndexSearcher;
+    }
 
     /** Add all field names of the given index to the given plug description ! */
     public static void addFieldNamesToPlugdescription(Directory indexDir, PlugDescription pd)

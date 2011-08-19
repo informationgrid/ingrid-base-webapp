@@ -20,7 +20,7 @@ import de.ingrid.admin.object.ILuceneSearcher;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
-public abstract class LuceneSearcher extends FlipIndex implements IConfigurable, ILuceneSearcher {
+public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 
     private IndexSearcher _indexSearcher;
     private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
@@ -72,31 +72,34 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
 
     public void close() throws IOException {
         if (_indexSearcher != null) {
+            _indexSearcher.getIndexReader().close();
             _indexSearcher.close();
+            System.gc();
         }
     }
 
     @Override
     public void configure(final PlugDescription plugDescription) {
-        super.configure(plugDescription);
         LOG.info("configure lucene index searcher...");
         final File workinDirectory = plugDescription.getWorkinDirectory();
         final File index = new File(workinDirectory, "index");
-        if (index.exists()) {
-            try {
-                if (_indexSearcher == null) {
-                    LOG.info("open new index: " + index);
-                    _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
-                } else {
-                    LOG.info("close existing index: " + index);
-                    _indexSearcher.close();
-                    LOG.info("re-open existing index: " + index);
-                    _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
-                }
-                LOG.info("number of docs: " + _indexSearcher.maxDoc());
-            } catch (final Exception e) {
-                LOG.error("can not (re-)open index: " + index, e);
+        if (!index.exists()) {
+        	flipIndex(plugDescription);
+        }
+        try {
+            if (_indexSearcher == null) {
+                LOG.info("open new index: " + index);
+                _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
+            } else {
+                LOG.info("close existing index: " + index);
+                close();
+                flipIndex(plugDescription);
+                LOG.info("re-open existing index: " + index);
+                _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
             }
+            LOG.info("number of docs: " + _indexSearcher.maxDoc());
+        } catch (final Exception e) {
+            LOG.error("can not (re-)open index: " + index, e);
         }
     }
 
@@ -104,4 +107,36 @@ public abstract class LuceneSearcher extends FlipIndex implements IConfigurable,
     public Document doc(int id) throws IOException {
         return _indexSearcher.doc(id);
     }
+    
+    private void flipIndex(PlugDescription plugDescription) {
+        File workinDirectory = plugDescription.getWorkinDirectory();
+        File oldIndex = new File(workinDirectory, "index");
+        File newIndex = new File(workinDirectory, "newIndex");
+        if (newIndex.exists()) {
+            LOG.info("delete index: " + oldIndex);
+            delete(oldIndex);
+            LOG.info("rename index: " + newIndex);
+            if (!newIndex.renameTo(oldIndex)) {
+                LOG.warn("Unable to rename '" + newIndex.getAbsolutePath() + "' to '" + oldIndex.getAbsolutePath() + "'");
+            }
+        }
+    }
+
+    private void delete(File folder) {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                if (file.isDirectory()) {
+                    delete(file);
+                }
+                if (!file.delete()) {
+                    LOG.warn("Unable to delete file: " + file.getAbsolutePath());
+                }
+            }
+        }
+        if (folder.exists() && !folder.delete()) {
+            LOG.warn("Unable to delete folder: " + folder.getAbsolutePath());
+        }
+    }    
 }
