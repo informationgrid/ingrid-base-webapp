@@ -9,12 +9,13 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.TermRangeQuery;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.query.FieldQuery;
@@ -397,12 +398,9 @@ public class FieldQueryParserIGC extends AbstractParser {
             t2 = t2.replaceAll("-", "");
 
             // we must match also documents where t0 are in this range
-            Query rangeQueryt0 = NumericRangeQuery.newLongRange("t0",
-            		new Long(t1), new Long(t2), true, true);
-            Query rangeQuery11 = NumericRangeQuery.newLongRange("t1",
-            		new Long(t1), new Long(t2), true, true);
-            Query rangeQuery12 = NumericRangeQuery.newLongRange("t2",
-            		new Long(t1), new Long(t2), true, true);
+            Query rangeQueryt0 = new TermRangeQuery("t0", t1, t2, true, true);
+            Query rangeQuery11 = new TermRangeQuery("t1", t1, t2, true, true);
+            Query rangeQuery12 = new TermRangeQuery("t2", t1, t2, true, true);
 
             // connect with AND
             BooleanQuery booleanQueryT1T2 = new BooleanQuery();
@@ -430,20 +428,16 @@ public class FieldQueryParserIGC extends AbstractParser {
             t1 = t1.replaceAll("-", "");
             t2 = t2.replaceAll("-", "");
 
-            Query rangeQuery11 = NumericRangeQuery.newLongRange("t1",
-            		new Long("00000000"), new Long(t1), true, true);
-            Query rangeQuery12 = NumericRangeQuery.newLongRange("t2",
-            		new Long(t2), new Long("99999999"), true, true);
+            Query rangeQuery11 = new TermRangeQuery("t1", "00000000", t1, true, true);
+            Query rangeQuery12 = new TermRangeQuery("t2", t2, "99999999", true, true);
 
             query.add(rangeQuery11, Occur.MUST);
             query.add(rangeQuery12, Occur.MUST);
         } else if (null != t0) {
             t0 = t0.replaceAll("-", "");
 
-            Query rangeQueryT1 = NumericRangeQuery.newLongRange("t1",
-            		new Long("00000000"), new Long(t0), false, false);
-            Query rangeQueryT2 = NumericRangeQuery.newLongRange("t2",
-            		new Long(t0), new Long("99999999"), false, false);
+            Query rangeQueryT1 = new TermRangeQuery("t1", "00000000", t0, false, false);
+            Query rangeQueryT2 = new TermRangeQuery("t2", t0, "99999999", false, false);
 
             query.add(rangeQueryT1, Occur.MUST);
             query.add(rangeQueryT2, Occur.MUST);
@@ -463,15 +457,11 @@ public class FieldQueryParserIGC extends AbstractParser {
             // (ti2:[tq1 TO tq2] && ti1:[00000000 TO tq1]) || (ti1:[tq1 TO tq2]
             // && ti2:[tq2 TO 99999999])
 
-            Query rangeQuery11 = NumericRangeQuery.newLongRange("t1",
-            		new Long("00000000"), new Long(t1), true, true);
-            Query rangeQuery12 = NumericRangeQuery.newLongRange("t2",
-            		new Long(t1), new Long(t2), true, true);
+            Query rangeQuery11 = new TermRangeQuery("t1", "00000000", t1, true, true);
+            Query rangeQuery12 = new TermRangeQuery("t2", t1, t2, true, true);
 
-            Query rangeQuery21 = NumericRangeQuery.newLongRange("t1",
-            		new Long(t1), new Long(t2), true, true);
-            Query rangeQuery22 = NumericRangeQuery.newLongRange("t2",
-            		new Long(t2), new Long("99999999"), true, true);
+            Query rangeQuery21 = new TermRangeQuery("t1", t1, t2, true, true);
+            Query rangeQuery22 = new TermRangeQuery("t2", t2, "99999999", true, true);
 
 
             BooleanQuery booleanQueryTime = new BooleanQuery();
