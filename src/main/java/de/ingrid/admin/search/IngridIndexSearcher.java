@@ -174,7 +174,9 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     @Override
     public void configure(PlugDescription plugDescription) {
         super.configure(plugDescription);
-        indexReaderWrapper.setIndexReader(_indexSearcher.getIndexReader());
+        if (_indexSearcher != null) {
+            indexReaderWrapper.setIndexReader(_indexSearcher.getIndexReader());
+        }
         LOG.info("configure plug id...");
         _plugDescription = plugDescription;
         _plugId = plugDescription.getPlugId();
