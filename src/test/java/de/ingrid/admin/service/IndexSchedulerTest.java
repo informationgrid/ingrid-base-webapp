@@ -12,6 +12,7 @@ import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IndexScheduler;
 import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.admin.search.QueryParsers;
+import de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
@@ -67,7 +68,7 @@ public class IndexSchedulerTest extends TestCase {
         // store our location of pd as system property to be fetched by pdService
         System.setProperty(IKeys.PLUG_DESCRIPTION, new File(file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
 
-        IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers());
+        IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
         PlugDescriptionService pdService = new PlugDescriptionService();
         _runnable = new DummyRunnable(1000L, searcher, pdService);
         _runnable.configure(pd);

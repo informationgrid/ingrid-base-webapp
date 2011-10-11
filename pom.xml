@@ -87,6 +87,11 @@
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
+            <groupId>de.ingrid</groupId>
+            <artifactId>ingrid-facetsearch</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+		<dependency>
 			<groupId>org.mortbay.jetty</groupId>
 			<artifactId>jetty</artifactId>
 			<version>6.1.14</version>

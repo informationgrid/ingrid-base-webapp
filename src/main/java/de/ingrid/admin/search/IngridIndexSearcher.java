@@ -1,5 +1,6 @@
 package de.ingrid.admin.search;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.facetsearch.FacetManager;
+import de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;
@@ -39,10 +42,17 @@ import de.ingrid.utils.tool.QueryUtil;
 @Qualifier("ingridIndexSearcher")
 public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, IDetailer, IRecordLoader, IConfigurable {
 
-	private String _plugId;
-	private PlugDescription _plugDescription;
+    private String _plugId;
+    private PlugDescription _plugDescription;
     private static final Log LOG = LogFactory.getLog(IngridIndexSearcher.class);
     private final QueryParsers _queryParsers;
+
+    @Autowired
+    private LuceneIndexReaderWrapper indexReaderWrapper;
+    
+
+    @Autowired
+    private FacetManager facetManager;
 
     // NOTICE:
     // We use autowiring for "QueryParsers" instance BUT DEFINE THE
@@ -52,8 +62,9 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     // This way we can set the order and the instances of the parsers in XML !
     // The "XMLconfigured" qualifier identifies the instance defined in XML !
     @Autowired
-    public IngridIndexSearcher(@Qualifier("XMLconfigured") QueryParsers queryParsers) {
+    public IngridIndexSearcher(@Qualifier("XMLconfigured") QueryParsers queryParsers, @Qualifier("XMLconfiguredIndexWrapper") LuceneIndexReaderWrapper indexReaderWrapper) {
         _queryParsers = queryParsers;
+        this.indexReaderWrapper = indexReaderWrapper;
     }
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
@@ -91,6 +102,9 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
             ingridHitArray[i] = ingridHit;
         }
         IngridHits ingridHits = new IngridHits(_plugId, topDocs.totalHits, ingridHitArray, true);
+
+        facetManager.addFacets(ingridHits, ingridQuery);
+
         return ingridHits;
     }
 
@@ -115,17 +129,17 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     private void addPlugDescriptionInformations(IngridHitDetail detail, String[] fields) {
         for (int i = 0; i < fields.length; i++) {
             if (fields[i].equals(PlugDescription.PARTNER)) {
-            	if(_plugDescription != null){
-            		detail.setArray(PlugDescription.PARTNER, _plugDescription.getPartners());	
-            	}
+                if (_plugDescription != null) {
+                    detail.setArray(PlugDescription.PARTNER, _plugDescription.getPartners());
+                }
             } else if (fields[i].equals(PlugDescription.PROVIDER)) {
-            	if(_plugDescription != null){
-            		detail.setArray(PlugDescription.PROVIDER, _plugDescription.getProviders());
-            	}
+                if (_plugDescription != null) {
+                    detail.setArray(PlugDescription.PROVIDER, _plugDescription.getProviders());
+                }
             }
         }
     }
-    
+
     private String[] getValues(String field, Map<String, Fieldable[]> details) {
         Fieldable[] fieldables = details.get(field);
         String[] values = new String[fieldables.length];
@@ -160,9 +174,20 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     @Override
     public void configure(PlugDescription plugDescription) {
         super.configure(plugDescription);
+        indexReaderWrapper.setIndexReader(_indexSearcher.getIndexReader());
         LOG.info("configure plug id...");
-        _plugDescription=plugDescription;
+        _plugDescription = plugDescription;
         _plugId = plugDescription.getPlugId();
+    }
+    
+    @Override
+    public void close() throws IOException {
+        if (_indexSearcher != null) {
+            _indexSearcher.getIndexReader().close();
+            _indexSearcher.close();
+            indexReaderWrapper.setIndexReader(null);
+            System.gc();
+        }
     }
 
     @Override
@@ -182,6 +207,22 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
         return record;
     }
 
+    public FacetManager getFacetManager() {
+        return facetManager;
+    }
+
+    public void setFacetManager(FacetManager facetManager) {
+        this.facetManager = facetManager;
+    }
+
+    public LuceneIndexReaderWrapper getIndexReaderWrapper() {
+        return indexReaderWrapper;
+    }
+
+    public void setIndexReaderWrapper(LuceneIndexReaderWrapper indexReaderWrapper) {
+        this.indexReaderWrapper = indexReaderWrapper;
+    }
+    
     private void explainQuery(Query query) {
         if (query instanceof BooleanQuery) {
             BooleanClause[] clauses = ((BooleanQuery) query).getClauses();

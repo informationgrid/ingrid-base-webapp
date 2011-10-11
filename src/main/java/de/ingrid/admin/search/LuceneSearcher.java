@@ -17,12 +17,14 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
 import de.ingrid.admin.object.ILuceneSearcher;
+import de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
 public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 
-    private IndexSearcher _indexSearcher;
+    protected IndexSearcher _indexSearcher;
+    
     private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
 
     public TopDocs search(final Query booleanQuery, final int start, final int length) throws Exception {
@@ -70,13 +72,7 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         return details;
     }
 
-    public void close() throws IOException {
-        if (_indexSearcher != null) {
-            _indexSearcher.getIndexReader().close();
-            _indexSearcher.close();
-            System.gc();
-        }
-    }
+    public abstract void close() throws IOException;
 
     @Override
     public void configure(final PlugDescription plugDescription) {

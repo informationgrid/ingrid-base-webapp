@@ -36,7 +36,7 @@
 
     <!-- Single parsers are injected explicitly (but created via annotation mechanism) -->
     <!-- Adapt number, type and order of parsers dependent from iPlug -->
-    <bean class="de.ingrid.admin.search.QueryParsers">
+    <bean id="queryParsers" class="de.ingrid.admin.search.QueryParsers">
         <qualifier value="XMLconfigured"/>
         <property name="queryParsers">
             <list>
@@ -51,6 +51,53 @@
             </list>
         </property>
     </bean>
+    
+    <bean id="indexWrapper" class="de.ingrid.facetsearch.LuceneIndexReaderWrapper">
+        <qualifier value="XMLconfiguredIndexWrapper"/>
+    </bean>
+
+    <bean id="facetClassProducer" class="de.ingrid.facetsearch.FacetClassProducer">
+        <property name="indexReaderWrapper" >
+            <ref bean="indexWrapper"/>
+        </property>
+        <property name="queryParsers">
+            <ref bean="queryParsers"/>
+        </property>
+    </bean>
+    
+    <bean id="facetClassRegisty" class="de.ingrid.facetSearch.FacetClassRegistry">
+        <property name="facetClassProducer">
+            <ref bean="facetClassProducer"/>
+        </property>
+    </bean>
+
+    <bean id="indexFacetCounter" class="de.ingrid.facetSearch.counter.IndexFacetCounter">
+        <property name="facetClassRegistry">
+            <ref bean="facetClassRegisty"/>
+        </property>
+    </bean>
+
+    <bean id="plugDescriptionFacetCounter" class="de.ingrid.facetSearch.counter.DscPlugdescriptionFacetCounter">
+        <property name="plugdescription">
+            <ref bean="plugdescription"/>
+        </property>
+    </bean>
+    
+    <bean id="facetManager" class="de.ingrid.facetSearch.FacetManager">
+        <property name="indexReaderWrapper">
+            <ref bean="indexWrapper"/>
+        </property>
+        <property name="queryParsers">
+            <ref bean="queryParsers"/>
+        </property>
+        <property name="facetCounters">
+            <list>
+                <ref bean="plugDescriptionFacetCounter" />
+                <ref bean="indexFacetCounter" />
+            </list>
+        </property>
+    </bean>
+    
 
     <!-- enable Auto-detecting of components (annotation based configuration including autowire ...) -->
     <context:component-scan base-package="de.ingrid">

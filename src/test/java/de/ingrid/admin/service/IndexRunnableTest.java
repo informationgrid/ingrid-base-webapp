@@ -3,6 +3,8 @@ package de.ingrid.admin.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -15,7 +17,16 @@ import de.ingrid.admin.search.IQueryParser;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.admin.search.QueryParsers;
+import de.ingrid.facetsearch.FacetClassProducer;
+import de.ingrid.facetsearch.FacetClassRegistry;
+import de.ingrid.facetsearch.FacetManager;
+import de.ingrid.facetsearch.counter.IFacetCounter;
+import de.ingrid.facetsearch.counter.IndexFacetCounter;
+import de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper;
+import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
 public class IndexRunnableTest extends TestCase {
@@ -41,7 +52,27 @@ public class IndexRunnableTest extends TestCase {
         IQueryParser[] parserArray = new IQueryParser[] { new FieldQueryParser() };
         transformer.setQueryParsers(Arrays.asList(parserArray));
         
-        IngridIndexSearcher searcher = new IngridIndexSearcher(transformer);
+        
+        IngridIndexSearcher searcher = new IngridIndexSearcher(transformer, new LuceneIndexReaderWrapper(null));
+        LuceneIndexReaderWrapper lirw = new LuceneIndexReaderWrapper(null);
+        searcher.setIndexReaderWrapper(lirw);
+
+        FacetClassProducer fp = new FacetClassProducer();
+        fp.setIndexReaderWrapper(lirw);
+        fp.setQueryParsers(transformer);
+
+        FacetClassRegistry fr = new FacetClassRegistry();
+        fr.setFacetClassProducer(fp);
+
+        IndexFacetCounter fc = new IndexFacetCounter();
+        fc.setFacetClassRegistry(fr);
+
+        FacetManager fm = new FacetManager();
+        fm.setIndexReaderWrapper(lirw);
+        fm.setQueryParsers(transformer);
+        fm.setFacetCounters(Arrays.asList(new IFacetCounter[] { fc }));
+        
+        searcher.setFacetManager(fm);
         PlugDescriptionService pdService = new PlugDescriptionService();
         _indexRunnable = new IndexRunnable(searcher, pdService);
         _indexRunnable.configure(_plugDescription);
@@ -108,4 +139,26 @@ public class IndexRunnableTest extends TestCase {
         _indexRunnable.getIngridIndexSearcher().close();
         
     }
+    
+    public void testGetFacet() throws Exception {
+        IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
+        
+        IngridQuery q = QueryStringParser.parse("first:Marko");
+        addFacets(q);
+        
+        IngridHits hits = iis.search(q, 0, 10);
+        assertEquals(1, hits.length());
+        assertEquals(1, ((IngridDocument)hits.get("FACETS")).getLong("first:marko"));
+        _indexRunnable.getIngridIndexSearcher().close();
+        
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void addFacets(IngridQuery ingridQuery) {
+        Map f1 = new HashMap();
+        f1.put("id", "first");
+
+        ingridQuery.put("FACETS", new Object[] { f1 });
+    }
+
 }
