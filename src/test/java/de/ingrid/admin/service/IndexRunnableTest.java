@@ -158,7 +158,7 @@ public class IndexRunnableTest extends TestCase {
         Map f1 = new HashMap();
         f1.put("id", "first");
 
-        ingridQuery.put("FACETS", new Object[] { f1 });
+        ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
     }
 
 }
