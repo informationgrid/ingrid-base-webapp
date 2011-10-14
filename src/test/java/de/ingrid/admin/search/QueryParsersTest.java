@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.apache.lucene.search.Query;
 
+import de.ingrid.facetsearch.IQueryParser;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 

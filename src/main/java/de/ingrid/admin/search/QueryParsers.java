@@ -7,35 +7,25 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
-import org.springframework.stereotype.Service;
 
+import de.ingrid.facetsearch.IQueryParser;
+import de.ingrid.facetsearch.IQueryParsers;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
 
-@Service
-public class QueryParsers extends AbstractParser {
+public class QueryParsers extends AbstractParser implements IQueryParsers {
 
-    
     private static Logger log = Logger.getLogger(QueryParsers.class);
-    
-	// Injected by Spring (XML based !)
+
     private List<IQueryParser> _queryParsers;
 
-    // NO autowiring here ! We define instance of this class via classical XML to be 
-    // able to set the types and order of the parsers !!!
-//    @Autowired
-/*
-    public QueryParsers(IQueryParser... queryParsers) {
-        _queryParsers = Arrays.asList(queryParsers);
-    }
-*/
     public QueryParsers() {
         _queryParsers = new ArrayList<IQueryParser>();
     }
 
-	public void setQueryParsers(List<IQueryParser> parsers) {
-		this._queryParsers = parsers;
-	}
+    public void setQueryParsers(List<IQueryParser> parsers) {
+        this._queryParsers = parsers;
+    }
 
     public Query parse(IngridQuery ingridQuery) {
         BooleanQuery booleanQuery = new BooleanQuery();
