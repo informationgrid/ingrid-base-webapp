@@ -17,7 +17,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
 import de.ingrid.admin.object.ILuceneSearcher;
-import de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 

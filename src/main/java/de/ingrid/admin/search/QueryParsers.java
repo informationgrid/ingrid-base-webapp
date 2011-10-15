@@ -8,8 +8,8 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
 
-import de.ingrid.facetsearch.IQueryParser;
-import de.ingrid.facetsearch.IQueryParsers;
+import de.ingrid.search.utils.IQueryParser;
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
 
@@ -27,6 +27,7 @@ public class QueryParsers extends AbstractParser implements IQueryParsers {
         this._queryParsers = parsers;
     }
 
+    @Override
     public Query parse(IngridQuery ingridQuery) {
         BooleanQuery booleanQuery = new BooleanQuery();
         ClauseQuery[] clauses = ingridQuery.getClauses();

@@ -10,7 +10,7 @@ import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.util.Version;
 
-import de.ingrid.facetsearch.IQueryParser;
+import de.ingrid.search.utils.IQueryParser;
 
 public abstract class AbstractParser implements IQueryParser {
 

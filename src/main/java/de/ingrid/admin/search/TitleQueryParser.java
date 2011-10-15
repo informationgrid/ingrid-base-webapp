@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.facetsearch.IQueryParser;
+import de.ingrid.search.utils.IQueryParser;
 import de.ingrid.utils.query.IngridQuery;
 
 /**

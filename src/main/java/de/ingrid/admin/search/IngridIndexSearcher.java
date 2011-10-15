@@ -24,9 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.facetsearch.FacetManager;
-import de.ingrid.facetsearch.utils.ConfigurablePlugDescriptionWrapper;
-import de.ingrid.facetsearch.utils.LuceneIndexReaderWrapper;
+import de.ingrid.search.utils.ConfigurablePlugDescriptionWrapper;
+import de.ingrid.search.utils.LuceneIndexReaderWrapper;
+import de.ingrid.search.utils.facet.FacetManager;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;

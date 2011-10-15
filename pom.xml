@@ -88,7 +88,7 @@
 		</dependency>
 		<dependency>
             <groupId>de.ingrid</groupId>
-            <artifactId>ingrid-facetsearch</artifactId>
+            <artifactId>ingrid-search-utils</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 		<dependency>
