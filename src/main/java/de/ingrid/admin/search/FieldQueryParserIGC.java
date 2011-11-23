@@ -29,14 +29,14 @@ public class FieldQueryParserIGC extends AbstractParser {
 
     private static Logger log = Logger.getLogger(FieldQueryParserIGC.class);
 
-    /** neither qx1 or qx2 are between x1 and x2 */
-    private static final int FIRST_X_CASE = 0;
+    /** either x1 or x2 are between qx1 and qx2 */
+    private static final int X_INTERSECTS = 0;
 
-    /** qx1 and qx2 ar between x1 and x2 */
-    private static final int SECOND_X_CASE = 1;
+    /** both x1 and x2 are between qx1 and qx2 */
+    private static final int X_INSIDE = 1;
 
-    /** qx1 and qx2 are not between x1 and x2 */
-    private static final int THIRD_X_CASE = 2;
+    /** x1 below qx1 and x2 above qx2 */
+    private static final int X_OUTSIDE = 2;
 
 
     @Override
@@ -150,19 +150,19 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Query xRangeQuery1 = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(5.3), new Double(x1), true, true);
-            Query xRangeQuery2 = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x2), new Double(14.77), true, true);
-            Query yRangeQuery1 = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(46.76), new Double(y1), true, true);
-            Query yRangeQuery2 = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y2), new Double(54.73), true, true);
+            Query x1OutsideX1 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(-360.0), new Double(x1), true, true);
+            Query x2OutsideX2 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x2), new Double(360.00), true, true);
+            Query y1OutsideY1 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(-360.0), new Double(y1), true, true);
+            Query y2OutsideY2 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y2), new Double(360.00), true, true);
 
-            booleanQuery.add(xRangeQuery1, Occur.MUST);
-            booleanQuery.add(xRangeQuery2, Occur.MUST);
-            booleanQuery.add(yRangeQuery1, Occur.MUST);
-            booleanQuery.add(yRangeQuery2, Occur.MUST);
+            booleanQuery.add(x1OutsideX1, Occur.MUST);
+            booleanQuery.add(x2OutsideX2, Occur.MUST);
+            booleanQuery.add(y1OutsideY1, Occur.MUST);
+            booleanQuery.add(y2OutsideY2, Occur.MUST);
         }
     }
 
@@ -173,20 +173,19 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Term x1Term1 = new Term("x1", x1);
-            Term x2Term1 = new Term("x2", x2);
-            Term y1Term1 = new Term("y1", y1);
-            Term y2Term1 = new Term("y2", y2);
+            Query x1EqualsX1 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x1), true, true);
+            Query x2EqualsX2 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x2), new Double(x2), true, true);
+            Query y1EqualsY1 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y1), new Double(y1), true, true);
+            Query y2EqualsY2 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y2), new Double(y2), true, true);
 
-            Query xTermQuery1 = new TermQuery(x1Term1);
-            Query xTermQuery2 = new TermQuery(x2Term1);
-            Query yTermQuery1 = new TermQuery(y1Term1);
-            Query yTermQuery2 = new TermQuery(y2Term1);
-
-            booleanQuery.add(xTermQuery1, Occur.MUST);
-            booleanQuery.add(xTermQuery2, Occur.MUST);
-            booleanQuery.add(yTermQuery1, Occur.MUST);
-            booleanQuery.add(yTermQuery2, Occur.MUST);
+            booleanQuery.add(x1EqualsX1, Occur.MUST);
+            booleanQuery.add(x2EqualsX2, Occur.MUST);
+            booleanQuery.add(y1EqualsY1, Occur.MUST);
+            booleanQuery.add(y2EqualsY2, Occur.MUST);
         }
     }
 
@@ -198,10 +197,28 @@ public class FieldQueryParserIGC extends AbstractParser {
 
         BooleanQuery geoQuery = new BooleanQuery();
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            BooleanQuery query1 = prepareIntersectGeoQuery(x1, x2, y1, y2, FIRST_X_CASE);
-            BooleanQuery query2 = prepareIntersectGeoQuery(x1, x2, y1, y2, SECOND_X_CASE);
-            BooleanQuery query3 = prepareIntersectGeoQuery(x1, x2, y1, y2, THIRD_X_CASE);
+            // always: both y are not in area below or above
+            Query y1AboveY2 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y2), new Double(360.0), true, true);
+            Query y2BelowY1 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(-360.0), new Double(y1), true, true);
+            booleanQuery.add(y1AboveY2, Occur.MUST_NOT);
+            booleanQuery.add(y2BelowY1, Occur.MUST_NOT);
 
+            // always: both x are not in area left or right
+            Query x1AboveX2 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x2), new Double(360.0), true, true);
+            Query x2BelowX1 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(-360.0), new Double(x1), true, true);
+            booleanQuery.add(x1AboveX2, Occur.MUST_NOT);
+            booleanQuery.add(x2BelowX1, Occur.MUST_NOT);
+
+            // then create queries dependent from x. 
+            BooleanQuery query1 = prepareIntersectGeoQuery(x1, x2, y1, y2, X_INTERSECTS);
+            BooleanQuery query2 = prepareIntersectGeoQuery(x1, x2, y1, y2, X_INSIDE);
+            BooleanQuery query3 = prepareIntersectGeoQuery(x1, x2, y1, y2, X_OUTSIDE);
+
+            // One of them must match !
             geoQuery.add(query1, Occur.SHOULD);
             geoQuery.add(query2, Occur.SHOULD);
             geoQuery.add(query3, Occur.SHOULD);
@@ -213,84 +230,78 @@ public class FieldQueryParserIGC extends AbstractParser {
 
     private static BooleanQuery prepareIntersectGeoQuery(String x1, String x2, String y1, String y2, int x_case) {
 
+    	// HELPER QUERIES !
+        Query x1BetweenX1AndX2 = NumericRangeQuery.newDoubleRange("x1",
+        		new Double(x1), new Double(x2), true, true);
+        Query x2BetweenX1AndX2 = NumericRangeQuery.newDoubleRange("x2",
+        		new Double(x1), new Double(x2), true, true);
+        Query x1BelowX1 = NumericRangeQuery.newDoubleRange("x1",
+        		new Double(-360.0), new Double(x1), true, true);
+        Query x2AboveX2 = NumericRangeQuery.newDoubleRange("x2",
+        		new Double(x2), new Double(360.0), true, true);
+
+        Query y1BetweenY1AndY2 = NumericRangeQuery.newDoubleRange("y1",
+        		new Double(y1), new Double(y2), true, true);
+        Query y2BetweenY1AndY2 = NumericRangeQuery.newDoubleRange("y2",
+        		new Double(y1), new Double(y2), true, true);
+        Query y1BelowY1 = NumericRangeQuery.newDoubleRange("y1",
+        		new Double(-360.0), new Double(y1), true, true);
+        Query y2AboveY2 = NumericRangeQuery.newDoubleRange("y2",
+        		new Double(y2), new Double(360.0), true, true);
+
+        // OUR QUERY TO RETURN !
         BooleanQuery booleanQuery = new BooleanQuery();
 
         switch (x_case) {
-        case FIRST_X_CASE:
-            BooleanQuery xQuery1FirstCase = new BooleanQuery();
-            BooleanQuery xQuery2FirstCase = new BooleanQuery();
-            BooleanQuery yQueryFistCase = new BooleanQuery();
-            BooleanQuery yOutside = new BooleanQuery();
+        case X_INTERSECTS:
+        	// one x inside, other x outside
+            BooleanQuery x1InsideX2Outside = new BooleanQuery();
+            x1InsideX2Outside.add(x1BetweenX1AndX2, Occur.MUST);
+            x1InsideX2Outside.add(x2BetweenX1AndX2, Occur.MUST_NOT);
 
-            Query xRangeQuery1 = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(x1), new Double(x2), true, true);
-            Query xRangeQuery2 = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x1), new Double(x2), true, true);
-            Query xRangeQuery3 = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(x1), new Double(x2), true, true);
-            Query xRangeQuery4 = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x1), new Double(x2), true, true);
+            BooleanQuery x1OutsideX2Inside = new BooleanQuery();
+            x1OutsideX2Inside.add(x1BetweenX1AndX2, Occur.MUST_NOT);
+            x1OutsideX2Inside.add(x2BetweenX1AndX2, Occur.MUST);
 
-            Query yRangeQuery1 = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(y1), new Double(y2), true, true);
-            Query yRangeQuery2 = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y1), new Double(y2), true, true);
-            Query yRangeQuery3 = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(46.76), new Double(y1), true, true);
-            Query yRangeQuery4 = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y1), new Double(54.73), true, true);
-
-            // must: true, false must_not: false, true should: false, false
-            xQuery1FirstCase.add(xRangeQuery1, Occur.MUST);
-            xQuery1FirstCase.add(xRangeQuery2, Occur.MUST_NOT);
-            xQuery2FirstCase.add(xRangeQuery3, Occur.MUST_NOT);
-            xQuery2FirstCase.add(xRangeQuery4, Occur.MUST);
-
-            yOutside.add(yRangeQuery3, Occur.MUST);
-            yOutside.add(yRangeQuery4, Occur.MUST);
-
-            yQueryFistCase.add(yRangeQuery1, Occur.SHOULD);
-            yQueryFistCase.add(yRangeQuery2, Occur.SHOULD);
-            yQueryFistCase.add(yOutside, Occur.SHOULD);
-
-            booleanQuery.add(xQuery1FirstCase, Occur.SHOULD);
-            booleanQuery.add(xQuery2FirstCase, Occur.SHOULD);
+            BooleanQuery xIntersects = new BooleanQuery();
+            xIntersects.add(x1InsideX2Outside, Occur.SHOULD);
+            xIntersects.add(x1OutsideX2Inside, Occur.SHOULD);
+            
+            booleanQuery.add(xIntersects, Occur.MUST);
+            
+            // that's it, also Y coord already arranged outside (both y are not in area below or above)
 
             break;
 
-        case SECOND_X_CASE:
-            Query xRangeQuery1SecondCase = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(x1), new Double(x2), true, true);
-            Query xRangeQuery2SecondCase = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x1), new Double(x2), true, true);
-            Query yRangeQuery1SecondCase = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(y1), new Double(y2), true, true);
-            Query yRangeQuery2SecondCase = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y1), new Double(y2), true, true);
+        case X_INSIDE:
+        	// both x are inside
+            booleanQuery.add(x1BetweenX1AndX2, Occur.MUST);
+            booleanQuery.add(x2BetweenX1AndX2, Occur.MUST);
 
-            booleanQuery.add(xRangeQuery1SecondCase, Occur.MUST);
-            booleanQuery.add(xRangeQuery2SecondCase, Occur.MUST);
-            booleanQuery.add(yRangeQuery1SecondCase, Occur.MUST_NOT);
-            booleanQuery.add(yRangeQuery2SecondCase, Occur.MUST_NOT);
+            // both y are not inside
+            BooleanQuery yInside = new BooleanQuery();
+            yInside.add(y1BetweenY1AndY2, Occur.MUST);
+            yInside.add(y2BetweenY1AndY2, Occur.MUST);
+            booleanQuery.add(yInside, Occur.MUST_NOT);
+
+            // that's it, also Y coord already arranged outside (both y are not in area below or above)
+
             break;
 
-        case THIRD_X_CASE:
-            BooleanQuery thirdCase = new BooleanQuery();
+        case X_OUTSIDE:
+        	// x1 left from X1 from query
+            booleanQuery.add(x1BelowX1, Occur.MUST);
+        	// x2 right from X2 from query
+            booleanQuery.add(x2AboveX2, Occur.MUST);
 
-            Query xRangeQuery1ThirdCase = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(x1), new Double(x2), true, true);
-            Query xRangeQuery2ThirdCase = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x1), new Double(x2), true, true);
-            Query yRangeQuery1ThirdCase = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(y1), new Double(y2), true, true);
-            Query yRangeQuery2ThirdCase = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y1), new Double(y2), true, true);
+            // both y are not outside below and above Y from query
+            BooleanQuery yBelowAndAbove = new BooleanQuery();
+            yBelowAndAbove.add(y1BelowY1, Occur.MUST);
+            yBelowAndAbove.add(y2AboveY2, Occur.MUST);
+            booleanQuery.add(yBelowAndAbove, Occur.MUST_NOT);
 
-            thirdCase.add(yRangeQuery1ThirdCase, Occur.SHOULD);
-            thirdCase.add(yRangeQuery2ThirdCase, Occur.SHOULD);
-            booleanQuery.add(xRangeQuery1ThirdCase, Occur.MUST_NOT);
-            booleanQuery.add(xRangeQuery2ThirdCase, Occur.MUST_NOT);
-            booleanQuery.add(thirdCase, Occur.MUST);
+            // that's it, also Y coord already arranged outside (both y are not in area below or above)
+
             break;
 
         default:
@@ -307,19 +318,19 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Query xRangeQuery1 = NumericRangeQuery.newDoubleRange("x1",
+            Query x1BetweenX1AndX2 = NumericRangeQuery.newDoubleRange("x1",
             		new Double(x1), new Double(x2), true, true);
-            Query xRangeQuery2 = NumericRangeQuery.newDoubleRange("x2",
+            Query x2BetweenX1AndX2 = NumericRangeQuery.newDoubleRange("x2",
             		new Double(x1), new Double(x2), true, true);
-            Query yRangeQuery1 = NumericRangeQuery.newDoubleRange("y1",
+            Query y1BetweenY1AndY2 = NumericRangeQuery.newDoubleRange("y1",
             		new Double(y1), new Double(y2), true, true);
-            Query yRangeQuery2 = NumericRangeQuery.newDoubleRange("y2",
+            Query y2BetweenY1AndY2 = NumericRangeQuery.newDoubleRange("y2",
             		new Double(y1), new Double(y2), true, true);
 
-            booleanQuery.add(xRangeQuery1, Occur.MUST);
-            booleanQuery.add(xRangeQuery2, Occur.MUST);
-            booleanQuery.add(yRangeQuery1, Occur.MUST);
-            booleanQuery.add(yRangeQuery2, Occur.MUST);
+            booleanQuery.add(x1BetweenX1AndX2, Occur.MUST);
+            booleanQuery.add(x2BetweenX1AndX2, Occur.MUST);
+            booleanQuery.add(y1BetweenY1AndY2, Occur.MUST);
+            booleanQuery.add(y2BetweenY1AndY2, Occur.MUST);
         }
     }
 
