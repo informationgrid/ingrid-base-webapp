@@ -23,21 +23,13 @@ import de.ingrid.utils.query.IngridQuery;
 
 /**
  * Maps FieldQuery(s) from IngridQuery to LuceneQuery and handles all IGC specials (time, coords ..).
+ * <b>Notice: NEVER USE Occur.MUST_NOT when 1:n associations and it's not intended, that one value 
+ * knocks out all the others (e.g. multiple x1 when multiple BBoxes) !!!</b> 
  */
 @Service
 public class FieldQueryParserIGC extends AbstractParser {
 
     private static Logger log = Logger.getLogger(FieldQueryParserIGC.class);
-
-    /** either x1 or x2 are between qx1 and qx2 */
-    private static final int X_INTERSECTS = 0;
-
-    /** both x1 and x2 are between qx1 and qx2 */
-    private static final int X_INSIDE = 1;
-
-    /** x1 below qx1 and x2 above qx2 */
-    private static final int X_OUTSIDE = 2;
-
 
     @Override
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
@@ -143,6 +135,7 @@ public class FieldQueryParserIGC extends AbstractParser {
         }
     }
 
+    /** Hits BBox INCLUDE the passed BBox */
     private static void prepareIncludeGeoQuery(BooleanQuery booleanQuery, Map<String,Object> geoMap) {
         String x1 = (String) geoMap.get("x1");
         String x2 = (String) geoMap.get("x2");
@@ -150,19 +143,20 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Query x1OutsideX1 = NumericRangeQuery.newDoubleRange("x1",
+            // At least one x1 AND one y1 AND one x2 AND one y2 OUTSIDE passed BBox, borders are ok
+            Query x1Below = NumericRangeQuery.newDoubleRange("x1",
             		new Double(-360.0), new Double(x1), true, true);
-            Query x2OutsideX2 = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x2), new Double(360.00), true, true);
-            Query y1OutsideY1 = NumericRangeQuery.newDoubleRange("y1",
+            Query x2Above = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x2), new Double(360.0), true, true);
+            Query y1Below = NumericRangeQuery.newDoubleRange("y1",
             		new Double(-360.0), new Double(y1), true, true);
-            Query y2OutsideY2 = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y2), new Double(360.00), true, true);
+            Query y2Above = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y2), new Double(360.0), true, true);
 
-            booleanQuery.add(x1OutsideX1, Occur.MUST);
-            booleanQuery.add(x2OutsideX2, Occur.MUST);
-            booleanQuery.add(y1OutsideY1, Occur.MUST);
-            booleanQuery.add(y2OutsideY2, Occur.MUST);
+            booleanQuery.add(x1Below, Occur.MUST);
+            booleanQuery.add(x2Above, Occur.MUST);
+            booleanQuery.add(y1Below, Occur.MUST);
+            booleanQuery.add(y2Above, Occur.MUST);
         }
     }
 
@@ -189,130 +183,71 @@ public class FieldQueryParserIGC extends AbstractParser {
         }
     }
 
+    /** Hits BBox INTERSECT the passed BBox */
     private static void prepareIntersectGeoQuery(BooleanQuery booleanQuery, Map<String,Object> geoMap) {
         String x1 = (String) geoMap.get("x1");
         String x2 = (String) geoMap.get("x2");
         String y1 = (String) geoMap.get("y1");
         String y2 = (String) geoMap.get("y2");
 
-        BooleanQuery geoQuery = new BooleanQuery();
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            // always: both y are not in area below or above
-            Query y1AboveY2Inclusive = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(y2), new Double(360.0), true, true);
-            Query y2BelowY1Inclusive = NumericRangeQuery.newDoubleRange("y2",
+
+        	// NOT ALL OUTSIDE (this would be coord:include)
+            // at least one x1 OR one y1 OR one x2 OR one y2 INSIDE passed BBox, borders are ok
+            Query x1Inside = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(x1), new Double(x2), true, true);
+            Query x2Inside = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(x2), true, true);
+            Query y1Inside = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(y1), new Double(y2), true, true);
+            Query y2Inside = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(y2), true, true);
+            BooleanQuery isInside = new BooleanQuery();
+            isInside.add(x1Inside, Occur.SHOULD);
+            isInside.add(x2Inside, Occur.SHOULD);
+            isInside.add(y1Inside, Occur.SHOULD);
+            isInside.add(y2Inside, Occur.SHOULD);
+            booleanQuery.add(isInside, Occur.MUST);
+
+        	// NOT ALL INSIDE (this would be coord:inside)
+            // at least one x1 OR one y1 OR one x2 OR one y2 OUTSIDE passed BBox, borders are ok
+            Query x1Below = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(-360.0), new Double(x1), true, true);
+            Query x2Above = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x2), new Double(360.0), true, true);
+            Query y1Below = NumericRangeQuery.newDoubleRange("y1",
             		new Double(-360.0), new Double(y1), true, true);
-            booleanQuery.add(y1AboveY2Inclusive, Occur.MUST_NOT);
-            booleanQuery.add(y2BelowY1Inclusive, Occur.MUST_NOT);
+            Query y2Above = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y2), new Double(360.0), true, true);
+            BooleanQuery isOutside = new BooleanQuery();
+            isOutside.add(x1Below, Occur.SHOULD);
+            isOutside.add(x2Above, Occur.SHOULD);
+            isOutside.add(y1Below, Occur.SHOULD);
+            isOutside.add(y2Above, Occur.SHOULD);
+            booleanQuery.add(isOutside, Occur.MUST);
 
-            // always: both x are not in area left or right
-            Query x1AboveX2Inclusive = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(x2), new Double(360.0), true, true);
-            Query x2BelowX1Inclusive = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(-360.0), new Double(x1), true, true);
-            booleanQuery.add(x1AboveX2Inclusive, Occur.MUST_NOT);
-            booleanQuery.add(x2BelowX1Inclusive, Occur.MUST_NOT);
+            // guarantee that not all x are in area left or all x are in area right
 
-            // then create queries dependent from x. 
-            BooleanQuery query1 = prepareIntersectGeoQuery(x1, x2, y1, y2, X_INTERSECTS);
-            BooleanQuery query2 = prepareIntersectGeoQuery(x1, x2, y1, y2, X_INSIDE);
-            BooleanQuery query3 = prepareIntersectGeoQuery(x1, x2, y1, y2, X_OUTSIDE);
+            // at least one x1 is left of right border, border itself is ok
+            Query x1LeftX2 = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(-360.0), new Double(x2), true, true);
+            booleanQuery.add(x1LeftX2, Occur.MUST);
+            // at least one x2 is right of left border, border itself is ok
+            Query x2RightX1 = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x1), new Double(360.0), true, true);
+            booleanQuery.add(x2RightX1, Occur.MUST);
 
-            // One of them must match !
-            geoQuery.add(query1, Occur.SHOULD);
-            geoQuery.add(query2, Occur.SHOULD);
-            geoQuery.add(query3, Occur.SHOULD);
-            if (geoQuery.getClauses().length > 0) {
-                booleanQuery.add(geoQuery, Occur.MUST);
-            }
+            // guarantee that not all y are in area below or all y are in area above
+
+            // at least one y1 is below upper border, border itself is ok
+            Query y1BelowY2 = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(-360.0), new Double(y2), true, true);
+            booleanQuery.add(y1BelowY2, Occur.MUST);
+            // at least one y2 is above lower border, border itself is ok
+            Query y2AboveY1 = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y1), new Double(360.0), true, true);
+            booleanQuery.add(y2AboveY1, Occur.MUST);
         }
-    }
-
-    private static BooleanQuery prepareIntersectGeoQuery(String x1, String x2, String y1, String y2, int x_case) {
-
-    	// HELPER QUERIES !
-        Query x1BetweenX1AndX2Inclusive = NumericRangeQuery.newDoubleRange("x1",
-        		new Double(x1), new Double(x2), true, true);
-        Query x2BetweenX1AndX2Inclusive = NumericRangeQuery.newDoubleRange("x2",
-        		new Double(x1), new Double(x2), true, true);
-        Query x1BetweenX1AndX2Exclusive = NumericRangeQuery.newDoubleRange("x1",
-        		new Double(x1), new Double(x2), false, false);
-        Query x2BetweenX1AndX2Exclusive = NumericRangeQuery.newDoubleRange("x2",
-        		new Double(x1), new Double(x2), false, false);
-
-
-        // OUR QUERY TO RETURN !
-        BooleanQuery booleanQuery = new BooleanQuery();
-
-        switch (x_case) {
-        case X_INTERSECTS:
-        	// one x inside, other x outside, border is ok !
-            BooleanQuery x1InsideX2Outside = new BooleanQuery();
-            x1InsideX2Outside.add(x1BetweenX1AndX2Inclusive, Occur.MUST);
-            x1InsideX2Outside.add(x2BetweenX1AndX2Exclusive, Occur.MUST_NOT);
-
-            BooleanQuery x1OutsideX2Inside = new BooleanQuery();
-            x1OutsideX2Inside.add(x1BetweenX1AndX2Exclusive, Occur.MUST_NOT);
-            x1OutsideX2Inside.add(x2BetweenX1AndX2Inclusive, Occur.MUST);
-
-            BooleanQuery xIntersects = new BooleanQuery();
-            xIntersects.add(x1InsideX2Outside, Occur.SHOULD);
-            xIntersects.add(x1OutsideX2Inside, Occur.SHOULD);
-            
-            booleanQuery.add(xIntersects, Occur.MUST);
-            
-            // that's it, also Y coord already arranged outside (both y are not in area below or above)
-
-            break;
-
-        case X_INSIDE:
-        	// both x are inside, border is ok !
-            booleanQuery.add(x1BetweenX1AndX2Inclusive, Occur.MUST);
-            booleanQuery.add(x2BetweenX1AndX2Inclusive, Occur.MUST);
-
-            // both y are not inside, border is ok
-            Query y1BetweenY1AndY2Exclusive = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(y1), new Double(y2), false, false);
-            Query y2BetweenY1AndY2Exclusive = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y1), new Double(y2), false, false);
-            BooleanQuery yInside = new BooleanQuery();
-            yInside.add(y1BetweenY1AndY2Exclusive, Occur.MUST);
-            yInside.add(y2BetweenY1AndY2Exclusive, Occur.MUST);
-            booleanQuery.add(yInside, Occur.MUST_NOT);
-
-            // that's it, also Y coord already arranged outside (both y are not in area below or above)
-
-            break;
-
-        case X_OUTSIDE:
-        	// x1 left from X1 from query, border is ok
-            Query x1BelowX1Inclusive = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(-360.0), new Double(x1), true, true);
-            booleanQuery.add(x1BelowX1Inclusive, Occur.MUST);
-        	// x2 right from X2 from query, border is ok
-            Query x2AboveX2Inclusive = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x2), new Double(360.0), true, true);
-            booleanQuery.add(x2AboveX2Inclusive, Occur.MUST);
-
-            // both y are not outside below and above Y from query, border is ok
-            Query y1BelowY1Exclusive = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(-360.0), new Double(y1), true, false);
-            Query y2AboveY2Exclusive = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y2), new Double(360.0), false, true);
-            BooleanQuery yBelowAndAbove = new BooleanQuery();
-            yBelowAndAbove.add(y1BelowY1Exclusive, Occur.MUST);
-            yBelowAndAbove.add(y2AboveY2Exclusive, Occur.MUST);
-            booleanQuery.add(yBelowAndAbove, Occur.MUST_NOT);
-
-            // that's it, also Y coord already arranged outside (both y are not in area below or above)
-
-            break;
-
-        default:
-            break;
-        }
-
-        return booleanQuery;
     }
 
     private static void prepareInsideGeoQuery(BooleanQuery booleanQuery, Map<String,Object> geoMap) {
@@ -322,19 +257,19 @@ public class FieldQueryParserIGC extends AbstractParser {
         String y2 = (String) geoMap.get("y2");
 
         if (x1 != null && x2 != null && y1 != null && y2 != null) {
-            Query x1BetweenX1AndX2 = NumericRangeQuery.newDoubleRange("x1",
-            		new Double(x1), new Double(x2), true, true);
-            Query x2BetweenX1AndX2 = NumericRangeQuery.newDoubleRange("x2",
-            		new Double(x1), new Double(x2), true, true);
-            Query y1BetweenY1AndY2 = NumericRangeQuery.newDoubleRange("y1",
-            		new Double(y1), new Double(y2), true, true);
-            Query y2BetweenY1AndY2 = NumericRangeQuery.newDoubleRange("y2",
-            		new Double(y1), new Double(y2), true, true);
-
-            booleanQuery.add(x1BetweenX1AndX2, Occur.MUST);
-            booleanQuery.add(x2BetweenX1AndX2, Occur.MUST);
-            booleanQuery.add(y1BetweenY1AndY2, Occur.MUST);
-            booleanQuery.add(y2BetweenY1AndY2, Occur.MUST);
+            // NO x1 or y1 or x2 or y2 OUTSIDE passed BBox, borders are ok
+            Query x1Below = NumericRangeQuery.newDoubleRange("x1",
+            		new Double(-360.0), new Double(x1), true, false);
+            Query x2Above = NumericRangeQuery.newDoubleRange("x2",
+            		new Double(x2), new Double(360.0), false, true);
+            Query y1Below = NumericRangeQuery.newDoubleRange("y1",
+            		new Double(-360.0), new Double(y1), true, false);
+            Query y2Above = NumericRangeQuery.newDoubleRange("y2",
+            		new Double(y2), new Double(360.0), false, true);
+            booleanQuery.add(x1Below, Occur.MUST_NOT);
+            booleanQuery.add(x2Above, Occur.MUST_NOT);
+            booleanQuery.add(y1Below, Occur.MUST_NOT);
+            booleanQuery.add(y2Above, Occur.MUST_NOT);
         }
     }
 
