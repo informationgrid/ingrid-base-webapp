@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
@@ -24,7 +25,8 @@ import de.ingrid.utils.query.IngridQuery;
 /**
  * Maps FieldQuery(s) from IngridQuery to LuceneQuery and handles all IGC specials (time, coords ..).
  * <b>Notice: NEVER USE Occur.MUST_NOT when 1:n associations and it's not intended, that one value 
- * knocks out all the others (e.g. multiple x1 when multiple BBoxes) !!!</b> 
+ * knocks out all the others (e.g. multiple x1 when multiple BBoxes) !!! Also MUST_NOT alone is NOT sufficient
+ * for Lucene Query, also add MUST ...</b> 
  */
 @Service
 public class FieldQueryParserIGC extends AbstractParser {
@@ -270,6 +272,11 @@ public class FieldQueryParserIGC extends AbstractParser {
             booleanQuery.add(x2Above, Occur.MUST_NOT);
             booleanQuery.add(y1Below, Occur.MUST_NOT);
             booleanQuery.add(y2Above, Occur.MUST_NOT);
+
+            // NOTICE: WE NEED A MUST (or SHOULD) ! MUST_NOT ALONE IS NOT SUFFICIENT FOR Lucene Query !
+            // http://lucene.apache.org/java/2_9_0/api/all/org/apache/lucene/search/BooleanClause.Occur.html#MUST_NOT
+            // "Note that it is not possible to search for queries that only consist of a MUST_NOT clause."
+        	booleanQuery.add(new MatchAllDocsQuery(), Occur.MUST);
         }
     }
 
