@@ -73,6 +73,12 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     }
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
+        
+        // check if index reader does really exists, return 0 hits if not
+        if (indexReaderWrapper.getIndexReader() == null) {
+            return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
+        }
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("incoming query: " + ingridQuery);
             LOG.debug("start: " + start);

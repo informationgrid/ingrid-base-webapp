@@ -77,24 +77,32 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
     public void configure(final PlugDescription plugDescription) {
         LOG.info("configure lucene index searcher...");
         final File workinDirectory = plugDescription.getWorkinDirectory();
-        final File index = new File(workinDirectory, "index");
+        File index = new File(workinDirectory, "index");
         if (!index.exists()) {
-        	flipIndex(plugDescription);
+        	// flip index, just in case a new index exists
+            flipIndex(plugDescription);
         }
-        try {
-            if (_indexSearcher == null) {
-                LOG.info("open new index: " + index);
-                _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
-            } else {
-                LOG.info("close existing index: " + index);
-                close();
-                flipIndex(plugDescription);
-                LOG.info("re-open existing index: " + index);
-                _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
+        
+        // check if the an index exists, this might not be 
+        // the case for index-less iplugs (opensearch)
+        if (index.exists()) {
+            try {
+                if (_indexSearcher == null) {
+                    LOG.info("open new index: " + index);
+                    _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
+                } else {
+                    LOG.info("close existing index: " + index);
+                    close();
+                    flipIndex(plugDescription);
+                    LOG.info("re-open existing index: " + index);
+                    _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
+                }
+                LOG.info("number of docs: " + _indexSearcher.maxDoc());
+            } catch (final Exception e) {
+                LOG.error("can not (re-)open index: " + index, e);
             }
-            LOG.info("number of docs: " + _indexSearcher.maxDoc());
-        } catch (final Exception e) {
-            LOG.error("can not (re-)open index: " + index, e);
+        } else {
+            LOG.info("No index found, do not initialize IndexSearcher.");
         }
     }
 
