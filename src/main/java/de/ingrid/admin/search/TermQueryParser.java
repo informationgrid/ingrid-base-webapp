@@ -101,6 +101,11 @@ public class TermQueryParser extends AbstractParser {
                 LOG.error("error while stemming: " + value, e);
             }            		
     	}
+        
+        // skip if the stemmer has ignored the value (i.e. stop word 'is')
+        if (value == null || value.trim().length() == 0) {
+            return;
+        }
 
         // filter and use phrase like in former AbstractSearcher ? NO ...
         if (value.indexOf(" ") > -1) {

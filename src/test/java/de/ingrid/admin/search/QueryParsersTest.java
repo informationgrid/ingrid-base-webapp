@@ -30,4 +30,13 @@ public class QueryParsersTest extends TestCase {
         assertEquals("+content:\"ffh gebiete\" title:\"ffh gebiete\"", query.toString());
     }
 
+    public void testTermWithIS() throws Exception {
+        QueryParsers transformer = new QueryParsers();
+        IQueryParser[] parserArray = new IQueryParser[] { new ContentQueryParser(new StandardStemmer()), new TitleQueryParser(new StandardStemmer()), new FieldQueryParserIGC(), new RangeQueryParser(), new WildCardFieldQueryParser(), new AllResultsOnEmptyQueryParser() };
+        transformer.setQueryParsers(Arrays.asList(parserArray));
+        IngridQuery ingridQuery = QueryStringParser.parse("is bk 50");
+        Query query = transformer.parse(ingridQuery);
+        assertEquals("+content:bk +content:50 title:bk title:50", query.toString());
+    }
+
 }
