@@ -2,7 +2,10 @@ package de.ingrid.admin.search;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -50,7 +53,14 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         return topDocs;
     }
 
-    public Map<String, Fieldable[]> getDetails(final int docId, final String[] fields) throws Exception {
+    public Map<String, Fieldable[]> getDetails(final int docId, final String[] fieldArray) throws Exception {
+    	// ALWAYS ADD URL FIELD TO DETAILS, no matter whether requested or not !
+    	// Portal decides dependent from this field how hit is rendered (www-style) but does NOT
+    	// request the field because of bug in SE iPlug, see QueryPreProcessor in Portal
+    	List<String> fields = new ArrayList<String>();
+    	Collections.addAll(fields, fieldArray);
+   		fields.add("url");
+
         final Map<String, Fieldable[]> details = new HashMap<String, Fieldable[]>();
         final Document doc = _indexSearcher.doc(docId);
         for (final String fieldName : fields) {
