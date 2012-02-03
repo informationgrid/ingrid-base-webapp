@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import de.ingrid.search.utils.ConfigurablePlugDescriptionWrapper;
 import de.ingrid.search.utils.LuceneIndexReaderWrapper;
 import de.ingrid.search.utils.facet.FacetManager;
+import de.ingrid.search.utils.facet.IFacetManager;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;
@@ -56,7 +57,7 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     private LuceneIndexReaderWrapper indexReaderWrapper;
 
     @Autowired
-    private FacetManager facetManager;
+    private IFacetManager facetManager;
 
     // NOTICE:
     // We use autowiring for "QueryParsers" instance BUT DEFINE THE
@@ -226,7 +227,7 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
         return record;
     }
 
-    public FacetManager getFacetManager() {
+    public IFacetManager getFacetManager() {
         return facetManager;
     }
 
