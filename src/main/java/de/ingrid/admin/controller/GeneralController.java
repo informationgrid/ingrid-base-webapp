@@ -104,7 +104,8 @@ public class GeneralController extends AbstractController {
 
         addForcedDatatypes(commandObject);
         
-        if (_validator.validateGeneral(errors, !_communicationService.hasErrors()).hasErrors()) {
+        // if no connection to iBus or no partners could be fetched then ignore the partner field!!! 
+        if (_validator.validateGeneral(errors, !_communicationService.hasErrors() && !partners.isEmpty()).hasErrors()) {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
 

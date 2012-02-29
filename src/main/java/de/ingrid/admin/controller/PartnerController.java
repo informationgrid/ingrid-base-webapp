@@ -76,7 +76,7 @@ public class PartnerController extends AbstractController {
                 commandObject.removePartner(id);
             }
         } else if ("submit".equals(action)) {
-            if (!_validator.validatePartners(errors).hasErrors()) {
+            if (partnerList.isEmpty() || !_validator.validatePartners(errors).hasErrors()) {
                 return redirect(IUris.PROVIDER);
             }
         }

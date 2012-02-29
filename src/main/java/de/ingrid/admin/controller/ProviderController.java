@@ -33,6 +33,8 @@ public class ProviderController extends AbstractController {
 
     private final CommunicationService _communicationService;
 
+    private boolean noProviderAvailable;
+
     @Autowired
     public ProviderController(final CommunicationService communicationInterface,
             final CommunicationService communicationService, final PlugDescValidator validator)
@@ -81,7 +83,7 @@ public class ProviderController extends AbstractController {
                 commandObject.removeProvider(id);
             }
         } else if ("submit".equals(action)) {
-            if (!_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {
+            if (noProviderAvailable || !_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {
                 return redirect(IUris.FIELD_QUERY);
             }
         }
@@ -95,6 +97,12 @@ public class ProviderController extends AbstractController {
             if (hasPartner(partners, provider)) {
                 providerList.add(provider);
             }
+        }
+        
+        if (providerList.isEmpty()) {
+            this.noProviderAvailable = true;
+        } else {
+            this.noProviderAvailable = false;
         }
         return providerList;
     }

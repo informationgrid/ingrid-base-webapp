@@ -21,8 +21,8 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
         if (hasBusConnection) {
             rejectIfEmptyOrWhitespace(errors, "organisation");
             rejectIfEmptyOrWhitespace(errors, "organisationAbbr");
+            rejectIfEmptyOrWhitespace(errors, "organisationPartnerAbbr");
         }
-        rejectIfEmptyOrWhitespace(errors, "organisationPartnerAbbr");
 
         rejectIfEmptyOrWhitespace(errors, "personSureName");
         rejectIfEmptyOrWhitespace(errors, "personName");

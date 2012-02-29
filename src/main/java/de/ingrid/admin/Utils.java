@@ -22,6 +22,7 @@ public class Utils {
             final IngridQuery ingridQuery = new IngridQuery();
             ingridQuery.addField(new FieldQuery(false, false, "datatype", "management"));
             ingridQuery.addField(new FieldQuery(false, false, "management_request_type", "1"));
+            ingridQuery.addField(new FieldQuery(false, false, "cache", "off")); 
 
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
@@ -54,6 +55,7 @@ public class Utils {
             final IngridQuery ingridQuery = new IngridQuery();
             ingridQuery.addField(new FieldQuery(false, false, "datatype", "management"));
             ingridQuery.addField(new FieldQuery(false, false, "management_request_type", "2"));
+            ingridQuery.addField(new FieldQuery(false, false, "cache", "off")); 
 
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
