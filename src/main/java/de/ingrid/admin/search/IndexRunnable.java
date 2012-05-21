@@ -147,6 +147,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.info("Add meta fields to PD.");                    	
         }
     	PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_METAINFO);
+    	PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_INCL_META);
 
     	// then add fields from index
         if (LOG.isInfoEnabled()) {

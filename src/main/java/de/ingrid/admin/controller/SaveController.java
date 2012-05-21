@@ -16,6 +16,8 @@ import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IRecordLoader;
+import de.ingrid.utils.tool.PlugDescriptionUtil;
+import de.ingrid.utils.tool.QueryUtil;
 
 @Controller
 @SessionAttributes({"plugDescription", "postCommandObject"})
@@ -47,6 +49,8 @@ public class SaveController extends AbstractController {
             throws Exception {
         
         boolean restart = false;
+        
+        PlugDescriptionUtil.addFieldToPlugDescription(plugdescriptionCommandObject, QueryUtil.FIELDNAME_INCL_META);
 
         // set class and record loader
         plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());

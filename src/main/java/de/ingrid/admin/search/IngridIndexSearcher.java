@@ -94,6 +94,7 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
 
         // remove "meta" field from query so search works !
         QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
+        QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_INCL_META);
 
         Query luceneQuery = _queryParsers.parse(ingridQuery);
 
