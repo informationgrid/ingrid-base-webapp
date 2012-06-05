@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,15 +27,23 @@ import de.ingrid.utils.PlugDescription;
 public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 
     protected IndexSearcher _indexSearcher;
-    
+
+    /**
+     * The lock assures that no queries are made during index flipping
+     */
+    protected ReentrantLock searchLock = new ReentrantLock();
+
     private static final Log LOG = LogFactory.getLog(LuceneSearcher.class);
 
     public TopDocs search(final Query booleanQuery, final int start, final int length) throws Exception {
-    	// determine max num to fetch
-    	int maxNumDocs = _indexSearcher.maxDoc();
-    	if (maxNumDocs < length) {
-    		maxNumDocs = length;
-    	}
+
+        checkLock();
+
+        // determine max num to fetch
+        int maxNumDocs = _indexSearcher.maxDoc();
+        if (maxNumDocs < length) {
+            maxNumDocs = length;
+        }
         TopDocs topDocs = _indexSearcher.search(booleanQuery, maxNumDocs);
         final ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         int size = 0;
@@ -54,34 +63,58 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
     }
 
     public Map<String, Fieldable[]> getDetails(final int docId, final String[] fieldArray) throws Exception {
-    	// ALWAYS ADD URL FIELD TO DETAILS, no matter whether requested or not !
-    	// Portal decides dependent from this field how hit is rendered (www-style) but does NOT
-    	// request the field because of bug in SE iPlug, see QueryPreProcessor in Portal
-    	List<String> fields = new ArrayList<String>();
-    	Collections.addAll(fields, fieldArray);
-   		fields.add("url");
+        checkLock();
+        // ALWAYS ADD URL FIELD TO DETAILS, no matter whether requested or not !
+        // Portal decides dependent from this field how hit is rendered
+        // (www-style) but does NOT
+        // request the field because of bug in SE iPlug, see QueryPreProcessor
+        // in Portal
+        List<String> fields = new ArrayList<String>();
+        Collections.addAll(fields, fieldArray);
+        fields.add("url");
 
         final Map<String, Fieldable[]> details = new HashMap<String, Fieldable[]>();
         final Document doc = _indexSearcher.doc(docId);
         for (final String fieldName : fields) {
-        	// check fieldname also in lowercase if different !
-        	String[] fieldNamesToCheck = new String[]{ fieldName };
-        	if (!fieldName.equals(fieldName.toLowerCase())) {
-        		fieldNamesToCheck = new String[]{ fieldName, fieldName.toLowerCase() };
-        	}
-        	for (String fieldNameToCheck : fieldNamesToCheck) {
+            // check fieldname also in lowercase if different !
+            String[] fieldNamesToCheck = new String[] { fieldName };
+            if (!fieldName.equals(fieldName.toLowerCase())) {
+                fieldNamesToCheck = new String[] { fieldName, fieldName.toLowerCase() };
+            }
+            for (String fieldNameToCheck : fieldNamesToCheck) {
                 final Fieldable[] values = doc.getFieldables(fieldNameToCheck);
                 if (values != null && values.length > 0) {
                     details.put(fieldName, values);
-                    // use first found field, do not evaluate further for lowercase field !
+                    // use first found field, do not evaluate further for
+                    // lowercase field !
                     break;
                 }
-        	}
+            }
         }
         return details;
     }
 
     public abstract void close() throws IOException;
+
+    /**
+     * Check if the index searcher has been locked because of index flipping.
+     * 
+     * @throws InterruptedException
+     */
+    private void checkLock() throws Exception {
+        if (searchLock.isLocked()) {
+            // lock search process for max 1 sec
+            int cnt = 0;
+            while (searchLock.isLocked() && cnt < 10) {
+                Thread.sleep(100);
+                cnt++;
+            }
+            if (cnt == 10) {
+                throw new RuntimeException(
+                        "Index searcher flipping in progress. Index searcher was locked for more than 1 sec.");
+            }
+        }
+    }
 
     @Override
     public void configure(final PlugDescription plugDescription) {
@@ -89,11 +122,11 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         final File workinDirectory = plugDescription.getWorkinDirectory();
         File index = new File(workinDirectory, "index");
         if (!index.exists()) {
-        	// flip index, just in case a new index exists
+            // flip index, just in case a new index exists
             flipIndex(plugDescription);
         }
-        
-        // check if the an index exists, this might not be 
+
+        // check if the an index exists, this might not be
         // the case for index-less iplugs (opensearch)
         if (index.exists()) {
             try {
@@ -102,6 +135,7 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
                     _indexSearcher = new IndexSearcher(IndexReader.open(FSDirectory.open(index), true));
                 } else {
                     LOG.info("close existing index: " + index);
+                    searchLock.lock();
                     close();
                     flipIndex(plugDescription);
                     LOG.info("re-open existing index: " + index);
@@ -110,6 +144,10 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
                 LOG.info("number of docs: " + _indexSearcher.maxDoc());
             } catch (final Exception e) {
                 LOG.error("can not (re-)open index: " + index, e);
+            } finally {
+                if (searchLock.isLocked()) {
+                    searchLock.unlock();
+                }
             }
         } else {
             LOG.info("No index found, do not initialize IndexSearcher.");
@@ -118,9 +156,14 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
 
     @Override
     public Document doc(int id) throws IOException {
+        try {
+            checkLock();
+        } catch (Exception e) {
+            LOG.error("Error getting document from locked index searcher for id: " + id, e);
+        }
         return _indexSearcher.doc(id);
     }
-    
+
     private void flipIndex(PlugDescription plugDescription) {
         File workinDirectory = plugDescription.getWorkinDirectory();
         File oldIndex = new File(workinDirectory, "index");
@@ -130,7 +173,8 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
             delete(oldIndex);
             LOG.info("rename index: " + newIndex);
             if (!newIndex.renameTo(oldIndex)) {
-                LOG.warn("Unable to rename '" + newIndex.getAbsolutePath() + "' to '" + oldIndex.getAbsolutePath() + "'");
+                LOG.warn("Unable to rename '" + newIndex.getAbsolutePath() + "' to '" + oldIndex.getAbsolutePath()
+                        + "'");
             }
         }
     }
@@ -151,5 +195,5 @@ public abstract class LuceneSearcher implements IConfigurable, ILuceneSearcher {
         if (folder.exists() && !folder.delete()) {
             LOG.warn("Unable to delete folder: " + folder.getAbsolutePath());
         }
-    }    
+    }
 }
