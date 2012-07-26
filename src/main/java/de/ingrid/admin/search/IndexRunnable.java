@@ -63,6 +63,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 		new StandardAnalyzer(Version.LUCENE_CURRENT), true, IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
                     final Document document = _documentProducer.next();
+                    if (document == null) {
+                    	LOG.warn("DocumentProducer " + _documentProducer + " returned null Document, we skip this record (not added to index)!");
+                    	continue;
+                    }
+
                     for (final String dataType : _dataTypes) {
                         document.add(new Field("datatype", dataType, Store.NO, Index.NOT_ANALYZED));
                     }
