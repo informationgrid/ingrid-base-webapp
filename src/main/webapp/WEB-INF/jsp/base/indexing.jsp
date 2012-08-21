@@ -11,9 +11,10 @@
 <meta name="author" content="wemove digital solutions" />
 <meta name="copyright" content="wemove digital solutions GmbH" />
 <link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
-<script type="text/javascript" src="../js/base/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/base/jquery-1.8.0.min.js"></script>
 <script>
 function getState(){
+    $.ajaxSetup({ cache: false });
 	$.get("../base/indexState.html", function(data){
 		  document.getElementById('dialog').style.display = '';
 		  if(data == 'TERMINATED'){
@@ -22,6 +23,7 @@ function getState(){
 			setTimeout(getState, 1000);
 		  }
 	}, "text");
+	$.ajaxSetup({ cache: true });
 }
 </script>
 <c:if test="${started == 'true'}">

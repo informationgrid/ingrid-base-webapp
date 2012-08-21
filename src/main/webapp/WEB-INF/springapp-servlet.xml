@@ -42,7 +42,7 @@
 		mechanism)
 	-->
 	<!-- Adapt number, type and order of parsers dependent from iPlug -->
-	<bean id="queryParsers" class="de.ingrid.admin.search.QueryParsers">
+	<bean class="de.ingrid.admin.search.QueryParsers">
 		<qualifier value="XMLconfigured" />
 		<property name="queryParsers">
 			<list>
