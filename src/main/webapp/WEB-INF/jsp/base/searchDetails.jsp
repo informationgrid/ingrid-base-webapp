@@ -46,6 +46,10 @@
 		                </tr>
 	                </c:if>
 	            </c:forEach>
+                <tr>
+                    <td colspan="2">${values.dat}</td>
+                    <td>${value.value}</td>
+                </tr>
 	        </table>
         </div>
     </div>

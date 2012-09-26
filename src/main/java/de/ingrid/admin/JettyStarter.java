@@ -30,7 +30,9 @@ public class JettyStarter {
     private static void init() throws Exception {
         WebAppContext webAppContext = new WebAppContext(System.getProperty("jetty.webapp", DEFAULT_WEBAPP_DIR), "/");
 
-        Server server = new Server(Integer.getInteger("jetty.port", DEFAULT_JETTY_PORT));
+        int port = Integer.getInteger("jetty.port", DEFAULT_JETTY_PORT);
+        log.info("Start server at port: " + port);
+        Server server = new Server(port);
         server.setHandler(webAppContext);
         server.start();
     }

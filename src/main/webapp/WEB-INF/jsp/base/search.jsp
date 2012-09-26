@@ -58,7 +58,7 @@
 					       <c:choose>
 					           <c:when test="${details}">
 <%-- 								   <a href="../base/searchDetails.html?id=${hit.key}">${hit.value['title']}</a> --%>
-                                    ${hit.value['title']}
+                                    ${hit.value['title']} (<a href="../base/searchDetails.html?id=${hit.key}">raw result</a>) 
 					           </c:when>
 					           <c:otherwise>
 					               <a href="#">${hit.value['title']}</a>

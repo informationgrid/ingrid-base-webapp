@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -135,6 +136,7 @@ public class AdminToolsController extends AbstractController {
         final Map<String, String> values = new HashMap<String, String>();
         values.put("title", "Kein Titel");
         values.put("summary", "Keine Beschreibung");
+        values.put("data", StringEscapeUtils.escapeXml(record.getString("data")));
         final Column[] columns = record.getColumns();
         if (columns != null) {
             for (final Column col : columns) {
