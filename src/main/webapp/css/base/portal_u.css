@@ -6,8 +6,8 @@ body { margin:0; padding:0; font:normal 11px/16px Verdana, Arial, Helvetica, san
 div, img { margin:0; padding:0; }
 p { padding:0; margin:0 0 16px 0; }
 a { color:#176798; text-decoration:none; }
-ul { margin:0; padding:0; list-style:none; }
-li { list-style:none; margin:0; padding:0; }
+/*ul { margin:0; padding:0; list-style:none; }
+li { list-style:none; margin:0; padding:0; }*/
 :focus { outline:none; }
 .clear { clear:both; height:0px; line-height:0px; font-size:0px; margin:0; padding:0; }
 img { border:0; behavior:url(css/iepngfix.htc) }
@@ -43,8 +43,8 @@ h3 { font:bold 12px/15px Verdana, Arial, Helvetica, sans-serif; padding:0; margi
 #navi_vertical .konf p.no { padding-left:10px; float:left; width:40px; color:#FFF; font-size:20px}
 #navi_vertical h2 { margin:0; }
 #navi_vertical .freitext { background:#F5F8EB; padding:5px 15px; margin-bottom:1px; }
-#navi_vertical ul { background:#F5F8EB; margin-bottom:10px; padding:20px 0; }
-#navi_vertical ul li { padding:0 20px 0 50px; margin-bottom:8px; line-height:14px; }
+#navi_vertical ul { background:#F5F8EB; margin: 0 0 10px; padding:20px 0; list-style:none; }
+#navi_vertical ul li { padding:0 20px 0 50px; margin: 0 0 8px; line-height:14px; list-style:none; }
 #navi_vertical ul li a { color:#464646; }
 #navi_vertical ul li.active { background:transparent url(../../images/base/list_active.gif) repeat-y; font-weight:bold;}
 
@@ -55,6 +55,8 @@ div#contentBox { position:relative; top:116px; border:1px solid #DDE9BD; min-hei
 .contentLeft { left:0; }
 .contentMiddle { left:200px; width:75% !important; }
 
+div#contentBox ul { padding-left: 20px; }
+div#contentBox ul li { padding-bottom: 5px; }
 div#contentBox h1#head { height:28px; padding:12px 19px 0; background:#F5F8EB; margin-bottom:0; }
 div#contentBox div#tabNavi { height:31px; padding:8px 19px 0; background:#DDE9BD; }
 div#contentBox div#tabNavi a { display:block; background:#F5F8EB; padding:6px 10px; font-weight:bold; float:left; margin-left:5px; color:#464646; }
