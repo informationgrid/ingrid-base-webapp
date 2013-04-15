@@ -46,6 +46,10 @@
 		<qualifier value="XMLconfigured" />
 		<property name="queryParsers">
 			<list>
+                <!--
+                    DEFAULT Parser ! Auto-creation via annotation mechanism (parsers and included stemmer) !
+                    For explicit creation of STEMMER or PARSER, see "Example STEMMER" below. 
+                -->
 				<ref bean="contentQueryParser" />
 				<!-- NO datatype added to lucene query ? -->
 				<!-- ref bean="dataTypeQueryParser" /-->
@@ -58,7 +62,7 @@
 		</property>
 	</bean>
 
-	<!--
+    <!--
 		Wraps one ore more lucene index reader. The wrapper is injected via
 		XMLconfiguredIndexWrapper into IngridIndexSearcher constructor, so it
 		can be updated in the configure phase.
@@ -143,13 +147,25 @@
 			EXAMPLE for including/excluding stuff ! These ones then should not be
 			part of autowire !
 		-->
-		<!--
-			context:include-filter type="regex" expression=".*Stub.*Repository"/
-		-->
-		<!--
-			context:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Repository"/
-		-->
+<!--
+		<context:include-filter type="regex" expression=".*Stub.*Repository"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+-->
+        <!-- Example STEMMER: Exclude autocreation of stemmers ! We explicitly create stemmer below, then used in auto wiring ! -->
+<!--
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.search.*Stemmer*" />
+-->
 	</context:component-scan>
+
+    <!-- Example STEMMER: Create stemmer explicitly via xml ! Will be autowired to all parsers ! Exclude auto creation of stemmers, see above ! -->
+<!--
+    <bean id="stemmerSTANDARD" class="de.ingrid.admin.search.StandardStemmer"/>
+-->
+    <!-- Example STEMMER: Create query parser explicitly with defined stemmer ! Parser then can be referred to in QueryParsers, see above ! -->
+<!--
+    <bean id="contentQueryParserSTANDARD" class="de.ingrid.admin.search.ContentQueryParser">
+        <constructor-arg index="0" ref="stemmerSTANDARD" />
+    </bean>
+-->
 
 </beans>
