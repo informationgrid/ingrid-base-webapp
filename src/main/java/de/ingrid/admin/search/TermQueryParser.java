@@ -72,7 +72,7 @@ public class TermQueryParser extends AbstractParser {
         StringTokenizer tokenizer = new StringTokenizer(value);
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
-            // Filtering with StandardAnalyzer e.g. to remove "*" at end !
+            // Filtering with default analyzer set in parent e.g. to remove "*" at end !
             final String filteredTerm = filterTerm(token);
             phraseQuery.add(new Term(_field, filteredTerm));
         }

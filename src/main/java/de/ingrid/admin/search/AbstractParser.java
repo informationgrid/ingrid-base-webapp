@@ -5,10 +5,9 @@ import java.io.StringReader;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.util.Version;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import de.ingrid.search.utils.IQueryParser;
 
@@ -16,7 +15,10 @@ public abstract class AbstractParser implements IQueryParser {
 
     private static Logger LOG = Logger.getLogger(AbstractParser.class);
 
-    private static StandardAnalyzer fAnalyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
+    /** The default stemmer used in {@link #filterTerm(String)}.
+     * Is AUTOWIRED in spring environment via {@link #setDefaultStemmer(Stemmer)}
+     */
+    private static Stemmer _defaultStemmer;
 
     protected Occur transform(boolean required, boolean prohibited) {
         Occur occur = null;
@@ -36,10 +38,14 @@ public abstract class AbstractParser implements IQueryParser {
         return occur;
     }
 
+    /** Filter term with the default stemmer (which is autowired !).
+     * @param term
+     * @return
+     */
     protected static String filterTerm(String term) {
         String result = "";
-
-        TokenStream stream = fAnalyzer.tokenStream(null, new StringReader(term));
+        
+        TokenStream stream = getDefaultStemmer().getAnalyzer().tokenStream(null, new StringReader(term));
         // get the TermAttribute from the TokenStream
         TermAttribute termAtt = (TermAttribute) stream.addAttribute(TermAttribute.class);
 
@@ -58,4 +64,28 @@ public abstract class AbstractParser implements IQueryParser {
 
         return result.trim();
     }
+
+    /** We supply a static getDefaultStemmer method to initialize default stemmer if
+     * not set via autowiring (e.g. in unit testcases no autowiring) !
+     * @return the stemmer set as default stemmer in AbstractParser used in method
+     * {@link #filterTerm(String) AbstractParser.filterTerm(String)}
+     */
+    public static Stemmer getDefaultStemmer() {
+        if (_defaultStemmer == null) {
+        	// default stemmer is GERMAN, see INGRID-2246
+        	_defaultStemmer = new GermanStemmer();
+        	LOG.warn("Default stemmer not set via autowiring ! We set default stemmer " + _defaultStemmer);
+        }
+        
+        return _defaultStemmer;
+	}
+
+    /** Injects default stemmer via autowiring !
+     * Default stemmer is annotated as Service !
+     * @param defaultStemmer
+     */
+    @Autowired
+    public void setDefaultStemmer(Stemmer defaultStemmer) {
+    	_defaultStemmer = defaultStemmer;
+	}
 }

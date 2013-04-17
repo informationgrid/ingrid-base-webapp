@@ -35,7 +35,7 @@
 		<h1 id="head">Suche testen</h1>
 		<div id="content">
 			<br />
-			<h2>Sie können das iPlug jetzt testen. Geben Sie dazu eine Suchanfrage ein!</h2>
+			<h2>Sie k&ouml;nnen das iPlug jetzt testen. Geben Sie dazu eine Suchanfrage ein!</h2>
 			<form method="get" action="../base/search.html">
 				<table id="konfigForm">
 					<tr>
@@ -50,7 +50,7 @@
 			</form>
 			
 			<c:if test="${!empty hits}">
-				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} für "${query}"</div>
+				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} f&uuml;r "${query}"</div>
 				
 				<c:forEach items="${hits}" var="hit">
 					<div class="searchResult">

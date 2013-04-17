@@ -3,10 +3,10 @@ package de.ingrid.admin.search;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.query.FieldQuery;
@@ -22,7 +22,7 @@ public class FieldQueryParser extends AbstractParser {
     public void parse(IngridQuery ingridQuery, BooleanQuery booleanQuery) {
         FieldQuery[] fields = ingridQuery.getFields();
         for (FieldQuery fieldQuery : fields) {
-            // filter term with standard analyzer, because the term was indexed using the standard analyzer
+            // filter term with default analyzer set in parent !
             final String term = filterTerm(fieldQuery.getFieldValue());
             final String field = fieldQuery.getFieldName();
 

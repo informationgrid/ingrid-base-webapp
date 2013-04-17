@@ -12,8 +12,8 @@ import org.apache.lucene.index.IndexReader;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.search.AbstractParser;
 import de.ingrid.admin.search.FieldQueryParser;
-import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.admin.search.QueryParsers;
@@ -75,7 +75,7 @@ public class IndexRunnableTest extends TestCase {
         
         searcher.setFacetManager(fm);
         PlugDescriptionService pdService = new PlugDescriptionService();
-        _indexRunnable = new IndexRunnable(searcher, pdService, new GermanStemmer());
+        _indexRunnable = new IndexRunnable(searcher, pdService, AbstractParser.getDefaultStemmer());
         _indexRunnable.configure(_plugDescription);
         DummyProducer dummyProducer = new DummyProducer();
         dummyProducer.configure(_plugDescription);
@@ -103,7 +103,7 @@ public class IndexRunnableTest extends TestCase {
     public void testReadIndex() throws Exception {
         final IndexReader reader = IndexReader.open(new File(_file, "index"));
 
-        assertEquals(4, reader.maxDoc());
+        assertEquals(5, reader.maxDoc());
 
         assertEquals("Max", reader.document(0).get("first"));
         assertEquals("08.12.1988", reader.document(0).get("birthdate"));
@@ -116,7 +116,12 @@ public class IndexRunnableTest extends TestCase {
 
         assertEquals("Frank", reader.document(3).get("first"));
         assertNull(reader.document(3).get("nick"));
-        
+
+        assertEquals("öStemmerTestÖ", reader.document(4).get("first"));
+        assertEquals("äStemmerTestÄ", reader.document(4).get("last"));
+        assertEquals("üStemmerTestÜ", reader.document(4).get("gender"));
+        assertEquals("ßStemmerTestß", reader.document(4).get("birthdate"));
+
         reader.close();
         
         _indexRunnable.getIngridIndexSearcher().close();

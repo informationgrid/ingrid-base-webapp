@@ -49,6 +49,7 @@ public class DummyProducer implements IDocumentProducer {
 		_dummys.add(createDocument("Marko", "Bauhardt", "male", "30.07.1978"));
 		_dummys.add(createDocument("Andreas", "Kuester", "male", "01.01.1970"));
 		_dummys.add(createDocument("Frank", "Henze", "male", "01.01.1970"));
+		_dummys.add(createDocument("öStemmerTestÖ", "äStemmerTestÄ", "üStemmerTestÜ", "ßStemmerTestß"));
 
 		_iterator = _dummys.iterator();
 
