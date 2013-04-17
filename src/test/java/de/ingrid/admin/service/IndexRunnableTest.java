@@ -13,6 +13,7 @@ import org.apache.lucene.index.IndexReader;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.search.FieldQueryParser;
+import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.admin.search.QueryParsers;
@@ -74,7 +75,7 @@ public class IndexRunnableTest extends TestCase {
         
         searcher.setFacetManager(fm);
         PlugDescriptionService pdService = new PlugDescriptionService();
-        _indexRunnable = new IndexRunnable(searcher, pdService);
+        _indexRunnable = new IndexRunnable(searcher, pdService, new GermanStemmer());
         _indexRunnable.configure(_plugDescription);
         DummyProducer dummyProducer = new DummyProducer();
         dummyProducer.configure(_plugDescription);

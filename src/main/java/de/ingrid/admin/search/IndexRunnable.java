@@ -5,17 +5,15 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexReader.FieldOption;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -38,13 +36,16 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private PlugDescription _plugDescription;
     private final IConfigurable _ingridIndexSearcher;
     private final PlugDescriptionService _plugDescriptionService;
+    private final Stemmer _stemmer;
     private String[] _dataTypes;
 
     @Autowired
     public IndexRunnable(@Qualifier("ingridIndexSearcher") final IConfigurable ingridIndexSearcher,
-    		final PlugDescriptionService plugDescriptionService) {
+    		final PlugDescriptionService plugDescriptionService,
+    		final Stemmer stemmer) {
         _ingridIndexSearcher = ingridIndexSearcher;
         _plugDescriptionService = plugDescriptionService;
+        _stemmer = stemmer;
     }
 
     @Autowired(required = false)
@@ -58,9 +59,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
             try {
                 LOG.info("indexing starts");
                 resetDocumentCount();
-                // _documentProducer.configure(_plugDescription);
                 final IndexWriter writer = new IndexWriter(_indexDir,
-                		new StandardAnalyzer(Version.LUCENE_CURRENT), true, IndexWriter.MaxFieldLength.LIMITED);
+                		_stemmer.getAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
                 while (_documentProducer.hasNext()) {
                     final Document document = _documentProducer.next();
                     if (document == null) {

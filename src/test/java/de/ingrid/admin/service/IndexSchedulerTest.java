@@ -8,10 +8,12 @@ import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IndexScheduler;
 import de.ingrid.admin.search.IngridIndexSearcher;
 import de.ingrid.admin.search.QueryParsers;
+import de.ingrid.admin.search.Stemmer;
 import de.ingrid.search.utils.LuceneIndexReaderWrapper;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
@@ -27,8 +29,8 @@ public class IndexSchedulerTest extends TestCase {
 
         private int _counter = 0;
 
-        public DummyRunnable(final long time, IConfigurable ingridIndexSearcher, PlugDescriptionService pdService) {
-            super(ingridIndexSearcher, pdService);
+        public DummyRunnable(final long time, IConfigurable ingridIndexSearcher, PlugDescriptionService pdService, Stemmer stemmer) {
+            super(ingridIndexSearcher, pdService, stemmer);
             _time = time;
         }
 
@@ -70,7 +72,7 @@ public class IndexSchedulerTest extends TestCase {
 
         IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
         PlugDescriptionService pdService = new PlugDescriptionService();
-        _runnable = new DummyRunnable(1000L, searcher, pdService);
+        _runnable = new DummyRunnable(1000L, searcher, pdService, new GermanStemmer());
         _runnable.configure(pd);
 
         _scheduler = new IndexScheduler(_runnable);
