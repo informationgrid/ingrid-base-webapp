@@ -8,7 +8,7 @@ public class GermanStemmer extends Stemmer {
     private static final Analyzer ANALYZER = new GermanAnalyzer();
 
     @Override
-    Analyzer getAnalyzer() {
+    public Analyzer getAnalyzer() {
         return ANALYZER;
     }
 

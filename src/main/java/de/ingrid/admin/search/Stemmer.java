@@ -21,5 +21,5 @@ public abstract class Stemmer {
         return builder.toString().trim();
     }
 
-    abstract Analyzer getAnalyzer();
+    abstract public Analyzer getAnalyzer();
 }

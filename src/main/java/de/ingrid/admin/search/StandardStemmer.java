@@ -10,7 +10,7 @@ public class StandardStemmer extends Stemmer {
     private static final Analyzer ANALYZER = new StandardAnalyzer(Version.LUCENE_CURRENT);
 
     @Override
-    Analyzer getAnalyzer() {
+    public Analyzer getAnalyzer() {
         return ANALYZER;
     }
 

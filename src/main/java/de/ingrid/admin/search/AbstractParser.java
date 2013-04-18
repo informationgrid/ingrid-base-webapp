@@ -81,7 +81,6 @@ public abstract class AbstractParser implements IQueryParser {
 	}
 
     /** Injects default stemmer via autowiring !
-     * Default stemmer is annotated as Service !
      * @param defaultStemmer
      */
     @Autowired
