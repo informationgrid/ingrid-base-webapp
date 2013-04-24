@@ -59,7 +59,7 @@
 		</property>
 	</bean>
 
-    <!-- STEMMER: Create stemmer explicitly via xml ! Will be autowired to parsers, index writer ... ! -->
+    <!-- STEMMER: Create stemmer explicitly via xml, excluded from annotation mechanism, see below ! Will be autowired to parsers, index writer ... ! -->
     <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/>
 
     <!-- Example: Create query parser explicitly with defined stemmer !
@@ -153,6 +153,8 @@
 		<context:include-filter type="regex" expression=".*Stub.*Repository"/>
 		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
 -->
+        <!-- STEMMER: Exclude autocreation of stemmers ! We explicitly create stemmer, see above, then used in auto wiring ! -->
+        <context:exclude-filter type="regex" expression="de.ingrid.admin.search.*Stemmer*" />
 	</context:component-scan>
 
 </beans>
