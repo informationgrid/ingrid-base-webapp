@@ -42,7 +42,12 @@
 	                <c:if test="${value.key != 'title' && value.key != 'summary'}">
 		                <tr>
 		                    <td class="leftCol">${value.key}</td>
-		                    <td>${value.value}</td>
+	                        <c:if test="${value.key == 'data'}">
+    		                    <td><pre class="xml">${value.value}</pre></td>
+                            </c:if>
+	                        <c:if test="${value.key == 'data'}">
+    		                    <td>${value.value}</td>
+                            </c:if>
 		                </tr>
 	                </c:if>
 	            </c:forEach>
