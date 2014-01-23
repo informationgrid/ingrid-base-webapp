@@ -27,6 +27,7 @@ import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.idf.IdfTool;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
@@ -136,7 +137,7 @@ public class AdminToolsController extends AbstractController {
         final Map<String, String> values = new HashMap<String, String>();
         values.put("title", "Kein Titel");
         values.put("summary", "Keine Beschreibung");
-        values.put("data", StringEscapeUtils.escapeXml(record.getString("data")));
+        values.put("data", StringEscapeUtils.escapeXml(IdfTool.getIdfDataFromRecord(record)));
         final Column[] columns = record.getColumns();
         if (columns != null) {
             for (final Column col : columns) {
