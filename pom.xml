@@ -34,6 +34,13 @@
 -->
   <!-- ==================== DEPENDENCIES ==================== -->
 	<dependencies>
+		<!-- lib to collect all configuration -->
+		<dependency>
+			<groupId>com.tngtech.java</groupId>
+			<artifactId>config-builder</artifactId>
+			<version>1.1</version>
+		</dependency>
+		            
         <dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-iplug</artifactId>
@@ -58,11 +65,25 @@
                     <groupId>jetty</groupId>
                     <artifactId>org.mortbay.jetty</artifactId>
                 </exclusion>
+                <exclusion>
+                	<artifactId>ingrid-utils</artifactId>
+                	<groupId>de.ingrid</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 		<dependency>
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-search-utils</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- The two following dependencies are needed for Jetty -->
         <dependency>
@@ -74,7 +95,7 @@
             <artifactId>jsp-2.1</artifactId>
         </dependency>
     	<!-- End of Jetty - Dependencies -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>2.5.6</version>
@@ -83,7 +104,33 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>2.5.6</version>
-		</dependency>
+		</dependency> -->
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>4.0.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>4.0.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>4.0.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>4.0.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>4.0.0.RELEASE</version>
+        </dependency>
+        
 		<dependency>
 			<groupId>it.sauronsoftware.cron4j</groupId>
 			<artifactId>cron4j</artifactId>
@@ -204,4 +251,23 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>4.0.0.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>4.0.0.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>4.0.0.RELEASE</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
