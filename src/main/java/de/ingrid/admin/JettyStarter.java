@@ -1,14 +1,14 @@
 package de.ingrid.admin;
 
-import java.io.File;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.tngtech.configbuilder.ConfigBuilder;
+
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.service.PlugDescriptionService;
 
 /**
  * This class starts a Jetty server where the webapp will be executed.
@@ -18,57 +18,81 @@ import com.tngtech.configbuilder.ConfigBuilder;
 public class JettyStarter {
     private static final Log log = LogFactory.getLog(JettyStarter.class);
     
-	public static Config config;
+	public Config config;
+	
+	private IConfig externalConfig = null;
+
+	private static JettyStarter instance;
 
     public static void main(String[] args) throws Exception {
-    	// load configurations
-    	config = new ConfigBuilder<Config>(Config.class).withCommandLineArgs(args).build();
-    	
-        init();
+    	instance = new JettyStarter();
+    	instance.config.getWebappDir();
+    	//instance.start();
     }
     
-    private static void init() throws Exception {
-     // plug description
-        String plugDescription = System.getProperty(IKeys.PLUG_DESCRIPTION);
-        if (plugDescription == null) {
-            plugDescription = "conf/plugdescription.xml";
-            System.setProperty(IKeys.PLUG_DESCRIPTION, plugDescription);
-            log.warn("plug description is not defined. using default: " + plugDescription);
+    public static JettyStarter getInstance() {
+        return instance;
+    }
+    
+    public JettyStarter() throws Exception {
+        configure();
+        start();
+    }
+    
+    public JettyStarter( IConfig config ) throws Exception {
+        this.externalConfig = config;
+        configure();
+        start();
+    }
+    
+    private void configure() {
+        instance = this;
+        try {
+            // load configurations
+            config = new ConfigBuilder<Config>(Config.class).build();
+            
+            //config = new ConfigBuilder<Config>(Config.class).withCommandLineArgs(args).build();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        // communication
-        String communication = System.getProperty(IKeys.COMMUNICATION);
-        if (communication == null) {
-            communication = "conf/communication.xml";
-            System.setProperty(IKeys.COMMUNICATION, communication);
-            log.warn("commmunication is not defined. using default.");
-        }
-        if (!new File(communication).exists()) {
-            log.warn("communication (" + communication + ") does not exists. please create one via ui setup.");
-        }
-
-        // indexing
-        final String indexing = System.getProperty(IKeys.INDEXING);
-        if (null == indexing) {
-            System.setProperty(IKeys.INDEXING, "true");
-        } else if (indexing.equals("false")) {
-            System.clearProperty(IKeys.INDEXING);
-        }
-        
-        
-        log.info( "configure spring now" );
-        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-        ctx.scan("de.ingrid");
-        ctx.refresh();
-        log.info( "configure spring now ... done" );
-        
+    }
+    
+    private void start() throws Exception {
         WebAppContext webAppContext = new WebAppContext( config.getWebappDir(), "/");
 
         int port = config.getWebappPort();
+        log.info("==================================================");
         log.info("Start server using directory \"" + config.getWebappDir() + "\" at port: " + port);
+        log.info("==================================================");
+        
+        // do some initialization by reading properties and writing configuration files
+        config.initialize();
+        if (externalConfig != null)
+            externalConfig.initialize();
+        
+        // add external configurations to the plugdescription
+        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromProperties();
+        if (externalConfig != null) {
+            externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
+        }
+        // if a configuration was never written for the plugdescription then do not write one!
+        // the proxyServiceUrl must be different from the default value, so we can check here 
+        // for valid propterties 
+        if (!"/ingrid-group:base-webapp".equals( plugdescriptionFromProperties.getProxyServiceURL() )) {
+            (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
+        }
+        
         Server server = new Server(port);
         server.setHandler(webAppContext);
         server.start();
+    }
+
+    public void setExternalConfig(IConfig config) {
+        externalConfig = config;
+    }
+    public IConfig getExternalConfig() {
+        return externalConfig;
+        
     }
     
 }

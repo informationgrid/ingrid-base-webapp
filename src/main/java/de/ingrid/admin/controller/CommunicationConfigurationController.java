@@ -2,7 +2,6 @@ package de.ingrid.admin.controller;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.weta.components.communication.configuration.XPathService;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.CommunicationValidator;
@@ -94,7 +94,7 @@ public class CommunicationConfigurationController extends AbstractController {
     @ModelAttribute("busses")
     public List<CommunicationCommandObject> existingBusses() throws Exception {
         // open communication file
-        final File communicationFile = _communicationService.getCommunicationFile();
+        /*final File communicationFile = _communicationService.getCommunicationFile();
         if (!communicationFile.exists()) {
             return null;
         }
@@ -116,7 +116,16 @@ public class CommunicationConfigurationController extends AbstractController {
             busses.add(bus);
         }
         // return all busses
-        return busses;
+        return busses;*/
+        List<CommunicationCommandObject> ibusses = JettyStarter.getInstance().config.ibusses;
+        for (int i = 0; i < ibusses.size(); i++) {
+            if (_communicationService.isConnected(i)) {
+                ibusses.get( i ).setIsConnected( true );
+            } else {
+                ibusses.get( i ).setIsConnected( false );
+            }
+        }
+        return ibusses;
     }
 
     @ModelAttribute("noBus")
@@ -162,24 +171,27 @@ public class CommunicationConfigurationController extends AbstractController {
                 if (_validator.validateBus(errors).hasErrors()) {
                     return IViews.COMMUNICATION;
                 }
-                if (communicationFile.exists()) {
-                    addBus(communication, commandObject.getBusProxyServiceUrl(), commandObject.getIp(), commandObject
-                            .getPort(), null);
-                } else {
-                    setBus(communication, commandObject.getBusProxyServiceUrl(), commandObject.getIp(), commandObject
-                            .getPort(), 0);
-                }
+                
+                JettyStarter.getInstance().config.ibusses.add( commandObject );
+
             } else if ("delete".equals(action)) {
                 // delete bus
-                deleteBus(communication, id);
+                JettyStarter.getInstance().config.ibusses.remove( id.intValue() );
             } else if ("set".equals(action)) {
                 // set base bus
-                switchBusses(communication, 0, id);
+                CommunicationCommandObject newDefault = JettyStarter.getInstance().config.ibusses.remove( id.intValue() );
+                JettyStarter.getInstance().config.ibusses.add( 0, newDefault );
             }
 
             // save the new data
-            communication.store(communicationFile);
+            JettyStarter.getInstance().config.writeCommunication();
+            JettyStarter.getInstance().config.writeCommunicationToProperties();
 
+            // when busses have been switched we need to restart communication with new config-file
+            if ("set".equals(action)) {
+                _communicationService.restart();
+            }
+            
             // update command object and existing busses
             modelMap.addAttribute("communication", createCommandObject());
             modelMap.addAttribute("busses", existingBusses());
@@ -192,7 +204,7 @@ public class CommunicationConfigurationController extends AbstractController {
                 }
                 // restart communication interface
                 _communicationService.restart();
-                if (_communicationService.isConnected()) {
+                if (_communicationService.isConnected(0)) {
                     // redirect to next step
                     return redirect(IUris.WORKING_DIR);
                 }
@@ -228,57 +240,6 @@ public class CommunicationConfigurationController extends AbstractController {
         communication.setAttribute("/communication/client", "name", proxyUrl);
     }
 
-    private void setBus(final XPathService communication, final String proxyUrl, final String ip, final Integer port,
-            final Integer id) throws Exception {
-        communication.setAttribute("/communication/client/connections/server", "name", proxyUrl, id);
-        communication.setAttribute("/communication/client/connections/server/socket", "port", "" + port, id);
-        communication.setAttribute("/communication/client/connections/server/socket", "ip", ip, id);
-    }
-
-    private void switchBusses(final XPathService communication, final Integer idA, final Integer idB) throws Exception {
-        // get old values
-        final String proxyUrlA = communication.parseAttribute("/communication/client/connections/server", "name", idA);
-        final Integer portA = Integer.parseInt(communication.parseAttribute(
-                "/communication/client/connections/server/socket", "port", idA));
-        final String ipA = communication.parseAttribute("/communication/client/connections/server/socket", "ip", idA);
-        // get new values
-        final String proxyUrlB = communication.parseAttribute("/communication/client/connections/server", "name", idB);
-        final Integer portB = Integer.parseInt(communication.parseAttribute(
-                "/communication/client/connections/server/socket", "port", idB));
-        final String ipB = communication.parseAttribute("/communication/client/connections/server/socket", "ip", idB);
-
-        // switch positions
-        setBus(communication, proxyUrlA, ipA, portA, idB);
-        setBus(communication, proxyUrlB, ipB, portB, idA);
-    }
-
-    private void addBus(final XPathService communication, final String proxyUrl, final String ip, final Integer port,
-            Integer id) throws Exception {
-        if (null == id) {
-            // determine count of ibusses (=index of new ibus)
-            id = getBusCount(communication);
-        }
-
-        // create default nodes and attributes
-        communication.addNode("/communication/client/connections", "server");
-        communication.addNode("/communication/client/connections/server", "socket", id);
-        communication.addAttribute("/communication/client/connections/server/socket", "timeout", "" + DEFAULT_TIMEOUT,
-                id);
-        communication.addNode("/communication/client/connections/server", "messages", id);
-        communication.addAttribute("/communication/client/connections/server/messages", "maximumSize", ""
-                + DEFAULT_MAXIMUM_SIZE, id);
-        communication.addAttribute("/communication/client/connections/server/messages", "threadCount", ""
-                + DEFAULT_THREAD_COUNT, id);
-
-        // add a new bus
-        communication.addAttribute("/communication/client/connections/server", "name", proxyUrl, id);
-        communication.addAttribute("/communication/client/connections/server/socket", "port", "" + port, id);
-        communication.addAttribute("/communication/client/connections/server/socket", "ip", ip, id);
-    }
-
-    private void deleteBus(final XPathService communication, final Integer id) throws Exception {
-        communication.removeNode("/communication/client/connections/server", id);
-    }
 
     private Integer getBusCount(final XPathService communication) throws Exception {
         return communication.countNodes("/communication/client/connections/server");

@@ -7,6 +7,8 @@ public class CommunicationCommandObject {
 
     private Integer _port;
     private String _ip;
+    
+    private Boolean _isConnected;
 
     public String getProxyServiceUrl() {
         return _proxyServiceUrl;
@@ -38,5 +40,13 @@ public class CommunicationCommandObject {
 
     public void setIp(final String ip) {
         _ip = ip;
+    }
+
+    public boolean getIsConnected() {
+        return _isConnected;
+    }
+
+    public void setIsConnected( boolean isConnected ) {
+        this._isConnected = isConnected;
     }
 }

@@ -23,7 +23,7 @@ public class LoginController {
 
     @ModelAttribute("securityEnabled")
     public Boolean injectAuthenticate() {
-        return _plugDescriptionService.existsPlugDescription();
+        return _plugDescriptionService.isIPlugSecured();
     }
 
     @RequestMapping(value = "/base/auth/login.html", method = RequestMethod.GET)

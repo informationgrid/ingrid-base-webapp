@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.Command;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
@@ -65,8 +66,15 @@ public class SaveController extends AbstractController {
             plugdescriptionCommandObject.remove("originalPort");
         }
         
+        if (JettyStarter.getInstance().getExternalConfig() != null) {
+            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
+        }
+        
+        JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
+        
         // save plug description
         _plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
+        
         
         // execute additional command objects
         if(postCommandObject != null){

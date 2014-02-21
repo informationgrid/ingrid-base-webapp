@@ -49,7 +49,10 @@ public class GeneralController extends AbstractController {
 
     @ModelAttribute("partners")
     public List<Partner> getPartners() throws Exception {
-        return Utils.getPartners(_communicationInterface.getIBus());
+        if (_communicationInterface.isConnected(0)) {
+            return Utils.getPartners(_communicationInterface.getIBus());
+        }
+        return new ArrayList<Partner>();
     }
 
     @ModelAttribute("dataTypes")
@@ -115,7 +118,10 @@ public class GeneralController extends AbstractController {
     }
 
     private List<Provider> getProviders() throws Exception {
-        return Utils.getProviders(_communicationInterface.getIBus());
+        if (_communicationInterface.isConnected(0)) {
+            return Utils.getProviders(_communicationInterface.getIBus());
+        }
+        return new ArrayList<Provider>();
     }
 
     private final SortedMap<String, List<Provider>> createPartnerProviderMap(final List<Partner> partners,

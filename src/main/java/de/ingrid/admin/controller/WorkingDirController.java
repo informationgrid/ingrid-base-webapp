@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.WorkingDirEditor;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.validation.PlugDescValidator;
@@ -45,6 +46,7 @@ public class WorkingDirController extends AbstractController {
             return IViews.WORKING_DIR;
         }
         plugDescription.getWorkinDirectory().mkdirs();
+        JettyStarter.getInstance().config.pdWorkingDir = plugDescription.getWorkinDirectory().getPath();
         return redirect(IUris.GENERAL);
     }
 }

@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.IKeys;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.ibus.client.BusClient;
 import de.ingrid.ibus.client.BusClientFactory;
 import de.ingrid.iplug.HeartBeatPlug;
@@ -27,7 +27,7 @@ public class CommunicationService {
     @Autowired
     public CommunicationService(final IPlug iPlug) {
         _iPlug = iPlug;
-        _communicationFile = new File(System.getProperty(IKeys.COMMUNICATION));
+        _communicationFile = new File(JettyStarter.getInstance().config.communicationLocation);
         if (!_communicationFile.exists()) {
             LOG.warn("communication does not exist. please create one via ui setup.");
         }
@@ -42,6 +42,16 @@ public class CommunicationService {
     public boolean isConnected() {
         final BusClient busClient = getBusClient();
         return busClient == null ? false : busClient.allConnected();
+    }
+    
+    /**
+     * Check if the nth connection is established.
+     * @param pos
+     * @return
+     */
+    public boolean isConnected(int pos) {
+        final BusClient busClient = getBusClient();
+        return busClient == null ? false : busClient.isConnected( pos );
     }
 
     private void reconfigure() {

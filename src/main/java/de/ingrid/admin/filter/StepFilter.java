@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import de.ingrid.admin.IUris;
+import de.ingrid.admin.JettyStarter;
 
 public class StepFilter implements Filter {
 
@@ -32,8 +33,8 @@ public class StepFilter implements Filter {
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
-        _plugDescription = new File(System.getProperty("plugDescription"));
-        _communication = new File(System.getProperty("communication"));
+        _plugDescription = new File(JettyStarter.getInstance().config.getPlugdescription());
+        _communication = new File(JettyStarter.getInstance().config.communicationLocation);
 
         _needComm.add(IUris.WORKING_DIR);
         _needComm.add(IUris.GENERAL);

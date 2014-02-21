@@ -21,11 +21,18 @@ public class PlugdescriptionLoginModule extends AbstractLoginModule {
         String pd = System.getProperty(IKeys.PLUG_DESCRIPTION);
         File file = new File(pd);
         IngridPrincipal ingridPrincipal = null;
+        String pwd = null;
         if (file.exists()) {
             PlugDescription plugDescription;
             try {
                 plugDescription = new PlugdescriptionSerializer().deSerialize(file);
-                String pwd = plugDescription.getIplugAdminPassword();
+                pwd = plugDescription.getIplugAdminPassword();
+            } catch (IOException e) {
+                LOG.error("can not verify login datas", e);
+            }
+        }
+
+        if (pwd != null) {            
                 if (userName.equals("admin") && password.equals(pwd)) {
                     Set<String> set = new HashSet<String>();
                     set.add("admin");
@@ -33,9 +40,6 @@ public class PlugdescriptionLoginModule extends AbstractLoginModule {
                 } else {
                     ingridPrincipal = new IngridPrincipal.UnknownPrincipal();
                 }
-            } catch (IOException e) {
-                LOG.error("can not verify login datas", e);
-            }
         } else {
             ingridPrincipal = new IngridPrincipal.SuperAdmin("superadmin");
         }

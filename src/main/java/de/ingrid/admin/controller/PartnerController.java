@@ -40,7 +40,10 @@ public class PartnerController extends AbstractController {
 
 	@ModelAttribute("partnerList")
 	public List<Partner> getPartners() throws Exception {
-        return Utils.getPartners(_communicationInterface.getIBus());
+	    if (_communicationInterface.isConnected(0)) {
+	        return Utils.getPartners(_communicationInterface.getIBus());
+	    }
+	    return new ArrayList<Partner>();
 	}
 
     @RequestMapping(value = IUris.PARTNER, method = RequestMethod.GET)

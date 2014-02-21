@@ -93,9 +93,11 @@ public class ProviderController extends AbstractController {
 
     List<Provider> getProviders(final String... partners) throws Exception {
         final List<Provider> providerList = new ArrayList<Provider>();
-        for (final Provider provider : Utils.getProviders(_communicationInterface.getIBus())) {
-            if (hasPartner(partners, provider)) {
-                providerList.add(provider);
+        if (_communicationInterface.isConnected(0)) {
+            for (final Provider provider : Utils.getProviders(_communicationInterface.getIBus())) {
+                if (hasPartner(partners, provider)) {
+                    providerList.add(provider);
+                }
             }
         }
         

@@ -2,6 +2,8 @@ package de.ingrid.admin.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -48,7 +50,15 @@ public class PlugDescriptionService {
 		PlugDescription tmpDesc = plugDescription;
 		if (plugDescription instanceof PlugdescriptionCommandObject) {
             tmpDesc = new PlugDescription();
-            tmpDesc.putAll(plugDescription);
+            //tmpDesc.putAll(plugDescription);
+            // only add non-null values!
+            Iterator keyIt = plugDescription.keySet().iterator();
+            while (keyIt.hasNext()) {
+                Object next = keyIt.next();
+                if (plugDescription.get(next) != null ) {
+                    tmpDesc.put( next, plugDescription.get(next) );
+                }
+            }
 		}
 		final PlugdescriptionSerializer serializer = new PlugdescriptionSerializer();
 		serializer.serialize(tmpDesc, _plugDescriptionFile);
@@ -58,6 +68,10 @@ public class PlugDescriptionService {
 
 	public boolean existsPlugDescription() {
 		return _plugDescriptionFile.exists();
+	}
+
+	public boolean isIPlugSecured() {
+	    return existsPlugDescription() && _plugDescription.getIplugAdminPassword() != null;
 	}
 
     public PlugDescription reloadPlugDescription() throws IOException {

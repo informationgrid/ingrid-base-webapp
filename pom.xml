@@ -23,15 +23,30 @@
         </repository>
 	</repositories>
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
-<!--
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        ...
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
--->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>4.0.0.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>4.0.0.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>4.0.0.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>de.ingrid</groupId>
+                <artifactId>ingrid-iplug</artifactId>
+                <version>3.4.0-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
   <!-- ==================== DEPENDENCIES ==================== -->
 	<dependencies>
 		<!-- lib to collect all configuration -->
@@ -94,6 +109,22 @@
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jsp-2.1</artifactId>
         </dependency>
+<!--		<dependency>
+		    <groupId>org.eclipse.jetty</groupId>
+		    <artifactId>jetty-server</artifactId>
+		    <version>9.1.1.v20140108</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.jetty</groupId>
+		    <artifactId>jetty-servlet</artifactId>
+		    <version>9.1.1.v20140108</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.jetty</groupId>
+		    <artifactId>jetty-webapp</artifactId>
+		    <version>9.1.1.v20140108</version>
+		</dependency>-->
+		            
     	<!-- End of Jetty - Dependencies -->
 		<!-- <dependency>
 			<groupId>org.springframework</groupId>
@@ -251,23 +282,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-				<version>4.0.0.RELEASE</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>4.0.0.RELEASE</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>4.0.0.RELEASE</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	
 </project>

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import de.ingrid.admin.IKeys;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.object.IDataType;
 import de.ingrid.utils.PlugDescription;
@@ -103,11 +104,9 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     public int getOriginalPort() {
-        try {
-            return Integer.parseInt(System.getProperty(IKeys.PORT));
-        } catch (final Exception e) {
-            return 8088;
-        }
+        Integer port = JettyStarter.getInstance().config.getWebappPort();
+        if (port == null) return 8088;
+        return port;
     }
 
     public String getOriginalWorkingDir() {
