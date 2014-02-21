@@ -70,9 +70,9 @@
 		
             <c:if test="${noBus}">
                 <div class="error">
-                    Es konnte keine Verbindung zu einem der hinzugefügten Busse hergestellt werden.<br />
-                    Bitte überprüfen Sie Ihre Angaben.<br />
-                    <br />
+                    <p>Es konnte keine Verbindung zu einem der hinzugefügten Busse hergestellt werden.
+                    Es muss mindestens der Standard-iBus verbunden sein, um die Konfiguration erfolgreich abzuschließen.</p>
+                    <p>Bitte überprüfen Sie Ihre Angaben.</p>
                     <button onclick="document.location='workingDir.html';">Offline fortfahren</button>
                 </div>
                 <br />
@@ -133,6 +133,7 @@
 		                      <th>iBus Url</th>
 		                      <th>IP</th>
 		                      <th>Port</th>
+		                      <th>Connected</th>
 		                      <th>&nbsp;</th>
 		                      <th>&nbsp;</th>
 		                  </tr>
@@ -142,6 +143,7 @@
 		                          <td>${bus.busProxyServiceUrl}</td>
 		                          <td>${bus.ip}</td>
 		                          <td>${bus.port}</td>
+		                          <td>${bus.isConnected}</td>
 		                          <td>
 		                              <c:choose>
 		                                  <c:when test="${busIndex == 0}">(Standard)</c:when>

@@ -35,12 +35,29 @@ public class Environment {
     public Environment(final AdminToolsController adminToolsController,
     		final PlugDescriptionService plugDescriptionService,
     		final IConfigurable... configurables) throws IOException {
-
-    	final PlugDescription plugDescription = plugDescriptionService.getPlugDescription();
-        if (plugDescription != null) {
-            for (final IConfigurable configurable : configurables) {
-                configurable.configure(plugDescription);
+        
+        class ThreadedConfiguration extends Thread {
+            private PlugDescription plugDescription;
+            
+            public ThreadedConfiguration(PlugDescription plugDescription, IConfigurable... configurables) {
+                this.plugDescription = plugDescription;
+            }
+            
+            public void run() {
+                if (plugDescription != null) {
+                    for (final IConfigurable configurable : configurables) {
+                        configurable.configure(plugDescription);
+                    }
+                }
             }
         }
+
+    	final PlugDescription plugDescription = plugDescriptionService.getPlugDescription();
+    	
+    	// run in a thread to prevent blocking of webapp-start when connection to iBus cannot
+    	// be established
+    	ThreadedConfiguration threadedConfiguration = new ThreadedConfiguration( plugDescription, configurables );
+    	threadedConfiguration.start();
+        
     }
 }
