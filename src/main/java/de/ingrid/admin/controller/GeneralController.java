@@ -36,6 +36,8 @@ public class GeneralController extends AbstractController {
     private final PlugDescValidator _validator;
 
     private final CommunicationService _communicationService;
+    
+    private List<Partner> _partners = null;
 
     @Autowired
     public GeneralController(final CommunicationService communicationInterface,
@@ -50,7 +52,8 @@ public class GeneralController extends AbstractController {
     @ModelAttribute("partners")
     public List<Partner> getPartners() throws Exception {
         if (_communicationInterface.isConnected(0)) {
-            return Utils.getPartners(_communicationInterface.getIBus());
+            _partners = Utils.getPartners(_communicationInterface.getIBus());
+            return _partners;
         }
         return new ArrayList<Partner>();
     }
@@ -93,6 +96,10 @@ public class GeneralController extends AbstractController {
         // put original port in plugdescription if not already done
         if (!commandObject.containsKey("originalPort")) {
             commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
+        }
+        
+        if (partners == null || partners.size() == 0) {
+            modelMap.addAttribute("noManagement", true);
         }
 
         addForcedDatatypes(commandObject);

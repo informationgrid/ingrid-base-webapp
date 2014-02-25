@@ -81,6 +81,13 @@
                                     <option value="${provider.shortName}">${provider.displayName}</option>
                                 </c:forEach>
                             </select>
+                            <c:if test="${noManagement}">
+                                <div class="error">
+                                    <p>Es konnte keine Verbindung zum Management-iPlug hergestellt werden, oder dieses ist nicht korrekt konfiguriert.
+                                    Wenn dieses iPlug selbst das Management-iPlug ist, dann können die Partner und Anbieter erst nach dem Speichern
+                                    der ersten Konfiguration ausgewählt werden!</p>
+                                </div>
+                            </c:if>
                         </td>
                         <td class="rightCol">
                             <button type="button" action="add">Hinzufügen</button>

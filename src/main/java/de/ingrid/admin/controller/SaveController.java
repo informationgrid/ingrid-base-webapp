@@ -66,9 +66,9 @@ public class SaveController extends AbstractController {
             plugdescriptionCommandObject.remove("originalPort");
         }
         
-        if (JettyStarter.getInstance().getExternalConfig() != null) {
-            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
-        }
+//        if (JettyStarter.getInstance().getExternalConfig() != null) {
+//            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
+//        }
         
         JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
         

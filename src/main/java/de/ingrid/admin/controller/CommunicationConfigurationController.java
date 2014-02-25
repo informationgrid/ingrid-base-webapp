@@ -237,7 +237,8 @@ public class CommunicationConfigurationController extends AbstractController {
     }
 
     private void setProxyUrl(final XPathService communication, final String proxyUrl) throws Exception {
-        communication.setAttribute("/communication/client", "name", proxyUrl);
+        //communication.setAttribute("/communication/client", "name", proxyUrl);
+        JettyStarter.getInstance().config.communicationProxyUrl = proxyUrl;
     }
 
 

@@ -143,6 +143,18 @@ public class Config {
 	public String getPlugdescription() { return this.plugdescriptionLocation; }
 	
 	public void initialize() {
+	    File file = new File( "conf/config.override.properties" );
+        // create override file if it does not exist
+	    try {
+            if ( !file.exists() ) {
+                FileOutputStream fileOutputStream;
+                fileOutputStream = new FileOutputStream( file );
+                fileOutputStream.close();
+            }
+    	} catch (Exception e) {
+    	    e.printStackTrace();
+    	}
+	    
 	    // set system property for use in JSP file!
 	    if ("true".equals( indexing )) {
 	        System.setProperty( IKeys.INDEXING, "true" );
@@ -159,7 +171,7 @@ public class Config {
 	}
 	public String getIndexing() { return this.indexing; }
 	
-	public boolean writeConfig(String key, String value) {
+	/*public boolean writeConfig(String key, String value) {
         try {
             InputStream is = new FileInputStream( "conf/config.override.properties" );
             Properties props = new Properties();
@@ -174,7 +186,7 @@ public class Config {
             return false;
         }
 	    return true;
-	}
+	}*/
 	
 	public boolean writeCommunication() {
 	    File communicationFile = new File( this.communicationLocation );
@@ -253,6 +265,8 @@ public class Config {
             Properties props = new Properties();
             props.load( is );
             // ---------------------------
+            props.setProperty( "communication.clientName", communicationProxyUrl );            
+            
             String communications = "";
             for (int i = 0; i < ibusses.size(); i++) {
                 CommunicationCommandObject ibus = ibusses.get( i );
@@ -296,8 +310,10 @@ public class Config {
             
             props.setProperty( "plugdescription.password", pd.getIplugAdminPassword() );
             
-            if (JettyStarter.getInstance().getExternalConfig() != null) {
-                JettyStarter.getInstance().getExternalConfig().setPropertiesFromPlugdescription(props, pd);
+            IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
+            if (externalConfig != null) {
+                externalConfig.setPropertiesFromPlugdescription(props, pd);
+                externalConfig.addPlugdescriptionValues( pd );
             }
             
             
