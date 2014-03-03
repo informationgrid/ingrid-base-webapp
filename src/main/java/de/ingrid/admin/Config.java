@@ -9,8 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import net.weta.components.communication.configuration.XPathService;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
@@ -22,15 +26,26 @@ import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
 import com.tngtech.configbuilder.annotation.valueextractor.SystemPropertyValue;
 
 import de.ingrid.admin.command.CommunicationCommandObject;
+import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.controller.CommunicationConfigurationController;
+import de.ingrid.utils.QueryExtension;
+import de.ingrid.utils.QueryExtensionContainer;
+import de.ingrid.utils.query.FieldQuery;
 
 @PropertiesFiles( {"config", "database"} )
 @PropertyLocations(directories = {"conf"}, fromClassLoader = true)
 public class Config {
     
-    public class StringToCommunications extends TypeTransformer<String, List<CommunicationCommandObject>>{
+    private static Log log = LogFactory.getLog(Config.class);
+    
+    private static String QUERYTYPE_ALLOW  = "allow";
+    private static String QUERYTYPE_DENY   = "deny";
+    public static String QUERYTYPE_MODIFY = "modify";
 
+    
+    public class StringToCommunications extends TypeTransformer<String, List<CommunicationCommandObject>>{
+        
         @Override
         public List<CommunicationCommandObject> transform( String input ) {
             List<CommunicationCommandObject> list = new ArrayList<CommunicationCommandObject>();
@@ -43,6 +58,37 @@ public class Config {
                     commObject.setIp( communication[1] );
                     commObject.setPort( Integer.valueOf( communication[2] ) );
                     list.add( commObject );
+                }
+            }
+            return list;
+        }
+        
+    }
+    
+    public class StringToQueryExtension extends TypeTransformer<String, List<FieldQueryCommandObject>>{
+
+        @Override
+        public List<FieldQueryCommandObject> transform( String input ) {
+            List<FieldQueryCommandObject> list = new ArrayList<FieldQueryCommandObject>();
+            String[] split = input.split( "##" );
+            for (String extensions : split) {
+                String[] extArray = extensions.split( "," );
+                if (extArray.length == 7) {
+                    FieldQueryCommandObject commObject = new FieldQueryCommandObject();
+                    commObject.setBusUrl( extArray[0] );
+                    commObject.setRegex( extArray[1] );
+                    commObject.setOption( extArray[2] );
+                    commObject.setKey( extArray[3] );
+                    commObject.setValue( extArray[4] );
+                    if ("true".equals( extArray[5] )) {
+                        commObject.setRequired();
+                    }
+                    if ("true".equals( extArray[6] )) {
+                        commObject.setProhibited();
+                    }
+                    list.add( commObject );
+                } else {
+                    log.error( "QueryExtension could not be extracted, because of missing values. Expected 7 but got: " + extArray.length );
                 }
             }
             return list;
@@ -136,6 +182,18 @@ public class Config {
 
 	@PropertyValue("plugdescription.guiUrl")
     private String guiUrl;
+	
+	@TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+	@PropertyValue("plugdescription.partner")
+	private List<String> partner;
+	
+	@TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+	@PropertyValue("plugdescription.provider")
+	private List<String> provider;
+	
+	@TypeTransformers(StringToQueryExtension.class)
+	@PropertyValue("plugdescription.queryExtensions")
+	private List<FieldQueryCommandObject> queryExtensions;	
 	
 	public String getWebappDir() { return this.webappDir; }
 	public Integer getWebappPort() { return this.webappPort; }
@@ -288,15 +346,21 @@ public class Config {
         }
 	}
 	
+	public void setQueryExtensions(List<FieldQueryCommandObject> fieldQueries) {
+	    this.queryExtensions = fieldQueries;
+	}
+	
 	public void writePlugdescriptionToProperties(PlugdescriptionCommandObject pd) {
 	    try {
+	        // TODO: write all properties to class variables first, to synchronize values!
+	        // ...
+	        
     	    InputStream is = new FileInputStream( "conf/config.override.properties" );
             Properties props = new Properties();
             props.load( is );
             // ---------------------------
             props.setProperty( "plugdescription.workingdir", pd.getWorkinDirectory().getPath() );
-            String dataTypesAsString = Arrays.toString( pd.getDataTypes() );
-            props.setProperty( "plugdescription.datatypes", dataTypesAsString.substring( 1,  dataTypesAsString.length() - 1 ) );
+            props.setProperty( "plugdescription.datatypes", convertArrayToString( pd.getDataTypes() ));
             props.setProperty( "plugdescription.proxyServiceUrl", pd.getProxyServiceURL() );
             props.setProperty( "plugdescription.originalPort", String.valueOf( pd.getOriginalPort() ) );
             props.setProperty( "plugdescription.person.title", pd.getPersonTitle() );
@@ -309,6 +373,11 @@ public class Config {
             props.setProperty( "plugdescription.guiUrl", pd.getIplugAdminGuiUrl() );
             
             props.setProperty( "plugdescription.password", pd.getIplugAdminPassword() );
+            
+            props.setProperty( "plugdescription.partner", convertArrayToString( pd.getPartners() ));
+            props.setProperty( "plugdescription.provider", convertArrayToString( pd.getProviders() ));
+            
+            props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ));
             
             IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
             if (externalConfig != null) {
@@ -325,6 +394,47 @@ public class Config {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
+	}
+	
+	public void addQueryExtensionsToProperties(FieldQueryCommandObject fq) {
+	    if (this.queryExtensions == null) this.queryExtensions = new ArrayList<FieldQueryCommandObject>();
+	    this.queryExtensions.add( fq );
+	}
+	
+	public void removeQueryExtensionsFromProperties(FieldQueryCommandObject fq) {
+	    for (FieldQueryCommandObject ext : this.queryExtensions) {
+            if (ext.getBusUrl().equals( fq.getBusUrl() ) && ext.getRegex().equals( fq.getRegex() )
+                    && ext.getKey().equals( fq.getKey() ) && ext.getValue().equals( fq.getValue() )
+                    && ext.getProhibited().equals( fq.getProhibited() ) && ext.getRequired().equals( fq.getRequired() )) {
+                
+                this.queryExtensions.remove( ext );
+                break;
+            }
+        }
+	}
+	
+	private String convertQueryExtensionsToString ( List<FieldQueryCommandObject> queryExtensions ) {
+	    String result = "";
+	    if (queryExtensions != null) {
+            for (FieldQueryCommandObject fq : queryExtensions) {
+                result += fq.getBusUrl() + ",";
+                result += fq.getRegex() + ",";
+                result += fq.getOption() + ",";
+                result += fq.getKey() + ",";
+                result += fq.getValue() + ",";
+                result += fq.getRequired() + ",";
+                result += fq.getProhibited() + "##";
+            }
+            if (!result.isEmpty()) {
+                return result.substring( 0, result.length() - 2 );
+            }
+	    }
+        return result;
+    }
+	
+    private String convertArrayToString(String[] list) {
+	    String dataTypesAsString = Arrays.toString( list );
+	    return dataTypesAsString.substring( 1,  dataTypesAsString.length() - 1 );
 	}
 	
 	public PlugdescriptionCommandObject getPlugdescriptionFromProperties() {
@@ -353,8 +463,60 @@ public class Config {
         pd.setDataSourceDescription( datasourceDescription );
         pd.setIplugAdminGuiUrl( guiUrl );
         pd.setIplugAdminGuiPort( this.webappPort );
-	    
+        
+        if (partner != null) {
+            for (String p : partner) {
+                pd.addPartner( p.trim() );
+            }
+        }
+        
+        if (provider != null) {
+            for (String p : provider) {
+                pd.addProvider( p.trim() );
+            }
+        }
+        
+        for (FieldQueryCommandObject fq : this.queryExtensions) {
+            addFieldQuery( pd, fq, QUERYTYPE_MODIFY);            
+        }
+        
 	    return pd;
 	    
 	}
+	
+	public static void addFieldQuery(final PlugdescriptionCommandObject commandObject,
+            final FieldQueryCommandObject fieldQuery, String behaviour) {
+        // get container
+        QueryExtensionContainer container = commandObject.getQueryExtensionContainer();
+        if (null == container) {
+            // create container
+            container = new QueryExtensionContainer();
+            commandObject.setQueryExtensionContainer(container);
+        }
+        // get extension
+        QueryExtension extension = container.getQueryExtension(fieldQuery.getBusUrl());
+        if (null == extension) {
+            // create extension
+            extension = new QueryExtension();
+            extension.setBusUrl(fieldQuery.getBusUrl());
+            container.addQueryExtension(extension);
+        }
+        // create field query
+        final Pattern pattern = Pattern.compile(fieldQuery.getRegex());
+        FieldQuery fq = null;
+        if (behaviour.equals(QUERYTYPE_MODIFY)) {
+            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), fieldQuery.getKey(),
+                fieldQuery.getValue());
+        } else if (behaviour.equals(QUERYTYPE_DENY)) {
+            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_deny");
+            fieldQuery.setKey( "metainfo" );
+            fieldQuery.setValue( "query_deny" );
+        } else if (behaviour.equals(QUERYTYPE_ALLOW)) {
+            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_allow");
+            fieldQuery.setKey( "metainfo" );
+            fieldQuery.setValue( "query_allow" );
+        }
+        extension.addFieldQuery(pattern, fq);
+    }
+
 }

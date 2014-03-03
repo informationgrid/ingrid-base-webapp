@@ -18,24 +18,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.FieldQueryValidator;
 import de.ingrid.utils.QueryExtension;
-import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
 
 @Controller
 @SessionAttributes("plugDescription")
 public class FieldQueryController extends AbstractController {
     
-    private static String QUERYTYPE_ALLOW  = "allow";
-    private static String QUERYTYPE_DENY   = "deny";
-    private static String QUERYTYPE_MODIFY = "modify";
-
     private final CommunicationService _communicationInterface;
 
     private final FieldQueryValidator _validator;
@@ -87,16 +84,21 @@ public class FieldQueryController extends AbstractController {
             throws Exception {
         if ("add".equals(action)) {
             System.out.println("behaviour: " + behaviour);
-            if (behaviour.equals(QUERYTYPE_MODIFY)) {
+            if (behaviour.equals(Config.QUERYTYPE_MODIFY)) {
                 if (!_validator.validate(errors).hasErrors()) {
-                    addFieldQuery(commandObject, fieldQuery, behaviour);
+                    Config.addFieldQuery(commandObject, fieldQuery, behaviour);
+                    // save changes in properties
+                    JettyStarter.getInstance().config.addQueryExtensionsToProperties(fieldQuery);
                 }
             } else {
-                addFieldQuery(commandObject, fieldQuery, behaviour);
+                Config.addFieldQuery(commandObject, fieldQuery, behaviour);
+                // save changes in properties
+                JettyStarter.getInstance().config.addQueryExtensionsToProperties(fieldQuery);
             }
         } else if ("delete".equals(action)) {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
             deleteFieldQuery(commandObject, field);
+            JettyStarter.getInstance().config.removeQueryExtensionsFromProperties(field);
         } else if ("submit".equals(action)) {
             // redirect to the first page of iPlug specific data
             return redirect(IUris.EXTRAS);
@@ -146,37 +148,7 @@ public class FieldQueryController extends AbstractController {
         return fields;
     }
 
-    private void addFieldQuery(final PlugdescriptionCommandObject commandObject,
-            final FieldQueryCommandObject fieldQuery, String behaviour) {
-        // get container
-        QueryExtensionContainer container = commandObject.getQueryExtensionContainer();
-        if (null == container) {
-            // create container
-            container = new QueryExtensionContainer();
-            commandObject.setQueryExtensionContainer(container);
-        }
-        // get extension
-        QueryExtension extension = container.getQueryExtension(fieldQuery.getBusUrl());
-        if (null == extension) {
-            // create extension
-            extension = new QueryExtension();
-            extension.setBusUrl(fieldQuery.getBusUrl());
-            container.addQueryExtension(extension);
-        }
-        // create field query
-        final Pattern pattern = Pattern.compile(fieldQuery.getRegex());
-        FieldQuery fq = null;
-        if (behaviour.equals(QUERYTYPE_MODIFY)) {
-            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), fieldQuery.getKey(),
-                fieldQuery.getValue());
-        } else if (behaviour.equals(QUERYTYPE_DENY)) {
-            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_deny");
-        } else if (behaviour.equals(QUERYTYPE_ALLOW)) {
-            fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_allow");
-        }
-        extension.addFieldQuery(pattern, fq);
-    }
-
+    
     private void deleteFieldQuery(final PlugdescriptionCommandObject commandObject,
             final FieldQueryCommandObject fieldQuery) {
         // get extension

@@ -31,6 +31,8 @@ public class PartnerController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
+    private List<Partner> partners;
+
 	@Autowired
     public PartnerController(final CommunicationService communicationInterface, final PlugDescValidator validator)
 			throws Exception {
@@ -41,7 +43,8 @@ public class PartnerController extends AbstractController {
 	@ModelAttribute("partnerList")
 	public List<Partner> getPartners() throws Exception {
 	    if (_communicationInterface.isConnected(0)) {
-	        return Utils.getPartners(_communicationInterface.getIBus());
+	        partners = Utils.getPartners(_communicationInterface.getIBus());
+	        return partners;
 	    }
 	    return new ArrayList<Partner>();
 	}
@@ -51,11 +54,11 @@ public class PartnerController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("partnerList") final List<Partner> partnerList) {
 
-        final List<Partner> partners = new ArrayList<Partner>();
+        final List<Partner> addedPartners = new ArrayList<Partner>();
         for (final String shortName : commandObject.getPartners()) {
-            partners.add(getByShortName(partnerList, shortName));
+            addedPartners.add(getByShortName(partnerList, shortName));
         }
-        modelMap.addAttribute("partners", partners);
+        modelMap.addAttribute("partners", addedPartners);
         
         if (partners == null || partners.size() == 0) {
             modelMap.addAttribute("noManagement", true);

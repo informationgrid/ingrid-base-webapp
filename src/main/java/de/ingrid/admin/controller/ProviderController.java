@@ -35,6 +35,8 @@ public class ProviderController extends AbstractController {
 
     private boolean noProviderAvailable;
 
+    private List<Provider> providers;
+
     @Autowired
     public ProviderController(final CommunicationService communicationInterface,
             final CommunicationService communicationService, final PlugDescValidator validator)
@@ -51,16 +53,16 @@ public class ProviderController extends AbstractController {
         final List<Provider> providerList = getProviders(commandObject.getPartners());
         modelMap.addAttribute("providerList", providerList);
 
-        final List<Provider> providers = new ArrayList<Provider>();
+        final List<Provider> addedProviders = new ArrayList<Provider>();
         for (final String shortName : commandObject.getProviders()) {
         	Provider p = getByShortName(providerList, shortName);
             if(p == null){
         		commandObject.removeProvider(shortName);
         	}else{
-        		providers.add(p);	
+        	    addedProviders.add(p);	
         	}
         }
-        modelMap.addAttribute("providers", providers);
+        modelMap.addAttribute("providers", addedProviders);
         
         if (providers == null || providers.size() == 0) {
             modelMap.addAttribute("noManagement", true);
@@ -110,7 +112,8 @@ public class ProviderController extends AbstractController {
         } else {
             this.noProviderAvailable = false;
         }
-        return providerList;
+        providers = providerList;
+        return providers;
     }
 
     private boolean hasPartner(final String[] partners, final Provider provider) {
