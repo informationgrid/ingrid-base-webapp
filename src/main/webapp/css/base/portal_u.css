@@ -85,7 +85,7 @@ div#contentBox table.fullSize td a { display:block; padding:4px 10px; margin:0; 
 
 /* --- Tabelle bei Seite mit Seitnavigation und Formular --- */
 
-table#konfigForm { margin-bottom:80px; width:100%; }
+table#konfigForm { margin-bottom:20px; width:100%; }
 table#konfigForm td { vertical-align:top; padding:0 10px 6px 0; }
 table#konfigForm td.leftCol { width:180px; }
 table#konfigForm td.rightCol { width:123px; }

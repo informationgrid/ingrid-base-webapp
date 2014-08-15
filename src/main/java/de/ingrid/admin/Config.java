@@ -476,8 +476,10 @@ public class Config {
             }
         }
         
-        for (FieldQueryCommandObject fq : this.queryExtensions) {
-            addFieldQuery( pd, fq, QUERYTYPE_MODIFY);            
+        if (this.queryExtensions != null) {
+	        for (FieldQueryCommandObject fq : this.queryExtensions) {
+	            addFieldQuery( pd, fq, QUERYTYPE_MODIFY);            
+	        }
         }
         
 	    return pd;

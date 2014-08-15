@@ -14,76 +14,27 @@
 	<ul>
 
 		<!-- workingDir -->
-		<li <c:if test="${active == 'workingDir'}">class="active"</c:if>>
-		<c:choose>
-            <c:when test="${communicationExists}"><a href="../base/workingDir.html">Arbeitsverzeichnis wählen</a></c:when>
-            <c:otherwise>Arbeitsverzeichnis wählen</c:otherwise>
-		</c:choose>
-		</li>
+		<menutaglib:MenuTag text="Arbeitsverzeichnis wählen" url="../base/workingDir.html" ></menutaglib:MenuTag>
 
 		<!-- general -->
-		<li <c:if test="${active == 'general'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/general.html">Angaben zu Betreiber und Datenquelle</a></c:when>
-            <c:otherwise>Angaben zu Betreiber und Datenquelle</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Angaben zu Betreiber und Datenquelle" url="../base/general.html" ></menutaglib:MenuTag>
 		
 		<!-- partner -->
-		<li <c:if test="${active == 'partner'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/partner.html">Hinzufügen von weiteren Partnern</a></c:when>
-            <c:otherwise>Hinzufügen von weiteren Partnern</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Hinzufügen von weiteren Partnern" url="../base/partner.html" ></menutaglib:MenuTag>
 
 		<!-- provider -->
-		<li <c:if test="${active == 'provider'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/provider.html">Hinzufügen von weiteren Anbietern</a></c:when>
-            <c:otherwise>Hinzufügen von weiteren Anbietern</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Hinzufügen von weiteren Anbietern" url="../base/provider.html" ></menutaglib:MenuTag>
 
 		<!-- fieldQuery -->
-		<li <c:if test="${active == 'fieldQuery'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/fieldQuery.html">Verfügbarkeit der Ergebnisse</a></c:when>
-            <c:otherwise>Verfügbarkeit der Ergebnisse</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>
         
-		<!--
-		<c:if test="${renderExtras == 'true'}">
-			<c:choose>
-			    <c:when test="${!plugdescriptionExists}">
-			        <li
-			        <c:if test="${active == 'extras'}">
-			            class="active"
-			        </c:if>
-			        >Weitere Einstellungen</li>
-			    </c:when>
-			    <c:when test="${active != 'extras'}">
-			        <li><a href="../base/extras.html">Weitere Einstellungen</a></li>
-			    </c:when>
-			    <c:otherwise>
-			        <li class="active">Weitere Einstellungen</li>
-			    </c:otherwise>
-			</c:choose>
-		</c:if>-->
-
 		<!-- iplug sub navi  -->		
 		<c:catch>
 		<c:import url="../iplug-pages/iplugSubNavi.jsp"></c:import>
 		</c:catch>
 		
 		<!-- save -->
-		<li <c:if test="${active == 'save'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/save.html">Speichern</a></c:when>
-            <c:otherwise>Speichern</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Speichern" url="../base/save.html" ></menutaglib:MenuTag>
 		
 	</ul>
 	
@@ -95,20 +46,10 @@
 	<ul>
 
 		<!-- scheduling -->
-		<li <c:if test="${active == 'scheduling'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/scheduling.html">Scheduling</a></c:when>
-            <c:otherwise>Scheduling</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Scheduling" url="../base/scheduling.html" ></menutaglib:MenuTag>
 
 		<!-- indexing -->
-		<li <c:if test="${active == 'indexing'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/indexing.html">Indexieren</a></c:when>
-            <c:otherwise>Indexieren</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Indexieren" url="../base/indexing.html" ></menutaglib:MenuTag>
 	
 	</ul>
 	<% } %>
@@ -120,36 +61,16 @@
 	<ul>
 	
 		<!-- communication -->
-		<li <c:if test="${active == 'commSetup'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${communicationExists}"><a href="../base/commSetup.html">Kommunikations Setup</a></c:when>
-            <c:otherwise>Kommunikations Setup</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Kommunikations Setup" url="../base/commSetup.html" ></menutaglib:MenuTag>
 
 		<!-- heartbeat -->
-		<li <c:if test="${active == 'heartbeat'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/heartbeat.html">HeartBeat Setup</a></c:when>
-            <c:otherwise>HeartBeat Setup</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="HeartBeat Setup" url="../base/heartbeat.html" ></menutaglib:MenuTag>
 	
 		<!-- search -->
-		<li <c:if test="${active == 'search'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/search.html">Suche Testen</a></c:when>
-            <c:otherwise>Suche Testen</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Suche Testen" url="../base/search.html" ></menutaglib:MenuTag>
 		
 		<!-- cache -->
-		<li <c:if test="${active == 'cache'}">class="active"</c:if>>
-        <c:choose>
-            <c:when test="${plugdescriptionExists}"><a href="../base/cache.html">Caching Einstellungen</a></c:when>
-            <c:otherwise>Caching Einstellungen</c:otherwise>
-        </c:choose>
-        </li>
+        <menutaglib:MenuTag text="Caching Einstellungen" url="../base/cache.html" ></menutaglib:MenuTag>
 
 	</ul>
 </div>

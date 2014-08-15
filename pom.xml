@@ -2,13 +2,13 @@
 	<parent>
 		<groupId>de.ingrid</groupId>
 		<artifactId>ingrid-base-pom</artifactId>
-		<version>3.4.0-SNAPSHOT</version>
+		<version>3.4.0</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.ingrid</groupId>
 	<artifactId>ingrid-base-webapp</artifactId>
 	<packaging>war</packaging>
-	<version>3.4.0-SNAPSHOT</version>
+	<version>3.5.0_Spring4-SNAPSHOT</version>
 	<name>ingrid-base-webapp</name>
 	<scm>
 		<connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-base-webapp/trunk</connection>
