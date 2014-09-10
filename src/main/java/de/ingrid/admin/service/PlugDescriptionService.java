@@ -3,7 +3,6 @@ package de.ingrid.admin.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,7 @@ import de.ingrid.utils.xml.PlugdescriptionSerializer;
 @Service
 public class PlugDescriptionService {
 
-	protected static final Logger LOG = Logger
-			.getLogger(PlugDescriptionService.class);
+	protected static final Logger LOG = Logger.getLogger(PlugDescriptionService.class);
 
 	private final File _plugDescriptionFile;
 

@@ -33,6 +33,14 @@ public class WelcomeController {
         if (session.getAttribute("postCommandObject") == null) {
             session.setAttribute("postCommandObject", new Command());
         }
-        return IViews.WELCOME;
+        
+        String redirectUrl = (String) session.getAttribute("redirectUrl");
+        
+        if (redirectUrl != null) {
+            session.removeAttribute( "redirectUrl" );
+            return IKeys.REDIRECT + redirectUrl;
+        } else {
+            return IViews.WELCOME;
+        }
     }
 }

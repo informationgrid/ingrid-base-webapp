@@ -29,6 +29,9 @@ public class IngridRealm implements UserRealm {
         try {
             RequestCallbackHandler handler = new RequestCallbackHandler(request);
             String[] url = request.getRequestURL().toString().split("/base/auth/j_security_check");
+            // remember redirect url to jump to after initialization
+            request.getSession().setAttribute("redirectUrl", request.getSession().getAttribute("org.mortbay.jetty.URI"));
+            // automatically redirect to the welcome page, which initialize plug description into session
             request.getSession().setAttribute("org.mortbay.jetty.URI", url[0].concat("/base/welcome.html"));
             LoginContext loginContext = new LoginContext("IngridLogin", handler);
             loginContext.login();
