@@ -18,7 +18,8 @@ public class MenuTag  extends TagSupport {
     
     public int doStartTag() throws JspTagException
     {
-        boolean hasPlugDescr = (Boolean) pageContext.getRequest().getAttribute( "plugdescriptionExists" );
+        Object pdExists = pageContext.getRequest().getAttribute( "plugdescriptionExists" );
+        boolean hasPlugDescr = pdExists == null ? false : (Boolean) pdExists;
         String target = url.substring( url.lastIndexOf( '/' ) + 1, url.length() - 5 );
         boolean isActive = target.equals( pageContext.getRequest().getAttribute( "active" ) );
         
