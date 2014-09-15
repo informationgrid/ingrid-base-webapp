@@ -11,8 +11,8 @@
 	<version>4.0.0-SNAPSHOT</version>
 	<name>ingrid-base-webapp</name>
 	<scm>
-		<connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-base-webapp/trunk</connection>
-		<developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-base-webapp/trunk</developerConnection>
+		<connection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-base-webapp/branches/spring4_ConfigBuilder</connection>
+		<developerConnection>scm:svn:https://harrison.its-technidata.de:444/svn/ingrid/ingrid-base-webapp/branches/spring4_ConfigBuilder</developerConnection>
 	</scm>
 	<repositories>
 		<!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
