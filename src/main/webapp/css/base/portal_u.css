@@ -55,8 +55,8 @@ div#contentBox { position:relative; top:116px; border:1px solid #DDE9BD; min-hei
 .contentLeft { left:0; }
 .contentMiddle { left:200px; width:75% !important; }
 
-div#contentBox ul { padding-left: 20px; }
-div#contentBox ul li { padding-bottom: 5px; }
+/* div#contentBox ul { padding-left: 20px; }
+div#contentBox ul li { padding-bottom: 5px; } */
 div#contentBox h1#head { height:28px; padding:12px 19px 0; background:#F5F8EB; margin-bottom:0; }
 div#contentBox div#tabNavi { height:31px; padding:8px 19px 0; background:#DDE9BD; }
 div#contentBox div#tabNavi a { display:block; background:#F5F8EB; padding:6px 10px; font-weight:bold; float:left; margin-left:5px; color:#464646; }
