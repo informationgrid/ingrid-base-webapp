@@ -49,7 +49,13 @@
 				<table id="konfigForm">
 					<tr>
 						<td class="leftCol">Pfad zum Ordner:</td>
-						<td><form:input path="workinDirectory" /><br /><span>Der Pfand des Arbeitsverzeichnisses. In diesem Ordner werden alle benötigten Dateien abgelegt.</span></br><form:errors path="workinDirectory" cssClass="error" element="div" /></td>
+						<td>
+                            <div class="input full space">
+                                <form:input path="workinDirectory" />
+                            </div>
+                            <span>Der Pfand des Arbeitsverzeichnisses. In diesem Ordner werden alle benötigten Dateien abgelegt.</span>
+                            <form:errors path="workinDirectory" cssClass="error" element="div" />
+                        </td>
 					</tr>
 							
 				</table>

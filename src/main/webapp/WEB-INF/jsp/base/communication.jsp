@@ -88,7 +88,9 @@
                     <tr>
                         <td class="leftCol">Eigene Proxy Service Url:</td>
                         <td>
-                            <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" /><br />
+                            <div class="input full">
+                                <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" /><br />
+                            </div>
                             <span>Der Name mit dem man diesen iPlug identifiziert.</span>
                             <form:errors path="proxyServiceUrl" cssClass="error" element="div" />
                         </td>
@@ -99,7 +101,9 @@
                     <tr>
                         <td class="leftCol">iBus Proxy Service Url:</td>
                         <td>
-                            <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" /><br />
+                            <div class="input full">
+                                <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" /><br />
+                            </div>
                             <span>Der Name des iBus mit dem sich der iPlug verbinden soll.</span>
                             <form:errors path="busProxyServiceUrl" cssClass="error" element="div" />
                         </td>
@@ -107,7 +111,9 @@
                     <tr>
                         <td class="leftCol">IP:</td>
                         <td>
-                            <input type="text" name="ip" value="${communication.ip}" /><br />
+                            <div class="input full">
+                                <input type="text" name="ip" value="${communication.ip}" /><br />
+                            </div>
                             <span>Die IP-Adresse des iBus.</span>
                             <form:errors path="ip" cssClass="error" element="div" />
                         </td>
@@ -115,7 +121,9 @@
                     <tr>
                         <td class="leftCol">Port:</td>
                         <td>
-                            <input type="text" name="port" value="${communication.port}" /><br />
+                            <div class="input full">
+                                <input type="text" name="port" value="${communication.port}" /><br />
+                            </div>
                             <span>Der Port des iBus.</span>
                             <form:errors path="port" cssClass="error" element="div" />
                         </td>

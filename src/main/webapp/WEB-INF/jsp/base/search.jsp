@@ -40,7 +40,11 @@
 				<table id="konfigForm">
 					<tr>
 						<td class="leftCol">Suchbegriff:</td>
-						<td><input type="text" name="query" value=""/></td>
+						<td>
+                            <div class="input full">
+                                <input type="text" name="query" value=""/>
+                            </div>
+                        </td>
 					</tr>
 					<tr>
 						<td class="leftCol">&nbsp;</td>

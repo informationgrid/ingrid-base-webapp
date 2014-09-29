@@ -88,35 +88,51 @@
                     <tr>
                         <td class="leftCol">iBus:</td>
                         <td>
-                            <form:select path="busUrl">
-                              <form:options items="${busUrls}" />
-                            </form:select><br />
+                            <div class="input full">
+                                <form:select path="busUrl">
+                                    <form:options items="${busUrls}" />
+                                </form:select>
+                            </div>
                             <span>Auf welchen iBus diese Regel angewendet werden soll.</span>
                             <form:errors path="busUrl" cssClass="error" element="div" />
                         </td>
                     </tr>
                     <tr>
                         <td class="leftCol">Regex:</td>
-                        <td><form:input path="regex" /><br /><span>Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="regex" />
+                            </div>
+                            <span>Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
                     </tr>
                     <tr>
                         <td class="leftCol">Verhalten:</td>
-                        <td><select id="behaviour" name="behaviour">
-                                <option value="allow">Erlauben</option>
-                                <option value="deny">Ablehnen</option>
-                                <option value="modify" selected="selected">Modifizieren</option>
-                            </select>
-                            <br />
+                        <td>
+                            <div class="input full">
+                                <select id="behaviour" name="behaviour">
+                                    <option value="allow">Erlauben</option>
+                                    <option value="deny">Ablehnen</option>
+                                    <option value="modify" selected="selected">Modifizieren</option>
+                                </select>
+                            </div>
                             <span>Wie soll die Anfrage behandelt werden? Ablehnen mit 0 Treffern, Erlauben oder Modifizieren. Beim 'Erlauben' werden alle Anfragen verworfen, die nicht mit diesem regulären Ausdruck übereinstimmen! Werden mehrerer solcher 'Erlauben'-Regeln eingetragen, so müssen alle diese Regeln mit der Anfrage übereinstimmen, ansonsten wird die Anfrage abgewiesen.</span>
                         </td>
                     </tr>
                     <tr id="rowIndexFieldName">
                         <td class="leftCol">Index Feld Name:</td>
-                        <td><form:input path="key" /><br /><span>Der Name des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="key" cssClass="error" element="div" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="key" />
+                            </div>
+                            <span>Der Name des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="key" cssClass="error" element="div" /></td>
                     </tr>
                     <tr id="rowIndexFieldValue">
                         <td class="leftCol">Index Feld Wert:</td>
-                        <td><form:input path="value" /><br /><span>Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="value" cssClass="error" element="div" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="value" />
+                            </div>
+                            <span>Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="value" cssClass="error" element="div" /></td>
                     </tr>
                     <tr id="rowOption">
                         <td class="leftCol">Option:</td>

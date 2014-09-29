@@ -92,8 +92,25 @@ table#konfigForm td.rightCol { width:123px; }
 
 
 /* --- Formular Styles --- */
+.full {
+    width: 100%;
+    overflow: hidden;
+}
 
-input[type='text'], select, textarea { color:#464646; border:solid #1B78B1 1px; font:normal 11px Verdana, Arial, Helvetica, sans-serif; background-color:#FFF; width:95%; margin:0; padding:3px 0 4px 3px; }
+.inline {
+    display: inline-block;
+}
+
+.input {
+    border: 1px solid #1B78B1;
+    clear: both;
+}
+
+.space {
+    margin-bottom: 10px;
+}
+
+input[type='text'], input[type='password'], select, textarea { color:#464646; border:0; font:normal 11px Verdana, Arial, Helvetica, sans-serif; width:100%; padding:5px; }
 .check { margin-top:20px; }
 .check input { border:0; width:20px; text-align:left; }
 .long { width:395px; margin-top:-18px; }

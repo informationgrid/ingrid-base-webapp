@@ -44,11 +44,19 @@
                     </tr>
                     <tr>
                         <td class="leftCol">Cache-Time (in min):</td>
-                        <td><form:input path="lifeTime" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="lifeTime" />
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="leftCol">Cache-Elements:</td>
-                        <td><form:input path="elementsCount"/></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="elementsCount"/>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="leftCol">Cache-Speicher:</td>

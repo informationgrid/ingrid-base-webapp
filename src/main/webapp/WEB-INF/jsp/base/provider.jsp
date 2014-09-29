@@ -75,12 +75,14 @@
                     <tr>
                         <td class="leftCol">Anbieter:</td>
                         <td>
-                            <select name="provider"> 
-                                <option value="">bitte wählen</option>
-                                <c:forEach items="${providerList}" var="provider">
-                                    <option value="${provider.shortName}">${provider.displayName}</option>
-                                </c:forEach>
-                            </select>
+                            <div class="input full">
+                                <select name="provider"> 
+                                    <option value="">bitte wählen</option>
+                                    <c:forEach items="${providerList}" var="provider">
+                                        <option value="${provider.shortName}">${provider.displayName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
                             <c:if test="${noManagement}">
                                 <div class="error">
                                     <p>Es konnte keine Verbindung zum Management-iPlug hergestellt werden, oder dieses ist nicht korrekt konfiguriert.
