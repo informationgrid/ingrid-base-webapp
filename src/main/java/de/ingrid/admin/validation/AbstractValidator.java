@@ -20,15 +20,15 @@ public abstract class AbstractValidator<T> {
     }
 
     public static final Boolean getBoolean(final Errors errors, final String field) {
-        return (Boolean) errors.getFieldValue(field);
+        return Boolean.valueOf( (String) errors.getFieldValue(field) );
     }
 
     public static final Integer getInteger(final Errors errors, final String field) {
-        return (Integer) errors.getFieldValue(field);
+        return Integer.valueOf((String) errors.getFieldValue(field) );
     }
 
     public static final Float getFloat(final Errors errors, final String field) {
-        return (Float) errors.getFieldValue(field);
+        return Float.valueOf( (String) errors.getFieldValue(field) );
     }
 
     public static final String getString(final Errors errors, final String field) {
@@ -50,7 +50,7 @@ public abstract class AbstractValidator<T> {
     }
 
     public void rejectIfNullOrEmpty(final Errors errors, final String field) {
-        final Object[] arr = (Object[]) get(errors, field);
+        final Object[] arr = getString( errors, field ).split( "," );
         if (null == arr || arr.length == 0) {
             rejectError(errors, field, IErrorKeys.NULL);
         }

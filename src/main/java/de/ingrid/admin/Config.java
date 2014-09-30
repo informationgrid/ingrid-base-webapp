@@ -29,6 +29,7 @@ import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.controller.CommunicationConfigurationController;
+import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
@@ -446,6 +447,7 @@ public class Config {
 	    pd.setWorkinDirectory( pdDir );
 	    pd.setProxyServiceURL( this.communicationProxyUrl );
 	    
+	    pd.remove( PlugDescription.DATA_TYPE );
 	    if (datatypes != null) {
     	    for (String datatype : datatypes) {
     	        pd.addDataType( datatype.trim() );            

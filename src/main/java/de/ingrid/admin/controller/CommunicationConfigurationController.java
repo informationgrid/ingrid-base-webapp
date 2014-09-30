@@ -188,7 +188,7 @@ public class CommunicationConfigurationController extends AbstractController {
             JettyStarter.getInstance().config.writeCommunicationToProperties();
 
             // when busses have been switched we need to restart communication with new config-file
-            if ("set".equals(action)) {
+            if ("set".equals(action) || "add".equals(action)) {
                 _communicationService.restart();
             }
             
