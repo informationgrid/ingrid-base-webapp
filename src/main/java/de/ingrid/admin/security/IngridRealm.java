@@ -1,5 +1,6 @@
 package de.ingrid.admin.security;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.security.UserRealm;
+import org.springframework.core.io.ClassPathResource;
 
 import de.ingrid.admin.security.IngridPrincipal.KnownPrincipal;
 
@@ -18,8 +20,9 @@ public class IngridRealm implements UserRealm {
 
     private final Log LOG = LogFactory.getLog(IngridRealm.class);
 
-    public IngridRealm() {
-        System.setProperty("java.security.auth.login.config", System.getProperty("user.dir") + "/conf/ingrid.auth");
+    public IngridRealm() throws IOException {
+        ClassPathResource authFile = new ClassPathResource( "ingrid.auth" );
+        System.setProperty("java.security.auth.login.config", authFile.getFile().getPath());
     }
 
     @Override

@@ -64,6 +64,8 @@ public class CommunicationConfigurationController extends AbstractController {
             communication.registerDocument(communicationFile);
             commandObject.setProxyServiceUrl(communication.parseAttribute("/communication/client", "name"));
             count = getBusCount(communication);
+        } else {
+            commandObject.setProxyServiceUrl( JettyStarter.getInstance().config.communicationProxyUrl );
         }
 
         if (count < 1) {
@@ -193,8 +195,8 @@ public class CommunicationConfigurationController extends AbstractController {
             }
             
             // update command object and existing busses
-            modelMap.addAttribute("communication", createCommandObject());
-            modelMap.addAttribute("busses", existingBusses());
+            //modelMap.addAttribute("communication", createCommandObject());
+            //modelMap.addAttribute("busses", existingBusses());
 
             // submit complete?!
             if ("submit".equals(action)) {
@@ -212,7 +214,7 @@ public class CommunicationConfigurationController extends AbstractController {
             }
         }
 
-        return IViews.COMMUNICATION;
+        return redirect( IViews.COMMUNICATION + ".html" );
     }
 
     private final XPathService openCommunication(final File communicationFile) throws Exception {

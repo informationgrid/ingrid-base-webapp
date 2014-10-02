@@ -15,6 +15,7 @@ import net.weta.components.communication.configuration.XPathService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.ClassPathResource;
 
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
@@ -202,9 +203,10 @@ public class Config {
 	public String getPlugdescription() { return this.plugdescriptionLocation; }
 	
 	public void initialize() {
-	    File file = new File( "conf/config.override.properties" );
+	    ClassPathResource confOverride = new ClassPathResource( "config.override.properties" );
         // create override file if it does not exist
 	    try {
+	        File file = confOverride.getFile();
             if ( !file.exists() ) {
                 FileOutputStream fileOutputStream;
                 fileOutputStream = new FileOutputStream( file );
@@ -249,6 +251,13 @@ public class Config {
 	
 	public boolean writeCommunication() {
 	    File communicationFile = new File( this.communicationLocation );
+	    if (ibusses == null || ibusses.isEmpty()) {
+	        if (communicationFile.exists()) {
+	            communicationFile.delete();
+	        }
+	        return true;
+	    }
+	    
 	    try {
             final XPathService communication = openCommunication( communicationFile );
             Integer id = 0;
@@ -262,31 +271,22 @@ public class Config {
 
             communication.removeNode("/communication/client/connections/server", id);
             // create default nodes and attributes if server tag does not exist
-            //if (!serverExists) {
-            if (ibusses != null) {
-                for (CommunicationCommandObject ibus : ibusses) {
-                    
-                    communication.addNode("/communication/client/connections", "server");
-                    communication.addNode("/communication/client/connections/server", "socket", id);
-                    communication.addAttribute("/communication/client/connections/server/socket", "timeout", "" + DEFAULT_TIMEOUT, id);
-                    communication.addNode("/communication/client/connections/server", "messages", id);
-                    communication.addAttribute("/communication/client/connections/server/messages", "maximumSize", "" + DEFAULT_MAXIMUM_SIZE, id);
-                    communication.addAttribute("/communication/client/connections/server/messages", "threadCount", "" + DEFAULT_THREAD_COUNT, id);
-                    
-                    communication.addAttribute("/communication/client/connections/server", "name", ibus.getBusProxyServiceUrl(), id);
-                    communication.addAttribute("/communication/client/connections/server/socket", "port", "" + ibus.getPort(), id);
-                    communication.addAttribute("/communication/client/connections/server/socket", "ip", ibus.getIp(), id);
-                    id++;
-                }
+            
+            for (CommunicationCommandObject ibus : ibusses) {
+                
+                communication.addNode("/communication/client/connections", "server");
+                communication.addNode("/communication/client/connections/server", "socket", id);
+                communication.addAttribute("/communication/client/connections/server/socket", "timeout", "" + DEFAULT_TIMEOUT, id);
+                communication.addNode("/communication/client/connections/server", "messages", id);
+                communication.addAttribute("/communication/client/connections/server/messages", "maximumSize", "" + DEFAULT_MAXIMUM_SIZE, id);
+                communication.addAttribute("/communication/client/connections/server/messages", "threadCount", "" + DEFAULT_THREAD_COUNT, id);
+                
+                communication.addAttribute("/communication/client/connections/server", "name", ibus.getBusProxyServiceUrl(), id);
+                communication.addAttribute("/communication/client/connections/server/socket", "port", "" + ibus.getPort(), id);
+                communication.addAttribute("/communication/client/connections/server/socket", "ip", ibus.getIp(), id);
+                id++;
             }
-                    
-                /*} else {
-                    communication.setAttribute("/communication/client", "name", client, id);
-                    communication.setAttribute("/communication/client/connections/server", "name", serverName, id);
-                    communication.setAttribute("/communication/client/connections/server/socket", "port", port, id);
-                    communication.setAttribute("/communication/client/connections/server/socket", "ip", ip, id);
-                }*/
-            //}
+            
             communication.store( communicationFile );
             
         } catch (Exception e) {
@@ -320,7 +320,8 @@ public class Config {
 	
 	public void writeCommunicationToProperties() {
         try {
-            InputStream is = new FileInputStream( "conf/config.override.properties" );
+            ClassPathResource override = new ClassPathResource( "config.override.properties" );
+            InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
             Properties props = new Properties();
             props.load( is );
             // ---------------------------
@@ -339,7 +340,7 @@ public class Config {
             
             // ---------------------------
             is.close();
-            OutputStream os = new FileOutputStream( "conf/config.override.properties" ); 
+            OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() ); 
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
@@ -356,7 +357,8 @@ public class Config {
 	        // TODO: write all properties to class variables first, to synchronize values!
 	        // ...
 	        
-    	    InputStream is = new FileInputStream( "conf/config.override.properties" );
+	        ClassPathResource override = new ClassPathResource( "config.override.properties" );
+    	    InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
             Properties props = new Properties();
             props.load( is );
             // ---------------------------
@@ -389,7 +391,7 @@ public class Config {
             
             // ---------------------------
             is.close();
-            OutputStream os = new FileOutputStream( "conf/config.override.properties" ); 
+            OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() ); 
             props.store( os, "Override configuration written by the application" );
             os.close();
 	    } catch (Exception e) {

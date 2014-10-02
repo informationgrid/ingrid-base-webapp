@@ -24,7 +24,12 @@ public abstract class AbstractValidator<T> {
     }
 
     public static final Integer getInteger(final Errors errors, final String field) {
-        return Integer.valueOf((String) errors.getFieldValue(field) );
+        Integer result = null;
+        try {
+            result = Integer.valueOf((String) errors.getFieldValue(field));            
+        } catch (NumberFormatException e) {}
+        
+        return result;
     }
 
     public static final Float getFloat(final Errors errors, final String field) {
