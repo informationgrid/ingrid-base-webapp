@@ -72,6 +72,10 @@ public class SaveController extends AbstractController {
         
         JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
         
+        // save plug description
+        _plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
+        
+        
         // execute additional command objects
         if(postCommandObject != null){
         	postCommandObject.execute();
@@ -84,12 +88,9 @@ public class SaveController extends AbstractController {
         
         // reconfigure all configurables
         for (final IConfigurable configurable : _configurables) {
-            configurable.configure(plugdescriptionCommandObject);
+            configurable.configure(_plugDescriptionService.getPlugDescription());
         }
 
-        // save plug description
-        _plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
-        
         // start heart beat
         _plug.startHeartBeats();
 
