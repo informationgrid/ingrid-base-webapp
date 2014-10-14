@@ -64,6 +64,9 @@
 <%-- 								   <a href="../base/searchDetails.html?id=${hit.key}">${hit.value['title']}</a> --%>
                                     ${hit.value['title']} (<a href="../base/searchDetails.html?id=${hit.key}">raw result</a>) 
 					           </c:when>
+                               <c:when test="${hit.value['url'] != null && hit.value['url'] != ''}">
+                                   <a href="${hit.value['url']}">${hit.value['title']}</a>
+                               </c:when>
 					           <c:otherwise>
 					               <a href="#">${hit.value['title']}</a>
 					           </c:otherwise>
