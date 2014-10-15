@@ -190,7 +190,7 @@ public class CommunicationConfigurationController extends AbstractController {
             JettyStarter.getInstance().config.writeCommunicationToProperties();
 
             // when busses have been switched we need to restart communication with new config-file
-            if ("set".equals(action) || "add".equals(action)) {
+            if ("set".equals(action) || "add".equals(action)) { // || "delete".equals(action)) {
                 _communicationService.restart();
             }
             
@@ -211,6 +211,7 @@ public class CommunicationConfigurationController extends AbstractController {
                     return redirect(IUris.WORKING_DIR);
                 }
                 modelMap.addAttribute("noBus", _communicationService.hasErrors());
+                return IViews.COMMUNICATION;
             }
         }
 

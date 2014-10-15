@@ -117,7 +117,7 @@ input[type='text'], input[type='password'], select, textarea { color:#464646; bo
 .error { color: #ED171F; }
 .success { color: #18AF23; }
 input[type='button'], input[type='submit'], button { /* min-width: 110px;  */top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; border:none}
-input[type='button']:hover, input[type='submit']:hover, button:hover { background:#1B78B1; }
+input[type='button']:hover, input[type='submit']:hover, button:hover { background-color: #1B78B1; }
 
 /* -- Listings --*/
 table.data {width:100%}
