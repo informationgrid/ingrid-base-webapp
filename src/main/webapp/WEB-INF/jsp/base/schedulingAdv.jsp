@@ -5,7 +5,9 @@
 	    <c:if test="${empty pattern}">
 	      <c:set var="pattern" value="* * * * *" />
 	    </c:if>
-		<input type="text" name="pattern" value="${pattern}" />
+        <div class="input full">
+		  <input type="text" name="pattern" value="${pattern}" />
+        </div>
 		<br/>
 		<label>Minute(0-59) Stunde(0-23) Tag(1-31) Monat(0-11) Wochetag(1-7)</label>
 		<br />
