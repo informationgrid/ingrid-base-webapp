@@ -39,6 +39,14 @@ public abstract class AbstractValidator<T> {
     public static final String getString(final Errors errors, final String field) {
         return (String) errors.getFieldValue(field);
     }
+    
+    public static final String[] getStringArray(final Errors errors, final String field) {
+        if (errors.getFieldValue(field) instanceof String[]) {
+            return (String[]) errors.getFieldValue(field);            
+        } else {
+            return new String[] { (String) errors.getFieldValue(field) };
+        }
+    }
 
     public void rejectError(final Errors errors, final String field, final String error) {
         errors.rejectValue(field, getErrorKey(_typeClass, field, error));
@@ -55,7 +63,7 @@ public abstract class AbstractValidator<T> {
     }
 
     public void rejectIfNullOrEmpty(final Errors errors, final String field) {
-        final Object[] arr = getString( errors, field ).split( "," );
+        final Object[] arr = getStringArray( errors, field );
         if (null == arr || arr.length == 0) {
             rejectError(errors, field, IErrorKeys.NULL);
         }
