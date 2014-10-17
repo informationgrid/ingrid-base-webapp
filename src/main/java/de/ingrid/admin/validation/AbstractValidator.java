@@ -44,7 +44,7 @@ public abstract class AbstractValidator<T> {
         if (errors.getFieldValue(field) instanceof String[]) {
             return (String[]) errors.getFieldValue(field);            
         } else {
-            return new String[] { (String) errors.getFieldValue(field) };
+            return ((String) errors.getFieldValue(field)).split( "," );
         }
     }
 
