@@ -37,7 +37,7 @@ import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
 
-@PropertiesFiles({ "config", "database" })
+@PropertiesFiles({ "config" })
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
 public class Config {
 
@@ -142,11 +142,11 @@ public class Config {
     @DefaultValue("conf/plugdescription.xml")
     private String plugdescriptionLocation;
 
-    @PropertyValue("plugdescription.workingdir")
+    @PropertyValue("plugdescription.workingDirectory")
     @DefaultValue(".")
     public String pdWorkingDir;
 
-    @PropertyValue("plugdescription.password")
+    @PropertyValue("plugdescription.IPLUG_ADMIN_PASSWORD")
     public String pdPassword;
 
     @SystemPropertyValue("indexing")
@@ -155,31 +155,31 @@ public class Config {
     private String indexing;
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
-    @PropertyValue("plugdescription.datatypes")
+    @PropertyValue("plugdescription.dataType")
     private List<String> datatypes;
 
-    @PropertyValue("plugdescription.person.title")
+    @PropertyValue("plugdescription.personTitle")
     private String personTitle;
 
-    @PropertyValue("plugdescription.person.name")
+    @PropertyValue("plugdescription.personName")
     private String personName;
 
-    @PropertyValue("plugdescription.person.surname")
+    @PropertyValue("plugdescription.personSureName")
     private String personSurname;
 
-    @PropertyValue("plugdescription.person.email")
+    @PropertyValue("plugdescription.personMail")
     private String personEmail;
 
-    @PropertyValue("plugdescription.person.phone")
+    @PropertyValue("plugdescription.personPhone")
     private String personPhone;
 
-    @PropertyValue("plugdescription.datasource.name")
+    @PropertyValue("plugdescription.dataSourceName")
     private String datasourceName;
 
-    @PropertyValue("plugdescription.datasource.description")
+    @PropertyValue("plugdescription.dataSourceDescription")
     private String datasourceDescription;
 
-    @PropertyValue("plugdescription.guiUrl")
+    @PropertyValue("plugdescription.IPLUG_ADMIN_GUI_URL")
     private String guiUrl;
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
