@@ -158,6 +158,15 @@ public class Config {
     @PropertyValue("plugdescription.dataType")
     private List<String> datatypes;
 
+    @PropertyValue("plugdescription.organisationPartnerAbbr")
+    private String mainPartner;
+
+    @PropertyValue("plugdescription.organisationAbbr")
+    private String mainProvider;
+    
+    @PropertyValue("plugdescription.organisation")
+    private String organisation;
+    
     @PropertyValue("plugdescription.personTitle")
     private String personTitle;
 
@@ -437,11 +446,6 @@ public class Config {
         return result;
     }
 
-    private String convertArrayToString(String[] list) {
-        String dataTypesAsString = Arrays.toString(list);
-        return dataTypesAsString.substring(1, dataTypesAsString.length() - 1);
-    }
-
     private String convertListToString(@SuppressWarnings("rawtypes") List list) {
         return Joiner.on(",").join(list);
     }
@@ -464,6 +468,10 @@ public class Config {
 
         pd.setIplugAdminPassword(pdPassword);
 
+        pd.setOrganisationPartnerAbbr( mainPartner );
+        pd.setOrganisationAbbr( mainProvider );
+        pd.setOrganisation( organisation );
+        
         pd.setPersonTitle(personTitle);
         pd.setPersonName(personName);
         pd.setPersonSureName(personSurname);
