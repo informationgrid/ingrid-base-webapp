@@ -34,9 +34,9 @@ public class WelcomeController {
             session.setAttribute("postCommandObject", new Command());
         }
         
-        String redirectUrl = (String) session.getAttribute("redirectUrl");
+        String redirectUrl = (String) session.getAttribute("redirectUrl"); 
         
-        if (redirectUrl != null) {
+        if (redirectUrl != null && (redirectUrl.contains( "base" ) || redirectUrl.contains( "iplug-pages" ) )) {
             session.removeAttribute( "redirectUrl" );
             return IKeys.REDIRECT + redirectUrl;
         } else {
