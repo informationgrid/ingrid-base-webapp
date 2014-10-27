@@ -80,6 +80,8 @@ public class JettyStarter {
         // for valid propterties 
         if (!"/ingrid-group:base-webapp".equals( plugdescriptionFromProperties.getProxyServiceURL() )) {
             (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
+        } else {
+            log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
         }
         
         Server server = new Server(port);

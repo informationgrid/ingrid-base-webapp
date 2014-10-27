@@ -95,30 +95,6 @@ public class CommunicationConfigurationController extends AbstractController {
 
     @ModelAttribute("busses")
     public List<CommunicationCommandObject> existingBusses() throws Exception {
-        // open communication file
-        /*final File communicationFile = _communicationService.getCommunicationFile();
-        if (!communicationFile.exists()) {
-            return null;
-        }
-        // create xpath service for xml
-        final XPathService communication = new XPathService();
-        communication.registerDocument(communicationFile);
-        // determine count of ibusses
-        final int count = communication.countNodes("/communication/client/connections/server");
-        // create List of communication
-        final List<CommunicationCommandObject> busses = new ArrayList<CommunicationCommandObject>();
-        // and get all information about each ibus
-        for (int i = 0; i < count; i++) {
-            final CommunicationCommandObject bus = new CommunicationCommandObject();
-            bus.setBusProxyServiceUrl(communication.parseAttribute("/communication/client/connections/server", "name",
-                    i));
-            bus.setIp(communication.parseAttribute("/communication/client/connections/server/socket", "ip", i));
-            bus.setPort(Integer.parseInt(communication.parseAttribute(
-                    "/communication/client/connections/server/socket", "port", i)));
-            busses.add(bus);
-        }
-        // return all busses
-        return busses;*/
         List<CommunicationCommandObject> ibusses = JettyStarter.getInstance().config.ibusses;
         for (int i = 0; i < ibusses.size(); i++) {
             if (_communicationService.isConnected(i)) {
