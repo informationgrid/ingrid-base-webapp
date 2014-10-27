@@ -415,7 +415,11 @@ public class Config {
                 } else if (valObj instanceof List) {
                     props.setProperty( "plugdescription." + key, convertListToString( (List) pd.get( key ) ) );
                 } else if (valObj instanceof Integer) {
-                    props.setProperty( "plugdescription." + key, String.valueOf( pd.get( key ) ) );
+                    if ( "IPLUG_ADMIN_GUI_PORT".equals( key ) ) {
+                        props.setProperty( "jetty.port", String.valueOf( pd.get( key ) ) );
+                    } else {
+                        props.setProperty( "plugdescription." + key, String.valueOf( pd.get( key ) ) );
+                    }
                 } else if (valObj instanceof File) {
                     props.setProperty( "plugdescription." + key, ((File) pd.get( key )).getPath() );
                 } else {
