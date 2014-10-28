@@ -18,6 +18,8 @@ import net.weta.components.communication.configuration.XPathService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import com.google.common.base.Joiner;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
@@ -221,23 +223,21 @@ public class Config {
         return this.plugdescriptionLocation;
     }
 
-    public void initialize() {
-        ClassPathResource confOverride = new ClassPathResource( "config.override.properties" );
+    public void initialize() throws IOException {
+        Resource confOverride = getOverrideConfigResource();
+        File configFile = confOverride.getFile();
         // create override file if it does not exist
-        try {
-            confOverride.getFile();
-        } catch (FileNotFoundException e) {
+        if ( !configFile.exists() ) {
             // if override file does not exist then try to look for previous communication
             // and plug description to get the configuration
-            FileOutputStream fileOutputStream;
             try {
                 log.warn( "No config.override.properties found in conf-directory. Trying to recover "
                         + "configuration from previously generated files." );
-                fileOutputStream = new FileOutputStream( "conf/config.override.properties" );
-                fileOutputStream.close();
+                configFile.getParentFile().mkdir();
+                configFile.createNewFile();
                 // read communicaton and write properties
                 this.ibusses = readFromCommunicationXml();
-                writeCommunicationToProperties();
+                if (this.ibusses != null) writeCommunicationToProperties();
                 // read plug description and write properties
                 PlugdescriptionCommandObject pd = new PlugdescriptionCommandObject( new File("conf/plugdescription.xml") );
                 writePlugdescriptionToProperties( pd );
@@ -245,8 +245,6 @@ public class Config {
                 log.error( "Error creating override configuration", e1 );
                 e1.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         // set system property for use in JSP file!
@@ -364,7 +362,7 @@ public class Config {
 
     public void writeCommunicationToProperties() {
         try {
-            ClassPathResource override = new ClassPathResource( "config.override.properties" );
+            Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
             Properties props = new Properties();
             props.load( is );
@@ -401,7 +399,7 @@ public class Config {
             // synchronize values!
             // ...
 
-            ClassPathResource override = new ClassPathResource( "config.override.properties" );
+            Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
             Properties props = new Properties();
             props.load( is );
@@ -616,4 +614,25 @@ public class Config {
         return busses;
     }
 
+    /**
+     * Try to get the override configuration first from the classpath and otherwise expect it
+     * inside the conf directory. The first option is mainly for development, but should also
+     * apply for production since the conf-directory also is in the Classpath.
+     * With this function the development environment does not need any manual setup anymore, as
+     * long as the test-resources is in the classpath.
+     * @return the resource to the override configuration
+     */
+    private Resource getOverrideConfigResource() {
+        ClassPathResource override = new ClassPathResource( "config.override.properties" );
+        try {
+            override.getFile();
+            return override;
+        } catch (FileNotFoundException e) {
+            return new FileSystemResource( "conf/config.override.properties" );
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
