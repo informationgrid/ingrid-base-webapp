@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.utils.IConfigurable;
@@ -82,6 +84,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 writer.close();
                 LOG.info("indexing ends");
 
+                // update new fields into override property
+                PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
+                pdObject.putAll( _plugDescription );
+                JettyStarter.getInstance().config.writePlugdescriptionToProperties( pdObject );
+                
                 // Extend PD with all field names in index and save
                 addFieldNamesToPlugdescription(_indexDir, _plugDescription);
                 _plugDescriptionService.savePlugDescription(_plugDescription);
