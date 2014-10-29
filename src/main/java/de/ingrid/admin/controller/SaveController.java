@@ -51,8 +51,6 @@ public class SaveController extends AbstractController {
         
         boolean restart = false;
         
-        PlugDescriptionUtil.addFieldToPlugDescription(plugdescriptionCommandObject, QueryUtil.FIELDNAME_INCL_META);
-
         // set class and record loader
         plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());
         plugdescriptionCommandObject.setRecordLoader(_plug instanceof IRecordLoader);

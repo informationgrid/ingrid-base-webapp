@@ -39,6 +39,8 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
+import de.ingrid.utils.tool.PlugDescriptionUtil;
+import de.ingrid.utils.tool.QueryUtil;
 
 @PropertiesFiles({ "config" })
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
@@ -194,6 +196,11 @@ public class Config {
 
     @PropertyValue("plugdescription.IPLUG_ADMIN_GUI_URL")
     private String guiUrl;
+    
+    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @PropertyValue("plugdescription.fields")
+    @DefaultValue("")
+    private List<String> fields;
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.partner")
@@ -535,6 +542,13 @@ public class Config {
             for (FieldQueryCommandObject fq : this.queryExtensions) {
                 addFieldQuery( pd, fq, QUERYTYPE_MODIFY );
             }
+        }
+        
+        PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_INCL_META);
+        
+        for (String field : fields) {
+            // if empty property then field can be recognized as empty (bug!!!)
+            if (!field.isEmpty()) pd.addField( field );
         }
 
         return pd;
