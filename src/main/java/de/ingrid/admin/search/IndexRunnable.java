@@ -83,14 +83,15 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 writer.optimize();
                 writer.close();
                 LOG.info("indexing ends");
-
+                
+                // Extend PD with all field names in index and save
+                addFieldNamesToPlugdescription(_indexDir, _plugDescription);
+                
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
                 pdObject.putAll( _plugDescription );
                 JettyStarter.getInstance().config.writePlugdescriptionToProperties( pdObject );
-                
-                // Extend PD with all field names in index and save
-                addFieldNamesToPlugdescription(_indexDir, _plugDescription);
+
                 _plugDescriptionService.savePlugDescription(_plugDescription);
 
                 _ingridIndexSearcher.configure(_plugDescription);
