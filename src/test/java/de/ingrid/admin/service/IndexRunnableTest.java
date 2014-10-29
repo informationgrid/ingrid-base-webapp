@@ -1,17 +1,32 @@
 package de.ingrid.admin.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.lucene.index.IndexReader;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IKeys;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.search.AbstractParser;
 import de.ingrid.admin.search.FieldQueryParser;
 import de.ingrid.admin.search.IndexRunnable;
@@ -30,16 +45,20 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
-public class IndexRunnableTest extends TestCase {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(JettyStarter.class)
+public class IndexRunnableTest {
 
     private IndexRunnable _indexRunnable;
 
     private PlugDescription _plugDescription;
 
     private File _file;
+    
+    @Mock JettyStarter jettyStarter;
 
-    @Override
-    protected void setUp() throws IOException {
+    @Before
+    public void setUp() throws IOException {
         _file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
         TestUtils.delete(_file);
        	assertTrue(_file.mkdirs());
@@ -49,6 +68,14 @@ public class IndexRunnableTest extends TestCase {
         // store our location of pd as system property to be fetched by pdService
         System.setProperty(IKeys.PLUG_DESCRIPTION, new File(_file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
 
+        PowerMockito.mockStatic( JettyStarter.class );
+        Mockito.when(JettyStarter.getInstance()).thenReturn( jettyStarter );
+        
+        Config config = new Config();
+        config.communicationProxyUrl = "/ingrid-group:iplug-se-test";
+        jettyStarter.config = Mockito.mock( Config.class );
+        Mockito.stubVoid( jettyStarter.config ).toReturn().on().writePlugdescriptionToProperties(Mockito.any(PlugdescriptionCommandObject.class));
+        
         QueryParsers transformer = new QueryParsers();
         IQueryParser[] parserArray = new IQueryParser[] { new FieldQueryParser() };
         transformer.setQueryParsers(Arrays.asList(parserArray));
@@ -88,11 +115,12 @@ public class IndexRunnableTest extends TestCase {
         }
     }
 
-    @Override
-    protected void tearDown() {
+    @After
+    public void tearDown() {
         TestUtils.delete(_file);
     }
 
+    @Test
     public void testIndexExists() throws IOException {
         final File file = new File(_file, "index");
         assertTrue(file.exists());
@@ -100,6 +128,7 @@ public class IndexRunnableTest extends TestCase {
         _indexRunnable.getIngridIndexSearcher().close();
     }
 
+    @Test
     public void testReadIndex() throws Exception {
         final IndexReader reader = IndexReader.open(new File(_file, "index"));
 
@@ -128,6 +157,7 @@ public class IndexRunnableTest extends TestCase {
         
     }
     
+    @Test
     public void testFlipIndex() throws Exception {
     	IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
     	
@@ -146,6 +176,7 @@ public class IndexRunnableTest extends TestCase {
         
     }
     
+    @Test
     public void testGetFacet() throws Exception {
         IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
         
