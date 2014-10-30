@@ -217,6 +217,14 @@ public class Config {
     @PropertyValue("plugdescription.isRecordLoader")
     @DefaultValue("true")
     public boolean recordLoader;
+    
+    @PropertyValue("plugdescription.forceAddRankingOff")
+    @DefaultValue("false")
+    public boolean forceAddRankingOff;
+    
+    @PropertyValue("plugdescription.ranking")
+    @DefaultValue("off")
+    public List<String> rankings;
 
     public String getWebappDir() {
         return this.webappDir;
@@ -557,6 +565,26 @@ public class Config {
             if (!field.isEmpty())
                 PlugDescriptionUtil.addFieldToPlugDescription( pd, field );
         }
+        
+        if (rankings != null) {
+            boolean score = false;
+            boolean date = false;
+            boolean notRanked = false;
+            for (String ranking : rankings) {
+                if (ranking.equals( "score" )) {
+                    score = true;
+                } else if (ranking.equals( "date" )) {
+                    date = true;
+                } else if (ranking.equals( "notRanked" )) {
+                    notRanked = true;
+                }
+            }
+
+            if (forceAddRankingOff) notRanked = true;
+            pd.setRankinTypes( score, date, notRanked );
+        }
+        pd.putBoolean( "forceAddRankingOff", forceAddRankingOff );
+        
 
         return pd;
 
