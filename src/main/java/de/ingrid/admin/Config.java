@@ -196,7 +196,7 @@ public class Config {
 
     @PropertyValue("plugdescription.IPLUG_ADMIN_GUI_URL")
     private String guiUrl;
-    
+
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.fields")
     @DefaultValue("")
@@ -213,6 +213,10 @@ public class Config {
     @TypeTransformers(StringToQueryExtension.class)
     @PropertyValue("plugdescription.queryExtensions")
     private List<FieldQueryCommandObject> queryExtensions;
+    
+    @PropertyValue("plugdescription.isRecordLoader")
+    @DefaultValue("true")
+    public boolean recordLoader;
 
     public String getWebappDir() {
         return this.webappDir;
@@ -234,9 +238,9 @@ public class Config {
         Resource confOverride = getOverrideConfigResource();
         File configFile = confOverride.getFile();
         // create override file if it does not exist
-        if ( !configFile.exists() ) {
-            // if override file does not exist then try to look for previous communication
-            // and plug description to get the configuration
+        if (!configFile.exists()) {
+            // if override file does not exist then try to look for previous
+            // communication and plug description to get the configuration
             try {
                 log.warn( "No config.override.properties found in conf-directory. Trying to recover "
                         + "configuration from previously generated files." );
@@ -244,9 +248,11 @@ public class Config {
                 configFile.createNewFile();
                 // read communicaton and write properties
                 this.ibusses = readFromCommunicationXml();
-                if (this.ibusses != null) writeCommunicationToProperties();
+                if (this.ibusses != null)
+                    writeCommunicationToProperties();
                 // read plug description and write properties
-                PlugdescriptionCommandObject pd = new PlugdescriptionCommandObject( new File("conf/plugdescription.xml") );
+                PlugdescriptionCommandObject pd = new PlugdescriptionCommandObject( new File(
+                        "conf/plugdescription.xml" ) );
                 writePlugdescriptionToProperties( pd );
             } catch (IOException e1) {
                 log.error( "Error creating override configuration", e1 );
@@ -273,8 +279,7 @@ public class Config {
         return this.indexing;
     }
 
-    
-/*    public boolean writeConfig(String key, String value) {
+    /*    public boolean writeConfig(String key, String value) {
         try {
             InputStream is = new FileInputStream( "conf/config.override.properties" );
             Properties props = new Properties();
@@ -294,7 +299,7 @@ public class Config {
     public boolean writeCommunication() {
         File communicationFile = new File( this.communicationLocation );
         if (ibusses == null || ibusses.isEmpty()) {
-            // do not remove communication file if no 
+            // do not remove communication file if no
             if (communicationFile.exists()) {
                 communicationFile.delete();
             }
@@ -420,7 +425,7 @@ public class Config {
                 } else if (valObj instanceof List) {
                     props.setProperty( "plugdescription." + key, convertListToString( (List) pd.get( key ) ) );
                 } else if (valObj instanceof Integer) {
-                    if ( "IPLUG_ADMIN_GUI_PORT".equals( key ) ) {
+                    if ("IPLUG_ADMIN_GUI_PORT".equals( key )) {
                         props.setProperty( "jetty.port", String.valueOf( pd.get( key ) ) );
                     } else {
                         props.setProperty( "plugdescription." + key, String.valueOf( pd.get( key ) ) );
@@ -525,6 +530,7 @@ public class Config {
         pd.setDataSourceDescription( datasourceDescription );
         pd.setIplugAdminGuiUrl( guiUrl );
         pd.setIplugAdminGuiPort( this.webappPort );
+        pd.setRecordLoader( recordLoader );
 
         if (partner != null) {
             for (String p : partner) {
@@ -543,12 +549,13 @@ public class Config {
                 addFieldQuery( pd, fq, QUERYTYPE_MODIFY );
             }
         }
-        
-        PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_INCL_META);
-        
+
+        PlugDescriptionUtil.addFieldToPlugDescription( pd, QueryUtil.FIELDNAME_INCL_META );
+
         for (String field : fields) {
             // if empty property then field can be recognized as empty (bug!!!)
-            if (!field.isEmpty()) pd.addField( field );
+            if (!field.isEmpty())
+                PlugDescriptionUtil.addFieldToPlugDescription( pd, field );
         }
 
         return pd;
@@ -589,36 +596,36 @@ public class Config {
         }
         extension.addFieldQuery( pattern, fq );
     }
-    
+
     private List<CommunicationCommandObject> readFromCommunicationXml() {
         // open communication file
         final File communicationFile = new File( "conf/communication.xml" );
         if (!communicationFile.exists()) {
             return null;
         }
-        
+
         List<CommunicationCommandObject> busses = null;
-        
+
         // create xpath service for xml
         XPathService communication;
         try {
             communication = new XPathService();
-            communication.registerDocument(communicationFile);
+            communication.registerDocument( communicationFile );
             // determine count of ibusses
-            final int count = communication.countNodes("/communication/client/connections/server");
-            this.communicationProxyUrl =  communication.parseAttribute( "/communication/client", "name" );
+            final int count = communication.countNodes( "/communication/client/connections/server" );
+            this.communicationProxyUrl = communication.parseAttribute( "/communication/client", "name" );
 
             // create List of communication
             busses = new ArrayList<CommunicationCommandObject>();
             // and get all information about each ibus
             for (int i = 0; i < count; i++) {
                 final CommunicationCommandObject bus = new CommunicationCommandObject();
-                bus.setBusProxyServiceUrl(communication.parseAttribute("/communication/client/connections/server", "name",
-                        i));
-                bus.setIp(communication.parseAttribute("/communication/client/connections/server/socket", "ip", i));
-                bus.setPort(Integer.parseInt(communication.parseAttribute(
-                        "/communication/client/connections/server/socket", "port", i)));
-                busses.add(bus);
+                bus.setBusProxyServiceUrl( communication.parseAttribute( "/communication/client/connections/server",
+                        "name", i ) );
+                bus.setIp( communication.parseAttribute( "/communication/client/connections/server/socket", "ip", i ) );
+                bus.setPort( Integer.parseInt( communication.parseAttribute(
+                        "/communication/client/connections/server/socket", "port", i ) ) );
+                busses.add( bus );
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -629,11 +636,13 @@ public class Config {
     }
 
     /**
-     * Try to get the override configuration first from the classpath and otherwise expect it
-     * inside the conf directory. The first option is mainly for development, but should also
-     * apply for production since the conf-directory also is in the Classpath.
-     * With this function the development environment does not need any manual setup anymore, as
-     * long as the test-resources is in the classpath.
+     * Try to get the override configuration first from the classpath and
+     * otherwise expect it inside the conf directory. The first option is mainly
+     * for development, but should also apply for production since the
+     * conf-directory also is in the Classpath. With this function the
+     * development environment does not need any manual setup anymore, as long
+     * as the test-resources is in the classpath.
+     * 
      * @return the resource to the override configuration
      */
     private Resource getOverrideConfigResource() {
