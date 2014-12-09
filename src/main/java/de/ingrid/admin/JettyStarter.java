@@ -89,8 +89,11 @@ public class JettyStarter {
         
         // do some initialization by reading properties and writing configuration files
         config.initialize();
-        if (externalConfig != null)
+        if (externalConfig != null) {
             externalConfig.initialize();
+        } else {
+            log.info("No external configuration found.");
+        }
         
         // add external configurations to the plugdescription
         PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromProperties();
