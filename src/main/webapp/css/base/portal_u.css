@@ -85,7 +85,7 @@ div#contentBox div#tabNavi a { display:block; background:#F5F8EB; padding:6px 10
 div#contentBox div#tabNavi a.active { background:#FFF; padding-bottom:10px; }
 
 div#contentBox div.controls { text-align:right; margin-right:20px; height:21px; position: absolute; right: 0px; top: 10px;}
-div#contentBox div.cBottom { position:absolute; bottom:0; right:0; left:0; top: initial; background-color: #F5F8EB; margin-right: 0px; padding: 10px 20px 10px 0; }
+div#contentBox div.cBottom { position:absolute; bottom:0; right:0; left:0; top: auto; background-color: #F5F8EB; margin-right: 0px; padding: 10px 20px 10px 0; }
 div#contentBox div.controls a { position:relative; top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; }
 div#contentBox div.controls a:hover { background:#1B78B1; }
 
