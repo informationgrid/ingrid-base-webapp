@@ -51,6 +51,9 @@ public class SimpleForwardServlet extends HttpServlet {
             return;
         }
         LOG.debug("load file: " + file.getAbsolutePath());
+        if (file.getName().endsWith( ".css" )) {
+            resp.setContentType( "text/css" );
+        }
         final FileInputStream fileInputStream = new FileInputStream(file);
         final ServletOutputStream outputStream = resp.getOutputStream();
         int read = -1;
