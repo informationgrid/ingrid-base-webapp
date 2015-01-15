@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.security;
 
 import java.io.File;
@@ -21,11 +43,18 @@ public class PlugdescriptionLoginModule extends AbstractLoginModule {
         String pd = System.getProperty(IKeys.PLUG_DESCRIPTION);
         File file = new File(pd);
         IngridPrincipal ingridPrincipal = null;
+        String pwd = null;
         if (file.exists()) {
             PlugDescription plugDescription;
             try {
                 plugDescription = new PlugdescriptionSerializer().deSerialize(file);
-                String pwd = plugDescription.getIplugAdminPassword();
+                pwd = plugDescription.getIplugAdminPassword();
+            } catch (IOException e) {
+                LOG.error("can not verify login datas", e);
+            }
+        }
+
+        if (pwd != null) {            
                 if (userName.equals("admin") && password.equals(pwd)) {
                     Set<String> set = new HashSet<String>();
                     set.add("admin");
@@ -33,9 +62,6 @@ public class PlugdescriptionLoginModule extends AbstractLoginModule {
                 } else {
                     ingridPrincipal = new IngridPrincipal.UnknownPrincipal();
                 }
-            } catch (IOException e) {
-                LOG.error("can not verify login datas", e);
-            }
         } else {
             ingridPrincipal = new IngridPrincipal.SuperAdmin("superadmin");
         }

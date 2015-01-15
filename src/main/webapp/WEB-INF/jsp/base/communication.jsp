@@ -1,3 +1,25 @@
+<%--
+  **************************************************-
+  ingrid-base-webapp
+  ==================================================
+  Copyright (C) 2014 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or â€“ as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+  
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+  
+  http://ec.europa.eu/idabc/eupl5
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -70,9 +92,9 @@
 		
             <c:if test="${noBus}">
                 <div class="error">
-                    Es konnte keine Verbindung zu einem der hinzugefügten Busse hergestellt werden.<br />
-                    Bitte überprüfen Sie Ihre Angaben.<br />
-                    <br />
+                    <p>Es konnte keine Verbindung zu einem der hinzugefügten Busse hergestellt werden.
+                    Es muss mindestens der Standard-iBus verbunden sein, um die Konfiguration erfolgreich abzuschließen.</p>
+                    <p>Bitte überprüfen Sie Ihre Angaben.</p>
                     <button onclick="document.location='workingDir.html';">Offline fortfahren</button>
                 </div>
                 <br />
@@ -88,7 +110,9 @@
                     <tr>
                         <td class="leftCol">Eigene Proxy Service Url:</td>
                         <td>
-                            <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" /><br />
+                            <div class="input full">
+                                <input type="text" name="proxyServiceUrl" value="${communication.proxyServiceUrl}" /><br />
+                            </div>
                             <span>Der Name mit dem man diesen iPlug identifiziert.</span>
                             <form:errors path="proxyServiceUrl" cssClass="error" element="div" />
                         </td>
@@ -99,7 +123,9 @@
                     <tr>
                         <td class="leftCol">iBus Proxy Service Url:</td>
                         <td>
-                            <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" /><br />
+                            <div class="input full">
+                                <input type="text" name="busProxyServiceUrl" value="${communication.busProxyServiceUrl}" /><br />
+                            </div>
                             <span>Der Name des iBus mit dem sich der iPlug verbinden soll.</span>
                             <form:errors path="busProxyServiceUrl" cssClass="error" element="div" />
                         </td>
@@ -107,7 +133,9 @@
                     <tr>
                         <td class="leftCol">IP:</td>
                         <td>
-                            <input type="text" name="ip" value="${communication.ip}" /><br />
+                            <div class="input full">
+                                <input type="text" name="ip" value="${communication.ip}" /><br />
+                            </div>
                             <span>Die IP-Adresse des iBus.</span>
                             <form:errors path="ip" cssClass="error" element="div" />
                         </td>
@@ -115,7 +143,9 @@
                     <tr>
                         <td class="leftCol">Port:</td>
                         <td>
-                            <input type="text" name="port" value="${communication.port}" /><br />
+                            <div class="input full">
+                                <input type="text" name="port" value="${communication.port}" /><br />
+                            </div>
                             <span>Der Port des iBus.</span>
                             <form:errors path="port" cssClass="error" element="div" />
                         </td>
@@ -133,6 +163,7 @@
 		                      <th>iBus Url</th>
 		                      <th>IP</th>
 		                      <th>Port</th>
+		                      <th>Connected</th>
 		                      <th>&nbsp;</th>
 		                      <th>&nbsp;</th>
 		                  </tr>
@@ -142,6 +173,7 @@
 		                          <td>${bus.busProxyServiceUrl}</td>
 		                          <td>${bus.ip}</td>
 		                          <td>${bus.port}</td>
+		                          <td>${bus.isConnected}</td>
 		                          <td>
 		                              <c:choose>
 		                                  <c:when test="${busIndex == 0}">(Standard)</c:when>

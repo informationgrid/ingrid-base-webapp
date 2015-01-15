@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.controller;
 
 import java.util.ArrayList;
@@ -36,6 +58,8 @@ public class GeneralController extends AbstractController {
     private final PlugDescValidator _validator;
 
     private final CommunicationService _communicationService;
+    
+    private List<Partner> _partners = null;
 
     @Autowired
     public GeneralController(final CommunicationService communicationInterface,
@@ -49,7 +73,11 @@ public class GeneralController extends AbstractController {
 
     @ModelAttribute("partners")
     public List<Partner> getPartners() throws Exception {
-        return Utils.getPartners(_communicationInterface.getIBus());
+        if (_communicationInterface.isConnected(0)) {
+            _partners = Utils.getPartners(_communicationInterface.getIBus());
+            return _partners;
+        }
+        return new ArrayList<Partner>();
     }
 
     @ModelAttribute("dataTypes")
@@ -91,6 +119,10 @@ public class GeneralController extends AbstractController {
         if (!commandObject.containsKey("originalPort")) {
             commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
         }
+        
+        if (partners == null || partners.size() == 0) {
+            modelMap.addAttribute("noManagement", true);
+        }
 
         addForcedDatatypes(commandObject);
         
@@ -115,7 +147,10 @@ public class GeneralController extends AbstractController {
     }
 
     private List<Provider> getProviders() throws Exception {
-        return Utils.getProviders(_communicationInterface.getIBus());
+        if (_communicationInterface.isConnected(0)) {
+            return Utils.getProviders(_communicationInterface.getIBus());
+        }
+        return new ArrayList<Provider>();
     }
 
     private final SortedMap<String, List<Provider>> createPartnerProviderMap(final List<Partner> partners,

@@ -1,3 +1,25 @@
+<%--
+  **************************************************-
+  ingrid-base-webapp
+  ==================================================
+  Copyright (C) 2014 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or â€“ as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+  
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+  
+  http://ec.europa.eu/idabc/eupl5
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -75,12 +97,21 @@
 					<tr>
 						<td class="leftCol">Partner:</td>
 						<td>
-							<select name="partner"> 
-                                <option value="">bitte wählen</option>
-                                <c:forEach items="${partnerList}" var="partner">
-                                    <option value="${partner.shortName}">${partner.displayName}</option>
-                                </c:forEach>
-                            </select>
+                            <div class="input full">
+    							<select name="partner"> 
+                                    <option value="">bitte wählen</option>
+                                    <c:forEach items="${partnerList}" var="partner">
+                                        <option value="${partner.shortName}">${partner.displayName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <c:if test="${noManagement}">
+                                <div class="error">
+                                    <p>Es konnte keine Verbindung zum Management-iPlug hergestellt werden, oder dieses ist nicht korrekt konfiguriert.
+                                    Wenn dieses iPlug selbst das Management-iPlug ist, dann können die Partner und Anbieter erst nach dem Speichern
+                                    der ersten Konfiguration ausgewählt werden!</p>
+                                </div>
+                            </c:if>
                         </td>
                         <td class="rightCol">
                             <button type="button" action="add">Hinzufügen</button>

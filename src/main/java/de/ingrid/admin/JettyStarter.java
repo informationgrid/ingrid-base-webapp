@@ -1,9 +1,36 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
+
+import com.tngtech.configbuilder.ConfigBuilder;
+
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.service.PlugDescriptionService;
 
 /**
  * This class starts a Jetty server where the webapp will be executed.
@@ -13,28 +40,86 @@ import org.mortbay.jetty.webapp.WebAppContext;
 public class JettyStarter {
     private static final Log log = LogFactory.getLog(JettyStarter.class);
     
-    private static String DEFAULT_WEBAPP_DIR    = "webapp";
-    
-    private static int    DEFAULT_JETTY_PORT    = 8082;
-    
+	public Config config;
+	
+	private IConfig externalConfig = null;
+
+	private static JettyStarter instance;
 
     public static void main(String[] args) throws Exception {
-        if (!System.getProperties().containsKey("jetty.webapp"))
-            log.warn("Property 'jetty.webapp' not defined! Using default webapp directory, which is '"+DEFAULT_WEBAPP_DIR+"'.");
-        if (!System.getProperties().containsKey("jetty.port"))
-            log.warn("Property 'jetty.port' not defined! Using default port, which is '"+DEFAULT_JETTY_PORT+"'.");
-        
-        init();
+    	instance = new JettyStarter();
+    	instance.config.getWebappDir();
+    	//instance.start();
     }
     
-    private static void init() throws Exception {
-        WebAppContext webAppContext = new WebAppContext(System.getProperty("jetty.webapp", DEFAULT_WEBAPP_DIR), "/");
+    public static JettyStarter getInstance() {
+        return instance;
+    }
+    
+    public JettyStarter() throws Exception {
+        configure();
+        start();
+    }
+    
+    public JettyStarter( IConfig config ) throws Exception {
+        this.externalConfig = config;
+        configure();
+        start();
+    }
+    
+    private void configure() {
+        instance = this;
+        try {
+            // load configurations
+            config = new ConfigBuilder<Config>(Config.class).build();
+            
+            //config = new ConfigBuilder<Config>(Config.class).withCommandLineArgs(args).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void start() throws Exception {
+        WebAppContext webAppContext = new WebAppContext( config.getWebappDir(), "/");
 
-        int port = Integer.getInteger("jetty.port", DEFAULT_JETTY_PORT);
-        log.info("Start server at port: " + port);
+        int port = config.getWebappPort();
+        log.info("==================================================");
+        log.info("Start server using directory \"" + config.getWebappDir() + "\" at port: " + port);
+        log.info("==================================================");
+        
+        // do some initialization by reading properties and writing configuration files
+        config.initialize();
+        if (externalConfig != null) {
+            externalConfig.initialize();
+        } else {
+            log.info("No external configuration found.");
+        }
+        
+        // add external configurations to the plugdescription
+        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromProperties();
+        if (externalConfig != null) {
+            externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
+        }
+        // if a configuration was never written for the plugdescription then do not write one!
+        // the proxyServiceUrl must be different from the default value, so we can check here 
+        // for valid propterties 
+        if (!"/ingrid-group:base-webapp".equals( plugdescriptionFromProperties.getProxyServiceURL() )) {
+            (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
+        } else {
+            log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
+        }
+        
         Server server = new Server(port);
         server.setHandler(webAppContext);
         server.start();
     }
 
+    public void setExternalConfig(IConfig config) {
+        externalConfig = config;
+    }
+    public IConfig getExternalConfig() {
+        return externalConfig;
+        
+    }
+    
 }

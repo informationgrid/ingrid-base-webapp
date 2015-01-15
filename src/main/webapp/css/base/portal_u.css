@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 body { margin:0; padding:0; font:normal 11px/16px Verdana, Arial, Helvetica, sans-serif; color:#464646; background:#FFF; }
 
 
@@ -55,22 +77,22 @@ div#contentBox { position:relative; top:116px; border:1px solid #DDE9BD; min-hei
 .contentLeft { left:0; }
 .contentMiddle { left:200px; width:75% !important; }
 
-div#contentBox ul { padding-left: 20px; }
-div#contentBox ul li { padding-bottom: 5px; }
+/* div#contentBox ul { padding-left: 20px; }
+div#contentBox ul li { padding-bottom: 5px; } */
 div#contentBox h1#head { height:28px; padding:12px 19px 0; background:#F5F8EB; margin-bottom:0; }
 div#contentBox div#tabNavi { height:31px; padding:8px 19px 0; background:#DDE9BD; }
 div#contentBox div#tabNavi a { display:block; background:#F5F8EB; padding:6px 10px; font-weight:bold; float:left; margin-left:5px; color:#464646; }
 div#contentBox div#tabNavi a.active { background:#FFF; padding-bottom:10px; }
 
-div#contentBox div.controls { text-align:right; margin-right:20px; height:21px; }
-div#contentBox div.cBottom { position:absolute; bottom:0; right:0; }
+div#contentBox div.controls { text-align:right; margin-right:20px; height:21px; position: absolute; right: 0px; top: 10px;}
+div#contentBox div.cBottom { position:absolute; bottom:0; right:0; left:0; top: initial; background-color: #F5F8EB; margin-right: 0px; padding: 10px 20px 10px 0; }
 div#contentBox div.controls a { position:relative; top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; }
 div#contentBox div.controls a:hover { background:#1B78B1; }
 
 
 /* --- Tabelle �ber ganze Breite (wie bei Administration) --- */
 
-div#contentBox div#content { margin-left:19px; margin-top:19px;}
+div#contentBox div#content { margin-left:19px; margin-top:19px; margin-bottom: 60px; }
 div#contentBox table.fullSize { width:95%; border:1px solid #DDE9BD; border-spacing:1px; }
 div#contentBox table.fullSize th, td { text-align:left; margin:0; padding:0; }
 div#contentBox table.fullSize th { background:#DDE9BD; padding:4px 10px; margin-right:10px; font-weight:bold; height:16px; vertical-align:center; }
@@ -85,22 +107,39 @@ div#contentBox table.fullSize td a { display:block; padding:4px 10px; margin:0; 
 
 /* --- Tabelle bei Seite mit Seitnavigation und Formular --- */
 
-table#konfigForm { margin-bottom:80px; width:100%; }
+table#konfigForm { margin-bottom:20px; width:100%; }
 table#konfigForm td { vertical-align:top; padding:0 10px 6px 0; }
 table#konfigForm td.leftCol { width:180px; }
 table#konfigForm td.rightCol { width:123px; }
 
 
 /* --- Formular Styles --- */
+.full {
+    width: 100%;
+    overflow: hidden;
+}
 
-input[type='text'], select, textarea { color:#464646; border:solid #1B78B1 1px; font:normal 11px Verdana, Arial, Helvetica, sans-serif; background-color:#FFF; width:95%; margin:0; padding:3px 0 4px 3px; }
+.inline {
+    display: inline-block;
+}
+
+.input {
+    border: 1px solid #1B78B1;
+    clear: both;
+}
+
+.space {
+    margin-bottom: 10px;
+}
+
+input[type='text'], input[type='password'], select, textarea { color:#464646; border:0; font:normal 11px Verdana, Arial, Helvetica, sans-serif; width:100%; padding:5px; }
 .check { margin-top:20px; }
 .check input { border:0; width:20px; text-align:left; }
 .long { width:395px; margin-top:-18px; }
 .error { color: #ED171F; }
 .success { color: #18AF23; }
-input[type='button'], input[type='submit'], button { min-width: 110px; top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; border:none}
-input[type='button']:hover, input[type='submit']:hover, button:hover { background:#1B78B1; }
+input[type='button'], input[type='submit'], button { /* min-width: 110px;  */top:2px; padding:4px 10px; margin-right:5px; background:#68A5D2; color:#FFF; font-weight:bold; border:none}
+input[type='button']:hover, input[type='submit']:hover, button:hover { background-color: #1B78B1; }
 
 /* -- Listings --*/
 table.data {width:100%}

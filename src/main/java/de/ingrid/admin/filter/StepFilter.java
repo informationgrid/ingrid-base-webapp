@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.filter;
 
 import java.io.File;
@@ -17,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import de.ingrid.admin.IUris;
+import de.ingrid.admin.JettyStarter;
 
 public class StepFilter implements Filter {
 
@@ -32,8 +55,8 @@ public class StepFilter implements Filter {
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
-        _plugDescription = new File(System.getProperty("plugDescription"));
-        _communication = new File(System.getProperty("communication"));
+        _plugDescription = new File(JettyStarter.getInstance().config.getPlugdescription());
+        _communication = new File(JettyStarter.getInstance().config.communicationLocation);
 
         _needComm.add(IUris.WORKING_DIR);
         _needComm.add(IUris.GENERAL);

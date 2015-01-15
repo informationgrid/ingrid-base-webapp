@@ -1,3 +1,25 @@
+<%--
+  **************************************************-
+  ingrid-base-webapp
+  ==================================================
+  Copyright (C) 2014 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or â€“ as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+  
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+  
+  http://ec.europa.eu/idabc/eupl5
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -88,35 +110,51 @@
                     <tr>
                         <td class="leftCol">iBus:</td>
                         <td>
-                            <form:select path="busUrl">
-                              <form:options items="${busUrls}" />
-                            </form:select><br />
+                            <div class="input full">
+                                <form:select path="busUrl">
+                                    <form:options items="${busUrls}" />
+                                </form:select>
+                            </div>
                             <span>Auf welchen iBus diese Regel angewendet werden soll.</span>
                             <form:errors path="busUrl" cssClass="error" element="div" />
                         </td>
                     </tr>
                     <tr>
                         <td class="leftCol">Regex:</td>
-                        <td><form:input path="regex" /><br /><span>Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="regex" />
+                            </div>
+                            <span>Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
                     </tr>
                     <tr>
                         <td class="leftCol">Verhalten:</td>
-                        <td><select id="behaviour" name="behaviour">
-                                <option value="allow">Erlauben</option>
-                                <option value="deny">Ablehnen</option>
-                                <option value="modify" selected="selected">Modifizieren</option>
-                            </select>
-                            <br />
+                        <td>
+                            <div class="input full">
+                                <select id="behaviour" name="behaviour">
+                                    <option value="allow">Erlauben</option>
+                                    <option value="deny">Ablehnen</option>
+                                    <option value="modify" selected="selected">Modifizieren</option>
+                                </select>
+                            </div>
                             <span>Wie soll die Anfrage behandelt werden? Ablehnen mit 0 Treffern, Erlauben oder Modifizieren. Beim 'Erlauben' werden alle Anfragen verworfen, die nicht mit diesem regulären Ausdruck übereinstimmen! Werden mehrerer solcher 'Erlauben'-Regeln eingetragen, so müssen alle diese Regeln mit der Anfrage übereinstimmen, ansonsten wird die Anfrage abgewiesen.</span>
                         </td>
                     </tr>
                     <tr id="rowIndexFieldName">
                         <td class="leftCol">Index Feld Name:</td>
-                        <td><form:input path="key" /><br /><span>Der Name des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="key" cssClass="error" element="div" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="key" />
+                            </div>
+                            <span>Der Name des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="key" cssClass="error" element="div" /></td>
                     </tr>
                     <tr id="rowIndexFieldValue">
                         <td class="leftCol">Index Feld Wert:</td>
-                        <td><form:input path="value" /><br /><span>Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="value" cssClass="error" element="div" /></td>
+                        <td>
+                            <div class="input full">
+                                <form:input path="value" />
+                            </div>
+                            <span>Der Wert des Feldes mit dem die Anfrage erweitert werden soll.</span><form:errors path="value" cssClass="error" element="div" /></td>
                     </tr>
                     <tr id="rowOption">
                         <td class="leftCol">Option:</td>

@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.search;
 
 import java.io.File;
@@ -18,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.utils.IConfigurable;
@@ -81,9 +105,15 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 writer.optimize();
                 writer.close();
                 LOG.info("indexing ends");
-
+                
                 // Extend PD with all field names in index and save
                 addFieldNamesToPlugdescription(_indexDir, _plugDescription);
+                
+                // update new fields into override property
+                PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
+                pdObject.putAll( _plugDescription );
+                JettyStarter.getInstance().config.writePlugdescriptionToProperties( pdObject );
+
                 _plugDescriptionService.savePlugDescription(_plugDescription);
 
                 _ingridIndexSearcher.configure(_plugDescription);

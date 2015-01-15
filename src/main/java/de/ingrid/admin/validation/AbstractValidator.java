@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.validation;
 
 import java.lang.reflect.ParameterizedType;
@@ -20,19 +42,32 @@ public abstract class AbstractValidator<T> {
     }
 
     public static final Boolean getBoolean(final Errors errors, final String field) {
-        return (Boolean) errors.getFieldValue(field);
+        return Boolean.valueOf( (String) errors.getFieldValue(field) );
     }
 
     public static final Integer getInteger(final Errors errors, final String field) {
-        return (Integer) errors.getFieldValue(field);
+        Integer result = null;
+        try {
+            result = Integer.valueOf((String) errors.getFieldValue(field));            
+        } catch (NumberFormatException e) {}
+        
+        return result;
     }
 
     public static final Float getFloat(final Errors errors, final String field) {
-        return (Float) errors.getFieldValue(field);
+        return Float.valueOf( (String) errors.getFieldValue(field) );
     }
 
     public static final String getString(final Errors errors, final String field) {
         return (String) errors.getFieldValue(field);
+    }
+    
+    public static final String[] getStringArray(final Errors errors, final String field) {
+        if (errors.getFieldValue(field) instanceof String[]) {
+            return (String[]) errors.getFieldValue(field);            
+        } else {
+            return ((String) errors.getFieldValue(field)).split( "," );
+        }
     }
 
     public void rejectError(final Errors errors, final String field, final String error) {
@@ -50,7 +85,7 @@ public abstract class AbstractValidator<T> {
     }
 
     public void rejectIfNullOrEmpty(final Errors errors, final String field) {
-        final Object[] arr = (Object[]) get(errors, field);
+        final Object[] arr = getStringArray( errors, field );
         if (null == arr || arr.length == 0) {
             rejectError(errors, field, IErrorKeys.NULL);
         }

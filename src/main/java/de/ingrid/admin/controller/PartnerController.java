@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.controller;
 
 import java.util.ArrayList;
@@ -31,6 +53,8 @@ public class PartnerController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
+    private List<Partner> partners;
+
 	@Autowired
     public PartnerController(final CommunicationService communicationInterface, final PlugDescValidator validator)
 			throws Exception {
@@ -40,7 +64,11 @@ public class PartnerController extends AbstractController {
 
 	@ModelAttribute("partnerList")
 	public List<Partner> getPartners() throws Exception {
-        return Utils.getPartners(_communicationInterface.getIBus());
+	    if (_communicationInterface.isConnected(0)) {
+	        partners = Utils.getPartners(_communicationInterface.getIBus());
+	        return partners;
+	    }
+	    return new ArrayList<Partner>();
 	}
 
     @RequestMapping(value = IUris.PARTNER, method = RequestMethod.GET)
@@ -48,12 +76,16 @@ public class PartnerController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("partnerList") final List<Partner> partnerList) {
 
-        final List<Partner> partners = new ArrayList<Partner>();
+        final List<Partner> addedPartners = new ArrayList<Partner>();
         for (final String shortName : commandObject.getPartners()) {
-            partners.add(getByShortName(partnerList, shortName));
+            addedPartners.add(getByShortName(partnerList, shortName));
         }
-        modelMap.addAttribute("partners", partners);
-
+        modelMap.addAttribute("partners", addedPartners);
+        
+        if (partners == null || partners.size() == 0) {
+            modelMap.addAttribute("noManagement", true);
+        }
+        
         return IViews.PARTNER;
 	}
 
