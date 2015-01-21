@@ -44,13 +44,16 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import com.google.common.base.Joiner;
+import com.tngtech.configbuilder.annotation.configuration.LoadingOrder;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
 import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
 import com.tngtech.configbuilder.annotation.typetransformer.CharacterSeparatedStringToStringListTransformer;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformer;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
 import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
+import com.tngtech.configbuilder.annotation.valueextractor.EnvironmentVariableValue;
 import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
+import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.SystemPropertyValue;
 
 import de.ingrid.admin.command.CommunicationCommandObject;
@@ -66,6 +69,7 @@ import de.ingrid.utils.tool.QueryUtil;
 
 @PropertiesFiles({ "config" })
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
+@LoadingOrder({CommandLineValue.class, SystemPropertyValue.class, PropertyValue.class, EnvironmentVariableValue.class, DefaultValue.class})
 public class Config {
 
     private static Log log = LogFactory.getLog( Config.class );
