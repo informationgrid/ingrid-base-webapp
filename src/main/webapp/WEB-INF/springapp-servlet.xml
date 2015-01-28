@@ -1,27 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  **************************************************-
-  ingrid-base-webapp
-  ==================================================
-  Copyright (C) 2014 wemove digital solutions GmbH
-  ==================================================
-  Licensed under the EUPL, Version 1.1 or – as soon they will be
-  approved by the European Commission - subsequent versions of the
-  EUPL (the "Licence");
-  
-  You may not use this work except in compliance with the Licence.
-  You may obtain a copy of the Licence at:
-  
-  http://ec.europa.eu/idabc/eupl5
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the Licence is distributed on an "AS IS" basis,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the Licence for the specific language governing permissions and
-  limitations under the Licence.
-  **************************************************#
-  -->
-
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:mvc="http://www.springframework.org/schema/mvc"
@@ -169,7 +146,7 @@
         <property name="forceActive" value="true" />
     </bean>
 -->
-	
+
 	<!-- enable Auto-detecting of components (annotation based configuration including autowire ...) -->
 	<context:component-scan base-package="de.ingrid">
 		<!-- EXAMPLE for including/excluding stuff ! These ones then should not be part of autowire ! -->
@@ -180,7 +157,7 @@
         <!-- STEMMER: Exclude autocreation of stemmers ! We explicitly create stemmer, see above, then used in auto wiring ! -->
         <context:exclude-filter type="regex" expression="de.ingrid.admin.search.*Stemmer*" />
 	</context:component-scan>
-	
+
 	<mvc:annotation-driven/>
     <mvc:resources mapping="/css/**" location="/css/" />
     <mvc:resources mapping="/img/**" location="/img/" />
