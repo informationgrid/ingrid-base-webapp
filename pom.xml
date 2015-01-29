@@ -23,10 +23,15 @@
         </repository>
     </repositories>
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
-  <!-- <dependencyManagement>
-    <dependencies>
-    </dependencies>
-  </dependencyManagement> -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.9</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
   <!-- ==================== DEPENDENCIES ==================== -->
     <dependencies>
         <!-- lib to collect all configuration -->
