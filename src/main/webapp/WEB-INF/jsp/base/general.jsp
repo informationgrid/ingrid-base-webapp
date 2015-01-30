@@ -48,6 +48,8 @@
                 for(var i = 0; i < map[partner].length; i++) {
                     select.append("<option value='" + map[partner][i].shortName + "'>" + map[partner][i].displayName + "</option>");
                 }
+                // use the first provider as selected in hidden field
+                $("#provider_full").val(map[partner][0].displayName);
             }
         }).trigger('change');
         
