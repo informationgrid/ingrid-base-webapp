@@ -1,4 +1,4 @@
-Base Webapp
+InGrid Base Webapp
 =========
 
 This library is part of the InGrid software package. It provides common functionality for all administrtaion GUIs for all InGrid iPlugs.
