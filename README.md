@@ -1,7 +1,7 @@
 InGrid Base Webapp
 =========
 
-This library is part of the InGrid software package. It provides common functionality for all administrtaion GUIs for all InGrid iPlugs.
+This library is part of the InGrid software package. It provides common functionality for all administration GUIs for all InGrid iPlugs.
 
 
 Contribute
