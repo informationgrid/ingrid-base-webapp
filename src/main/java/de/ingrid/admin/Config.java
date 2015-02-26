@@ -601,7 +601,7 @@ public class Config {
                     score = true;
                 } else if (ranking.equals( "date" )) {
                     date = true;
-                } else if (ranking.equals( "notRanked" )) {
+                } else if (ranking.equals( "off" )) {
                     notRanked = true;
                 }
             }
