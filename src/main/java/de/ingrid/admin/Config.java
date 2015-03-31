@@ -39,6 +39,8 @@ import net.weta.components.communication.configuration.XPathService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -50,10 +52,10 @@ import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.Property
 import com.tngtech.configbuilder.annotation.typetransformer.CharacterSeparatedStringToStringListTransformer;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformer;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
+import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
 import com.tngtech.configbuilder.annotation.valueextractor.EnvironmentVariableValue;
 import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
-import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.SystemPropertyValue;
 
 import de.ingrid.admin.command.CommunicationCommandObject;
@@ -130,6 +132,84 @@ public class Config {
         }
 
     }
+    
+    public class StringToSearchType extends TypeTransformer<String, SearchType> {
+        
+        @Override
+        public SearchType transform( String input ) {
+            SearchType type;
+            switch (input) {
+            case "COUNT":
+                type = SearchType.COUNT;
+                break;
+            case "DEFAULT":
+                type = SearchType.DEFAULT;
+                break;
+            case "DFS_QUERY_AND_FETCH":
+                type = SearchType.DFS_QUERY_AND_FETCH;
+                break;
+            case "DFS_QUERY_THEN_FETCH":
+                type = SearchType.DFS_QUERY_THEN_FETCH;
+                break;
+            case "QUERY_AND_FETCH":
+                type = SearchType.QUERY_AND_FETCH;
+                break;
+            case "QUERY_THEN_FETCH":
+                type = SearchType.QUERY_THEN_FETCH;
+                break;
+            case "SCAN":
+                type = SearchType.SCAN;
+                break;
+            default:
+                log.error( "Unknown SearchType (" + input + "), using default one: DFS_QUERY_THEN_FETCH" );
+                type = SearchType.DFS_QUERY_THEN_FETCH;
+            }
+            return type;
+        }
+        
+    }
+    
+    public class StringToModifier extends TypeTransformer<String, Modifier> {
+        
+        @Override
+        public Modifier transform( String input ) {
+            Modifier modifier = null;
+            switch (input) {
+            case "none":
+                modifier = Modifier.NONE;
+                break;
+            case "log":
+                modifier = Modifier.LOG;
+                break;
+            case "log1p":
+                modifier = Modifier.LOG1P;
+                break;
+            case "log2p":
+                modifier = Modifier.LOG2P;
+                break;
+            case "ln":
+                modifier = Modifier.LN;
+                break;
+            case "ln1p":
+                modifier = Modifier.LN1P;
+                break;
+            case "ln2p":
+                modifier = Modifier.LN2P;
+                break;
+            case "square":
+                modifier = Modifier.SQUARE;
+                break;
+            case "sqrt":
+                modifier = Modifier.SQRT;
+                break;
+            case "reciprocal":
+                modifier = Modifier.RECIPROCAL;
+                break;
+            }
+            return modifier;
+        }
+    }
+    
 
     public static final int DEFAULT_TIMEOUT = 10;
 
@@ -251,6 +331,32 @@ public class Config {
     @PropertyValue("plugdescription.ranking")
     @DefaultValue("off")
     public List<String> rankings;
+
+    @PropertyValue("elastic.boost.field")
+    @DefaultValue("doc_boost")
+    public String esBoostField;
+    
+    @TypeTransformers(Config.StringToModifier.class)
+    @PropertyValue("elastic.boost.modifier")
+    @DefaultValue("log1p")
+    public Modifier esBoostModifier;
+    
+    @PropertyValue("elastic.boost.factor")
+    @DefaultValue("0.1")
+    public float esBoostFactor;
+    
+    @PropertyValue("elastic.boost.mode")
+    @DefaultValue("sum")
+    public String esBoostMode;
+    
+    @PropertyValue("index.name")
+    @DefaultValue("test2")
+    public String index;
+
+    @TypeTransformers(Config.StringToSearchType.class)
+    @PropertyValue("search.type")
+    @DefaultValue("DEFAULT")
+    public SearchType searchType;
 
     public String getWebappDir() {
         return this.webappDir;

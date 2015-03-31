@@ -24,12 +24,13 @@ package de.ingrid.admin.search;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
+import org.apache.lucene.util.Version;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GermanStemmer extends Stemmer {
 
-    private static final Analyzer ANALYZER = new GermanAnalyzer();
+    private static final Analyzer ANALYZER = new GermanAnalyzer(Version.LUCENE_4_9);
 
     @Override
     public Analyzer getAnalyzer() {

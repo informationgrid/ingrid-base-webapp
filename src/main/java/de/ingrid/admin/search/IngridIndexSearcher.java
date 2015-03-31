@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -39,13 +38,22 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.iplug.se.elasticsearch.FacetConverter;
+import de.ingrid.iplug.se.elasticsearch.converter.QueryConverter;
 import de.ingrid.search.utils.ConfigurablePlugDescriptionWrapper;
 import de.ingrid.search.utils.LuceneIndexReaderWrapper;
 import de.ingrid.search.utils.facet.FacetManager;
@@ -54,6 +62,7 @@ import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.ISearcher;
+import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
@@ -61,7 +70,6 @@ import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.tool.QueryUtil;
 
 @Service
 @Qualifier("ingridIndexSearcher")
@@ -80,6 +88,31 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
 
     @Autowired
     private IFacetManager facetManager;
+    
+    
+    private ElasticsearchNodeFactoryBean elasticSearch;
+
+    private Client client;
+
+    private QueryConverter queryConverter;
+    
+    private FacetConverter facetConverter;
+    
+    private final static String[] detailFields =  { "url", "title" };
+
+    public static final String ELASTIC_SEARCH_ID = "es_id";
+
+    private static final String ELASTIC_SEARCH_INDEX = "es_index";
+
+    private static final String ELASTIC_SEARCH_INDEX_TYPE = "es_type";
+    
+    private String plugId = null;
+
+    // SearchType see:
+    // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-search-type.html
+    private SearchType searchType = null;
+
+    private String indexName;
 
     // NOTICE:
     // We use autowiring for "QueryParsers" instance BUT DEFINE THE
@@ -89,58 +122,148 @@ public class IngridIndexSearcher extends LuceneSearcher implements ISearcher, ID
     // This way we can set the order and the instances of the parsers in XML !
     // The "XMLconfigured" qualifier identifies the instance defined in XML !
     @Autowired
-    public IngridIndexSearcher(@Qualifier("XMLconfigured") QueryParsers queryParsers,
-            @Qualifier("XMLconfiguredIndexWrapper") LuceneIndexReaderWrapper indexReaderWrapper) {
+    public IngridIndexSearcher(ElasticsearchNodeFactoryBean elasticSearch, QueryConverter qc, FacetConverter fc) {
         _queryParsers = queryParsers;
         this.indexReaderWrapper = indexReaderWrapper;
+        
+        
+        this.indexName = JettyStarter.getInstance().config.index;
+        this.searchType = JettyStarter.getInstance().config.searchType;
+        this.plugId = JettyStarter.getInstance().config.communicationProxyUrl;
+        
+        try {
+            this.elasticSearch = elasticSearch;
+            this.queryConverter = qc;
+            this.facetConverter = fc;
+            client = elasticSearch.getObject().client();
+
+            log.info( "Elastic Search Settings: " + elasticSearch.getObject().settings().toDelimitedString( ',' ) );
+            boolean indexExists = client.admin().indices().prepareExists( indexName ).execute().actionGet().isExists();
+            if (!indexExists) {
+                client.admin().indices().prepareCreate( indexName ).execute().actionGet();
+            }
+            
+        } catch (Exception e) {
+            log.error( "Error during initialization of ElasticSearch-Client!" );
+            e.printStackTrace();
+        }
     }
 
     public IngridHits search(IngridQuery ingridQuery, int start, int length) throws Exception {
+     // convert InGrid-query to QueryBuilder
+        QueryBuilder query = queryConverter.convert( ingridQuery );
+        Query parse = _queryParsers.parse(ingridQuery);
         
-        // check if index reader does really exists, return 0 hits if not
-        if (indexReaderWrapper.getIndexReader() == null) {
-            return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
+        
+        QueryBuilder funcScoreQuery = queryConverter.addScoreModifier( query );
+        
+        boolean isLocationSearch = ingridQuery.containsField( "x1" );
+        boolean hasFacets = ingridQuery.containsKey( "FACETS" );
+        String[] instances = getSearchInstances( ingridQuery ); 
+        
+        // request grouping information from index if necessary
+        // see IndexImpl.getHitsFromResponse for usage
+        String groupedBy = ingridQuery.getGrouped();
+        String[] fields = null;
+        if (IngridQuery.GROUPED_BY_PARTNER.equalsIgnoreCase(groupedBy)) {
+            fields = new String[] { IngridQuery.PARTNER };
+        } else if (IngridQuery.GROUPED_BY_ORGANISATION.equalsIgnoreCase(groupedBy)) {
+            fields = new String[] { IngridQuery.PROVIDER };
+        } else if (IngridQuery.GROUPED_BY_DATASOURCE.equalsIgnoreCase(groupedBy)) {
+            // the necessary value id the results ID
+        }
+
+        // search prepare
+        SearchRequestBuilder srb = client.prepareSearch( indexName )
+                .setTypes( instances )
+                .setSearchType( searchType  )
+                //.setQuery( query ) // Query
+                .setQuery( funcScoreQuery ) // Query
+                .setFrom( startHit ).setSize( num )
+                .setExplain( false );
+        
+        if (fields == null) {
+            srb = srb.setNoFields();
+        } else {
+            srb = srb.addFields(fields);
         }
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("incoming query: " + ingridQuery);
-            LOG.debug("start: " + start);
-            LOG.debug("length: " + length);
+        // Filter for results only with location information
+        if (isLocationSearch) {
+            srb.setPostFilter( FilterBuilders.existsFilter( "x1" ) );
         }
 
-        // check if query is rejected and return 0 hits instead of search within
-        // the iplug
-        if (ingridQuery.isRejected()) {
-            return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
+        // pre-processing: add facets/aggregations to the query
+        if (hasFacets) {
+            List<AbstractAggregationBuilder> aggregations = facetConverter.getAggregations( ingridQuery, queryConverter );
+            for (AbstractAggregationBuilder aggregation : aggregations) {
+                srb.addAggregation( aggregation );
+            }
         }
 
-        // remove "meta" field from query so search works !
-        QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
-        QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_INCL_META);
-
-        Query luceneQuery = _queryParsers.parse(ingridQuery);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("outgoing lucene query: " + luceneQuery);
-            explainQuery(luceneQuery);
+        if (log.isDebugEnabled()) {
+            log.debug( "Final Elastic Search Query: \n" + srb );
         }
+        
+        // search!
+        SearchResponse searchResponse = srb.execute().actionGet();
 
-        TopDocs topDocs = search(luceneQuery, start, length);
-        LOG.debug("found hits: " + topDocs.scoreDocs.length + "/" + topDocs.totalHits);
-        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-        IngridHit[] ingridHitArray = new IngridHit[scoreDocs.length];
-        for (int i = 0; i < scoreDocs.length; i++) {
-            ScoreDoc scoreDoc = scoreDocs[i];
-            int docid = scoreDoc.doc;
-            float score = scoreDoc.score;
-            IngridHit ingridHit = new IngridHit(_plugId, docid, -1, score);
-            ingridHitArray[i] = ingridHit;
+        // convert to IngridHits
+        IngridHits hits = getHitsFromResponse( searchResponse, ingridQuery );
+        
+        // post-processing: extract and convert facets to InGrid-Document
+        if (hasFacets) {
+            // add facets from response
+            IngridDocument facets = facetConverter.convertFacetResultsToDoc( searchResponse );
+            hits.put( "FACETS", facets );
         }
-        IngridHits ingridHits = new IngridHits(_plugId, topDocs.totalHits, ingridHitArray, true);
-
-        facetManager.addFacets(ingridHits, ingridQuery);
-
-        return ingridHits;
+        
+        return hits;
+        
+//        // check if index reader does really exists, return 0 hits if not
+//        if (indexReaderWrapper.getIndexReader() == null) {
+//            return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
+//        }
+//        
+//        if (LOG.isDebugEnabled()) {
+//            LOG.debug("incoming query: " + ingridQuery);
+//            LOG.debug("start: " + start);
+//            LOG.debug("length: " + length);
+//        }
+//
+//        // check if query is rejected and return 0 hits instead of search within
+//        // the iplug
+//        if (ingridQuery.isRejected()) {
+//            return new IngridHits(_plugId, 0, new IngridHit[] {}, true);
+//        }
+//
+//        // remove "meta" field from query so search works !
+//        QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_METAINFO);
+//        QueryUtil.removeFieldFromQuery(ingridQuery, QueryUtil.FIELDNAME_INCL_META);
+//
+//        Query luceneQuery = _queryParsers.parse(ingridQuery);
+//
+//        if (LOG.isDebugEnabled()) {
+//            LOG.debug("outgoing lucene query: " + luceneQuery);
+//            explainQuery(luceneQuery);
+//        }
+//
+//        TopDocs topDocs = search(luceneQuery, start, length);
+//        LOG.debug("found hits: " + topDocs.scoreDocs.length + "/" + topDocs.totalHits);
+//        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+//        IngridHit[] ingridHitArray = new IngridHit[scoreDocs.length];
+//        for (int i = 0; i < scoreDocs.length; i++) {
+//            ScoreDoc scoreDoc = scoreDocs[i];
+//            int docid = scoreDoc.doc;
+//            float score = scoreDoc.score;
+//            IngridHit ingridHit = new IngridHit(_plugId, docid, -1, score);
+//            ingridHitArray[i] = ingridHit;
+//        }
+//        IngridHits ingridHits = new IngridHits(_plugId, topDocs.totalHits, ingridHitArray, true);
+//
+//        facetManager.addFacets(ingridHits, ingridQuery);
+//
+//        return ingridHits;
     }
 
     public IngridHitDetail getDetail(IngridHit ingridHit, IngridQuery ingridQuery, String[] fields) throws Exception {

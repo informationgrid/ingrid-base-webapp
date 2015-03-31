@@ -22,27 +22,26 @@
  */
 package de.ingrid.admin.search;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexReader.FieldOption;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkProcessor.Listener;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
@@ -52,24 +51,22 @@ import de.ingrid.utils.tool.QueryUtil;
 @Service
 public class IndexRunnable implements Runnable, IConfigurable {
 
-    private static final Logger LOG = Logger.getLogger(IndexRunnable.class);
+    private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
     private int _documentCount;
     private IDocumentProducer _documentProducer;
-    private Directory _indexDir;
+    //private Directory _indexDir;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
-    private final IConfigurable _ingridIndexSearcher;
+    //private final IConfigurable _ingridIndexSearcher;
     private final PlugDescriptionService _plugDescriptionService;
-    private final Stemmer _stemmer;
+    //private final Stemmer _stemmer;
     private String[] _dataTypes;
+    private Client _client;
 
     @Autowired
-    public IndexRunnable(@Qualifier("ingridIndexSearcher") final IConfigurable ingridIndexSearcher,
-    		final PlugDescriptionService plugDescriptionService,
-    		final Stemmer stemmer) {
-        _ingridIndexSearcher = ingridIndexSearcher;
-        _plugDescriptionService = plugDescriptionService;
-        _stemmer = stemmer;
+    public IndexRunnable(ElasticsearchNodeFactoryBean elastic, PlugDescriptionService pds) throws Exception {
+        _client = elastic.getObject().client();
+        _plugDescriptionService = pds;
     }
 
     @Autowired(required = false)
@@ -81,52 +78,72 @@ public class IndexRunnable implements Runnable, IConfigurable {
     public void run() {
         if (_produceable) {
             try {
-                LOG.info("indexing starts");
+                LOG.info( "indexing starts" );
                 resetDocumentCount();
-                final IndexWriter writer = new IndexWriter(_indexDir,
-                		_stemmer.getAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED);
+                //final IndexWriter writer = new IndexWriter( _indexDir, _stemmer.getAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED );
+                BulkProcessor bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
+                String index = JettyStarter.getInstance().config.index;
+                
                 while (_documentProducer.hasNext()) {
-                    final Document document = _documentProducer.next();
+                    final Map<String, Object> document = _documentProducer.next();
                     if (document == null) {
-                    	LOG.warn("DocumentProducer " + _documentProducer + " returned null Document, we skip this record (not added to index)!");
-                    	continue;
+                        LOG.warn( "DocumentProducer " + _documentProducer + " returned null Document, we skip this record (not added to index)!" );
+                        continue;
                     }
 
-                    for (final String dataType : _dataTypes) {
-                        document.add(new Field("datatype", dataType, Store.NO, Index.NOT_ANALYZED));
+                    //for (final String dataType : _dataTypes) {
+                        document.put( "datatype", _dataTypes );
+                    //}
+                    if (_documentCount % 50 == 0) {
+                        LOG.info( "add document to index: " + _documentCount );
                     }
-                	if (_documentCount % 50 == 0) {
-                		LOG.info("add document to index: " + _documentCount);
-                	}
-                    writer.addDocument(document);
+                    //writer.addDocument( document );
+                    // TODO: change type!
+                    bulkProcessor.add(new IndexRequest( index ).source(document).type( "web" ));
                     _documentCount++;
                 }
-                LOG.info("number of produced documents: " + _documentCount);
-                writer.optimize();
-                writer.close();
-                LOG.info("indexing ends");
-                
+                LOG.info( "number of produced documents: " + _documentCount );
+                bulkProcessor.flush();
+                bulkProcessor.close();
+                LOG.info( "indexing ends" );
+
                 // Extend PD with all field names in index and save
-                addFieldNamesToPlugdescription(_indexDir, _plugDescription);
-                
+                addFieldNamesToPlugdescription( _client, index, _plugDescription );
+
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
                 pdObject.putAll( _plugDescription );
                 JettyStarter.getInstance().config.writePlugdescriptionToProperties( pdObject );
 
-                _plugDescriptionService.savePlugDescription(_plugDescription);
+                _plugDescriptionService.savePlugDescription( _plugDescription );
 
-                _ingridIndexSearcher.configure(_plugDescription);
-                _documentProducer.configure(_plugDescription);
+//                _ingridIndexSearcher.configure( _plugDescription );
+                _documentProducer.configure( _plugDescription );
             } catch (final Exception e) {
                 e.printStackTrace();
             } finally {
                 resetDocumentCount();
             }
         } else {
-            LOG.warn("configuration fails. disable index creation.");
+            LOG.warn( "configuration fails. disable index creation." );
         }
 
+    }
+
+    private Listener getBulkProcessorListener() {
+        return new BulkProcessor.Listener() {
+            
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) {}
+            
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable t) {
+                LOG.error( "An error occured during bulk indexing", t );
+            }
+            
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {}
+        };
     }
 
     private void resetDocumentCount() {
@@ -143,60 +160,65 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     public void configure(final PlugDescription plugDescription) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("configure plugdescription and new index dir...");        	
+            LOG.debug( "configure plugdescription and new index dir..." );
         }
         resetDocumentCount();
         _plugDescription = plugDescription;
         _dataTypes = plugDescription.getDataTypes();
-        if (_plugDescription != null) {
-            final File workinDirectory = _plugDescription.getWorkinDirectory();
-            final File indexDir = new File(workinDirectory, "newIndex");
-            try {
-                _indexDir = FSDirectory.open(indexDir);            	
-            } catch (IOException ex) {
-                LOG.error("Problems creating directory for new index: " + indexDir, ex);            	
-            }
-        }
+//        if (_plugDescription != null) {
+//            final File workinDirectory = _plugDescription.getWorkinDirectory();
+//            final File indexDir = new File( workinDirectory, "newIndex" );
+//            try {
+//                _indexDir = FSDirectory.open( indexDir );
+//            } catch (IOException ex) {
+//                LOG.error( "Problems creating directory for new index: " + indexDir, ex );
+//            }
+//        }
         // run();
     }
 
     public PlugDescription getPlugDescription() {
         return _plugDescription;
     }
-    
-    public IngridIndexSearcher getIngridIndexSearcher() {
-    	return (IngridIndexSearcher) _ingridIndexSearcher;
-    }
+
+//    public IngridIndexSearcher getIngridIndexSearcher() {
+//        return (IngridIndexSearcher) _ingridIndexSearcher;
+//    }
 
     /** Add all field names of the given index to the given plug description ! */
-    public static void addFieldNamesToPlugdescription(Directory indexDir, PlugDescription pd)
-    throws IOException {
-    	// remove all fields
+    public static void addFieldNamesToPlugdescription(Client client, String index, PlugDescription pd) throws IOException {
+        // remove all fields
         if (LOG.isInfoEnabled()) {
-            LOG.info("New Index, remove all field names from PD.");                    	
+            LOG.info( "New Index, remove all field names from PD." );
         }
-    	pd.remove(PlugDescription.FIELDS);
+        pd.remove( PlugDescription.FIELDS );
 
-    	// first add "metainfo" field, so plug won't be filtered when field is part of query !
+        // first add "metainfo" field, so plug won't be filtered when field is
+        // part of query !
         if (LOG.isInfoEnabled()) {
-            LOG.info("Add meta fields to PD.");                    	
+            LOG.info( "Add meta fields to PD." );
         }
-    	PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_METAINFO);
-    	PlugDescriptionUtil.addFieldToPlugDescription(pd, QueryUtil.FIELDNAME_INCL_META);
+        PlugDescriptionUtil.addFieldToPlugDescription( pd, QueryUtil.FIELDNAME_METAINFO );
+        PlugDescriptionUtil.addFieldToPlugDescription( pd, QueryUtil.FIELDNAME_INCL_META );
 
-    	// then add fields from index
+        // then add fields from index
         if (LOG.isInfoEnabled()) {
-            LOG.info("Add fields from new index to PD.");                    	
+            LOG.info( "Add fields from new index to PD." );
         }
-        final IndexReader reader = IndexReader.open(indexDir, true);
-        Iterator iter = reader.getFieldNames(FieldOption.ALL).iterator();
-        while (iter.hasNext()) {
-            String fieldName = (String)iter.next();
-            pd.addField(fieldName);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("added index field " + fieldName + " to plugdescription.");                    	
-            }
-        }
-        reader.close();
+        
+        // get the fields from the mapping, which is updated after each indexing
+        ClusterState cs = client.admin().cluster().prepareState().setIndices( index ).execute().actionGet().getState();
+        IndexMetaData imd = cs.getMetaData().index( index );
+        MappingMetaData mdd = imd.mapping("myType");
+        
+        
+//        while (iter.hasNext()) {
+//            String fieldName = (String) iter.next();
+//            pd.addField( fieldName );
+//            if (LOG.isDebugEnabled()) {
+//                LOG.debug( "added index field " + fieldName + " to plugdescription." );
+//            }
+//        }
+//        reader.close();
     }
 }

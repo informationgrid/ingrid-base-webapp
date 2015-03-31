@@ -48,14 +48,7 @@
 		<property name="queryParsers">
 			<list>
                 <!-- DEFAULT Parser ! Auto-creation via annotation mechanism ! -->
-				<ref bean="contentQueryParser" />
-				<!-- NO datatype added to lucene query ? -->
-				<!-- ref bean="dataTypeQueryParser" /-->
-				<ref bean="titleQueryParser" />
-				<ref bean="fieldQueryParser" />
-				<ref bean="rangeQueryParser" />
-				<ref bean="wildCardFieldQueryParser" />
-				<ref bean="allResultsOnEmptyQueryParser" />
+				
 			</list>
 		</property>
 	</bean>

@@ -1,0 +1,8 @@
+{ "index" : { "_index" : "test2", "_type" : "web", "_id" : "1" } }
+{ "url" : "http://www.wemoveXXX.com", "title": "Mathematics", "partner": "bund", "datatype": "pdf", "content": "Mathematics is not easy!", "boost": "0.3", "fetched": "2014-06-03", "t0": "2014-06-03" }
+{ "index" : { "_index" : "test2", "_type" : "web", "_id" : "2" } }
+{ "url" : "http://www.heiseXXX.de", "title": "Prime", "partner": "bund", "datatype": "www", "content": "What is the biggest prime number", "boost": "0.0", "fetched": "2014-04-13", "t1": "2014-04-01", "t2": "2014-04-15", "x1": 9.89, "y1": 51.89, "x2": 11.15, "y2": 52.70  }
+{ "index" : { "_index" : "test2", "_type" : "web", "_id" : "3" } }
+{ "url" : "http://www.spiegelXXX.de", "title": "Square", "partner": "bw", "datatype": "www", "content": "Get the square root of everything", "boost": "0.0", "fetched": "2014-05-22", "t0": "2014-08-11" }
+{ "index" : { "_index" : "test2", "_type" : "web", "_id" : "4" } }
+{ "url" : "http://www.golemXXX.de", "title": "Rectangle", "partner": "bw", "datatype": "www", "content": "More than just four corners", "boost": "0.0", "fetched": "2014-05-22", "t0": "2014-08-13" }

@@ -27,7 +27,7 @@ import java.io.StringReader;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,15 +67,21 @@ public abstract class AbstractParser implements IQueryParser {
     protected static String filterTerm(String term) {
         String result = "";
         
-        TokenStream stream = getDefaultStemmer().getAnalyzer().tokenStream(null, new StringReader(term));
+        TokenStream stream = null;
+        try {
+            stream = getDefaultStemmer().getAnalyzer().tokenStream(null, new StringReader(term));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         // get the TermAttribute from the TokenStream
-        TermAttribute termAtt = (TermAttribute) stream.addAttribute(TermAttribute.class);
+        CharTermAttribute termAtt = (CharTermAttribute) stream.addAttribute(CharTermAttribute.class);
 
         try {
             stream.reset();
             // add all tokens until stream is exhausted
             while (stream.incrementToken()) {
-            	result = result + " " + termAtt.term();
+            	result = result + " " + termAtt.toString();//term();
             }
             stream.end();
             stream.close();
