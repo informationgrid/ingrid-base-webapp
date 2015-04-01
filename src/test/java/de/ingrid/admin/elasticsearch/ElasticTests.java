@@ -55,17 +55,17 @@ public class ElasticTests {
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
         // set necessary configurations for startup
-        Config configuration = new Config();
-        configuration.searchType = SearchType.DFS_QUERY_THEN_FETCH;
-        configuration.index = index;
-        //configuration.activeInstances = Arrays.asList( "web" );
-        configuration.esBoostField = "boost";
-        configuration.esBoostModifier = Modifier.LOG1P;
-        configuration.esBoostFactor = 0.1f;
-        configuration.esBoostMode = "sum";
-        
-        new JettyStarter( false );
-        JettyStarter.getInstance().config = configuration;
+//        Config configuration = new Config();
+//        configuration.searchType = SearchType.DFS_QUERY_THEN_FETCH;
+//        configuration.index = index;
+//        //configuration.activeInstances = Arrays.asList( "web" );
+//        configuration.esBoostField = "boost";
+//        configuration.esBoostModifier = Modifier.LOG1P;
+//        configuration.esBoostFactor = 0.1f;
+//        configuration.esBoostMode = "sum";
+//        
+//        new JettyStarter( false );
+        //JettyStarter.getInstance().config = configuration;
         
         setMapping( elastic, index );
         prepareIndex( elastic, fileData, index );

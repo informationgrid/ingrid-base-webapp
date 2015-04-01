@@ -23,7 +23,6 @@
 package de.ingrid.admin.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Arrays;
@@ -37,9 +36,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mortbay.log.Log;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
@@ -48,8 +46,6 @@ import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.query.IngridQuery;
 
-//@RunWith(PowerMockRunner.class)
-//@PrepareForTest(JettyStarter.class)
 public class IndexRunnableTest extends ElasticTests {
 
     private IndexRunnable _indexRunnable;
@@ -58,11 +54,11 @@ public class IndexRunnableTest extends ElasticTests {
 
     private File _file;
     
-    @Mock JettyStarter jettyStarter;
+    private Config config = null;
 
     @Before
     public void setUp() throws Exception {
-        setup( "test2", "data/webUrls2.json" );
+        setup( "test", "data/webUrls2.json" );
         //createNodeManager();
         
         _file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
@@ -73,12 +69,16 @@ public class IndexRunnableTest extends ElasticTests {
         _plugDescription.addDataType("testDataType");
         // store our location of pd as system property to be fetched by pdService
         System.setProperty(IKeys.PLUG_DESCRIPTION, new File(_file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
-//
+        
+        // initialize main program and its config
+        new JettyStarter( false );
+        config  = JettyStarter.getInstance().config;
+
 //        PowerMockito.mockStatic( JettyStarter.class );
 //        Mockito.when(JettyStarter.getInstance()).thenReturn( jettyStarter );
 //        
-//        Config config = new Config();
-//        config.communicationProxyUrl = "/ingrid-group:iplug-se-test";
+//        Config config = new ConfigBuilder<Config>(Config.class).build();
+////        config.communicationProxyUrl = "/ingrid-group:iplug-se-test";
 //        jettyStarter.config = Mockito.mock( Config.class );
 //        Mockito.stubVoid( jettyStarter.config ).toReturn().on().writePlugdescriptionToProperties(Mockito.any(PlugdescriptionCommandObject.class));
 //        
@@ -107,6 +107,10 @@ public class IndexRunnableTest extends ElasticTests {
 //        fm.setFacetCounters(Arrays.asList(new IFacetCounter[] { fc }));
 //        
 //        searcher.setFacetManager(fm);
+        
+    }
+    
+    private void index() throws Exception {
         PlugDescriptionService pdService = new PlugDescriptionService();
         _indexRunnable = new IndexRunnable(elastic, pdService);
         _indexRunnable.configure(_plugDescription);
@@ -115,24 +119,64 @@ public class IndexRunnableTest extends ElasticTests {
         _indexRunnable.setDocumentProducer(dummyProducer);
         _indexRunnable.run();
 
-        refreshIndex( "test2", client );
+        refreshIndex( config.index, client );
+    }
+    
+    private void deleteIndex(String index) {
+        client.prepareDeleteByQuery(index).
+            setQuery(QueryBuilders.matchAllQuery()).
+            //setTypes(indexType).
+            execute().actionGet();
+        refreshIndex( index, client );
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         TestUtils.delete(_file);
+        deleteIndex( config.index );
+        elastic.getObject().close();
     }
 
+    /**
+     * Each document supports its own ID. In case there's an ID twice
+     * only the latest document is used. Here we only get 9 of 10 results
+     * in the index, because one has an already used identifier.
+     * @throws Exception
+     */
     @Test
-    public void canIndex() {
+    public void indexWithExlusiveId() throws Exception {
+        index();
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
+        //createNodeManager();
         
-        SearchRequestBuilder srb = client.prepareSearch( "test2")
-                //.setTypes( instances )
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
         assertEquals( 9, searchResponse.getHits().getTotalHits() );
+    }
+    
+    /**
+     * In this test the ID of each document is generated automatically, which does
+     * not support any update operation, since the documents cannot be identified
+     * correctly. Here we get one more result as in the test 'indexWithExlusiveId'
+     * because the duplicated ID is ignored.
+     * @throws Exception
+     */
+    @Test
+    public void indexWithAutoId() throws Exception {
+        config.indexWithAutoId = true;
+        index();
+        MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
+        //createNodeManager();
+        
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
+        
+        assertEquals( 10, searchResponse.getHits().getTotalHits() );
     }
     
 //    @Test

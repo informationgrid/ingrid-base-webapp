@@ -22,37 +22,48 @@
  */
 package de.ingrid.admin.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
-import junit.framework.TestCase;
-
+import org.elasticsearch.client.Client;
+import org.elasticsearch.node.Node;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IndexScheduler;
-import de.ingrid.admin.search.IngridIndexSearcher;
-import de.ingrid.admin.search.QueryParsers;
 import de.ingrid.admin.search.Stemmer;
-import de.ingrid.search.utils.LuceneIndexReaderWrapper;
-import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 
-public class IndexSchedulerTest extends TestCase {
+public class IndexSchedulerTest {
 
     private DummyRunnable _runnable;
 
     private IndexScheduler _scheduler;
-
+    
+    @Mock
+    static ElasticsearchNodeFactoryBean elastic;
+    
     private static class DummyRunnable extends IndexRunnable {
         private long _time;
 
         private int _counter = 0;
 
-        public DummyRunnable(final long time, IConfigurable ingridIndexSearcher, PlugDescriptionService pdService, Stemmer stemmer) {
-            super(ingridIndexSearcher, pdService, stemmer);
+        public DummyRunnable(final long time, PlugDescriptionService pdService, Stemmer stemmer) throws Exception {
+            super(elastic, pdService);
             _time = time;
         }
 
@@ -76,9 +87,17 @@ public class IndexSchedulerTest extends TestCase {
         }
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    
+    
+    @Before
+    public void setUp() throws Exception {
+        //setup( "test2", "data/webUrls2.json" );
         MockitoAnnotations.initMocks(this);
+        
+        Client client = Mockito.mock( Client.class );
+        Node node = Mockito.mock( Node.class );
+        Mockito.when( elastic.getObject() ).thenReturn( node );
+        Mockito.when( node.client() ).thenReturn( client );
 
         final PlugDescription pd = new PlugDescription();
         final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
@@ -92,19 +111,20 @@ public class IndexSchedulerTest extends TestCase {
         // store our location of pd as system property to be fetched by pdService
         System.setProperty(IKeys.PLUG_DESCRIPTION, new File(file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
 
-        IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
+        //IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
         PlugDescriptionService pdService = new PlugDescriptionService();
-        _runnable = new DummyRunnable(1000L, searcher, pdService, new GermanStemmer());
+        _runnable = new DummyRunnable(1000L, pdService, new GermanStemmer());
         _runnable.configure(pd);
 
         _scheduler = new IndexScheduler(_runnable);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         _scheduler.deletePattern();
     }
 
+    @Test
     public void testIsStarted() throws Exception {
         assertFalse(_scheduler.isStarted());
 
@@ -115,6 +135,8 @@ public class IndexSchedulerTest extends TestCase {
         assertFalse(_scheduler.isStarted());
     }
 
+    @Test
+    @Ignore
     public void testScheduling10() throws Exception {
         System.out.println("Sleep for 10 sec.");
         _runnable.setTime(1000L * 10L);
@@ -126,6 +148,8 @@ public class IndexSchedulerTest extends TestCase {
         assertEquals(1, _runnable.getCount());
     }
 
+    @Test
+    @Ignore
     public void testScheduling70() throws Exception {
         System.out.println("Sleep for 70 sec.");
         _runnable.setTime(1000L * 70L);
@@ -137,6 +161,7 @@ public class IndexSchedulerTest extends TestCase {
         assertEquals(1, _runnable.getCount());
     }
 
+    @Test
     public void testPatternFile() throws Exception {
         final String pattern = "0 12 * * *";
 

@@ -350,13 +350,27 @@ public class Config {
     public String esBoostMode;
     
     @PropertyValue("index.name")
-    @DefaultValue("test2")
+    @DefaultValue("test")
     public String index;
 
+    @PropertyValue("index.type")
+    @DefaultValue("base")
+    public String indexType;
+    
+    @PropertyValue("index.id")
+    @DefaultValue("id")
+    public String indexIdFromDoc;
+    
+    @PropertyValue("index.autoGenerateId")
+    @DefaultValue("false")
+    public boolean indexWithAutoId;
+    
     @TypeTransformers(Config.StringToSearchType.class)
     @PropertyValue("search.type")
     @DefaultValue("DEFAULT")
     public SearchType searchType;
+
+
 
     public String getWebappDir() {
         return this.webappDir;

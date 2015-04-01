@@ -63,8 +63,8 @@ public class JettyStarter {
     
     public JettyStarter(boolean startImmediately) throws Exception {
         instance = this;
+        configure();
         if (startImmediately) {
-            configure();
             start();
         }
     }

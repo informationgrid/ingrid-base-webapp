@@ -24,6 +24,7 @@ package de.ingrid.admin.search;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -38,6 +39,7 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDocumentProducer;
@@ -75,6 +77,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         _produceable = true;
     }
 
+    @SuppressWarnings("unchecked")
     public void run() {
         if (_produceable) {
             try {
@@ -82,7 +85,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 resetDocumentCount();
                 //final IndexWriter writer = new IndexWriter( _indexDir, _stemmer.getAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED );
                 BulkProcessor bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
-                String index = JettyStarter.getInstance().config.index;
+                Config config = JettyStarter.getInstance().config;
                 
                 while (_documentProducer.hasNext()) {
                     final Map<String, Object> document = _documentProducer.next();
@@ -97,9 +100,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     if (_documentCount % 50 == 0) {
                         LOG.info( "add document to index: " + _documentCount );
                     }
-                    //writer.addDocument( document );
-                    // TODO: change type!
-                    bulkProcessor.add(new IndexRequest( index ).source(document).type( "web" ));
+
+                    IndexRequest indexRequest = new IndexRequest( config.index, config.indexType );
+                    if (!config.indexWithAutoId) {
+                        indexRequest.id( (String)document.get( config.indexIdFromDoc ) );
+                    }
+                    bulkProcessor.add(indexRequest.source(document));
                     _documentCount++;
                 }
                 LOG.info( "number of produced documents: " + _documentCount );
@@ -108,12 +114,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 LOG.info( "indexing ends" );
 
                 // Extend PD with all field names in index and save
-                addFieldNamesToPlugdescription( _client, index, _plugDescription );
+                addFieldNamesToPlugdescription( _client, config, _plugDescription );
 
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
                 pdObject.putAll( _plugDescription );
-                JettyStarter.getInstance().config.writePlugdescriptionToProperties( pdObject );
+                config.writePlugdescriptionToProperties( pdObject );
 
                 _plugDescriptionService.savePlugDescription( _plugDescription );
 
@@ -186,7 +192,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 //    }
 
     /** Add all field names of the given index to the given plug description ! */
-    public static void addFieldNamesToPlugdescription(Client client, String index, PlugDescription pd) throws IOException {
+    public static void addFieldNamesToPlugdescription(Client client, Config config, PlugDescription pd) throws IOException {
         // remove all fields
         if (LOG.isInfoEnabled()) {
             LOG.info( "New Index, remove all field names from PD." );
@@ -207,18 +213,19 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
         
         // get the fields from the mapping, which is updated after each indexing
-        ClusterState cs = client.admin().cluster().prepareState().setIndices( index ).execute().actionGet().getState();
-        IndexMetaData imd = cs.getMetaData().index( index );
-        MappingMetaData mdd = imd.mapping("myType");
+        ClusterState cs = client.admin().cluster().prepareState().setIndices( config.index ).execute().actionGet().getState();
+        IndexMetaData imd = cs.getMetaData().index( config.index );
+        MappingMetaData mdd = imd.mapping( config.indexType );
+        @SuppressWarnings("unchecked")
+        Map<String, Object> fields = (Map<String, Object>) mdd.getSourceAsMap().get( "properties" );
+        Set<String> propertiesSet = fields.keySet();
+
+        for (String property : propertiesSet) {
+            pd.addField( property);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug( "added index field " + property + " to plugdescription." );
+            }
+        }
         
-        
-//        while (iter.hasNext()) {
-//            String fieldName = (String) iter.next();
-//            pd.addField( fieldName );
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug( "added index field " + fieldName + " to plugdescription." );
-//            }
-//        }
-//        reader.close();
     }
 }
