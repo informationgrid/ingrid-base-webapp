@@ -35,7 +35,7 @@ import de.ingrid.utils.processor.IPostProcessor;
 import de.ingrid.utils.processor.IPreProcessor;
 import de.ingrid.utils.query.IngridQuery;
 
-@Service
+//@Service
 public class BasePlug extends HeartBeatPlug {
 
     @Autowired

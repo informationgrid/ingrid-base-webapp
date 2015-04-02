@@ -33,11 +33,12 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
 
 @Service
-public class DefaultFieldsQueryConverter implements IQueryConverter {
+public class DefaultFieldsQueryConverter implements IQueryParsers {
     
     private static final String[] content = {"title", "content"};
 

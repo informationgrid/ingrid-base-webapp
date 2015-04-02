@@ -35,21 +35,22 @@ import org.elasticsearch.index.query.functionscore.fieldvaluefactor.FieldValueFa
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
 
-public class QueryConverter {
+public class QueryConverter implements IQueryParsers {
     
     private static Logger log = Logger.getLogger( QueryConverter.class );
     
     @Autowired
-    private List<IQueryConverter> _queryConverter;
+    private List<IQueryParsers> _queryConverter;
 
     public QueryConverter() {
-        _queryConverter = new ArrayList<IQueryConverter>();
+        _queryConverter = new ArrayList<IQueryParsers>();
     }
 
-    public void setQueryParsers(List<IQueryConverter> parsers) {
+    public void setQueryParsers(List<IQueryParsers> parsers) {
         this._queryConverter = parsers;
     }
 
@@ -79,7 +80,7 @@ public class QueryConverter {
         if (log.isDebugEnabled()) {
             log.debug("incoming ingrid query:" + ingridQuery.toString());
         }
-        for (IQueryConverter queryConverter : _queryConverter) {
+        for (IQueryParsers queryConverter : _queryConverter) {
             if (log.isDebugEnabled()) {
                 log.debug("incoming boolean query:" + booleanQuery.toString());
             }

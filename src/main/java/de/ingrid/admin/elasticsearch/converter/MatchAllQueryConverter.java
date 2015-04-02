@@ -26,10 +26,11 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
 
 @Service
-public class MatchAllQueryConverter implements IQueryConverter {
+public class MatchAllQueryConverter implements IQueryParsers {
     
     @Override
     public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder) {

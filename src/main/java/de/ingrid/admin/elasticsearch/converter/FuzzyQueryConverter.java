@@ -27,11 +27,12 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.FuzzyTermQuery;
 import de.ingrid.utils.query.IngridQuery;
 
 @Service
-public class FuzzyQueryConverter implements IQueryConverter {
+public class FuzzyQueryConverter implements IQueryParsers {
     
     @Override
     public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder) {

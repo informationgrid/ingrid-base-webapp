@@ -9,23 +9,19 @@ import java.util.List;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.core.io.ClassPathResource;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.DatatypePartnerProviderQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.DefaultFieldsQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.FieldQueryIGCConverter;
 import de.ingrid.admin.elasticsearch.converter.FuzzyQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.IQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.MatchAllQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.search.utils.IQueryParsers;
 
 public class ElasticTests {
 
@@ -46,7 +42,7 @@ public class ElasticTests {
         client = elastic.getObject().client();
 
         qc = new QueryConverter();
-        List<IQueryConverter> parsers = new ArrayList<IQueryConverter>();
+        List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
         parsers.add( new DefaultFieldsQueryConverter() );
         parsers.add( new WildcardQueryConverter() );
         parsers.add( new FuzzyQueryConverter() );

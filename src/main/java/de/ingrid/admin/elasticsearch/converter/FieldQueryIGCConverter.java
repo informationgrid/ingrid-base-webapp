@@ -36,6 +36,7 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 
@@ -47,7 +48,7 @@ import de.ingrid.utils.query.IngridQuery;
  *
  */
 @Service
-public class FieldQueryIGCConverter implements IQueryConverter {
+public class FieldQueryIGCConverter implements IQueryParsers {
     
     private final static Logger log = Logger.getLogger( FieldQueryIGCConverter.class );
     

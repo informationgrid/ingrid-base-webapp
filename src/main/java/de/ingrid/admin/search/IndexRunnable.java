@@ -216,6 +216,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
         ClusterState cs = client.admin().cluster().prepareState().setIndices( config.index ).execute().actionGet().getState();
         IndexMetaData imd = cs.getMetaData().index( config.index );
         MappingMetaData mdd = imd.mapping( config.indexType );
+        
+        // TODO: maybe wait for index refreshed, or better refresh it itself!
+        
         @SuppressWarnings("unchecked")
         Map<String, Object> fields = (Map<String, Object>) mdd.getSourceAsMap().get( "properties" );
         Set<String> propertiesSet = fields.keySet();

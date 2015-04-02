@@ -24,13 +24,13 @@ package de.ingrid.admin.elasticsearch;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -307,6 +307,15 @@ public class IndexImpl implements Index {
         detail.put(DETAIL_URL, url);
         
         return detail;
+    }
+    
+    @Override
+    public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery ingridQuery, String[] requestedFields) {
+        List<IngridHitDetail> details = new ArrayList<IngridHitDetail>(); 
+        for (IngridHit hit : hits) {
+            details.add( getDetail( hit, ingridQuery, requestedFields ) );
+        }
+        return details.toArray( new IngridHitDetail[0] );
     }
 
     @Override

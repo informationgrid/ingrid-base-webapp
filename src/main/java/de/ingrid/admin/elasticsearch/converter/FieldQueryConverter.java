@@ -26,10 +26,11 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 
-public class FieldQueryConverter implements IQueryConverter {
+public class FieldQueryConverter implements IQueryParsers {
     
     @Override
     public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder) {

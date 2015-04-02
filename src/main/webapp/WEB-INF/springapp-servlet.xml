@@ -43,7 +43,7 @@
 		mechanism)
 	-->
 	<!-- Adapt number, type and order of parsers dependent from iPlug -->
-	<bean class="de.ingrid.admin.search.QueryParsers">
+	<bean class="de.ingrid.admin.elasticsearch.converter.QueryConverter">
 		<qualifier value="XMLconfigured" />
 		<property name="queryParsers">
 			<list>
@@ -54,7 +54,7 @@
 	</bean>
 
     <!-- STEMMER: Create stemmer explicitly via xml, excluded from annotation mechanism, see below ! Will be autowired to parsers, index writer ... ! -->
-    <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/>
+    <!-- <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/> -->
 
     <!-- Example: Create query parser explicitly with defined stemmer !
          NOTICE: Parser has has to be excluded from auto creation, see component-scan below -->
@@ -78,7 +78,7 @@
 			<ref bean="indexWrapper" />
 		</property>
 		<property name="queryParsers">
-			<ref bean="de.ingrid.admin.search.QueryParsers" />
+			<ref bean="de.ingrid.admin.elasticsearch.converter.QueryConverter" />
 		</property>
 	</bean>
 
@@ -114,7 +114,7 @@
 			<ref bean="indexWrapper" />
 		</property>
 		<property name="queryParsers">
-			<ref bean="de.ingrid.admin.search.QueryParsers" />
+			<ref bean="de.ingrid.admin.elasticsearch.converter.QueryConverter" />
 		</property>
 		<property name="facetCounters">
 			<list>

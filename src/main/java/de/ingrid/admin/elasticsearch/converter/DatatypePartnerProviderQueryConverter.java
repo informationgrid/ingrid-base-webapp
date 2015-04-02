@@ -30,11 +30,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 
 @Service
-public class DatatypePartnerProviderQueryConverter implements IQueryConverter {
+public class DatatypePartnerProviderQueryConverter implements IQueryParsers {
     
     @SuppressWarnings("unchecked")
     @Override

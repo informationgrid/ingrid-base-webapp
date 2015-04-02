@@ -26,6 +26,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 
 import de.ingrid.utils.query.IngridQuery;
 
+// TODO: can be deleted since IQueryParsers is used
 public interface IQueryConverter {
 
     public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder);
