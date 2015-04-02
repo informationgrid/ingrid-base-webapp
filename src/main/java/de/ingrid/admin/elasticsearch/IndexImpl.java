@@ -25,10 +25,12 @@ package de.ingrid.admin.elasticsearch;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -42,6 +44,7 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.Index;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
@@ -83,11 +86,14 @@ public class IndexImpl implements Index {
 
     private String indexName;
 
+    private Config config;
+
     @Autowired
     public IndexImpl(ElasticsearchNodeFactoryBean elasticSearch, QueryConverter qc, FacetConverter fc) {
-        this.indexName = JettyStarter.getInstance().config.index;
-        this.searchType = JettyStarter.getInstance().config.searchType;
-        this.plugId = JettyStarter.getInstance().config.communicationProxyUrl;
+        this.config =  JettyStarter.getInstance().config;
+        this.indexName = config.index;
+        this.searchType = config.searchType;
+        this.plugId = config.communicationProxyUrl;
         
         try {
             this.elasticSearch = elasticSearch;
@@ -318,6 +324,16 @@ public class IndexImpl implements Index {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+    
+    
+    public Map<String, Object> getDocById(Object id) {
+        return client.prepareGet( config.index, config.indexType, (String)id )
+                .setFetchSource( true )
+                .execute()
+                .actionGet()
+                .getSource();
+        
     }
 
 }

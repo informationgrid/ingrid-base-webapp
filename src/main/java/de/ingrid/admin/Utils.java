@@ -48,9 +48,9 @@ public class Utils {
 
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
-                final ArrayList partners = hits.getHits()[0].getArrayList("partner");
-                for (final Object object : partners) {
-                    final Map<String, Object> map = (Map<String, Object>) object;
+                final List<Map<String, Object>> partners = hits.getHits()[0].getArrayList("partner");
+                for (final Map<String, Object> object : partners) {
+                    final Map<String, Object> map = object;
                     final String partnerName = (String) map.get("name");
                     final String partnerId = (String) map.get("partnerid");
                     list.add(new Partner(partnerId, partnerName));
@@ -81,9 +81,9 @@ public class Utils {
 
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
-                final ArrayList providers = hits.getHits()[0].getArrayList("provider");
-                for (final Object object : providers) {
-                    final Map<String, Object> map = (Map<String, Object>) object;
+                final List<Map<String, Object>> providers = hits.getHits()[0].getArrayList("provider");
+                for (final Map<String, Object> object : providers) {
+                    final Map<String, Object> map = object;
                     final String providerName = (String) map.get("name");
                     final String providerId = (String) map.get("providerid");
                     list.add(new Provider(providerId, providerName));
@@ -92,5 +92,35 @@ public class Utils {
         }
 
         return list;
+    }
+    
+    /**
+     * Add a key with its value to the analyzed document, which will be used for indexing.
+     * If the key is already present in the document, then the old value will be converted
+     * to a list and the new value appended to it.
+     * 
+     * @param doc is the document for storing the key/value pairs
+     * @param key is the name of the field to be stored
+     * @param value is the value of the field
+     */
+    @SuppressWarnings("unchecked")
+    public static void addToDoc(Map<String, Object> doc, String key, Object value) {
+        Object obj = doc.get( key );
+        // if key does not exist yet then just add key/value to document
+        if (obj == null) {
+            doc.put( key, value );
+        } else {
+            // if the object behind the key already is an array, we just add the value to this array
+            if (obj instanceof List<?>) {
+                ((List<Object>) obj).add( value );
+            } else {
+                // this is the second time where the same key is added, so we have to convert the object
+                // into a list of objects
+                ArrayList<Object> list = new ArrayList<Object>();
+                list.add( obj );
+                list.add( value );
+                doc.put( key, list );
+            }
+        }
     }
 }

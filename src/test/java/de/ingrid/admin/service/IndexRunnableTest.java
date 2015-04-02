@@ -32,7 +32,10 @@ import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,7 +157,46 @@ public class IndexRunnableTest extends ElasticTests {
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
-        assertEquals( 9, searchResponse.getHits().getTotalHits() );
+        SearchHits hitsRes = searchResponse.getHits();
+        assertEquals( 9, hitsRes.getTotalHits() );
+    }
+    
+    @Test
+    public void indexWithSingleField() throws Exception {
+        index();
+        MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "first" );
+        //createNodeManager();
+        
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .addFields( "url", "mylist" )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
+        
+        SearchHits hitsRes = searchResponse.getHits();
+        SearchHit[] hits = hitsRes.hits();
+        assertEquals( 5, hitsRes.getTotalHits() );
+        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].field( "mylist" ).getValues().size() );
+    }
+    
+    @Test
+    public void indexWithListField() throws Exception {
+        index();
+        MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "second" );
+        //createNodeManager();
+        
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .addFields( "url", "mylist" )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
+        
+        SearchHits hitsRes = searchResponse.getHits();
+        SearchHit[] hits = hitsRes.hits();
+        assertEquals( 1, hitsRes.getTotalHits() );
+        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
+        assertEquals( 2, hits[ 0 ].field( "mylist" ).getValues().size() );
     }
     
     /**

@@ -41,11 +41,8 @@ import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
-import de.ingrid.admin.elasticsearch.ElasticTests;
-import de.ingrid.admin.search.GermanStemmer;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.admin.search.IndexScheduler;
-import de.ingrid.admin.search.Stemmer;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexSchedulerTest {
@@ -62,7 +59,7 @@ public class IndexSchedulerTest {
 
         private int _counter = 0;
 
-        public DummyRunnable(final long time, PlugDescriptionService pdService, Stemmer stemmer) throws Exception {
+        public DummyRunnable(final long time, PlugDescriptionService pdService) throws Exception {
             super(elastic, pdService);
             _time = time;
         }
@@ -113,7 +110,7 @@ public class IndexSchedulerTest {
 
         //IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
         PlugDescriptionService pdService = new PlugDescriptionService();
-        _runnable = new DummyRunnable(1000L, pdService, new GermanStemmer());
+        _runnable = new DummyRunnable(1000L, pdService);
         _runnable.configure(pd);
 
         _scheduler = new IndexScheduler(_runnable);

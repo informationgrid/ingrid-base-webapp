@@ -22,6 +22,8 @@
  */
 package de.ingrid.admin;
 
+import java.util.Map;
+
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
@@ -48,6 +50,15 @@ public interface Index {
 	 */
 	public IngridHitDetail getDetail(IngridHit hit, IngridQuery query, String[] requestedFields);
 	
+	/**
+	 * 
+	 * @param hit
+	 * @param query
+	 * @param requestedFields 
+	 * @return
+	 */
+	public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query, String[] requestedFields);
+	
 	
 	/**
 	 * TODO: Move to another interface!
@@ -62,5 +73,7 @@ public interface Index {
 	 * 
 	 */
 	public void close();
+	
+	public Map<String, Object> getDocById( Object id );
 
 }
