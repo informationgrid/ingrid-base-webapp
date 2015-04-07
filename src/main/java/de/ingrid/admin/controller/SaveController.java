@@ -39,8 +39,6 @@ import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.IRecordLoader;
-import de.ingrid.utils.tool.PlugDescriptionUtil;
-import de.ingrid.utils.tool.QueryUtil;
 
 @Controller
 @SessionAttributes({"plugDescription", "postCommandObject"})

@@ -78,7 +78,7 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 
     private Properties properties;
 
-    private boolean isLocal = false;
+    //private boolean isLocal = false;
 
     private boolean isClient = false;
 
@@ -204,9 +204,9 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 		return true;
 	}
 
-    public void setLocal(boolean value) {
-        this.isLocal = value;
-        
-    }
+//    public void setLocal(boolean value) {
+//        this.isLocal = value;
+//        
+//    }
 
 }

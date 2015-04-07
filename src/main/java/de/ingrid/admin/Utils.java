@@ -48,9 +48,9 @@ public class Utils {
 
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
-                final List<Map<String, Object>> partners = hits.getHits()[0].getArrayList("partner");
-                for (final Map<String, Object> object : partners) {
-                    final Map<String, Object> map = object;
+                final List<Object> partners = hits.getHits()[0].getArrayList("partner");
+                for (final Object object : partners) {
+                    final Map<String, Object> map = (Map<String, Object>) object;
                     final String partnerName = (String) map.get("name");
                     final String partnerId = (String) map.get("partnerid");
                     list.add(new Partner(partnerId, partnerName));
@@ -81,9 +81,9 @@ public class Utils {
 
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
-                final List<Map<String, Object>> providers = hits.getHits()[0].getArrayList("provider");
-                for (final Map<String, Object> object : providers) {
-                    final Map<String, Object> map = object;
+                final List<Object> providers = hits.getHits()[0].getArrayList("provider");
+                for (final Object object : providers) {
+                    final Map<String, Object> map = (Map<String, Object>) object;
                     final String providerName = (String) map.get("name");
                     final String providerId = (String) map.get("providerid");
                     list.add(new Provider(providerId, providerName));

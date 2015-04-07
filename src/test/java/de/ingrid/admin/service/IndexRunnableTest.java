@@ -25,9 +25,6 @@ package de.ingrid.admin.service;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -47,7 +44,6 @@ import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.search.IndexRunnable;
 import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.query.IngridQuery;
 
 public class IndexRunnableTest extends ElasticTests {
 
@@ -291,12 +287,12 @@ public class IndexRunnableTest extends ElasticTests {
 //        
 //    }
 //    
-    @SuppressWarnings("unchecked")
-    private void addFacets(IngridQuery ingridQuery) {
-        Map f1 = new HashMap();
-        f1.put("id", "first");
-
-        ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
-    }
+//    @SuppressWarnings("unchecked")
+//    private void addFacets(IngridQuery ingridQuery) {
+//        Map f1 = new HashMap();
+//        f1.put("id", "first");
+//
+//        ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
+//    }
 
 }

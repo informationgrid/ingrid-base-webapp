@@ -69,7 +69,7 @@ import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
 
-@PropertiesFiles({ "config" })
+@PropertiesFiles( {"config", "elasticsearch"} )
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
 @LoadingOrder({CommandLineValue.class, SystemPropertyValue.class, PropertyValue.class, EnvironmentVariableValue.class, DefaultValue.class})
 public class Config {
@@ -333,7 +333,7 @@ public class Config {
     public List<String> rankings;
 
     @PropertyValue("elastic.boost.field")
-    @DefaultValue("doc_boost")
+    @DefaultValue("boost")
     public String esBoostField;
     
     @TypeTransformers(Config.StringToModifier.class)
@@ -369,6 +369,10 @@ public class Config {
     @PropertyValue("search.type")
     @DefaultValue("DEFAULT")
     public SearchType searchType;
+    
+    @PropertyValue("detail.fields")
+    @DefaultValue("")
+    public List<String> detailFields;
 
 
 
@@ -570,9 +574,8 @@ public class Config {
             Properties props = new Properties();
             props.load( is );
 
-            for (@SuppressWarnings("unchecked")
-            Iterator<String> it = pd.keySet().iterator(); it.hasNext();) {
-                String key = it.next();
+            for (Iterator<Object> it = pd.keySet().iterator(); it.hasNext();) {
+                String key = (String) it.next();
                 Object valObj = pd.get( key );
                 if (valObj instanceof String) {
                     props.setProperty( "plugdescription." + key, (String) pd.get( key ) );

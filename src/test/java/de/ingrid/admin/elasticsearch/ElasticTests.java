@@ -103,7 +103,7 @@ public class ElasticTests {
             client.admin().indices().prepareCreate(index).execute().actionGet();
             
             client.admin().indices().preparePutMapping().setIndices( index )
-                    .setType("web")
+                    .setType("base")
                     .setSource( mappingSource )
                     .execute()
                     .actionGet();

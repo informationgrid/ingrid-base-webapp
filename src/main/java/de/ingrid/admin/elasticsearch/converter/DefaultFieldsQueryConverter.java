@@ -33,6 +33,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
@@ -40,7 +41,11 @@ import de.ingrid.utils.query.TermQuery;
 @Service
 public class DefaultFieldsQueryConverter implements IQueryParsers {
     
-    private static final String[] content = {"title", "content"};
+    private String[] defaultFields;
+    
+    public DefaultFieldsQueryConverter() {
+        //defaultFields = JettyStarter.getInstance().config.detailFields.toArray( new String[0] );
+    }
 
     @Override
     public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder) {
@@ -58,7 +63,7 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
                 // if it's a phrase
                 if (t.contains( " " )) {
                     subQuery = QueryBuilders.boolQuery();
-                    for (String field : content) {
+                    for (String field : defaultFields) {
                         ((BoolQueryBuilder)subQuery).should( QueryBuilders.matchPhraseQuery( field, t ) );
                     }
                 // in case a term was not identified as a wildcard-term, e.g. "Deutsch*"
@@ -67,7 +72,7 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
                     ((BoolQueryBuilder)subQuery).should( QueryBuilders.queryString( t ) );
                     
                 } else if (term.isProhibited()) {
-                    subQuery = QueryBuilders.multiMatchQuery( t, content );
+                    subQuery = QueryBuilders.multiMatchQuery( t, defaultFields );
                     
                 } else {
                 
@@ -110,13 +115,13 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
             
             if (!termsAnd.isEmpty()) {
                 String join = StringUtils.join( termsAnd, " " );
-                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, content ).operator( Operator.AND );
+                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, defaultFields ).operator( Operator.AND );
                 if (bq == null) bq = QueryBuilders.boolQuery();
                 bq.should( subQuery );
             }
             if (!termsOr.isEmpty()) {
                 String join = StringUtils.join( termsOr, " " );
-                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, content ).operator( Operator.OR );
+                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, defaultFields ).operator( Operator.OR );
                 if (bq == null) bq = QueryBuilders.boolQuery();
                 bq.should( subQuery );
             }

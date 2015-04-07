@@ -1,26 +1,24 @@
 {
-    "web": {
-        "properties": {
-            "fetched": {
-                "format": "dateOptionalTime",
-                "type": "date"
-            },
-            "title": {
-                "analyzer": "german",
-                "type": "string",
-                "boost": 1.1
-            },
-            "content": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "url": {
-                "type": "string"
-            },
-            "boost": {
-                "type": "float",
-                "null_value" : "0.0"
-            }
+    "properties": {
+        "fetched": {
+            "format": "dateOptionalTime",
+            "type": "date"
+        },
+        "title": {
+            "analyzer": "german",
+            "type": "string",
+            "boost": 1.1
+        },
+        "content": {
+            "analyzer": "german",
+            "type": "string"
+        },
+        "url": {
+            "type": "string"
+        },
+        "boost": {
+            "type": "float",
+            "null_value" : "0.0"
         }
     }
 }

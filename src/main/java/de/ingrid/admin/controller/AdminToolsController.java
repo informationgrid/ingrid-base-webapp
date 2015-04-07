@@ -64,7 +64,7 @@ public class AdminToolsController extends AbstractController {
 
     private final CacheService _cacheService;
 
-    private final PlugDescriptionService _plugDescriptionService;
+    //private final PlugDescriptionService _plugDescriptionService;
 
     @Autowired
     public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug,
@@ -72,7 +72,7 @@ public class AdminToolsController extends AbstractController {
         _communication = communication;
         _plug = plug;
         _cacheService = cacheService;
-        _plugDescriptionService = plugDescriptionService;
+        //_plugDescriptionService = plugDescriptionService;
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.GET)
@@ -128,10 +128,10 @@ public class AdminToolsController extends AbstractController {
             // convert details to map
             // this is necessary because it's not possible to access the
             // document-id by ${hit.documentId}
-            final Map<Integer, IngridHitDetail> detailsMap = new HashMap<Integer, IngridHitDetail>();
+            final Map<String, IngridHitDetail> detailsMap = new HashMap<String, IngridHitDetail>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
-                    detailsMap.put(detail.getDocumentId(), detail);
+                    detailsMap.put(detail.getDocumentUId(), detail);
                 }
             }
 
@@ -144,14 +144,14 @@ public class AdminToolsController extends AbstractController {
     }
 
     @RequestMapping(value = IUris.SEARCH_DETAILS, method = RequestMethod.GET)
-    public String showDetails(final ModelMap modelMap, @RequestParam(value = "id", required = false) final Integer id)
+    public String showDetails(final ModelMap modelMap, @RequestParam(value = "id", required = false) final String id)
             throws Exception {
         if (!(_plug instanceof IRecordLoader) || id == null) {
             return IKeys.REDIRECT + IUris.SEARCH;
         }
 
         final IngridHit hit = new IngridHit();
-        hit.setDocumentId(id);
+        hit.setDocumentUId(id);
 
         final IRecordLoader loader = (IRecordLoader) _plug;
         final Record record = loader.getRecord(hit);

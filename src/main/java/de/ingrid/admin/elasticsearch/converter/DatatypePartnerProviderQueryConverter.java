@@ -40,9 +40,9 @@ public class DatatypePartnerProviderQueryConverter implements IQueryParsers {
     @SuppressWarnings("unchecked")
     @Override
     public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder) {
-        final List<FieldQuery> dataTypes = ingridQuery.getArrayList( IngridQuery.DATA_TYPE );
-        final List<FieldQuery> partner = ingridQuery.getArrayList( IngridQuery.PARTNER );
-        final List<FieldQuery> provider = ingridQuery.getArrayList( IngridQuery.PROVIDER );
+        final List<FieldQuery> dataTypes = (List<FieldQuery>)(List<?>)ingridQuery.getArrayList( IngridQuery.DATA_TYPE );
+        final List<FieldQuery> partner = (List<FieldQuery>)(List<?>)ingridQuery.getArrayList( IngridQuery.PARTNER );
+        final List<FieldQuery> provider = (List<FieldQuery>)(List<?>)ingridQuery.getArrayList( IngridQuery.PROVIDER );
         
         // concatenate all fields
         List<FieldQuery> allFields = new ArrayList<FieldQuery>();

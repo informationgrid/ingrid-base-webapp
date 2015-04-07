@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -77,7 +78,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
         _produceable = true;
     }
 
-    @SuppressWarnings("unchecked")
     public void run() {
         if (_produceable) {
             try {
@@ -212,12 +212,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.info( "Add fields from new index to PD." );
         }
         
+        // TODO: maybe wait for index refreshed, or better refresh it itself!
+        RefreshRequest refreshRequest = new RefreshRequest( config.index );
+        client.admin().indices().refresh( refreshRequest ).actionGet();
+        
         // get the fields from the mapping, which is updated after each indexing
         ClusterState cs = client.admin().cluster().prepareState().setIndices( config.index ).execute().actionGet().getState();
         IndexMetaData imd = cs.getMetaData().index( config.index );
         MappingMetaData mdd = imd.mapping( config.indexType );
-        
-        // TODO: maybe wait for index refreshed, or better refresh it itself!
         
         @SuppressWarnings("unchecked")
         Map<String, Object> fields = (Map<String, Object>) mdd.getSourceAsMap().get( "properties" );

@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -70,8 +71,6 @@ public class IndexImpl implements Index {
     
     private FacetConverter facetConverter;
     
-    private final static String[] detailFields =  { "url", "title" };
-
     public static final String ELASTIC_SEARCH_ID = "es_id";
 
     private static final String ELASTIC_SEARCH_INDEX = "es_index";
@@ -88,12 +87,15 @@ public class IndexImpl implements Index {
 
     private Config config;
 
+    private String[] detailFields;
+
     @Autowired
     public IndexImpl(ElasticsearchNodeFactoryBean elasticSearch, QueryConverter qc, FacetConverter fc) {
         this.config =  JettyStarter.getInstance().config;
         this.indexName = config.index;
         this.searchType = config.searchType;
         this.plugId = config.communicationProxyUrl;
+        this.detailFields = config.detailFields.toArray(new String[0]);
         
         try {
             this.elasticSearch = elasticSearch;
@@ -212,6 +214,10 @@ public class IndexImpl implements Index {
      * @return
      */
     private IngridHits getHitsFromResponse(SearchResponse searchResponse, IngridQuery ingridQuery) {
+        for (ShardSearchFailure failure: searchResponse.getShardFailures()) {
+            log.error( "Error searching in index: " + failure.reason() );
+        }
+        
         SearchHits hits = searchResponse.getHits();
 
         // the size will not be bigger than it was requested in the query with
@@ -221,11 +227,11 @@ public class IndexImpl implements Index {
         int totalHits = (int) hits.getTotalHits();
         IngridHit[] hitArray = new IngridHit[length];
         int pos = 0;
-        int docId = 0;
+        //int docId = 0;
         String groupBy = ingridQuery.getGrouped();
         for (SearchHit hit : hits.hits()) {
-            IngridHit ingridHit = new IngridHit(this.plugId, docId++, -1, hit.getScore() );
-            ingridHit.put( ELASTIC_SEARCH_ID, hit.getId() );
+            IngridHit ingridHit = new IngridHit(this.plugId, hit.getId(), -1, hit.getScore() );
+            //ingridHit.put( ELASTIC_SEARCH_ID, hit.getId() );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
 
@@ -267,31 +273,38 @@ public class IndexImpl implements Index {
         // QueryBuilder query =
         // QueryBuilders.boolQuery().must(QueryBuilders.idsQuery(documentId)).should(queryConverter.convert(
         // ingridQuery ));
+        
+        // We have to search here again, to get a highlighted summary of the result!
         QueryBuilder query = QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("_id", documentId)).must(queryConverter.convert( ingridQuery ));
         
+        
         // search prepare
-        SearchRequestBuilder srb = client.prepareSearch(fromIndex).setTypes(fromType).setSearchType(searchType).setQuery(query) // Query
-                .setFrom(0).setSize(1).setExplain(false).addHighlightedField("content").addFields(allFields).setSource("");
+        SearchRequestBuilder srb = client.prepareSearch(fromIndex)
+                .setTypes(fromType)
+                .setSearchType(searchType)
+                .setQuery(query) // Query
+                .setFrom(0).setSize(1)
+                .addHighlightedField("content")
+                .addFields(allFields)
+                .setExplain(false);
 
         SearchResponse searchResponse = srb.execute().actionGet();
         
         SearchHits dHits = searchResponse.getHits();
         SearchHit dHit = dHits.getAt(0);
         
-        /*
-         * GetResponse response = client.prepareGet( fromIndex, fromType,
-         * documentId ) .setFields( allFields ) .execute() .actionGet();
-         */
+        // TODO: make title and content configurable
         String title = "untitled";
-//        if (dHit.field( IndexFields.TITLE ) != null) {
-//            title = (String) dHit.field( IndexFields.TITLE ).getValue();
-//        }
+        if (dHit.field( "title" ) != null) {
+            title = (String) dHit.field( "title" ).getValue();
+        }
         String summary = "";
         if (dHit.getHighlightFields().containsKey("content")) {
             summary = StringUtils.join(dHit.getHighlightFields().get( "content" ).fragments(), " ... ");
         }
-                //(String) response.getField( IndexFields.ABSTRACT ).getValue();
+
         IngridHitDetail detail = new IngridHitDetail(hit, title, summary);
+        detail.setDocumentUId( documentId );
         if (requestedFields != null) {
             for (String field : requestedFields) {
                 if (dHit.field( field ) != null) {
@@ -303,8 +316,8 @@ public class IndexImpl implements Index {
                 }
             }
         }
-        String url = dHit.getFields().get( DETAIL_URL ).getValue();
-        detail.put(DETAIL_URL, url);
+        //String url = dHit.getFields().get( DETAIL_URL ).getValue();
+        //detail.put(DETAIL_URL, url);
         
         return detail;
     }
@@ -337,7 +350,8 @@ public class IndexImpl implements Index {
     
     
     public Map<String, Object> getDocById(Object id) {
-        return client.prepareGet( config.index, config.indexType, (String)id )
+        String idAsString = String.valueOf( id );
+        return client.prepareGet( config.index, config.indexType, idAsString )
                 .setFetchSource( true )
                 .execute()
                 .actionGet()
