@@ -101,6 +101,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         LOG.info( "add document to index: " + _documentCount );
                     }
 
+                    // TODO: if IDs are generated automatically then we should index into a temporary
+                    // index and switch the old with the new one at the end
                     IndexRequest indexRequest = new IndexRequest( config.index, config.indexType );
                     if (!config.indexWithAutoId) {
                         indexRequest.id( (String)document.get( config.indexIdFromDoc ) );
@@ -212,7 +214,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.info( "Add fields from new index to PD." );
         }
         
-        // TODO: maybe wait for index refreshed, or better refresh it itself!
         RefreshRequest refreshRequest = new RefreshRequest( config.index );
         client.admin().indices().refresh( refreshRequest ).actionGet();
         

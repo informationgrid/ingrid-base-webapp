@@ -370,12 +370,14 @@ public class Config {
     @DefaultValue("DEFAULT")
     public SearchType searchType;
     
-    @PropertyValue("detail.fields")
-    @DefaultValue("")
-    public List<String> detailFields;
-
-
-
+    @PropertyValue("index.field.title")
+    @DefaultValue("title")
+    public String indexFieldTitle;
+    
+    @PropertyValue("index.field.summary")
+    @DefaultValue("summary")
+    public String indexFieldSummary;
+    
     public String getWebappDir() {
         return this.webappDir;
     }
@@ -565,9 +567,6 @@ public class Config {
     @SuppressWarnings("rawtypes")
     public void writePlugdescriptionToProperties(PlugdescriptionCommandObject pd) {
         try {
-            // TODO: write all properties to class variables first, to
-            // synchronize values!
-            // ...
 
             Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
@@ -805,7 +804,7 @@ public class Config {
                 busses.add( bus );
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            log.error( "Error when reading from communication.xml" );
             e.printStackTrace();
         }
         // return all busses
@@ -830,7 +829,7 @@ public class Config {
         } catch (FileNotFoundException e) {
             return new FileSystemResource( "conf/config.override.properties" );
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            log.error( "Error when getting config.override.properties" );
             e.printStackTrace();
         }
         return null;

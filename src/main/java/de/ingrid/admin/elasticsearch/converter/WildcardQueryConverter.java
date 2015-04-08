@@ -43,7 +43,7 @@ public class WildcardQueryConverter implements IQueryParsers {
         if (terms.length > 0) {
             
             for (WildCardTermQuery term : terms) {
-                QueryBuilder subQuery = QueryBuilders.queryString( term.getTerm() );
+                QueryBuilder subQuery = QueryBuilders.queryStringQuery( term.getTerm() );
                 
                 if (term.isRequred()) {
                     if (bq == null) bq = QueryBuilders.boolQuery();

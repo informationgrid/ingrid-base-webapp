@@ -33,6 +33,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.search.utils.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
@@ -44,7 +45,8 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
     private String[] defaultFields;
     
     public DefaultFieldsQueryConverter() {
-        //defaultFields = JettyStarter.getInstance().config.detailFields.toArray( new String[0] );
+        Config config = JettyStarter.getInstance().config;
+        defaultFields = new String[] { config.indexFieldTitle, config.indexFieldSummary };
     }
 
     @Override
@@ -69,7 +71,7 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
                 // in case a term was not identified as a wildcard-term, e.g. "Deutsch*"
                 } else if (t.contains( "*" )) {
                     subQuery = QueryBuilders.boolQuery();
-                    ((BoolQueryBuilder)subQuery).should( QueryBuilders.queryString( t ) );
+                    ((BoolQueryBuilder)subQuery).should( QueryBuilders.queryStringQuery( t ) );
                     
                 } else if (term.isProhibited()) {
                     subQuery = QueryBuilders.multiMatchQuery( t, defaultFields );

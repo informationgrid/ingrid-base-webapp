@@ -22,8 +22,8 @@ public class Search extends ElasticTests {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        setup( "test", "data/webUrls2.json" );
         new JettyStarter( false );
+        setup( "test", "data/webUrls2.json" );
     }
 
     @Test

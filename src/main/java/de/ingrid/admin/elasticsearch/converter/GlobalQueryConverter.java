@@ -43,10 +43,10 @@ public class GlobalQueryConverter implements IQueryParsers {
         } else {
             for (TermQuery term : terms) {
                 if (term.isRequred()) {
-                    bq.must( QueryBuilders.queryString( term.getTerm() ) );
+                    bq.must( QueryBuilders.queryStringQuery( term.getTerm() ) );
                     
                 } else {
-                    bq.should( QueryBuilders.queryString( term.getTerm() ) );
+                    bq.should( QueryBuilders.queryStringQuery( term.getTerm() ) );
                     
                 }
             }

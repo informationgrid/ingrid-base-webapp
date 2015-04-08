@@ -25,6 +25,8 @@ package de.ingrid.admin.elasticsearch;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -49,6 +51,8 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 
 @Service
 public class FacetConverter {
+    
+    private static Log log = LogFactory.getLog( FacetConverter.class );
     
     private FacetClassRegistry _facetClassRegistry;
 
@@ -78,7 +82,7 @@ public class FacetConverter {
                         aggr = AggregationBuilders.filter( fClass.getName() ).filter( FilterBuilders.queryFilter( queryConverter.convert( facetQuery ) ) );
                         aggregations.add( aggr );
                     } catch (ParseException e) {
-                        // TODO Auto-generated catch block
+                        log.error( "Error during parsing facets." );
                         e.printStackTrace();
                     }
                 }

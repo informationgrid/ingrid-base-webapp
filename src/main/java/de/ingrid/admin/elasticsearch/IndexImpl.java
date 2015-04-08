@@ -95,7 +95,7 @@ public class IndexImpl implements Index {
         this.indexName = config.index;
         this.searchType = config.searchType;
         this.plugId = config.communicationProxyUrl;
-        this.detailFields = config.detailFields.toArray(new String[0]);
+        this.detailFields = new String[] { config.indexFieldTitle, config.indexFieldSummary };
         
         try {
             this.elasticSearch = elasticSearch;
@@ -107,6 +107,12 @@ public class IndexImpl implements Index {
             boolean indexExists = client.admin().indices().prepareExists( indexName ).execute().actionGet().isExists();
             if (!indexExists) {
                 client.admin().indices().prepareCreate( indexName ).execute().actionGet();
+                
+//                client.admin().indices().preparePutMapping().setIndices( indexName )
+//                        .setType( "_default_" )
+//                        //.setSource( mappingSource )
+//                        .execute()
+//                        .actionGet();
             }
             
         } catch (Exception e) {
@@ -231,7 +237,8 @@ public class IndexImpl implements Index {
         String groupBy = ingridQuery.getGrouped();
         for (SearchHit hit : hits.hits()) {
             IngridHit ingridHit = new IngridHit(this.plugId, hit.getId(), -1, hit.getScore() );
-            //ingridHit.put( ELASTIC_SEARCH_ID, hit.getId() );
+            // backward compatibility
+            ingridHit.put( IngridDocument.DOCUMENT_ID, -1 );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
 
@@ -264,19 +271,15 @@ public class IndexImpl implements Index {
 
     @Override
     public IngridHitDetail getDetail(IngridHit hit, IngridQuery ingridQuery, String[] requestedFields) {
-        String documentId = hit.getString( ELASTIC_SEARCH_ID );
+        String documentId = hit.getDocumentUId();
         String fromIndex = hit.getString( ELASTIC_SEARCH_INDEX );
         String fromType = hit.getString( ELASTIC_SEARCH_INDEX_TYPE );
         String[] allFields = (String[]) ArrayUtils.addAll( detailFields, requestedFields );
         
-     // convert InGrid-query to QueryBuilder
-        // QueryBuilder query =
-        // QueryBuilders.boolQuery().must(QueryBuilders.idsQuery(documentId)).should(queryConverter.convert(
-        // ingridQuery ));
-        
         // We have to search here again, to get a highlighted summary of the result!
-        QueryBuilder query = QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("_id", documentId)).must(queryConverter.convert( ingridQuery ));
-        
+        QueryBuilder query = QueryBuilders.boolQuery()
+                .must(QueryBuilders.matchQuery(IngridDocument.DOCUMENT_UID, documentId))
+                .must(queryConverter.convert( ingridQuery ));
         
         // search prepare
         SearchRequestBuilder srb = client.prepareSearch(fromIndex)
@@ -284,7 +287,7 @@ public class IndexImpl implements Index {
                 .setSearchType(searchType)
                 .setQuery(query) // Query
                 .setFrom(0).setSize(1)
-                .addHighlightedField("content")
+                .addHighlightedField(config.indexFieldSummary)
                 .addFields(allFields)
                 .setExplain(false);
 
@@ -293,14 +296,13 @@ public class IndexImpl implements Index {
         SearchHits dHits = searchResponse.getHits();
         SearchHit dHit = dHits.getAt(0);
         
-        // TODO: make title and content configurable
         String title = "untitled";
-        if (dHit.field( "title" ) != null) {
-            title = (String) dHit.field( "title" ).getValue();
+        if (dHit.field( config.indexFieldTitle ) != null) {
+            title = (String) dHit.field( config.indexFieldTitle ).getValue();
         }
         String summary = "";
-        if (dHit.getHighlightFields().containsKey("content")) {
-            summary = StringUtils.join(dHit.getHighlightFields().get( "content" ).fragments(), " ... ");
+        if (dHit.getHighlightFields().containsKey( config.indexFieldSummary )) {
+            summary = StringUtils.join(dHit.getHighlightFields().get( config.indexFieldSummary ).fragments(), " ... ");
         }
 
         IngridHitDetail detail = new IngridHitDetail(hit, title, summary);
@@ -332,18 +334,11 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public boolean deleteUrl(String url) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
     // FIXME: is destroyed automatically via the BEAN!!!
     public void close() {
         try {
             elasticSearch.getObject().close();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

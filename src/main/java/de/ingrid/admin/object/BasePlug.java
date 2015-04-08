@@ -55,7 +55,6 @@ public class BasePlug extends HeartBeatPlug {
 
     @Override
     public IngridHitDetail getDetail(final IngridHit hit, final IngridQuery query, final String[] requestedFields) throws Exception {
-        // TODO Auto-generated method stub
         return null;
     }
 
