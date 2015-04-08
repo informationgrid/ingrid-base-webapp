@@ -35,7 +35,7 @@ import org.elasticsearch.index.query.functionscore.fieldvaluefactor.FieldValueFa
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.search.utils.IQueryParsers;
+import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
 

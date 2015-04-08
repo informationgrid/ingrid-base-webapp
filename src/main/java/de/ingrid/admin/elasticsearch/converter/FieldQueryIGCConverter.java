@@ -36,7 +36,7 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.search.utils.IQueryParsers;
+import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 

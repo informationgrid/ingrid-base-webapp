@@ -27,7 +27,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.search.utils.IQueryParsers;
+import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.FuzzyTermQuery;
 import de.ingrid.utils.query.IngridQuery;
 

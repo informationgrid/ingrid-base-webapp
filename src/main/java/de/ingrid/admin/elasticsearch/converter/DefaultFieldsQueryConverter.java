@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.search.utils.IQueryParsers;
+import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
 

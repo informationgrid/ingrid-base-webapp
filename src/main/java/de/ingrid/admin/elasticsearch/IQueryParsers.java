@@ -1,6 +1,6 @@
 /*
  * **************************************************-
- * ingrid-iplug-se-iplug
+ * ingrid-search-utils
  * ==================================================
  * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
  * ==================================================
@@ -20,30 +20,13 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.admin.elasticsearch.converter;
+package de.ingrid.admin.elasticsearch;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Service;
-
-import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
 
-@Service
-public class MatchAllQueryConverter implements IQueryParsers {
-    
-    @Override
-    public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder) {
-        // NOTICE: is also called on sub clauses BUT WE ONLY PROCESS THE TOP INGRID QUERY.
-        // all other ones are subclasses !
-        //
-        boolean isTopQuery = (ingridQuery.getClass().equals(IngridQuery.class));
-        boolean hasTerms = ingridQuery.getTerms().length > 0;
-        if (!hasTerms && isTopQuery && !queryBuilder.hasClauses()) {
-            BoolQueryBuilder bq = QueryBuilders.boolQuery();
-            bq.must( QueryBuilders.matchAllQuery() );
-            queryBuilder.must( bq );
-        }
-    }
+public interface IQueryParsers {
 
+    public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder);
+    
 }

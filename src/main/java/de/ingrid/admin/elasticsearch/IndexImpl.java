@@ -233,12 +233,13 @@ public class IndexImpl implements Index {
         int totalHits = (int) hits.getTotalHits();
         IngridHit[] hitArray = new IngridHit[length];
         int pos = 0;
-        //int docId = 0;
+
         String groupBy = ingridQuery.getGrouped();
+        int docId = -1;
         for (SearchHit hit : hits.hits()) {
             IngridHit ingridHit = new IngridHit(this.plugId, hit.getId(), -1, hit.getScore() );
             // backward compatibility
-            ingridHit.put( IngridDocument.DOCUMENT_ID, -1 );
+            ingridHit.put( IngridDocument.DOCUMENT_ID, docId-- );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
 

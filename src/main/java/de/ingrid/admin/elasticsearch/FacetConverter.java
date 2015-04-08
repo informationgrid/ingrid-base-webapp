@@ -36,14 +36,14 @@ import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.UnmappedTerms;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
-import de.ingrid.search.utils.facet.FacetClassDefinition;
-import de.ingrid.search.utils.facet.FacetClassProducer;
-import de.ingrid.search.utils.facet.FacetClassRegistry;
-import de.ingrid.search.utils.facet.FacetDefinition;
-import de.ingrid.search.utils.facet.FacetUtils;
+import de.ingrid.admin.elasticsearch.facets.FacetClassDefinition;
+import de.ingrid.admin.elasticsearch.facets.FacetDefinition;
+import de.ingrid.admin.elasticsearch.facets.FacetUtils;
+import de.ingrid.admin.elasticsearch.facets.IFacetDefinitionProcessor;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.ParseException;
@@ -54,18 +54,19 @@ public class FacetConverter {
     
     private static Log log = LogFactory.getLog( FacetConverter.class );
     
-    private FacetClassRegistry _facetClassRegistry;
-
-    public FacetConverter() {
-        _facetClassRegistry = new FacetClassRegistry();
-        _facetClassRegistry.setFacetClassProducer( new FacetClassProducer() );
-    }
+    @Autowired
+    private List<IFacetDefinitionProcessor> facetDefinitionProcessors = new ArrayList<IFacetDefinitionProcessor>();
+    
+    public FacetConverter() {}
 
     public List<AbstractAggregationBuilder> getAggregations(IngridQuery ingridQuery, QueryConverter queryConverter) {
         // get all FacetDefinitions from the Query
         List<FacetDefinition> defs = FacetUtils.getFacetDefinitions(ingridQuery);
         
-        // TODO: filter facets!
+        // filter those facets in case some have to be mapped to another value (see IGCTopicsSearchPreProcessor)
+        for (IFacetDefinitionProcessor facetdefProcessor : facetDefinitionProcessors) {
+            facetdefProcessor.process(defs);
+        }
         
         List<AbstractAggregationBuilder> aggregations = new ArrayList<AbstractAggregationBuilder>();
         

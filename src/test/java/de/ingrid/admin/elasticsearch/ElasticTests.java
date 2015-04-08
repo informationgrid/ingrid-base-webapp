@@ -21,7 +21,6 @@ import de.ingrid.admin.elasticsearch.converter.MatchAllQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
-import de.ingrid.search.utils.IQueryParsers;
 
 public class ElasticTests {
 

@@ -25,7 +25,7 @@ package de.ingrid.admin.elasticsearch.converter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
-import de.ingrid.search.utils.IQueryParsers;
+import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
 
