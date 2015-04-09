@@ -46,18 +46,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.ingrid.admin.Config;
-import de.ingrid.admin.Index;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.utils.IDetailer;
+import de.ingrid.utils.IRecordLoader;
+import de.ingrid.utils.ISearcher;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.dsc.Column;
+import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
 
 @Component
-public class IndexImpl implements Index {
+public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     public static final String DETAIL_URL = "url";
 
@@ -128,7 +132,10 @@ public class IndexImpl implements Index {
         // convert InGrid-query to QueryBuilder
         QueryBuilder query = queryConverter.convert( ingridQuery );
         
-        QueryBuilder funcScoreQuery = queryConverter.addScoreModifier( query );
+        QueryBuilder funcScoreQuery = null;
+        if (config.indexEnableBoost) {
+            funcScoreQuery = queryConverter.addScoreModifier( query );
+        }
         
         boolean isLocationSearch = ingridQuery.containsField( "x1" );
         boolean hasFacets = ingridQuery.containsKey( "FACETS" );
@@ -150,8 +157,7 @@ public class IndexImpl implements Index {
         SearchRequestBuilder srb = client.prepareSearch( indexName )
                 //.setTypes( instances )
                 .setSearchType( searchType  )
-                //.setQuery( query ) // Query
-                .setQuery( funcScoreQuery ) // Query
+                .setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
                 .setFrom( startHit ).setSize( num )
                 .setExplain( false );
         
@@ -239,7 +245,7 @@ public class IndexImpl implements Index {
         for (SearchHit hit : hits.hits()) {
             IngridHit ingridHit = new IngridHit(this.plugId, hit.getId(), -1, hit.getScore() );
             // backward compatibility
-            ingridHit.put( IngridDocument.DOCUMENT_ID, docId-- );
+            //ingridHit.put( IngridDocument.DOCUMENT_ID, docId-- );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
 
@@ -251,11 +257,12 @@ public class IndexImpl implements Index {
                 groupValue = hit.field(IngridQuery.PROVIDER).getValue().toString();
             } else if (IngridQuery.GROUPED_BY_DATASOURCE.equalsIgnoreCase(groupBy)) {
                 groupValue = hit.getId();
-                try {
+                /*try {
+                    // TODO: this is not the SE!
                     groupValue = new URL(groupValue).getHost();
                 } catch (MalformedURLException e) {
                     log.warn("can not group url: " + groupValue, e);
-                }
+                }*/
             }
             if (groupValue != null) {
                 ingridHit.addGroupedField(groupValue);
@@ -272,7 +279,7 @@ public class IndexImpl implements Index {
 
     @Override
     public IngridHitDetail getDetail(IngridHit hit, IngridQuery ingridQuery, String[] requestedFields) {
-        String documentId = hit.getDocumentUId();
+        String documentId = hit.getDocumentId();
         String fromIndex = hit.getString( ELASTIC_SEARCH_INDEX );
         String fromType = hit.getString( ELASTIC_SEARCH_INDEX_TYPE );
         String[] allFields = (String[]) ArrayUtils.addAll( detailFields, requestedFields );
@@ -307,7 +314,7 @@ public class IndexImpl implements Index {
         }
 
         IngridHitDetail detail = new IngridHitDetail(hit, title, summary);
-        detail.setDocumentUId( documentId );
+        detail.setDocumentId( documentId );
         if (requestedFields != null) {
             for (String field : requestedFields) {
                 if (dHit.field( field ) != null) {
@@ -356,6 +363,30 @@ public class IndexImpl implements Index {
                 .actionGet()
                 .getSource();
         
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Record getRecord(IngridHit hit) throws Exception {
+        String documentId = hit.getDocumentId();
+        Map<String, Object> document = getDocById( documentId );
+        String[] fields = document.keySet().toArray(new String[0]);
+        Record record = new Record();
+        for (String name : fields) {
+            Object stringValue = document.get( name );
+            if (stringValue instanceof List) {
+                for (String item : (List<String>)stringValue) {
+                    Column column = new Column(null, name, null, true);
+                    column.setTargetName(name);
+                    record.addColumn(column, item);
+                }
+            } else {
+                Column column = new Column(null, name, null, true);
+                column.setTargetName(name);
+                record.addColumn(column, stringValue);
+            }
+        }
+        return record;
     }
 
 }

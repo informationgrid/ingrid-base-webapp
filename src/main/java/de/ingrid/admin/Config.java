@@ -377,6 +377,10 @@ public class Config {
     @PropertyValue("index.field.summary")
     @DefaultValue("summary")
     public String indexFieldSummary;
+
+    @PropertyValue("index.boost.enable")
+    @DefaultValue("false")
+    public boolean indexEnableBoost;
     
     public String getWebappDir() {
         return this.webappDir;

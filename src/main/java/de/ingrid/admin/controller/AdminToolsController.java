@@ -131,7 +131,7 @@ public class AdminToolsController extends AbstractController {
             final Map<String, IngridHitDetail> detailsMap = new HashMap<String, IngridHitDetail>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
-                    detailsMap.put(detail.getDocumentUId(), detail);
+                    detailsMap.put(detail.getDocumentId(), detail);
                 }
             }
 
@@ -151,7 +151,7 @@ public class AdminToolsController extends AbstractController {
         }
 
         final IngridHit hit = new IngridHit();
-        hit.setDocumentUId(id);
+        hit.setDocumentId(id);
 
         final IRecordLoader loader = (IRecordLoader) _plug;
         final Record record = loader.getRecord(hit);

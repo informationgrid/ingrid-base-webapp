@@ -54,7 +54,7 @@ public class FacetConverter {
     
     private static Log log = LogFactory.getLog( FacetConverter.class );
     
-    @Autowired
+    @Autowired(required=false)
     private List<IFacetDefinitionProcessor> facetDefinitionProcessors = new ArrayList<IFacetDefinitionProcessor>();
     
     public FacetConverter() {}
