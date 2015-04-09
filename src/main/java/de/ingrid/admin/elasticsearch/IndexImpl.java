@@ -327,6 +327,9 @@ public class IndexImpl implements Index {
     
     @Override
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery ingridQuery, String[] requestedFields) {
+        for (int i = 0; i < requestedFields.length; i++) {
+            requestedFields[i] = requestedFields[i].toLowerCase();
+        }
         List<IngridHitDetail> details = new ArrayList<IngridHitDetail>(); 
         for (IngridHit hit : hits) {
             details.add( getDetail( hit, ingridQuery, requestedFields ) );
