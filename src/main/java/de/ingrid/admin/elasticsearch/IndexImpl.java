@@ -54,6 +54,7 @@ import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.query.IngridQuery;
@@ -239,11 +240,8 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         int pos = 0;
 
         String groupBy = ingridQuery.getGrouped();
-        int docId = -1;
         for (SearchHit hit : hits.hits()) {
             IngridHit ingridHit = new IngridHit(this.plugId, hit.getId(), -1, hit.getScore() );
-            // backward compatibility
-            //ingridHit.put( IngridDocument.DOCUMENT_ID, docId-- );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
 
@@ -254,9 +252,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             } else if (IngridQuery.GROUPED_BY_ORGANISATION.equalsIgnoreCase(groupBy)) {
                 groupValue = hit.field(IngridQuery.PROVIDER).getValue().toString();
             } else if (IngridQuery.GROUPED_BY_DATASOURCE.equalsIgnoreCase(groupBy)) {
-                groupValue = hit.getId();
+                groupValue = config.communicationProxyUrl;
+                // TODO: make field for datasource configurable, in order to group by web domains for SE!
                 /*try {
-                    // TODO: this is not the SE!
                     groupValue = new URL(groupValue).getHost();
                 } catch (MalformedURLException e) {
                     log.warn("can not group url: " + groupValue, e);
@@ -307,8 +305,12 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             title = (String) dHit.field( config.indexFieldTitle ).getValue();
         }
         String summary = "";
+        // try to get the summary first from the highlighted fields
         if (dHit.getHighlightFields().containsKey( config.indexFieldSummary )) {
             summary = StringUtils.join(dHit.getHighlightFields().get( config.indexFieldSummary ).fragments(), " ... ");
+        // otherwise get it from the original field
+        } else if (dHit.field( config.indexFieldSummary ) != null) {
+            summary = (String) dHit.field( config.indexFieldSummary ).getValue();
         }
 
         IngridHitDetail detail = new IngridHitDetail(hit, title, summary);
@@ -324,11 +326,21 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
                 }
             }
         }
-        //String url = dHit.getFields().get( DETAIL_URL ).getValue();
-        //detail.put(DETAIL_URL, url);
         
+        addPlugDescriptionInformations(detail, requestedFields);
         return detail;
     }
+
+    private void addPlugDescriptionInformations(IngridHitDetail detail, String[] fields) {
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i].equals(PlugDescription.PARTNER)) {
+                detail.setArray(PlugDescription.PARTNER, config.partner);
+            } else if (fields[i].equals(PlugDescription.PROVIDER)) {
+                detail.setArray(PlugDescription.PROVIDER, config.provider);
+            }
+        }
+    }
+        
     
     @Override
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery ingridQuery, String[] requestedFields) {

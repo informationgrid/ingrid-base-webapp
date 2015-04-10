@@ -316,13 +316,13 @@ public class Config {
     @DefaultValue("")
     private List<String> fields;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @TypeTransformers(StringToArray.class)
     @PropertyValue("plugdescription.partner")
-    private List<String> partner;
+    public String[] partner;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @TypeTransformers(StringToArray.class)
     @PropertyValue("plugdescription.provider")
-    private List<String> provider;
+    public String[] provider;
 
     @TypeTransformers(StringToQueryExtension.class)
     @PropertyValue("plugdescription.queryExtensions")
