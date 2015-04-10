@@ -276,7 +276,7 @@ public class Config {
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.dataType")
-    private List<String> datatypes;
+    public List<String> datatypes;
 
     @PropertyValue("plugdescription.organisationPartnerAbbr")
     private String mainPartner;

@@ -41,6 +41,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.ingrid.admin.Config;
@@ -93,7 +94,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     private String[] detailFields;
 
     @Autowired
-    public IndexImpl(ElasticsearchNodeFactoryBean elasticSearch, QueryConverter qc, FacetConverter fc) {
+    public IndexImpl(ElasticsearchNodeFactoryBean elasticSearch, @Qualifier("queryConverter") QueryConverter qc, FacetConverter fc) {
         this.config =  JettyStarter.getInstance().config;
         this.indexName = config.index;
         this.searchType = config.searchType;
@@ -173,7 +174,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         // pre-processing: add facets/aggregations to the query
         if (hasFacets) {
-            List<AbstractAggregationBuilder> aggregations = facetConverter.getAggregations( ingridQuery, queryConverter );
+            List<AbstractAggregationBuilder> aggregations = facetConverter.getAggregations( ingridQuery );
             for (AbstractAggregationBuilder aggregation : aggregations) {
                 srb.addAggregation( aggregation );
             }

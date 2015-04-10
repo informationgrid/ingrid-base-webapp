@@ -37,8 +37,10 @@ import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.UnmappedTerms;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.elasticsearch.facets.FacetClassDefinition;
@@ -58,10 +60,14 @@ public class FacetConverter {
     
     @Autowired(required=false)
     private List<IFacetDefinitionProcessor> facetDefinitionProcessors = new ArrayList<IFacetDefinitionProcessor>();
+
+    @Autowired
+    @Qualifier("facetQueryConverter")
+    private QueryConverter queryConverter;
     
     public FacetConverter() {}
 
-    public List<AbstractAggregationBuilder> getAggregations(IngridQuery ingridQuery, QueryConverter queryConverter) {
+    public List<AbstractAggregationBuilder> getAggregations(IngridQuery ingridQuery) {
         // get all FacetDefinitions from the Query
         List<FacetDefinition> defs = FacetUtils.getFacetDefinitions(ingridQuery);
         
@@ -102,26 +108,27 @@ public class FacetConverter {
     public IngridDocument convertFacetResultsToDoc(SearchResponse response) {
         IngridDocument facets = new IngridDocument();
         long totalHits = response.getHits().getTotalHits();
-
+        Config config = JettyStarter.getInstance().config;
+        
         List<Aggregation> aggregations = response.getAggregations().asList();
         for (Aggregation aggregation : aggregations) {
-            if ( aggregation.getClass() == UnmappedTerms.class ) {
-                // since all partner belong to each result we just add some more static facets
-                if (PlugDescription.PARTNER.equals( aggregation.getName() )) {
-                    for (String partner : JettyStarter.getInstance().config.partner) {
-                        facets.put(PlugDescription.PARTNER + ":" + partner, totalHits );
-                    }
-                } else if (PlugDescription.PROVIDER.equals( aggregation.getName() )) {
-                    for (String provider : JettyStarter.getInstance().config.provider) {
-                        facets.put(PlugDescription.PROVIDER + ":" + provider, totalHits );
-                    }
-                } else if (aggregation.getName().startsWith( PlugDescription.PROVIDER + "_" )) {
-                    for (String provider : JettyStarter.getInstance().config.provider) {
-                        if (provider.equals( aggregation.getName() )) {
-                            facets.put(PlugDescription.PROVIDER + ":" + aggregation.getName(), totalHits );
-                        }
+            // since all partner belong to each result we just add some more static facets
+            if (PlugDescription.PARTNER.equals( aggregation.getName() )) {
+                for (String partner : config.partner) {
+                    facets.put(PlugDescription.PARTNER + ":" + partner, totalHits );
+                }
+            } else if (PlugDescription.PROVIDER.equals( aggregation.getName() )) {
+                for (String provider : config.provider) {
+                    facets.put(PlugDescription.PROVIDER + ":" + provider, totalHits );
+                }
+            } else if (aggregation.getName().startsWith( PlugDescription.PROVIDER + "_" )) {
+                for (String provider : config.provider) {
+                    if (provider.equals( aggregation.getName() )) {
+                        facets.put(PlugDescription.PROVIDER + ":" + aggregation.getName(), totalHits );
                     }
                 }
+            } else if ( aggregation.getClass() == UnmappedTerms.class ) {
+                // nothing to do here!?
             } else if ( aggregation.getClass() == StringTerms.class ) {
                 StringTerms partnerAgg = (StringTerms) aggregation;
                 for (Bucket bucket : partnerAgg.getBuckets()) {
