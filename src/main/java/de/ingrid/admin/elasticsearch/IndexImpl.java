@@ -22,8 +22,6 @@
  */
 package de.ingrid.admin.elasticsearch;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -357,8 +355,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     
     public Map<String, Object> getDocById(Object id) {
         String idAsString = String.valueOf( id );
+        // TODO: make included/excluded fields configurable
         return client.prepareGet( config.index, config.indexType, idAsString )
-                .setFetchSource( true )
+                .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                 .execute()
                 .actionGet()
                 .getSource();

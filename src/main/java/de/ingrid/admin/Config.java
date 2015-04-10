@@ -210,6 +210,14 @@ public class Config {
         }
     }
     
+    public class StringToArray extends TypeTransformer<String, String[]> {
+        
+        @Override
+        public String[] transform( String input ) {
+            return input.split( "," );
+        }
+    }
+    
 
     public static final int DEFAULT_TIMEOUT = 10;
 
@@ -381,6 +389,16 @@ public class Config {
     @PropertyValue("index.boost.enable")
     @DefaultValue("false")
     public boolean indexEnableBoost;
+
+    @TypeTransformers(Config.StringToArray.class)
+    @PropertyValue("index.fields.exclude")
+    @DefaultValue("")
+    public String[] indexFieldsExcluded;
+
+    @TypeTransformers(Config.StringToArray.class)
+    @PropertyValue("index.fields.include")
+    @DefaultValue("*")
+    public String[] indexFieldsIncluded;
     
     public String getWebappDir() {
         return this.webappDir;
