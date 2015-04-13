@@ -20,7 +20,7 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.admin.search;
+package de.ingrid.admin.elasticsearch;
 
 import it.sauronsoftware.cron4j.Scheduler;
 

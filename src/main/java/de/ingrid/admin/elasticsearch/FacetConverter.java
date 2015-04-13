@@ -37,7 +37,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.UnmappedTerms;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.Config;
@@ -62,7 +61,6 @@ public class FacetConverter {
     private List<IFacetDefinitionProcessor> facetDefinitionProcessors = new ArrayList<IFacetDefinitionProcessor>();
 
     @Autowired
-    @Qualifier("facetQueryConverter")
     private QueryConverter queryConverter;
     
     public FacetConverter() {}

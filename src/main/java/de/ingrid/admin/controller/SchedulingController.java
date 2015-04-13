@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.search.IndexScheduler;
+import de.ingrid.admin.elasticsearch.IndexScheduler;
 
 @Controller
 public class SchedulingController extends AbstractController {

@@ -41,8 +41,8 @@ import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
-import de.ingrid.admin.search.IndexRunnable;
-import de.ingrid.admin.search.IndexScheduler;
+import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexSchedulerTest {

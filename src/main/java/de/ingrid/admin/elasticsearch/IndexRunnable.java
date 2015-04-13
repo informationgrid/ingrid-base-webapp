@@ -20,7 +20,7 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.admin.search;
+package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
 import java.util.Map;
@@ -57,12 +57,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
     private int _documentCount;
     private IDocumentProducer _documentProducer;
-    //private Directory _indexDir;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
-    //private final IConfigurable _ingridIndexSearcher;
     private final PlugDescriptionService _plugDescriptionService;
-    //private final Stemmer _stemmer;
     private String[] _dataTypes;
     private Client _client;
 
@@ -83,7 +80,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
             try {
                 LOG.info( "indexing starts" );
                 resetDocumentCount();
-                //final IndexWriter writer = new IndexWriter( _indexDir, _stemmer.getAnalyzer(), true, IndexWriter.MaxFieldLength.LIMITED );
                 BulkProcessor bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
                 Config config = JettyStarter.getInstance().config;
                 
@@ -94,9 +90,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         continue;
                     }
 
-                    //for (final String dataType : _dataTypes) {
-                        document.put( "datatype", _dataTypes );
-                    //}
+                    document.put( "datatype", _dataTypes );
+                    document.put( "partner",  config.partner );
+                    document.put( "provider",  config.provider );
+                    
                     if (_documentCount % 50 == 0) {
                         LOG.info( "add document to index: " + _documentCount );
                     }
@@ -125,7 +122,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
                 _plugDescriptionService.savePlugDescription( _plugDescription );
 
-//                _ingridIndexSearcher.configure( _plugDescription );
                 _documentProducer.configure( _plugDescription );
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -173,25 +169,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
         resetDocumentCount();
         _plugDescription = plugDescription;
         _dataTypes = plugDescription.getDataTypes();
-//        if (_plugDescription != null) {
-//            final File workinDirectory = _plugDescription.getWorkinDirectory();
-//            final File indexDir = new File( workinDirectory, "newIndex" );
-//            try {
-//                _indexDir = FSDirectory.open( indexDir );
-//            } catch (IOException ex) {
-//                LOG.error( "Problems creating directory for new index: " + indexDir, ex );
-//            }
-//        }
-        // run();
     }
 
     public PlugDescription getPlugDescription() {
         return _plugDescription;
     }
-
-//    public IngridIndexSearcher getIngridIndexSearcher() {
-//        return (IngridIndexSearcher) _ingridIndexSearcher;
-//    }
 
     /** Add all field names of the given index to the given plug description ! */
     public static void addFieldNamesToPlugdescription(Client client, Config config, PlugDescription pd) throws IOException {
