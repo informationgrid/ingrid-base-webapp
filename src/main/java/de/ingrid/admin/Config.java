@@ -370,7 +370,7 @@ public class Config {
     public String indexIdFromDoc;
     
     @PropertyValue("index.autoGenerateId")
-    @DefaultValue("false")
+    @DefaultValue("true")
     public boolean indexWithAutoId;
     
     @TypeTransformers(Config.StringToSearchType.class)

@@ -86,6 +86,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 // configuration
                 String oldIndex = ElasticSearchUtils.getIndexNameFromAliasName( _client );
                 String newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? config.index : oldIndex );
+                if (config.indexWithAutoId) {
+                    ElasticSearchUtils.createIndex( _client, newIndex );
+                }
 
                 while (_documentProducer.hasNext()) {
                     final Map<String, Object> document = _documentProducer.next();
@@ -106,7 +109,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     // index and switch the old with the new one at the end
                     IndexRequest indexRequest = new IndexRequest();
                     if (config.indexWithAutoId) {
-                        ElasticSearchUtils.createIndex( _client, newIndex );
                         indexRequest.index( newIndex )
                             .type( config.indexType );
                     } else {
@@ -128,6 +130,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         ElasticSearchUtils.deleteIndex( _client, oldIndex );
                     }
                     LOG.info( "switched alias to new index and deleted old one" );
+                } else {
+                    // TODO: remove documents which have not been updated (hence removed!)
                 }
 
                 // Extend PD with all field names in index and save
