@@ -107,15 +107,12 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             client = elasticSearch.getObject().client();
 
             log.info( "Elastic Search Settings: " + elasticSearch.getObject().settings().toDelimitedString( ',' ) );
-            boolean indexExists = client.admin().indices().prepareExists( indexName ).execute().actionGet().isExists();
-            if (!indexExists) {
-                client.admin().indices().prepareCreate( indexName ).execute().actionGet();
-                
-//                client.admin().indices().preparePutMapping().setIndices( indexName )
-//                        .setType( "_default_" )
-//                        //.setSource( mappingSource )
-//                        .execute()
-//                        .actionGet();
+            
+            String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
+            if (currentIndex == null) {
+                String nextIndexName = ElasticSearchUtils.getNextIndexName( indexName );
+                boolean wasCreated = ElasticSearchUtils.createIndex(client, nextIndexName);
+                if (wasCreated) ElasticSearchUtils.switchAlias( client, null, nextIndexName );
             }
             
         } catch (Exception e) {
@@ -124,7 +121,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
         
     }
-    
+
     @Override
     public IngridHits search(IngridQuery ingridQuery, int startHit, int num) {
 

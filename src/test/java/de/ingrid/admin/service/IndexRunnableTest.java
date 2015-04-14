@@ -24,7 +24,7 @@ package de.ingrid.admin.service;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
+import java.util.Arrays;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -35,90 +35,64 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.Config;
-import de.ingrid.admin.IKeys;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.ElasticTests;
+import de.ingrid.admin.elasticsearch.FacetConverter;
+import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.queryparser.QueryStringParser;
 
 public class IndexRunnableTest extends ElasticTests {
 
     private IndexRunnable _indexRunnable;
 
+    @Mock
     private PlugDescription _plugDescription;
 
-    private File _file;
-    
     private Config config = null;
 
-    @Before
-    public void setUp() throws Exception {
-        setup( "test", "data/webUrls2.json" );
-        //createNodeManager();
-        
-        _file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
-        TestUtils.delete(_file);
-       	_file.mkdirs();
-        _plugDescription = new PlugDescription();
-        _plugDescription.setWorkinDirectory(_file);
-        _plugDescription.addDataType("testDataType");
-        // store our location of pd as system property to be fetched by pdService
-        System.setProperty(IKeys.PLUG_DESCRIPTION, new File(_file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
-        
-        // initialize main program and its config
+    @BeforeClass
+    public static void setUp() throws Exception {
         new JettyStarter( false );
-        config  = JettyStarter.getInstance().config;
-
-//        PowerMockito.mockStatic( JettyStarter.class );
-//        Mockito.when(JettyStarter.getInstance()).thenReturn( jettyStarter );
-//        
-//        Config config = new ConfigBuilder<Config>(Config.class).build();
-////        config.communicationProxyUrl = "/ingrid-group:iplug-se-test";
-//        jettyStarter.config = Mockito.mock( Config.class );
-//        Mockito.stubVoid( jettyStarter.config ).toReturn().on().writePlugdescriptionToProperties(Mockito.any(PlugdescriptionCommandObject.class));
-//        
-//        QueryParsers transformer = new QueryParsers();
-//        IQueryParser[] parserArray = new IQueryParser[] { new FieldQueryParser() };
-//        transformer.setQueryParsers(Arrays.asList(parserArray));
-//        
-//        
-//        IngridIndexSearcher searcher = new IngridIndexSearcher(transformer, new LuceneIndexReaderWrapper(null));
-//        LuceneIndexReaderWrapper lirw = new LuceneIndexReaderWrapper(null);
-//        searcher.setIndexReaderWrapper(lirw);
-
-//        FacetClassProducer fp = new FacetClassProducer();
-//        fp.setIndexReaderWrapper(lirw);
-//        fp.setQueryParsers(transformer);
-//
-//        FacetClassRegistry fr = new FacetClassRegistry();
-//        fr.setFacetClassProducer(fp);
-//
-//        IndexFacetCounter fc = new IndexFacetCounter();
-//        fc.setFacetClassRegistry(fr);
-//
-//        FacetManager fm = new FacetManager();
-//        fm.setIndexReaderWrapper(lirw);
-//        fm.setQueryParsers(transformer);
-//        fm.setFacetCounters(Arrays.asList(new IFacetCounter[] { fc }));
-//        
-//        searcher.setFacetManager(fm);
+        setup();
+        //createNodeManager();
         
     }
     
-    private void index() throws Exception {
-        PlugDescriptionService pdService = new PlugDescriptionService();
-        _indexRunnable = new IndexRunnable(elastic, pdService);
+    @Mock
+    PlugDescriptionService pds;
+    
+    @Before
+    public void beforeTest() {
+        MockitoAnnotations.initMocks(this);
+        this.config = JettyStarter.getInstance().config;
+        config.indexWithAutoId = false;
+        
+        Mockito.when( _plugDescription.getFields() ).thenReturn( new String[] {} );
+    }
+    
+    private void index(int model) throws Exception {
+        _indexRunnable = new IndexRunnable(elastic, pds);
         _indexRunnable.configure(_plugDescription);
-        DummyProducer dummyProducer = new DummyProducer();
+        DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
         _indexRunnable.setDocumentProducer(dummyProducer);
         _indexRunnable.run();
 
-        refreshIndex( config.index, client );
+        ElasticSearchUtils.refreshIndex( client, ElasticSearchUtils.getIndexNameFromAliasName( client ) );
+        Thread.sleep(1000);
     }
     
     private void deleteIndex(String index) {
@@ -131,9 +105,8 @@ public class IndexRunnableTest extends ElasticTests {
 
     @After
     public void tearDown() throws Exception {
-        TestUtils.delete(_file);
         deleteIndex( config.index );
-        elastic.getObject().close();
+        //elastic.getObject().close();
     }
 
     /**
@@ -144,7 +117,7 @@ public class IndexRunnableTest extends ElasticTests {
      */
     @Test
     public void indexWithExlusiveId() throws Exception {
-        index();
+        index(0);
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
         //createNodeManager();
         
@@ -154,12 +127,12 @@ public class IndexRunnableTest extends ElasticTests {
         SearchResponse searchResponse = srb.execute().actionGet();
         
         SearchHits hitsRes = searchResponse.getHits();
-        assertEquals( 9, hitsRes.getTotalHits() );
+        assertEquals( 5, hitsRes.getTotalHits() );
     }
     
     @Test
     public void indexWithSingleField() throws Exception {
-        index();
+        index(0);
         MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "first" );
         //createNodeManager();
         
@@ -178,7 +151,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void indexWithListField() throws Exception {
-        index();
+        index(0);
         MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "second" );
         //createNodeManager();
         
@@ -205,7 +178,7 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     public void indexWithAutoId() throws Exception {
         config.indexWithAutoId = true;
-        index();
+        index(0);
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
         //createNodeManager();
         
@@ -214,7 +187,7 @@ public class IndexRunnableTest extends ElasticTests {
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
-        assertEquals( 10, searchResponse.getHits().getTotalHits() );
+        assertEquals( 6, searchResponse.getHits().getTotalHits() );
     }
     
 //    @Test
@@ -253,46 +226,47 @@ public class IndexRunnableTest extends ElasticTests {
 //        _indexRunnable.getIngridIndexSearcher().close();
 //        
 //    }
-//    
-//    @Test
-//    public void testFlipIndex() throws Exception {
-//    	IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
-//    	
-//        assertEquals(1, iis.search(QueryStringParser.parse("first:Marko"), 0, 10).length());
-//        
-//        _indexRunnable.run();
-//        try {
-//            Thread.sleep(500);
-//        } catch (InterruptedException e) {
-//            fail();
-//        }
-//        
-//        assertEquals(1, iis.search(QueryStringParser.parse("first:Andreas"), 0, 10).length());
-//
-//        _indexRunnable.getIngridIndexSearcher().close();
-//        
-//    }
-//    
-//    @Test
-//    public void testGetFacet() throws Exception {
-//        IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
-//        
-//        IngridQuery q = QueryStringParser.parse("first:Marko");
-//        addFacets(q);
-//        
-//        IngridHits hits = iis.search(q, 0, 10);
-//        assertEquals(1, hits.length());
-//        assertEquals(1, ((IngridDocument)hits.get("FACETS")).getLong("first:marko"));
-//        _indexRunnable.getIngridIndexSearcher().close();
-//        
-//    }
-//    
-//    @SuppressWarnings("unchecked")
-//    private void addFacets(IngridQuery ingridQuery) {
-//        Map f1 = new HashMap();
-//        f1.put("id", "first");
-//
-//        ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
-//    }
+    
+    @Test
+    public void testFlipIndex() throws Exception {
+        config.indexWithAutoId = true;
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+
+        index(0);
+        IngridQuery q = QueryStringParser.parse("title:Marko");
+    	
+        long length = index.search(q, 0, 10).length();
+        assertEquals(1, length);
+        
+        index(0);
+        length = index.search(q, 0, 10).length();
+        assertEquals(1, length);
+        
+        index(1);        
+        length = index.search(q, 0, 10).length();
+        assertEquals(2, length);
+
+    }
+    
+    @Test
+    public void testGetFacet() throws Exception {
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        index(0);
+        
+        IngridQuery q = QueryStringParser.parse("title:Marko");
+        addFacets(q);
+
+        IngridHits hits = index.search(q, 0, 10);
+        assertEquals(1, hits.length());
+        assertEquals(1, ((IngridDocument)hits.get("FACETS")).getLong("title:marko"));
+        
+    }
+    
+    private void addFacets(IngridQuery ingridQuery) {
+        IngridDocument f1 = new IngridDocument();
+        f1.put("id", "title");
+
+        ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
+    }
 
 }

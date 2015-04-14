@@ -13,12 +13,14 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.core.io.ClassPathResource;
 
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.DatatypePartnerProviderQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.DefaultFieldsQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.FieldQueryIGCConverter;
 import de.ingrid.admin.elasticsearch.converter.FuzzyQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.MatchAllQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
+import de.ingrid.admin.elasticsearch.converter.RangeQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 
@@ -35,7 +37,7 @@ public class ElasticTests {
      * @param fileData is the path to a json file containing the test data for the index
      * @throws Exception
      */
-    public static void setup(String index, String fileData) throws Exception {
+    public static void setup(String index, String fileData, boolean init) throws Exception {
         elastic = new ElasticsearchNodeFactoryBean();
         elastic.afterPropertiesSet();
         client = elastic.getObject().client();
@@ -43,27 +45,28 @@ public class ElasticTests {
         qc = new QueryConverter();
         List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
         parsers.add( new DefaultFieldsQueryConverter() );
+        parsers.add( new DatatypePartnerProviderQueryConverter() );
+        parsers.add( new FieldQueryIGCConverter() );
+        parsers.add( new RangeQueryConverter() );
         parsers.add( new WildcardQueryConverter() );
         parsers.add( new FuzzyQueryConverter() );
-        parsers.add( new FieldQueryIGCConverter() );
-        parsers.add( new DatatypePartnerProviderQueryConverter() );
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
-        // set necessary configurations for startup
-//        Config configuration = new Config();
-//        configuration.searchType = SearchType.DFS_QUERY_THEN_FETCH;
-//        configuration.index = index;
-//        //configuration.activeInstances = Arrays.asList( "web" );
-//        configuration.esBoostField = "boost";
-//        configuration.esBoostModifier = Modifier.LOG1P;
-//        configuration.esBoostFactor = 0.1f;
-//        configuration.esBoostMode = "sum";
-//        
-//        new JettyStarter( false );
-        //JettyStarter.getInstance().config = configuration;
         
-        setMapping( elastic, index );
-        prepareIndex( elastic, fileData, index );
+        if (init) {
+            JettyStarter.getInstance().config.index = index;
+            setMapping( elastic, "test_1" );
+            prepareIndex( elastic, fileData, "test_1" );
+            ElasticSearchUtils.switchAlias( client, null, "test_1" );
+        }
+    }
+    
+    public static void setup(String index, String fileData) throws Exception {
+        setup( index, fileData, true );
+    }
+    
+    public static void setup() throws Exception {
+        setup( null, null, false );
     }
     
     private static void prepareIndex(ElasticsearchNodeFactoryBean elastic, String fileData, String index) throws ElasticsearchException, Exception {

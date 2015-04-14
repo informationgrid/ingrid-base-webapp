@@ -10,17 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.converter.FieldQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.queryparser.ParseException;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
 public class Search extends ElasticTests {
@@ -31,6 +28,13 @@ public class Search extends ElasticTests {
     public static void setUpBeforeClass() throws Exception {
         new JettyStarter( false );
         setup( "test", "data/webUrls2.json" );
+        ElasticSearchUtils.removeAlias( client, "test_1" );
+        ElasticSearchUtils.switchAlias( client, null, "test_1" );
+    }
+    
+    @AfterClass
+    public static void afterClass() throws Exception {
+        elastic.getObject().close();
     }
 
     @Test
@@ -38,7 +42,7 @@ public class Search extends ElasticTests {
         
         //createNodeManager();
         
-        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter() );
+        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
         IngridQuery q = QueryStringParser.parse( "" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -49,7 +53,7 @@ public class Search extends ElasticTests {
     public void getDoc() throws Exception {
         //createNodeManager();
         
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter() );
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
         Map<String, Object> response = index.getDocById( "4" );
         assertThat( response, not( is( nullValue() ) ) );
         assertThat( (String)response.get( "url" ), is( "http://www.golemXXX.de" ) );
@@ -65,7 +69,7 @@ public class Search extends ElasticTests {
         faceteEntry.put("field", "datatype");
         facetQueries.add(faceteEntry);
         
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter() );
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
         IngridQuery q = QueryStringParser.parse( "" );
         q.put("FACETS", facetQueries);
         

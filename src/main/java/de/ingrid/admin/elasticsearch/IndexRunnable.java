@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -35,7 +34,6 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.ClusterState;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,6 +81,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 BulkProcessor bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
                 Config config = JettyStarter.getInstance().config;
                 
+                // get the current index from the alias name
+                // if it's the first time then use the name given by the
+                // configuration
+                String oldIndex = ElasticSearchUtils.getIndexNameFromAliasName( _client );
+                String newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? config.index : oldIndex );
+
                 while (_documentProducer.hasNext()) {
                     final Map<String, Object> document = _documentProducer.next();
                     if (document == null) {
@@ -91,20 +95,26 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     }
 
                     document.put( "datatype", _dataTypes );
-                    document.put( "partner",  config.partner );
-                    document.put( "provider",  config.provider );
-                    
+                    document.put( "partner", config.partner );
+                    document.put( "provider", config.provider );
+
                     if (_documentCount % 50 == 0) {
                         LOG.info( "add document to index: " + _documentCount );
                     }
 
-                    // TODO: if IDs are generated automatically then we should index into a temporary
+                    // index into a temporary
                     // index and switch the old with the new one at the end
-                    IndexRequest indexRequest = new IndexRequest( config.index, config.indexType );
-                    if (!config.indexWithAutoId) {
-                        indexRequest.id( (String)document.get( config.indexIdFromDoc ) );
+                    IndexRequest indexRequest = new IndexRequest();
+                    if (config.indexWithAutoId) {
+                        ElasticSearchUtils.createIndex( _client, newIndex );
+                        indexRequest.index( newIndex )
+                            .type( config.indexType );
+                    } else {
+                        indexRequest.index( config.index )
+                            .type( config.indexType )
+                            .id( (String) document.get( config.indexIdFromDoc ) );
                     }
-                    bulkProcessor.add(indexRequest.source(document));
+                    bulkProcessor.add( indexRequest.source( document ) );
                     _documentCount++;
                 }
                 LOG.info( "number of produced documents: " + _documentCount );
@@ -112,8 +122,16 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 bulkProcessor.close();
                 LOG.info( "indexing ends" );
 
+                if (config.indexWithAutoId) {
+                    ElasticSearchUtils.switchAlias( _client, oldIndex, newIndex );
+                    if (oldIndex != null) {
+                        ElasticSearchUtils.deleteIndex( _client, oldIndex );
+                    }
+                    LOG.info( "switched alias to new index and deleted old one" );
+                }
+
                 // Extend PD with all field names in index and save
-                addFieldNamesToPlugdescription( _client, config, _plugDescription );
+                addFieldNamesToPlugdescription( _client, config, _plugDescription, 3 );
 
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
@@ -136,15 +154,15 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     private Listener getBulkProcessorListener() {
         return new BulkProcessor.Listener() {
-            
+
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {}
-            
+
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable t) {
                 LOG.error( "An error occured during bulk indexing", t );
             }
-            
+
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {}
         };
@@ -176,7 +194,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     /** Add all field names of the given index to the given plug description ! */
-    public static void addFieldNamesToPlugdescription(Client client, Config config, PlugDescription pd) throws IOException {
+    public static void addFieldNamesToPlugdescription(Client client, Config config, PlugDescription pd, int retries) throws IOException {
         // remove all fields
         if (LOG.isInfoEnabled()) {
             LOG.info( "New Index, remove all field names from PD." );
@@ -195,25 +213,36 @@ public class IndexRunnable implements Runnable, IConfigurable {
         if (LOG.isInfoEnabled()) {
             LOG.info( "Add fields from new index to PD." );
         }
-        
-        RefreshRequest refreshRequest = new RefreshRequest( config.index );
-        client.admin().indices().refresh( refreshRequest ).actionGet();
+
+        String indexName = ElasticSearchUtils.getIndexNameFromAliasName( client );
+        ElasticSearchUtils.refreshIndex( client, indexName );
         
         // get the fields from the mapping, which is updated after each indexing
-        ClusterState cs = client.admin().cluster().prepareState().setIndices( config.index ).execute().actionGet().getState();
-        IndexMetaData imd = cs.getMetaData().index( config.index );
-        MappingMetaData mdd = imd.mapping( config.indexType );
+        ClusterState cs = client.admin().cluster().prepareState().setIndices( indexName ).execute().actionGet().getState();
+        MappingMetaData mdd = cs.getMetaData().index( indexName ).mapping( config.indexType );
         
+        if (mdd == null && retries > 0) {
+            LOG.warn( "Cluster state was not ready yet ... waiting 10ms" );
+            try {
+                Thread.sleep( 10 );
+            } catch (InterruptedException e) {
+                LOG.error( "Thread has been interrupted, while waiting for ClusterState" );
+                e.printStackTrace();
+            }
+            addFieldNamesToPlugdescription(client, config, pd, retries--);
+            return;
+        }
+
         @SuppressWarnings("unchecked")
         Map<String, Object> fields = (Map<String, Object>) mdd.getSourceAsMap().get( "properties" );
         Set<String> propertiesSet = fields.keySet();
 
         for (String property : propertiesSet) {
-            pd.addField( property);
+            pd.addField( property );
             if (LOG.isDebugEnabled()) {
                 LOG.debug( "added index field " + property + " to plugdescription." );
             }
         }
-        
+
     }
 }

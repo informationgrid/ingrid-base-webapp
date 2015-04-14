@@ -38,6 +38,14 @@ public class DummyProducer implements IDocumentProducer {
 
     private Iterator<Map<String, Object>> _iterator;
 
+    private int model;
+    
+    public DummyProducer() {}
+    
+    public DummyProducer(int config) {
+        this.model = config;
+    }
+
     @Override
     public boolean hasNext() {
         return _iterator.hasNext();
@@ -70,9 +78,14 @@ public class DummyProducer implements IDocumentProducer {
 		_dummys = new ArrayList<Map<String, Object>>();
 		Map<String, Object> specialDoc = createDocument("id#1", "Max", "Ender", 0.1f, "http://aaa.de");
 		specialDoc.put( "specialField", "secret" );
+		
         _dummys.add(specialDoc );
 		_dummys.add(createDocument("id#2", "Marko", "Bauhardt", 0.2f, "http://bbb.de"));
-		_dummys.add(createDocument("id#3", "Andreas", "Kuester", 0.3f, "http://ccc.de"));
+		if (model == 1) {
+		    _dummys.add(createDocument("id#3", "Marko", "Kuester", 0.3f, "http://ccc.de"));
+		} else {
+		    _dummys.add(createDocument("id#3", "Andreas", "Kuester", 0.3f, "http://ccc.de"));
+		}
 		_dummys.add(createDocument("id#4", "Frank", "Henze", 0.4f, "http://ddd.de"));
 		_dummys.add(createDocument("id#4", "FrankDuplicate", "HenzeDuplicate", 0.4f, "http://dddDuplicate.de"));
 		_dummys.add(createDocument("id#5", "öStemmerTestÖ", "äStemmerTestÄ", 0.5f, "http://eee.de"));

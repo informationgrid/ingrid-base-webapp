@@ -39,15 +39,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.UnmappedTerms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.elasticsearch.facets.FacetClassDefinition;
 import de.ingrid.admin.elasticsearch.facets.FacetDefinition;
 import de.ingrid.admin.elasticsearch.facets.FacetUtils;
 import de.ingrid.admin.elasticsearch.facets.IFacetDefinitionProcessor;
 import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.ParseException;
 import de.ingrid.utils.queryparser.QueryStringParser;
@@ -60,10 +57,12 @@ public class FacetConverter {
     @Autowired(required=false)
     private List<IFacetDefinitionProcessor> facetDefinitionProcessors = new ArrayList<IFacetDefinitionProcessor>();
 
-    @Autowired
     private QueryConverter queryConverter;
     
-    public FacetConverter() {}
+    @Autowired
+    public FacetConverter(QueryConverter qc) {
+        this.queryConverter = qc;
+    }
 
     public List<AbstractAggregationBuilder> getAggregations(IngridQuery ingridQuery) {
         // get all FacetDefinitions from the Query
@@ -105,27 +104,10 @@ public class FacetConverter {
 
     public IngridDocument convertFacetResultsToDoc(SearchResponse response) {
         IngridDocument facets = new IngridDocument();
-        long totalHits = response.getHits().getTotalHits();
-        Config config = JettyStarter.getInstance().config;
         
         List<Aggregation> aggregations = response.getAggregations().asList();
         for (Aggregation aggregation : aggregations) {
-            // since all partner belong to each result we just add some more static facets
-            if (PlugDescription.PARTNER.equals( aggregation.getName() )) {
-                for (String partner : config.partner) {
-                    facets.put(PlugDescription.PARTNER + ":" + partner, totalHits );
-                }
-            } else if (PlugDescription.PROVIDER.equals( aggregation.getName() )) {
-                for (String provider : config.provider) {
-                    facets.put(PlugDescription.PROVIDER + ":" + provider, totalHits );
-                }
-            } else if (aggregation.getName().startsWith( PlugDescription.PROVIDER + "_" )) {
-                for (String provider : config.provider) {
-                    if (provider.equals( aggregation.getName() )) {
-                        facets.put(PlugDescription.PROVIDER + ":" + aggregation.getName(), totalHits );
-                    }
-                }
-            } else if ( aggregation.getClass() == UnmappedTerms.class ) {
+            if ( aggregation.getClass() == UnmappedTerms.class ) {
                 // nothing to do here!?
             } else if ( aggregation.getClass() == StringTerms.class ) {
                 StringTerms partnerAgg = (StringTerms) aggregation;
