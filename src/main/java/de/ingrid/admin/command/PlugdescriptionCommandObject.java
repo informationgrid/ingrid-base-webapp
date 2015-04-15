@@ -39,7 +39,6 @@ public class PlugdescriptionCommandObject extends PlugDescription {
 
     }
 
-    @SuppressWarnings("unchecked")
     public PlugdescriptionCommandObject(final File file) throws IOException {
         if (file.exists()) {
             final XMLSerializer serializer = new XMLSerializer();

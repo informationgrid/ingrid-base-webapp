@@ -39,6 +39,8 @@ import net.weta.components.communication.configuration.XPathService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -50,10 +52,10 @@ import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.Property
 import com.tngtech.configbuilder.annotation.typetransformer.CharacterSeparatedStringToStringListTransformer;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformer;
 import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
+import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
 import com.tngtech.configbuilder.annotation.valueextractor.EnvironmentVariableValue;
 import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
-import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
 import com.tngtech.configbuilder.annotation.valueextractor.SystemPropertyValue;
 
 import de.ingrid.admin.command.CommunicationCommandObject;
@@ -67,7 +69,7 @@ import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
 
-@PropertiesFiles({ "config" })
+@PropertiesFiles( {"config", "elasticsearch"} )
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
 @LoadingOrder({CommandLineValue.class, SystemPropertyValue.class, PropertyValue.class, EnvironmentVariableValue.class, DefaultValue.class})
 public class Config {
@@ -130,6 +132,92 @@ public class Config {
         }
 
     }
+    
+    public class StringToSearchType extends TypeTransformer<String, SearchType> {
+        
+        @Override
+        public SearchType transform( String input ) {
+            SearchType type;
+            switch (input) {
+            case "COUNT":
+                type = SearchType.COUNT;
+                break;
+            case "DEFAULT":
+                type = SearchType.DEFAULT;
+                break;
+            case "DFS_QUERY_AND_FETCH":
+                type = SearchType.DFS_QUERY_AND_FETCH;
+                break;
+            case "DFS_QUERY_THEN_FETCH":
+                type = SearchType.DFS_QUERY_THEN_FETCH;
+                break;
+            case "QUERY_AND_FETCH":
+                type = SearchType.QUERY_AND_FETCH;
+                break;
+            case "QUERY_THEN_FETCH":
+                type = SearchType.QUERY_THEN_FETCH;
+                break;
+            case "SCAN":
+                type = SearchType.SCAN;
+                break;
+            default:
+                log.error( "Unknown SearchType (" + input + "), using default one: DFS_QUERY_THEN_FETCH" );
+                type = SearchType.DFS_QUERY_THEN_FETCH;
+            }
+            return type;
+        }
+        
+    }
+    
+    public class StringToModifier extends TypeTransformer<String, Modifier> {
+        
+        @Override
+        public Modifier transform( String input ) {
+            Modifier modifier = null;
+            switch (input) {
+            case "none":
+                modifier = Modifier.NONE;
+                break;
+            case "log":
+                modifier = Modifier.LOG;
+                break;
+            case "log1p":
+                modifier = Modifier.LOG1P;
+                break;
+            case "log2p":
+                modifier = Modifier.LOG2P;
+                break;
+            case "ln":
+                modifier = Modifier.LN;
+                break;
+            case "ln1p":
+                modifier = Modifier.LN1P;
+                break;
+            case "ln2p":
+                modifier = Modifier.LN2P;
+                break;
+            case "square":
+                modifier = Modifier.SQUARE;
+                break;
+            case "sqrt":
+                modifier = Modifier.SQRT;
+                break;
+            case "reciprocal":
+                modifier = Modifier.RECIPROCAL;
+                break;
+            }
+            return modifier;
+        }
+    }
+    
+    public class StringToArray extends TypeTransformer<String, String[]> {
+        
+        @Override
+        public String[] transform( String input ) {
+            return input.split( "," );
+        }
+    }
+    
 
     public static final int DEFAULT_TIMEOUT = 10;
 
@@ -188,7 +276,7 @@ public class Config {
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.dataType")
-    private List<String> datatypes;
+    public List<String> datatypes;
 
     @PropertyValue("plugdescription.organisationPartnerAbbr")
     private String mainPartner;
@@ -228,13 +316,13 @@ public class Config {
     @DefaultValue("")
     private List<String> fields;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @TypeTransformers(StringToArray.class)
     @PropertyValue("plugdescription.partner")
-    private List<String> partner;
+    public String[] partner;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @TypeTransformers(StringToArray.class)
     @PropertyValue("plugdescription.provider")
-    private List<String> provider;
+    public String[] provider;
 
     @TypeTransformers(StringToQueryExtension.class)
     @PropertyValue("plugdescription.queryExtensions")
@@ -252,6 +340,66 @@ public class Config {
     @DefaultValue("off")
     public List<String> rankings;
 
+    @PropertyValue("elastic.boost.field")
+    @DefaultValue("boost")
+    public String esBoostField;
+    
+    @TypeTransformers(Config.StringToModifier.class)
+    @PropertyValue("elastic.boost.modifier")
+    @DefaultValue("log1p")
+    public Modifier esBoostModifier;
+    
+    @PropertyValue("elastic.boost.factor")
+    @DefaultValue("0.1")
+    public float esBoostFactor;
+    
+    @PropertyValue("elastic.boost.mode")
+    @DefaultValue("sum")
+    public String esBoostMode;
+    
+    @PropertyValue("index.name")
+    @DefaultValue("test")
+    public String index;
+
+    @PropertyValue("index.type")
+    @DefaultValue("base")
+    public String indexType;
+    
+    @PropertyValue("index.id")
+    @DefaultValue("id")
+    public String indexIdFromDoc;
+    
+    @PropertyValue("index.autoGenerateId")
+    @DefaultValue("true")
+    public boolean indexWithAutoId;
+    
+    @TypeTransformers(Config.StringToSearchType.class)
+    @PropertyValue("search.type")
+    @DefaultValue("DEFAULT")
+    public SearchType searchType;
+    
+    @PropertyValue("index.field.title")
+    @DefaultValue("title")
+    public String indexFieldTitle;
+    
+    @PropertyValue("index.field.summary")
+    @DefaultValue("summary")
+    public String indexFieldSummary;
+
+    @PropertyValue("index.boost.enable")
+    @DefaultValue("false")
+    public boolean indexEnableBoost;
+
+    @TypeTransformers(Config.StringToArray.class)
+    @PropertyValue("index.fields.exclude")
+    @DefaultValue("")
+    public String[] indexFieldsExcluded;
+
+    @TypeTransformers(Config.StringToArray.class)
+    @PropertyValue("index.fields.include")
+    @DefaultValue("*")
+    public String[] indexFieldsIncluded;
+    
     public String getWebappDir() {
         return this.webappDir;
     }
@@ -441,18 +589,14 @@ public class Config {
     @SuppressWarnings("rawtypes")
     public void writePlugdescriptionToProperties(PlugdescriptionCommandObject pd) {
         try {
-            // TODO: write all properties to class variables first, to
-            // synchronize values!
-            // ...
 
             Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
             Properties props = new Properties();
             props.load( is );
 
-            for (@SuppressWarnings("unchecked")
-            Iterator<String> it = pd.keySet().iterator(); it.hasNext();) {
-                String key = it.next();
+            for (Iterator<Object> it = pd.keySet().iterator(); it.hasNext();) {
+                String key = (String) it.next();
                 Object valObj = pd.get( key );
                 if (valObj instanceof String) {
                     props.setProperty( "plugdescription." + key, (String) pd.get( key ) );
@@ -682,7 +826,7 @@ public class Config {
                 busses.add( bus );
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            log.error( "Error when reading from communication.xml" );
             e.printStackTrace();
         }
         // return all busses
@@ -707,7 +851,7 @@ public class Config {
         } catch (FileNotFoundException e) {
             return new FileSystemResource( "conf/config.override.properties" );
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            log.error( "Error when getting config.override.properties" );
             e.printStackTrace();
         }
         return null;

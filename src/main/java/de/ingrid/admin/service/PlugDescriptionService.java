@@ -63,7 +63,6 @@ public class PlugDescriptionService {
         return new PlugdescriptionCommandObject(_plugDescriptionFile);
     }
 
-	@SuppressWarnings("unchecked")
 	public void savePlugDescription(final PlugDescription plugDescription)
 			throws Exception {
 		LOG.info("saving plug description.");
@@ -72,7 +71,7 @@ public class PlugDescriptionService {
             tmpDesc = new PlugDescription();
             //tmpDesc.putAll(plugDescription);
             // only add non-null values!
-            Iterator keyIt = plugDescription.keySet().iterator();
+            Iterator<?> keyIt = plugDescription.keySet().iterator();
             while (keyIt.hasNext()) {
                 Object next = keyIt.next();
                 if (plugDescription.get(next) != null ) {

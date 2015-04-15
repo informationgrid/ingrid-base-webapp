@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 
 public class ContextListener implements ServletContextListener {
 
+    @SuppressWarnings("unused")
     private static final Logger LOG = Logger.getLogger(ContextListener.class);
 
     public void contextInitialized(final ServletContextEvent contextEvent) {

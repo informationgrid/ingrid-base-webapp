@@ -48,14 +48,13 @@ public class BasePlug extends HeartBeatPlug {
         final int count = Math.min(23, length);
         final IngridHit[] hits = new IngridHit[count];
         for (int i = 0; i < count; i++) {
-            hits[i] = new IngridHit("abc", i, 0, count - i);
+            hits[i] = new IngridHit("abc", String.valueOf( i ), 0, count - i);
         }
         return new IngridHits(23, hits);
     }
 
     @Override
     public IngridHitDetail getDetail(final IngridHit hit, final IngridQuery query, final String[] requestedFields) throws Exception {
-        // TODO Auto-generated method stub
         return null;
     }
 

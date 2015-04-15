@@ -48,7 +48,7 @@ public class JettyStarter {
 
     public static void main(String[] args) throws Exception {
     	instance = new JettyStarter();
-    	instance.config.getWebappDir();
+    	//instance.config.getWebappDir();
     	//instance.start();
     }
     
@@ -59,6 +59,14 @@ public class JettyStarter {
     public JettyStarter() throws Exception {
         configure();
         start();
+    }
+    
+    public JettyStarter(boolean startImmediately) throws Exception {
+        instance = this;
+        configure();
+        if (startImmediately) {
+            start();
+        }
     }
     
     public JettyStarter( IConfig config ) throws Exception {

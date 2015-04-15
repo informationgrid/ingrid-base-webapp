@@ -23,199 +23,248 @@
 package de.ingrid.admin.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.lucene.index.IndexReader;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.Config;
-import de.ingrid.admin.IKeys;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.TestUtils;
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.search.AbstractParser;
-import de.ingrid.admin.search.FieldQueryParser;
-import de.ingrid.admin.search.IndexRunnable;
-import de.ingrid.admin.search.IngridIndexSearcher;
-import de.ingrid.admin.search.QueryParsers;
-import de.ingrid.search.utils.IQueryParser;
-import de.ingrid.search.utils.LuceneIndexReaderWrapper;
-import de.ingrid.search.utils.facet.FacetClassProducer;
-import de.ingrid.search.utils.facet.FacetClassRegistry;
-import de.ingrid.search.utils.facet.FacetManager;
-import de.ingrid.search.utils.facet.counter.IFacetCounter;
-import de.ingrid.search.utils.facet.counter.IndexFacetCounter;
+import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
+import de.ingrid.admin.elasticsearch.ElasticTests;
+import de.ingrid.admin.elasticsearch.FacetConverter;
+import de.ingrid.admin.elasticsearch.IndexImpl;
+import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(JettyStarter.class)
-public class IndexRunnableTest {
+public class IndexRunnableTest extends ElasticTests {
 
     private IndexRunnable _indexRunnable;
 
+    @Mock
     private PlugDescription _plugDescription;
 
-    private File _file;
+    private Config config = null;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        new JettyStarter( false );
+        setup();
+        //createNodeManager();
+        
+    }
     
-    @Mock JettyStarter jettyStarter;
-
+    @Mock
+    PlugDescriptionService pds;
+    
     @Before
-    public void setUp() throws IOException {
-        _file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());
-        TestUtils.delete(_file);
-       	assertTrue(_file.mkdirs());
-        _plugDescription = new PlugDescription();
-        _plugDescription.setWorkinDirectory(_file);
-        _plugDescription.addDataType("testDataType");
-        // store our location of pd as system property to be fetched by pdService
-        System.setProperty(IKeys.PLUG_DESCRIPTION, new File(_file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
-
-        PowerMockito.mockStatic( JettyStarter.class );
-        Mockito.when(JettyStarter.getInstance()).thenReturn( jettyStarter );
+    public void beforeTest() {
+        MockitoAnnotations.initMocks(this);
+        this.config = JettyStarter.getInstance().config;
+        config.indexWithAutoId = false;
         
-        Config config = new Config();
-        config.communicationProxyUrl = "/ingrid-group:iplug-se-test";
-        jettyStarter.config = Mockito.mock( Config.class );
-        Mockito.stubVoid( jettyStarter.config ).toReturn().on().writePlugdescriptionToProperties(Mockito.any(PlugdescriptionCommandObject.class));
-        
-        QueryParsers transformer = new QueryParsers();
-        IQueryParser[] parserArray = new IQueryParser[] { new FieldQueryParser() };
-        transformer.setQueryParsers(Arrays.asList(parserArray));
-        
-        
-        IngridIndexSearcher searcher = new IngridIndexSearcher(transformer, new LuceneIndexReaderWrapper(null));
-        LuceneIndexReaderWrapper lirw = new LuceneIndexReaderWrapper(null);
-        searcher.setIndexReaderWrapper(lirw);
-
-        FacetClassProducer fp = new FacetClassProducer();
-        fp.setIndexReaderWrapper(lirw);
-        fp.setQueryParsers(transformer);
-
-        FacetClassRegistry fr = new FacetClassRegistry();
-        fr.setFacetClassProducer(fp);
-
-        IndexFacetCounter fc = new IndexFacetCounter();
-        fc.setFacetClassRegistry(fr);
-
-        FacetManager fm = new FacetManager();
-        fm.setIndexReaderWrapper(lirw);
-        fm.setQueryParsers(transformer);
-        fm.setFacetCounters(Arrays.asList(new IFacetCounter[] { fc }));
-        
-        searcher.setFacetManager(fm);
-        PlugDescriptionService pdService = new PlugDescriptionService();
-        _indexRunnable = new IndexRunnable(searcher, pdService, AbstractParser.getDefaultStemmer());
+        Mockito.when( _plugDescription.getFields() ).thenReturn( new String[] {} );
+    }
+    
+    private void index(int model) throws Exception {
+        _indexRunnable = new IndexRunnable(elastic, pds);
         _indexRunnable.configure(_plugDescription);
-        DummyProducer dummyProducer = new DummyProducer();
+        DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
         _indexRunnable.setDocumentProducer(dummyProducer);
         _indexRunnable.run();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            fail();
-        }
+
+        ElasticSearchUtils.refreshIndex( client, ElasticSearchUtils.getIndexNameFromAliasName( client ) );
+        Thread.sleep(1000);
+    }
+    
+    private void deleteIndex(String index) {
+        client.prepareDeleteByQuery(index).
+            setQuery(QueryBuilders.matchAllQuery()).
+            //setTypes(indexType).
+            execute().actionGet();
+        refreshIndex( index, client );
     }
 
     @After
-    public void tearDown() {
-        TestUtils.delete(_file);
+    public void tearDown() throws Exception {
+        deleteIndex( config.index );
+        //elastic.getObject().close();
     }
 
+    /**
+     * Each document supports its own ID. In case there's an ID twice
+     * only the latest document is used. Here we only get 9 of 10 results
+     * in the index, because one has an already used identifier.
+     * @throws Exception
+     */
     @Test
-    public void testIndexExists() throws IOException {
-        final File file = new File(_file, "index");
-        assertTrue(file.exists());
-        assertTrue(file.list().length > 0);
-        _indexRunnable.getIngridIndexSearcher().close();
-    }
-
-    @Test
-    public void testReadIndex() throws Exception {
-        final IndexReader reader = IndexReader.open(new File(_file, "index"));
-
-        assertEquals(5, reader.maxDoc());
-
-        assertEquals("Max", reader.document(0).get("first"));
-        assertEquals("08.12.1988", reader.document(0).get("birthdate"));
-
-        assertEquals("Marko", reader.document(1).get("first"));
-        assertEquals("male", reader.document(1).get("gender"));
-
-        assertEquals("Andreas", reader.document(2).get("first"));
-        assertEquals("Kuester", reader.document(2).get("last"));
-
-        assertEquals("Frank", reader.document(3).get("first"));
-        assertNull(reader.document(3).get("nick"));
-
-        assertEquals("öStemmerTestÖ", reader.document(4).get("first"));
-        assertEquals("äStemmerTestÄ", reader.document(4).get("last"));
-        assertEquals("üStemmerTestÜ", reader.document(4).get("gender"));
-        assertEquals("ßStemmerTestß", reader.document(4).get("birthdate"));
-
-        reader.close();
+    public void indexWithExlusiveId() throws Exception {
+        index(0);
+        MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
+        //createNodeManager();
         
-        _indexRunnable.getIngridIndexSearcher().close();
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
         
+        SearchHits hitsRes = searchResponse.getHits();
+        assertEquals( 5, hitsRes.getTotalHits() );
     }
     
     @Test
+    public void indexWithSingleField() throws Exception {
+        index(0);
+        MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "first" );
+        //createNodeManager();
+        
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .addFields( "url", "mylist" )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
+        
+        SearchHits hitsRes = searchResponse.getHits();
+        SearchHit[] hits = hitsRes.hits();
+        assertEquals( 5, hitsRes.getTotalHits() );
+        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].field( "mylist" ).getValues().size() );
+    }
+    
+    @Test
+    public void indexWithListField() throws Exception {
+        index(0);
+        MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "second" );
+        //createNodeManager();
+        
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .addFields( "url", "mylist" )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
+        
+        SearchHits hitsRes = searchResponse.getHits();
+        SearchHit[] hits = hitsRes.hits();
+        assertEquals( 1, hitsRes.getTotalHits() );
+        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
+        assertEquals( 2, hits[ 0 ].field( "mylist" ).getValues().size() );
+    }
+    
+    /**
+     * In this test the ID of each document is generated automatically, which does
+     * not support any update operation, since the documents cannot be identified
+     * correctly. Here we get one more result as in the test 'indexWithExlusiveId'
+     * because the duplicated ID is ignored.
+     * @throws Exception
+     */
+    @Test
+    public void indexWithAutoId() throws Exception {
+        config.indexWithAutoId = true;
+        index(0);
+        MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
+        //createNodeManager();
+        
+        SearchRequestBuilder srb = client.prepareSearch( config.index )
+                .setTypes( config.indexType )
+                .setQuery( query );
+        SearchResponse searchResponse = srb.execute().actionGet();
+        
+        assertEquals( 6, searchResponse.getHits().getTotalHits() );
+    }
+    
+//    @Test
+//    public void testIndexExists() throws IOException {
+//        final File file = new File(_file, "index");
+//        assertTrue(file.exists());
+//        assertTrue(file.list().length > 0);
+//        //_indexRunnable.getIngridIndexSearcher().close();
+//    }
+//
+//    @Test
+//    public void testReadIndex() throws Exception {
+//        final IndexReader reader = IndexReader.open(new File(_file, "index"));
+//
+//        assertEquals(5, reader.maxDoc());
+//
+//        assertEquals("Max", reader.document(0).get("first"));
+//        assertEquals("08.12.1988", reader.document(0).get("birthdate"));
+//
+//        assertEquals("Marko", reader.document(1).get("first"));
+//        assertEquals("male", reader.document(1).get("gender"));
+//
+//        assertEquals("Andreas", reader.document(2).get("first"));
+//        assertEquals("Kuester", reader.document(2).get("last"));
+//
+//        assertEquals("Frank", reader.document(3).get("first"));
+//        assertNull(reader.document(3).get("nick"));
+//
+//        assertEquals("öStemmerTestÖ", reader.document(4).get("first"));
+//        assertEquals("äStemmerTestÄ", reader.document(4).get("last"));
+//        assertEquals("üStemmerTestÜ", reader.document(4).get("gender"));
+//        assertEquals("ßStemmerTestß", reader.document(4).get("birthdate"));
+//
+//        reader.close();
+//        
+//        _indexRunnable.getIngridIndexSearcher().close();
+//        
+//    }
+    
+    @Test
     public void testFlipIndex() throws Exception {
-    	IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
-    	
-        assertEquals(1, iis.search(QueryStringParser.parse("first:Marko"), 0, 10).length());
-        
-        _indexRunnable.run();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            fail();
-        }
-        
-        assertEquals(1, iis.search(QueryStringParser.parse("first:Andreas"), 0, 10).length());
+        config.indexWithAutoId = true;
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
 
-        _indexRunnable.getIngridIndexSearcher().close();
+        index(0);
+        IngridQuery q = QueryStringParser.parse("title:Marko");
+    	
+        long length = index.search(q, 0, 10).length();
+        assertEquals(1, length);
         
+        index(0);
+        length = index.search(q, 0, 10).length();
+        assertEquals(1, length);
+        
+        index(1);        
+        length = index.search(q, 0, 10).length();
+        assertEquals(2, length);
+
     }
     
     @Test
     public void testGetFacet() throws Exception {
-        IngridIndexSearcher iis = _indexRunnable.getIngridIndexSearcher();
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        index(0);
         
-        IngridQuery q = QueryStringParser.parse("first:Marko");
+        IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);
-        
-        IngridHits hits = iis.search(q, 0, 10);
+
+        IngridHits hits = index.search(q, 0, 10);
         assertEquals(1, hits.length());
-        assertEquals(1, ((IngridDocument)hits.get("FACETS")).getLong("first:marko"));
-        _indexRunnable.getIngridIndexSearcher().close();
+        assertEquals(1, ((IngridDocument)hits.get("FACETS")).getLong("title:marko"));
         
     }
     
-    @SuppressWarnings("unchecked")
     private void addFacets(IngridQuery ingridQuery) {
-        Map f1 = new HashMap();
-        f1.put("id", "first");
+        IngridDocument f1 = new IngridDocument();
+        f1.put("id", "title");
 
         ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
     }

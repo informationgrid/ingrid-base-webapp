@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.search.IndexRunnable;
+import de.ingrid.admin.elasticsearch.IndexRunnable;
 
 @Controller
 public class IndexController extends AbstractController {

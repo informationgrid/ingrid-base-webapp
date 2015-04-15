@@ -43,25 +43,18 @@
 		mechanism)
 	-->
 	<!-- Adapt number, type and order of parsers dependent from iPlug -->
-	<bean class="de.ingrid.admin.search.QueryParsers">
+	<bean class="de.ingrid.admin.elasticsearch.converter.QueryConverter">
 		<qualifier value="XMLconfigured" />
 		<property name="queryParsers">
 			<list>
                 <!-- DEFAULT Parser ! Auto-creation via annotation mechanism ! -->
-				<ref bean="contentQueryParser" />
-				<!-- NO datatype added to lucene query ? -->
-				<!-- ref bean="dataTypeQueryParser" /-->
-				<ref bean="titleQueryParser" />
-				<ref bean="fieldQueryParser" />
-				<ref bean="rangeQueryParser" />
-				<ref bean="wildCardFieldQueryParser" />
-				<ref bean="allResultsOnEmptyQueryParser" />
+				
 			</list>
 		</property>
 	</bean>
 
     <!-- STEMMER: Create stemmer explicitly via xml, excluded from annotation mechanism, see below ! Will be autowired to parsers, index writer ... ! -->
-    <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/>
+    <!-- <bean id="stemmerGERMAN" class="de.ingrid.admin.search.GermanStemmer"/> -->
 
     <!-- Example: Create query parser explicitly with defined stemmer !
          NOTICE: Parser has has to be excluded from auto creation, see component-scan below -->
@@ -71,65 +64,6 @@
     </bean>
 -->
 
-    <!--
-		Wraps one ore more lucene index reader. The wrapper is injected via
-		XMLconfiguredIndexWrapper into IngridIndexSearcher constructor, so it
-		can be updated in the configure phase.
-	-->
-	<bean id="indexWrapper" class="de.ingrid.search.utils.LuceneIndexReaderWrapper">
-		<qualifier value="XMLconfiguredIndexWrapper" />
-	</bean>
-
-	<bean id="facetClassProducer" class="de.ingrid.search.utils.facet.FacetClassProducer">
-		<property name="indexReaderWrapper">
-			<ref bean="indexWrapper" />
-		</property>
-		<property name="queryParsers">
-			<ref bean="de.ingrid.admin.search.QueryParsers" />
-		</property>
-	</bean>
-
-	<bean id="facetClassRegisty" class="de.ingrid.search.utils.facet.FacetClassRegistry">
-		<property name="facetClassProducer">
-			<ref bean="facetClassProducer" />
-		</property>
-	</bean>
-
-	<bean id="indexFacetCounter" class="de.ingrid.search.utils.facet.counter.IndexFacetCounter">
-		<property name="facetClassRegistry">
-			<ref bean="facetClassRegisty" />
-		</property>
-	</bean>
-
-	<!--
-		Wraps a plugdescription object. The wrapper implements IConfigurable
-		and will be updated every time the configure phase takes place (i.e.
-		after changing the iplug configuration).
-	-->
-	<bean id="plugDescriptionWrapper"
-		class="de.ingrid.search.utils.ConfigurablePlugDescriptionWrapper" />
-
-	<bean id="plugDescriptionFacetCounter"
-		class="de.ingrid.search.utils.facet.counter.DscPlugdescriptionFacetCounter">
-		<property name="plugDescriptionWrapper">
-			<ref bean="plugDescriptionWrapper" />
-		</property>
-	</bean>
-
-	<bean id="facetManager" class="de.ingrid.search.utils.facet.FacetManager">
-		<property name="indexReaderWrapper">
-			<ref bean="indexWrapper" />
-		</property>
-		<property name="queryParsers">
-			<ref bean="de.ingrid.admin.search.QueryParsers" />
-		</property>
-		<property name="facetCounters">
-			<list>
-				<ref bean="plugDescriptionFacetCounter" />
-				<ref bean="indexFacetCounter" />
-			</list>
-		</property>
-	</bean>
 
     <!--
         Example: ADD USER DEFINED DATATYPE TO IPLUG !
