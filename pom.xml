@@ -81,7 +81,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>3.6.0-SNAPSHOT</version>
+      <version>3.6.0-elastic-SNAPSHOT</version>
     </dependency>
     <!-- ssearch-utils is not used anymore since facets are handled by elastic search now -->
     <!-- <dependency>
