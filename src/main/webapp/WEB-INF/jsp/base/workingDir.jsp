@@ -73,7 +73,7 @@
 						<td class="leftCol">Pfad zum Ordner:</td>
 						<td>
                             <div class="input full space">
-                                <form:input path="workinDirectory" />
+                                <form:input path="realWorkingDir" />
                             </div>
                             <span>Der Pfand des Arbeitsverzeichnisses. In diesem Ordner werden alle benötigten Dateien abgelegt.</span>
                             <form:errors path="workinDirectory" cssClass="error" element="div" />

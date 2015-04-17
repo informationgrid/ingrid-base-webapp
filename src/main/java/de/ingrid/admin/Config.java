@@ -614,6 +614,9 @@ public class Config {
                     props.setProperty( "plugdescription." + key, pd.get( key ).toString() );
                 }
             }
+            
+            // always write working dir as relative path if it was set as such
+            props.setProperty( "plugdescription.workingDirectory", pd.getRealWorkingDir() );
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
 
@@ -684,6 +687,7 @@ public class Config {
         File pdDir = new File( this.pdWorkingDir );
         pdDir.mkdirs();
         pd.setWorkinDirectory( pdDir );
+        pd.setRealWorkingDir( this.pdWorkingDir );
         pd.setProxyServiceURL( this.communicationProxyUrl );
 
         pd.remove( PlugDescription.DATA_TYPE );

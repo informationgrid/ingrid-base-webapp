@@ -59,6 +59,7 @@ public class WorkingDirController extends AbstractController {
 
     @RequestMapping(value = IUris.WORKING_DIR, method = RequestMethod.GET)
     public String getWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription) {
+        plugDescription.setRealWorkingDir( JettyStarter.getInstance().config.pdWorkingDir );
         return IViews.WORKING_DIR;
     }
 
@@ -68,7 +69,7 @@ public class WorkingDirController extends AbstractController {
             return IViews.WORKING_DIR;
         }
         plugDescription.getWorkinDirectory().mkdirs();
-        JettyStarter.getInstance().config.pdWorkingDir = plugDescription.getWorkinDirectory().getPath();
+        JettyStarter.getInstance().config.pdWorkingDir = plugDescription.getRealWorkingDir();
         return redirect(IUris.GENERAL);
     }
 }

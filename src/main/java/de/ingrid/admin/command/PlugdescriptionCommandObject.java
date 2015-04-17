@@ -34,6 +34,8 @@ import de.ingrid.utils.xml.XMLSerializer;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
 
+    private String realWorkingDir = null;
+    
     // needed for xmlserializer
     public PlugdescriptionCommandObject() {
 
@@ -148,5 +150,14 @@ public class PlugdescriptionCommandObject extends PlugDescription {
             }
         }
         return false;
+    }
+
+    public String getRealWorkingDir() {
+        return realWorkingDir;
+    }
+
+    public void setRealWorkingDir(String realWorkingDir) {
+        this.realWorkingDir = realWorkingDir;
+        setWorkinDirectory( new File( realWorkingDir) ); 
     }
 }
