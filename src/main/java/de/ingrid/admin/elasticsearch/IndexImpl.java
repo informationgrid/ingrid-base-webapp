@@ -24,11 +24,11 @@ package de.ingrid.admin.elasticsearch;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -47,6 +47,7 @@ import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.ISearcher;
@@ -181,19 +182,24 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
         
         // search!
-        SearchResponse searchResponse = srb.execute().actionGet();
-
-        // convert to IngridHits
-        IngridHits hits = getHitsFromResponse( searchResponse, ingridQuery );
-        
-        // post-processing: extract and convert facets to InGrid-Document
-        if (hasFacets) {
-            // add facets from response
-            IngridDocument facets = facetConverter.convertFacetResultsToDoc( searchResponse );
-            hits.put( "FACETS", facets );
+        try {
+            SearchResponse searchResponse = srb.execute().actionGet();
+    
+            // convert to IngridHits
+            IngridHits hits = getHitsFromResponse( searchResponse, ingridQuery );
+            
+            // post-processing: extract and convert facets to InGrid-Document
+            if (hasFacets) {
+                // add facets from response
+                IngridDocument facets = facetConverter.convertFacetResultsToDoc( searchResponse );
+                hits.put( "FACETS", facets );
+            }
+            
+            return hits;
+        } catch (SearchPhaseExecutionException ex) {
+            log.error( "Search failed on index: " + indexName, ex );
+            return new IngridHits( 0, new IngridHit[0] );
         }
-        
-        return hits;
     }
 
     /**
@@ -362,14 +368,14 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     }
     
     
-    public Map<String, Object> getDocById(Object id) {
+    public ElasticDocument getDocById(Object id) {
         String idAsString = String.valueOf( id );
         // TODO: make included/excluded fields configurable
-        return client.prepareGet( config.index, config.indexType, idAsString )
+        return new ElasticDocument( client.prepareGet( config.index, config.indexType, idAsString )
                 .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                 .execute()
                 .actionGet()
-                .getSource();
+                .getSource() );
         
     }
 
@@ -377,7 +383,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
         String documentId = hit.getDocumentId();
-        Map<String, Object> document = getDocById( documentId );
+        ElasticDocument document = getDocById( documentId );
         String[] fields = document.keySet().toArray(new String[0]);
         Record record = new Record();
         for (String name : fields) {

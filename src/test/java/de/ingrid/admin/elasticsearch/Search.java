@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
@@ -15,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.IngridQuery;
@@ -54,7 +54,7 @@ public class Search extends ElasticTests {
         //createNodeManager();
         
         IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
-        Map<String, Object> response = index.getDocById( "4" );
+        ElasticDocument response = index.getDocById( "4" );
         assertThat( response, not( is( nullValue() ) ) );
         assertThat( (String)response.get( "url" ), is( "http://www.golemXXX.de" ) );
     }

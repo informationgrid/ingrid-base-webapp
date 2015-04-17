@@ -22,8 +22,7 @@
  */
 package de.ingrid.admin.object;
 
-import java.util.Map;
-
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 
 public interface IDocumentProducer extends IConfigurable {
@@ -33,6 +32,6 @@ public interface IDocumentProducer extends IConfigurable {
 	/** NOTICE: Can return null, e.g. when problems fetching data from "record" (or service) !
 	 * @return Document for index OR NULL if nothing should be added to index ! 
 	 */
-	Map<String, Object> next();
+	ElasticDocument next();
 
 }

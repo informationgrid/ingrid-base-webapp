@@ -44,6 +44,7 @@ import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
@@ -91,7 +92,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
 
                 while (_documentProducer.hasNext()) {
-                    final Map<String, Object> document = _documentProducer.next();
+                    final ElasticDocument document = _documentProducer.next();
                     if (document == null) {
                         LOG.warn( "DocumentProducer " + _documentProducer + " returned null Document, we skip this record (not added to index)!" );
                         continue;
@@ -226,19 +227,24 @@ public class IndexRunnable implements Runnable, IConfigurable {
         MappingMetaData mdd = cs.getMetaData().index( indexName ).mapping( config.indexType );
         
         if (mdd == null && retries > 0) {
-            LOG.warn( "Cluster state was not ready yet ... waiting 10ms" );
+            LOG.warn( "Cluster state was not ready yet ... waiting 100ms" );
             try {
-                Thread.sleep( 10 );
+                Thread.sleep( 100 );
             } catch (InterruptedException e) {
                 LOG.error( "Thread has been interrupted, while waiting for ClusterState" );
                 e.printStackTrace();
             }
-            addFieldNamesToPlugdescription(client, config, pd, retries--);
+            addFieldNamesToPlugdescription(client, config, pd, --retries);
+            return;
+        }
+        
+        if (mdd == null) {
+            LOG.error( "Mapping metadata was not received. PlugDescription won't be updated with indexed fields." );
             return;
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> fields = (Map<String, Object>) mdd.getSourceAsMap().get( "properties" );
+        ElasticDocument fields = new ElasticDocument( (Map<String, Object>) mdd.getSourceAsMap().get( "properties" ) );
         Set<String> propertiesSet = fields.keySet();
 
         for (String property : propertiesSet) {

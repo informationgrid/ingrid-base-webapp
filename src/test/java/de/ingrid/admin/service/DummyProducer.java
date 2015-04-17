@@ -23,20 +23,18 @@
 package de.ingrid.admin.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import de.ingrid.admin.Utils;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 
 public class DummyProducer implements IDocumentProducer {
 
-    private List<Map<String, Object>> _dummys;
+    private List<ElasticDocument> _dummys;
 
-    private Iterator<Map<String, Object>> _iterator;
+    private Iterator<ElasticDocument> _iterator;
 
     private int model;
     
@@ -53,21 +51,21 @@ public class DummyProducer implements IDocumentProducer {
 
 
     @Override
-    public Map<String, Object> next() {
+    public ElasticDocument next() {
         return _iterator.next();
     }
 
-    private Map<String, Object> createDocument(final String id, final String first, final String last, final float boost, final String url) {
-        final Map<String, Object> doc = new HashMap<String, Object>();
-        Utils.addToDoc( doc, "id", id);
-        Utils.addToDoc( doc, "title", first);
-        Utils.addToDoc( doc, "content", last);
-        Utils.addToDoc( doc, "boost", boost);
-        Utils.addToDoc( doc, "url", url);
-        Utils.addToDoc( doc, "mylist", "first entry" );
+    private ElasticDocument createDocument(final String id, final String first, final String last, final float boost, final String url) {
+        final ElasticDocument doc = new ElasticDocument();
+        doc.put( "id", id);
+        doc.put( "title", first);
+        doc.put( "content", last);
+        doc.put( "boost", boost);
+        doc.put( "url", url);
+        doc.put( "mylist", "first entry" );
         
         if ("id#2".equals( id )) {
-            Utils.addToDoc( doc, "mylist", "second entry" );
+            doc.put( "mylist", "second entry" );
         }
         
         return doc;
@@ -75,8 +73,8 @@ public class DummyProducer implements IDocumentProducer {
 
 	@Override
 	public void configure(PlugDescription arg0) {
-		_dummys = new ArrayList<Map<String, Object>>();
-		Map<String, Object> specialDoc = createDocument("id#1", "Max", "Ender", 0.1f, "http://aaa.de");
+		_dummys = new ArrayList<ElasticDocument>();
+		ElasticDocument specialDoc = createDocument("id#1", "Max", "Ender", 0.1f, "http://aaa.de");
 		specialDoc.put( "specialField", "secret" );
 		
         _dummys.add(specialDoc );
