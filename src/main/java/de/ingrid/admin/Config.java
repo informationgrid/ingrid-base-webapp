@@ -350,7 +350,7 @@ public class Config {
     public Modifier esBoostModifier;
     
     @PropertyValue("elastic.boost.factor")
-    @DefaultValue("0.1")
+    @DefaultValue("1")
     public float esBoostFactor;
     
     @PropertyValue("elastic.boost.mode")
