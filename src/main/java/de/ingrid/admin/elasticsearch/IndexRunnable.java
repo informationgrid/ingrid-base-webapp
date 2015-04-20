@@ -54,6 +54,7 @@ import de.ingrid.utils.tool.QueryUtil;
 public class IndexRunnable implements Runnable, IConfigurable {
 
     private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
+    private static final int RETRIES_FETCH_MAPPING = 10;
     private int _documentCount;
     private IDocumentProducer _documentProducer;
     private boolean _produceable = false;
@@ -136,7 +137,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
 
                 // Extend PD with all field names in index and save
-                addFieldNamesToPlugdescription( _client, config, _plugDescription, 3 );
+                addFieldNamesToPlugdescription( _client, config, _plugDescription, RETRIES_FETCH_MAPPING );
 
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
@@ -220,16 +221,16 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
 
         String indexName = ElasticSearchUtils.getIndexNameFromAliasName( client );
-        ElasticSearchUtils.refreshIndex( client, indexName );
         
         // get the fields from the mapping, which is updated after each indexing
         ClusterState cs = client.admin().cluster().prepareState().setIndices( indexName ).execute().actionGet().getState();
         MappingMetaData mdd = cs.getMetaData().index( indexName ).mapping( config.indexType );
         
         if (mdd == null && retries > 0) {
-            LOG.warn( "Cluster state was not ready yet ... waiting 100ms" );
+            LOG.warn( "Cluster state was not ready yet for fetching mapping ... waiting 1s" );
             try {
-                Thread.sleep( 100 );
+                // since this thread is independent from the others (e.g. search), we can allow to let it sleep
+                Thread.sleep( 1000 );
             } catch (InterruptedException e) {
                 LOG.error( "Thread has been interrupted, while waiting for ClusterState" );
                 e.printStackTrace();
