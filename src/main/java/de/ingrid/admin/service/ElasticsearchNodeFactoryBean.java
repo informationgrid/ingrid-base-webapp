@@ -39,6 +39,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
+
 /**
  * A {@link FactoryBean} implementation used to create a {@link Node} element
  * which is an embedded instance of the cluster within a running application.
@@ -109,7 +111,12 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		internalCreateNode();
+	    // only setup elastic nodes if indexing is enabled
+	    if (JettyStarter.getInstance().config.getIndexing()) {
+	        internalCreateNode();
+	    } else {
+	        logger.warn( "Since Indexing is not enabled, this component should not have Elastic Search enabled at all! This bean should be excluded in the spring configuration." );
+	    }
 	}
 
 	private void internalCreateNode() {

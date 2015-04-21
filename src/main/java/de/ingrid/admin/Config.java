@@ -272,7 +272,7 @@ public class Config {
     @SystemPropertyValue("indexing")
     @PropertyValue("indexing")
     @DefaultValue("false")
-    private String indexing;
+    private boolean indexing;
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.dataType")
@@ -457,7 +457,7 @@ public class Config {
         writeCommunication();
     }
 
-    public String getIndexing() {
+    public boolean getIndexing() {
         return this.indexing;
     }
 
@@ -616,7 +616,7 @@ public class Config {
             }
             
             // always write working dir as relative path if it was set as such
-            props.setProperty( "plugdescription.workingDirectory", pd.getRealWorkingDir() );
+            props.setProperty( "plugdescription.workingDirectory", pd.getRealWorkingDir() != null ? pd.getRealWorkingDir() : pd.getWorkinDirectory().getPath() );
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
 

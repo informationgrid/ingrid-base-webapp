@@ -149,6 +149,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 _documentProducer.configure( _plugDescription );
             } catch (final Exception e) {
                 e.printStackTrace();
+            } catch (Throwable t) {
+                LOG.error( "Error during indexing", t );
+                LOG.info( "Try increasing the HEAP-size or let it manage automatically." );
             } finally {
                 resetDocumentCount();
             }
