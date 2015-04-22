@@ -443,7 +443,7 @@ public class Config {
         }
 
         // set system property for use in JSP file!
-        if ("true".equals( indexing )) {
+        if ( indexing ) {
             System.setProperty( IKeys.INDEXING, "true" );
         }
 
