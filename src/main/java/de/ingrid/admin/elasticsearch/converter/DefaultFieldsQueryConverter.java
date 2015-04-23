@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -117,13 +118,13 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
             
             if (!termsAnd.isEmpty()) {
                 String join = StringUtils.join( termsAnd, " " );
-                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, defaultFields ).operator( Operator.AND );
+                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, defaultFields ).operator( Operator.AND ).type( Type.CROSS_FIELDS );
                 if (bq == null) bq = QueryBuilders.boolQuery();
                 bq.should( subQuery );
             }
             if (!termsOr.isEmpty()) {
                 String join = StringUtils.join( termsOr, " " );
-                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, defaultFields ).operator( Operator.OR );
+                MultiMatchQueryBuilder subQuery = QueryBuilders.multiMatchQuery( join, defaultFields ).operator( Operator.OR ).type( Type.CROSS_FIELDS );
                 if (bq == null) bq = QueryBuilders.boolQuery();
                 bq.should( subQuery );
             }
@@ -132,9 +133,4 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
         }
     }
     
-//    @Bean
-//    public DefaultFieldsQueryConverter defaultFieldsQueryConverter() {
-//        return this;
-//    }
-
 }
