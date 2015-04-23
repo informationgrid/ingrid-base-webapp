@@ -20,9 +20,9 @@ import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
-public class Search extends ElasticTests {
+public class SearchTest extends ElasticTests {
     @SuppressWarnings("unused")
-    private static Logger log = Logger.getLogger( Search.class );
+    private static Logger log = Logger.getLogger( SearchTest.class );
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
