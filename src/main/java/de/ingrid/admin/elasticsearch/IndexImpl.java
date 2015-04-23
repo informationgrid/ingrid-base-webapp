@@ -75,8 +75,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     
     private FacetConverter facetConverter;
     
-    public static final String ELASTIC_SEARCH_ID = "es_id";
-
     private static final String ELASTIC_SEARCH_INDEX = "es_index";
 
     private static final String ELASTIC_SEARCH_INDEX_TYPE = "es_type";
@@ -97,7 +95,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     public IndexImpl(ElasticsearchNodeFactoryBean elasticSearch, QueryConverter qc, FacetConverter fc) {
         this.config =  JettyStarter.getInstance().config;
         this.indexName = config.index;
-        this.searchType = config.searchType;
+        this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
         this.plugId = config.communicationProxyUrl;
         this.detailFields = new String[] { config.indexFieldTitle, config.indexFieldSummary };
         

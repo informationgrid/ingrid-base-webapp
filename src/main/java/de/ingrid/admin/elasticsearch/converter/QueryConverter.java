@@ -34,7 +34,9 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.index.query.functionscore.fieldvaluefactor.FieldValueFactorFunctionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
@@ -98,15 +100,17 @@ public class QueryConverter implements IQueryParsers {
      * @return a new query which contains the score modifier and the given query
      */
     public QueryBuilder addScoreModifier(QueryBuilder query) {
+        Config config = JettyStarter.getInstance().config;
+        
         // describe the function to manipulate the score
-        FieldValueFactorFunctionBuilder scoreFunc = ScoreFunctionBuilders.fieldValueFactorFunction( JettyStarter.getInstance().config.esBoostField );
-        scoreFunc.modifier( JettyStarter.getInstance().config.esBoostModifier );
-        scoreFunc.factor( JettyStarter.getInstance().config.esBoostFactor );
+        FieldValueFactorFunctionBuilder scoreFunc = ScoreFunctionBuilders.fieldValueFactorFunction( config.esBoostField );
+        scoreFunc.modifier( ElasticSearchUtils.getModifierFromString( config.esBoostModifier ) );
+        scoreFunc.factor( config.esBoostFactor );
         
         // create the wrapper query to apply the score function to the query
         FunctionScoreQueryBuilder funcScoreQuery = new FunctionScoreQueryBuilder( query );
         funcScoreQuery.add( scoreFunc );
-        funcScoreQuery.boostMode( JettyStarter.getInstance().config.esBoostMode );
+        funcScoreQuery.boostMode( config.esBoostMode );
         return funcScoreQuery;
     }
 

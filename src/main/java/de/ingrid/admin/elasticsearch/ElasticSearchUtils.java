@@ -25,17 +25,22 @@ package de.ingrid.admin.elasticsearch;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 
 import de.ingrid.admin.JettyStarter;
 
 public class ElasticSearchUtils {
+    
+    private static Logger log = Logger.getLogger( ElasticSearchUtils.class ); 
 
     public static boolean typeExists(String type, Client client) {
         TypesExistsRequest typeRequest = new TypesExistsRequest( new String[] { JettyStarter.getInstance().config.index }, type );
@@ -133,4 +138,71 @@ public class ElasticSearchUtils {
         client.admin().indices().refresh( new RefreshRequest( indexName ) ).actionGet();
     }
 
+    public static SearchType getSearchTypeFromString( String input ) {
+        SearchType type;
+        switch (input) {
+        case "COUNT":
+            type = SearchType.COUNT;
+            break;
+        case "DEFAULT":
+            type = SearchType.DEFAULT;
+            break;
+        case "DFS_QUERY_AND_FETCH":
+            type = SearchType.DFS_QUERY_AND_FETCH;
+            break;
+        case "DFS_QUERY_THEN_FETCH":
+            type = SearchType.DFS_QUERY_THEN_FETCH;
+            break;
+        case "QUERY_AND_FETCH":
+            type = SearchType.QUERY_AND_FETCH;
+            break;
+        case "QUERY_THEN_FETCH":
+            type = SearchType.QUERY_THEN_FETCH;
+            break;
+        case "SCAN":
+            type = SearchType.SCAN;
+            break;
+        default:
+            log.error( "Unknown SearchType (" + input + "), using default one: DFS_QUERY_THEN_FETCH" );
+            type = SearchType.DFS_QUERY_THEN_FETCH;
+        }
+        return type;
+    }
+    
+    public static Modifier getModifierFromString( String input ) {
+        Modifier modifier = null;
+        switch (input) {
+        case "none":
+            modifier = Modifier.NONE;
+            break;
+        case "log":
+            modifier = Modifier.LOG;
+            break;
+        case "log1p":
+            modifier = Modifier.LOG1P;
+            break;
+        case "log2p":
+            modifier = Modifier.LOG2P;
+            break;
+        case "ln":
+            modifier = Modifier.LN;
+            break;
+        case "ln1p":
+            modifier = Modifier.LN1P;
+            break;
+        case "ln2p":
+            modifier = Modifier.LN2P;
+            break;
+        case "square":
+            modifier = Modifier.SQUARE;
+            break;
+        case "sqrt":
+            modifier = Modifier.SQRT;
+            break;
+        case "reciprocal":
+            modifier = Modifier.RECIPROCAL;
+            break;
+        }
+        return modifier;
+    }
 }

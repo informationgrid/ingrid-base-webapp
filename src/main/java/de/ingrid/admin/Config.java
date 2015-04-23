@@ -39,8 +39,6 @@ import net.weta.components.communication.configuration.XPathService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -106,6 +104,8 @@ public class Config {
         @Override
         public List<FieldQueryCommandObject> transform(String input) {
             List<FieldQueryCommandObject> list = new ArrayList<FieldQueryCommandObject>();
+            if ("".equals( input )) return list;
+            
             String[] split = input.split( "##" );
             for (String extensions : split) {
                 String[] extArray = extensions.split( "," );
@@ -131,83 +131,6 @@ public class Config {
             return list;
         }
 
-    }
-    
-    public class StringToSearchType extends TypeTransformer<String, SearchType> {
-        
-        @Override
-        public SearchType transform( String input ) {
-            SearchType type;
-            switch (input) {
-            case "COUNT":
-                type = SearchType.COUNT;
-                break;
-            case "DEFAULT":
-                type = SearchType.DEFAULT;
-                break;
-            case "DFS_QUERY_AND_FETCH":
-                type = SearchType.DFS_QUERY_AND_FETCH;
-                break;
-            case "DFS_QUERY_THEN_FETCH":
-                type = SearchType.DFS_QUERY_THEN_FETCH;
-                break;
-            case "QUERY_AND_FETCH":
-                type = SearchType.QUERY_AND_FETCH;
-                break;
-            case "QUERY_THEN_FETCH":
-                type = SearchType.QUERY_THEN_FETCH;
-                break;
-            case "SCAN":
-                type = SearchType.SCAN;
-                break;
-            default:
-                log.error( "Unknown SearchType (" + input + "), using default one: DFS_QUERY_THEN_FETCH" );
-                type = SearchType.DFS_QUERY_THEN_FETCH;
-            }
-            return type;
-        }
-        
-    }
-    
-    public class StringToModifier extends TypeTransformer<String, Modifier> {
-        
-        @Override
-        public Modifier transform( String input ) {
-            Modifier modifier = null;
-            switch (input) {
-            case "none":
-                modifier = Modifier.NONE;
-                break;
-            case "log":
-                modifier = Modifier.LOG;
-                break;
-            case "log1p":
-                modifier = Modifier.LOG1P;
-                break;
-            case "log2p":
-                modifier = Modifier.LOG2P;
-                break;
-            case "ln":
-                modifier = Modifier.LN;
-                break;
-            case "ln1p":
-                modifier = Modifier.LN1P;
-                break;
-            case "ln2p":
-                modifier = Modifier.LN2P;
-                break;
-            case "square":
-                modifier = Modifier.SQUARE;
-                break;
-            case "sqrt":
-                modifier = Modifier.SQRT;
-                break;
-            case "reciprocal":
-                modifier = Modifier.RECIPROCAL;
-                break;
-            }
-            return modifier;
-        }
     }
     
     public class StringToArray extends TypeTransformer<String, String[]> {
@@ -344,10 +267,9 @@ public class Config {
     @DefaultValue("boost")
     public String esBoostField;
     
-    @TypeTransformers(Config.StringToModifier.class)
     @PropertyValue("elastic.boost.modifier")
     @DefaultValue("log1p")
-    public Modifier esBoostModifier;
+    public String esBoostModifier;
     
     @PropertyValue("elastic.boost.factor")
     @DefaultValue("1")
@@ -373,10 +295,9 @@ public class Config {
     @DefaultValue("true")
     public boolean indexWithAutoId;
     
-    @TypeTransformers(Config.StringToSearchType.class)
     @PropertyValue("search.type")
     @DefaultValue("DEFAULT")
-    public SearchType searchType;
+    public String searchType;
     
     @PropertyValue("index.field.title")
     @DefaultValue("title")
