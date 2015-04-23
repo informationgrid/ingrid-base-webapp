@@ -67,8 +67,6 @@ public class IndexRunnableTest extends ElasticTests {
     public static void setUp() throws Exception {
         new JettyStarter( false );
         setup();
-        //createNodeManager();
-        
     }
     
     @Mock
@@ -189,43 +187,6 @@ public class IndexRunnableTest extends ElasticTests {
         
         assertEquals( 6, searchResponse.getHits().getTotalHits() );
     }
-    
-//    @Test
-//    public void testIndexExists() throws IOException {
-//        final File file = new File(_file, "index");
-//        assertTrue(file.exists());
-//        assertTrue(file.list().length > 0);
-//        //_indexRunnable.getIngridIndexSearcher().close();
-//    }
-//
-//    @Test
-//    public void testReadIndex() throws Exception {
-//        final IndexReader reader = IndexReader.open(new File(_file, "index"));
-//
-//        assertEquals(5, reader.maxDoc());
-//
-//        assertEquals("Max", reader.document(0).get("first"));
-//        assertEquals("08.12.1988", reader.document(0).get("birthdate"));
-//
-//        assertEquals("Marko", reader.document(1).get("first"));
-//        assertEquals("male", reader.document(1).get("gender"));
-//
-//        assertEquals("Andreas", reader.document(2).get("first"));
-//        assertEquals("Kuester", reader.document(2).get("last"));
-//
-//        assertEquals("Frank", reader.document(3).get("first"));
-//        assertNull(reader.document(3).get("nick"));
-//
-//        assertEquals("öStemmerTestÖ", reader.document(4).get("first"));
-//        assertEquals("äStemmerTestÄ", reader.document(4).get("last"));
-//        assertEquals("üStemmerTestÜ", reader.document(4).get("gender"));
-//        assertEquals("ßStemmerTestß", reader.document(4).get("birthdate"));
-//
-//        reader.close();
-//        
-//        _indexRunnable.getIngridIndexSearcher().close();
-//        
-//    }
     
     @Test
     public void testFlipIndex() throws Exception {

@@ -72,16 +72,14 @@ public class ElasticSearchUtils {
         return null;
     }
 
-    public static void switchAlias(Client client, String oldIndex, String newIndex) {
+    public static void switchAlias(Client client, String newIndex) {
         String aliasName = JettyStarter.getInstance().config.index;
+        removeAlias( client );
         IndicesAliasesRequestBuilder prepareAliases = client.admin().indices().prepareAliases();
-        if (oldIndex != null) {
-            prepareAliases.removeAlias( oldIndex, aliasName );
-        }
         prepareAliases.addAlias( newIndex, aliasName ).execute().actionGet();
     }
     
-    public static void removeAlias(Client client, String index) {
+    public static void removeAlias(Client client) {
         String aliasName = JettyStarter.getInstance().config.index;
         String indexNameFromAliasName = getIndexNameFromAliasName( client );
         while (indexNameFromAliasName != null) {

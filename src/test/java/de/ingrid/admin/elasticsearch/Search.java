@@ -28,8 +28,8 @@ public class Search extends ElasticTests {
     public static void setUpBeforeClass() throws Exception {
         new JettyStarter( false );
         setup( "test", "data/webUrls2.json" );
-        ElasticSearchUtils.removeAlias( client, "test_1" );
-        ElasticSearchUtils.switchAlias( client, null, "test_1" );
+        ElasticSearchUtils.removeAlias( client );
+        ElasticSearchUtils.switchAlias( client, "test_1" );
     }
     
     @AfterClass

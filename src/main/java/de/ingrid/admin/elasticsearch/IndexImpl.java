@@ -111,7 +111,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             if (currentIndex == null) {
                 String nextIndexName = ElasticSearchUtils.getNextIndexName( indexName );
                 boolean wasCreated = ElasticSearchUtils.createIndex(client, nextIndexName);
-                if (wasCreated) ElasticSearchUtils.switchAlias( client, null, nextIndexName );
+                if (wasCreated) ElasticSearchUtils.switchAlias( client, nextIndexName );
             }
             
         } catch (Exception e) {

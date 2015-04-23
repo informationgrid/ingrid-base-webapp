@@ -57,7 +57,7 @@ public class ElasticTests {
             JettyStarter.getInstance().config.index = index;
             setMapping( elastic, "test_1" );
             prepareIndex( elastic, fileData, "test_1" );
-            ElasticSearchUtils.switchAlias( client, null, "test_1" );
+            ElasticSearchUtils.switchAlias( client, "test_1" );
         }
     }
     

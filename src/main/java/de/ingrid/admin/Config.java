@@ -537,7 +537,11 @@ public class Config {
             }
             
             // always write working dir as relative path if it was set as such
-            props.setProperty( "plugdescription.workingDirectory", pd.getRealWorkingDir() != null ? pd.getRealWorkingDir() : pd.getWorkinDirectory().getPath() );
+            String workDir = pd.getRealWorkingDir();
+            if (workDir == null) {
+                workDir = pd.getWorkinDirectory() == null ? "." : pd.getWorkinDirectory().getPath();
+            }
+            props.setProperty( "plugdescription.workingDirectory", workDir );
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
 

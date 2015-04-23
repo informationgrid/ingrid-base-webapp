@@ -127,7 +127,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 LOG.info( "indexing ends" );
 
                 if (config.indexWithAutoId) {
-                    ElasticSearchUtils.switchAlias( _client, oldIndex, newIndex );
+                    ElasticSearchUtils.switchAlias( _client, newIndex );
                     if (oldIndex != null) {
                         ElasticSearchUtils.deleteIndex( _client, oldIndex );
                     }
