@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 
 import net.weta.components.communication.configuration.XPathService;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -66,6 +67,7 @@ import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 @PropertiesFiles( {"config", "elasticsearch"} )
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
@@ -138,6 +140,19 @@ public class Config {
         @Override
         public String[] transform( String input ) {
             return input.split( "," );
+        }
+    }
+    
+    public class StringToList extends TypeTransformer<String, List<String>> {
+        
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<String> transform( String input ) {
+            List<String> list = new ArrayList<String>();
+            if (!"".equals( input )) {
+                list.addAll( Arrays.asList( input.split( "," ) ) );
+            }
+            return list;
         }
     }
     
@@ -286,6 +301,11 @@ public class Config {
     @PropertyValue("index.type")
     @DefaultValue("base")
     public String indexType;
+    
+    @TypeTransformers(StringToList.class)
+    @PropertyValue("index.searchInTypes")
+    @DefaultValue("")
+    public List<String> indexSearchInTypes;
     
     @PropertyValue("index.id")
     @DefaultValue("id")
@@ -544,6 +564,8 @@ public class Config {
             props.setProperty( "plugdescription.workingDirectory", workDir );
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
+            
+            props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) ); 
 
             IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
             if (externalConfig != null) {

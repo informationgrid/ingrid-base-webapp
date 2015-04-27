@@ -134,7 +134,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         
         boolean isLocationSearch = ingridQuery.containsField( "x1" );
         boolean hasFacets = ingridQuery.containsKey( "FACETS" );
-        //String[] instances = getSearchInstances( ingridQuery ); 
+        String[] instances = getSearchInstances( ingridQuery ); 
         
         // request grouping information from index if necessary
         // see IndexImpl.getHitsFromResponse for usage
@@ -150,11 +150,15 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         // search prepare
         SearchRequestBuilder srb = client.prepareSearch( indexName )
-                //.setTypes( instances )
                 .setSearchType( searchType  )
                 .setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
                 .setFrom( startHit ).setSize( num )
                 .setExplain( false );
+
+        // search only in defined types within the index, if defined
+        if (instances.length > 0) {
+            srb.setTypes( instances );
+        }
         
         if (fields == null) {
             srb = srb.setNoFields();
@@ -210,13 +214,13 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
      * @param ingridQuery
      * @return
      */
-//    private String[] getSearchInstances(IngridQuery ingridQuery) {
-//        String[] instances = (String[]) ingridQuery.getArray( "searchInInstances" );
-//        if (instances == null || instances.length == 0) {
-//            instances = JettyStarter.getInstance().config.activeInstances.toArray( new String[0] );
-//        }
-//        return instances;
-//    }
+    private String[] getSearchInstances(IngridQuery ingridQuery) {
+        String[] instances = (String[]) ingridQuery.getArray( "searchInInstances" );
+        if (instances == null || instances.length == 0) {
+            instances = JettyStarter.getInstance().config.indexSearchInTypes.toArray( new String[0] );
+        }
+        return instances;
+    }
 
     /**
      * Create InGrid hits from ES hits. Add grouping information.
