@@ -327,9 +327,10 @@ public class Config {
     @DefaultValue("summary")
     public String indexFieldSummary;
     
-    @PropertyValue("index.field.content")
-    @DefaultValue("content")
-    public String indexFieldContent;
+    @TypeTransformers(Config.StringToArray.class)
+    @PropertyValue("index.search.defaultFields")
+    @DefaultValue("title,content")
+    public String[] indexSearchDefaultFields;
 
     @PropertyValue("index.boost.enable")
     @DefaultValue("false")
