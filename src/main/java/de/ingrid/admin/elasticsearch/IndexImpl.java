@@ -97,7 +97,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         this.indexName = config.index;
         this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
         this.plugId = config.communicationProxyUrl;
-        this.detailFields = new String[] { config.indexFieldTitle, config.indexFieldSummary };
+        this.detailFields = config.indexSearchDetailDefaultFields;
         
         try {
             this.elasticSearch = elasticSearch;
