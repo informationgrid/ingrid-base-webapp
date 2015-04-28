@@ -47,7 +47,7 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
     
     public DefaultFieldsQueryConverter() {
         Config config = JettyStarter.getInstance().config;
-        defaultFields = new String[] { config.indexFieldTitle, config.indexFieldSummary };
+        defaultFields = new String[] { config.indexFieldTitle, config.indexFieldContent };
     }
 
     @Override

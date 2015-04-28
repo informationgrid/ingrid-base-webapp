@@ -326,6 +326,10 @@ public class Config {
     @PropertyValue("index.field.summary")
     @DefaultValue("summary")
     public String indexFieldSummary;
+    
+    @PropertyValue("index.field.content")
+    @DefaultValue("content")
+    public String indexFieldContent;
 
     @PropertyValue("index.boost.enable")
     @DefaultValue("false")
