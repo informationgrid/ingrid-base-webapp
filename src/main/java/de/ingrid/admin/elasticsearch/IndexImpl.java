@@ -97,7 +97,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         this.indexName = config.index;
         this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
         this.plugId = config.communicationProxyUrl;
-        this.detailFields = config.indexSearchDetailDefaultFields;
+        this.detailFields = (String[]) ArrayUtils.addAll( new String[] { config.indexFieldTitle, config.indexFieldSummary }, config.additionalSearchDetailFields);
         
         try {
             this.elasticSearch = elasticSearch;
@@ -330,6 +330,11 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
                     }
                 }
             }
+        }
+        
+        // add additional fields to detail object (such as url for iPlugSE)
+        for (String extraDetail : config.additionalSearchDetailFields) {
+            detail.put( extraDetail, dHit.getFields().get( extraDetail ).getValue() );
         }
         
         addPlugDescriptionInformations(detail, requestedFields);
