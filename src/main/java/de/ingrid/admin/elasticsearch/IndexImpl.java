@@ -320,6 +320,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
 
         IngridHitDetail detail = new IngridHitDetail(hit, title, summary);
+        
+        addPlugDescriptionInformations(detail, requestedFields);
+
         detail.setDocumentId( documentId );
         if (requestedFields != null) {
             for (String field : requestedFields) {
@@ -332,8 +335,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
                 }
             }
         }
-        
-        addPlugDescriptionInformations(detail, requestedFields);
         
         // add additional fields to detail object (such as url for iPlugSE)
         for (String extraDetail : config.additionalSearchDetailFields) {
