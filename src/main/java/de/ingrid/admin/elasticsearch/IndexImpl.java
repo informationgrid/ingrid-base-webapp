@@ -38,6 +38,7 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -334,7 +335,10 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         
         // add additional fields to detail object (such as url for iPlugSE)
         for (String extraDetail : config.additionalSearchDetailFields) {
-            detail.put( extraDetail, dHit.getFields().get( extraDetail ).getValue() );
+            SearchHitField field = dHit.getFields().get( extraDetail );
+            if (field != null) {
+                detail.put( extraDetail, field.getValue() );
+            }
         }
         
         addPlugDescriptionInformations(detail, requestedFields);
