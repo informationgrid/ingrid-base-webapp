@@ -333,6 +333,8 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             }
         }
         
+        addPlugDescriptionInformations(detail, requestedFields);
+        
         // add additional fields to detail object (such as url for iPlugSE)
         for (String extraDetail : config.additionalSearchDetailFields) {
             SearchHitField field = dHit.getFields().get( extraDetail );
@@ -341,7 +343,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             }
         }
         
-        addPlugDescriptionInformations(detail, requestedFields);
         return detail;
     }
 
