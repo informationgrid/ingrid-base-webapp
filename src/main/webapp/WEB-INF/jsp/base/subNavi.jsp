@@ -89,6 +89,9 @@
         <menutaglib:MenuTag text="HeartBeat Setup" url="../base/heartbeat.html" ></menutaglib:MenuTag>
 	
 		<!-- search -->
+        <menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>
+        
+		<!-- search -->
         <menutaglib:MenuTag text="Suche Testen" url="../base/search.html" ></menutaglib:MenuTag>
 		
 		<!-- cache -->

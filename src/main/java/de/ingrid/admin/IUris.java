@@ -65,4 +65,6 @@ public class IUris {
     public static final String CACHING = "/base/cache.html";
     
     public static final String RESTART = "/base/restart.html";
+
+    public static final String INDEX_STATUS = "/base/indexStatus.html";
 }

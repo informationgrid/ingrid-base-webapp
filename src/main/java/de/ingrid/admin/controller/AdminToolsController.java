@@ -28,6 +28,14 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.count.CountRequest;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -39,8 +47,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IRecordLoader;
@@ -56,7 +67,7 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 @Controller
 public class AdminToolsController extends AbstractController {
 
-    protected static final Logger LOG = Logger.getLogger(AdminToolsController.class);
+    protected static final Logger LOG = Logger.getLogger( AdminToolsController.class );
 
     private final CommunicationService _communication;
 
@@ -64,66 +75,96 @@ public class AdminToolsController extends AbstractController {
 
     private final CacheService _cacheService;
 
-    //private final PlugDescriptionService _plugDescriptionService;
+    private Client client;
+
+    // private final PlugDescriptionService _plugDescriptionService;
 
     @Autowired
-    public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug,
-            final CacheService cacheService, final PlugDescriptionService plugDescriptionService) throws Exception {
+    public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug, final CacheService cacheService,
+            final PlugDescriptionService plugDescriptionService, ElasticsearchNodeFactoryBean elastic) throws Exception {
         _communication = communication;
         _plug = plug;
         _cacheService = cacheService;
-        //_plugDescriptionService = plugDescriptionService;
+        client = elastic.getObject().client();
+        // _plugDescriptionService = plugDescriptionService;
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.GET)
     public String getCommSetup(final ModelMap modelMap) {
-        modelMap.addAttribute("connected", _communication.isConnected());
+        modelMap.addAttribute( "connected", _communication.isConnected() );
         return IViews.COMM_SETUP;
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.POST)
     public String postCommSetup(@RequestParam("action") final String action) throws Exception {
-        if ("shutdown".equals(action)) {
+        if ("shutdown".equals( action )) {
             _communication.shutdown();
-        } else if ("restart".equals(action)) {
+        } else if ("restart".equals( action )) {
             _communication.restart();
-        } else if ("start".equals(action)) {
+        } else if ("start".equals( action )) {
             _communication.start();
         }
-        return redirect(IUris.COMM_SETUP);
+        return redirect( IUris.COMM_SETUP );
     }
 
     @RequestMapping(value = IUris.HEARTBEAT_SETUP, method = RequestMethod.GET)
     public String getHeartbeat(final ModelMap modelMap) {
-        modelMap.addAttribute("enabled", _plug.sendingHeartBeats());
-        modelMap.addAttribute("accurate", _plug.sendingAccurate());
+        modelMap.addAttribute( "enabled", _plug.sendingHeartBeats() );
+        modelMap.addAttribute( "accurate", _plug.sendingAccurate() );
         return IViews.HEARTBEAT_SETUP;
     }
 
     @RequestMapping(value = IUris.HEARTBEAT_SETUP, method = RequestMethod.POST)
     public String setHeartBeat(@RequestParam("action") final String action) throws IOException {
-        if ("start".equals(action)) {
+        if ("start".equals( action )) {
             _plug.startHeartBeats();
-        } else if ("stop".equals(action)) {
+        } else if ("stop".equals( action )) {
             _plug.stopHeartBeats();
-        } else if ("restart".equals(action)) {
+        } else if ("restart".equals( action )) {
             _plug.stopHeartBeats();
             _plug.startHeartBeats();
         }
-        return redirect(IUris.HEARTBEAT_SETUP);
+        return redirect( IUris.HEARTBEAT_SETUP );
+    }
+
+    @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.GET)
+    public String getIndexStatus(final ModelMap modelMap) throws Exception {
+        // get cluster health information
+        ClusterHealthResponse clusterHealthResponse = client.admin().cluster().health( new ClusterHealthRequest() ).get();
+
+        // get current index name
+        String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
+
+        // get mapping
+        GetMappingsResponse mappingResponse = client.admin().indices().getMappings( new GetMappingsRequest() ).get();
+        ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
+        String indexType = JettyStarter.getInstance().config.indexType;
+        
+        long count = client.count( new CountRequest( currentIndex ) ).get().getCount();
+
+        modelMap.addAttribute( "clusterState", clusterHealthResponse );
+        modelMap.addAttribute( "currentIndex", currentIndex );
+        modelMap.addAttribute( "mapping", mapping.get( indexType ).source() );
+        modelMap.addAttribute( "docCount", count );
+        return IViews.INDEX_STATUS;
+    }
+
+    @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.POST)
+    public String setIndexStatus(@RequestParam("action") final String action) throws IOException {
+        return redirect( IUris.INDEX_STATUS );
     }
 
     @RequestMapping(value = IUris.SEARCH, method = RequestMethod.GET)
     public String showView(final ModelMap modelMap, @RequestParam(value = "query", required = false) final String queryString) throws Exception {
         if (queryString != null) {
-            modelMap.addAttribute("query", queryString);
-            final IngridQuery query = QueryStringParser.parse(queryString);
+            modelMap.addAttribute( "query", queryString );
+            final IngridQuery query = QueryStringParser.parse( queryString );
 
-            final IngridHits results = _plug.search(query, 0, 20);
-            modelMap.addAttribute("totalHitCount", results.length());
+            final IngridHits results = _plug.search( query, 0, 20 );
+            modelMap.addAttribute( "totalHitCount", results.length() );
 
             final IngridHit[] hits = results.getHits();
-            final IngridHitDetail[] details = _plug.getDetails(hits, query, new String[] {});
+            final IngridHitDetail[] details = _plug.getDetails( hits, query, new String[] {} );
 
             // convert details to map
             // this is necessary because it's not possible to access the
@@ -131,58 +172,56 @@ public class AdminToolsController extends AbstractController {
             final Map<String, IngridHitDetail> detailsMap = new HashMap<String, IngridHitDetail>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
-                    detailsMap.put(detail.getDocumentId(), detail);
+                    detailsMap.put( detail.getDocumentId(), detail );
                 }
             }
 
-            modelMap.addAttribute("hitCount", details.length);
-            modelMap.addAttribute("hits", detailsMap);
-            modelMap.addAttribute("details", _plug instanceof IRecordLoader);
+            modelMap.addAttribute( "hitCount", details.length );
+            modelMap.addAttribute( "hits", detailsMap );
+            modelMap.addAttribute( "details", _plug instanceof IRecordLoader );
         }
 
         return IViews.SEARCH;
     }
 
     @RequestMapping(value = IUris.SEARCH_DETAILS, method = RequestMethod.GET)
-    public String showDetails(final ModelMap modelMap, @RequestParam(value = "id", required = false) final String id)
-            throws Exception {
+    public String showDetails(final ModelMap modelMap, @RequestParam(value = "id", required = false) final String id) throws Exception {
         if (!(_plug instanceof IRecordLoader) || id == null) {
             return IKeys.REDIRECT + IUris.SEARCH;
         }
 
         final IngridHit hit = new IngridHit();
-        hit.setDocumentId(id);
+        hit.setDocumentId( id );
 
         final IRecordLoader loader = (IRecordLoader) _plug;
-        final Record record = loader.getRecord(hit);
+        final Record record = loader.getRecord( hit );
 
         final Map<String, String> values = new HashMap<String, String>();
-        values.put("title", "Kein Titel");
-        values.put("summary", "Keine Beschreibung");
-        values.put("data", StringEscapeUtils.escapeXml(IdfTool.getIdfDataFromRecord(record)));
+        values.put( "title", "Kein Titel" );
+        values.put( "summary", "Keine Beschreibung" );
+        values.put( "data", StringEscapeUtils.escapeXml( IdfTool.getIdfDataFromRecord( record ) ) );
         final Column[] columns = record.getColumns();
         if (columns != null) {
             for (final Column col : columns) {
-                values.put(col.getTargetName(), record.getValueAsString(col));
+                values.put( col.getTargetName(), record.getValueAsString( col ) );
             }
         }
-        modelMap.addAttribute("values", values);
+        modelMap.addAttribute( "values", values );
 
         return IViews.SEARCH_DETAILS;
     }
 
     @RequestMapping(value = IUris.CACHING, method = RequestMethod.GET)
     public String cachingGet(final ModelMap modelMap) {
-        modelMap.addAttribute("cache", _cacheService);
+        modelMap.addAttribute( "cache", _cacheService );
         return IViews.CACHING;
     }
 
     @RequestMapping(value = IUris.CACHING, method = RequestMethod.POST)
-    public String cachingPost(final ModelMap modelMap, @ModelAttribute("cache") final CacheService cacheService)
-            throws Exception {
-        _cacheService.updateCache(cacheService);
+    public String cachingPost(final ModelMap modelMap, @ModelAttribute("cache") final CacheService cacheService) throws Exception {
+        _cacheService.updateCache( cacheService );
         _cacheService.updateIngridCache();
 
-        return cachingGet(modelMap);
+        return cachingGet( modelMap );
     }
 }
