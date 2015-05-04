@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -84,12 +85,12 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Scheduling</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/save.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/save.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='../base/indexing.html';">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/save.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/save.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.location='../base/indexing.html';">Weiter</a>
 		</div>
@@ -97,7 +98,7 @@
 		    <c:if test="${!empty pattern}">
 			    <form method="post" action="../base/deletePattern.html">
 			        <label>Pattern:</label>
-	                <span><b>${pattern}</b></span> <input type="submit" value="löschen" />
+	                <span><b>${pattern}</b></span> <input type="submit" value="lÃ¶schen" />
 	            </form><br />
             </c:if>
             
@@ -110,8 +111,8 @@
 				<c:set var="freq" value="${paramValues['freq'][0]}"/>
 
 				<ul class="tabs">
-					<li <c:if test="${empty freq}">class="active"</c:if>><a href="../base/scheduling.html">Täglich</a></li>
-					<li <c:if test="${freq == 'weekly'}">class="active"</c:if>><a href="../base/scheduling.html?freq=weekly">Wöchentlich</a></li>
+					<li <c:if test="${empty freq}">class="active"</c:if>><a href="../base/scheduling.html">TÃ¤glich</a></li>
+					<li <c:if test="${freq == 'weekly'}">class="active"</c:if>><a href="../base/scheduling.html?freq=weekly">WÃ¶chentlich</a></li>
 					<li <c:if test="${freq == 'monthly'}">class="active"</c:if>><a href="../base/scheduling.html?freq=monthly">Monatlich</a></li>
 					<li <c:if test="${freq == 'advanced'}">class="active"</c:if>><a href="../base/scheduling.html?freq=advanced">Erweitert</a></li>
 				</ul>

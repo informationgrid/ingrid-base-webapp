@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -104,7 +105,7 @@
 						<td>
                             <div class="input full">
     							<form:select path="organisationPartnerAbbr" id="partners"> 
-                                    <form:option value="" label="bitte wählen" />
+                                    <form:option value="" label="bitte wÃ¤hlen" />
                                     <form:options items="${partners}" itemValue="shortName" itemLabel="displayName" /> 
                                 </form:select>
                             </div>
@@ -113,8 +114,8 @@
                             <c:if test="${noManagement}">
 				                <div class="error">
 				                    <p>Es konnte keine Verbindung zum Management-iPlug hergestellt werden, oder dieses ist nicht korrekt konfiguriert.
-				                    Wenn dieses iPlug selbst das Management-iPlug ist, dann können die Partner und Anbieter erst nach dem Speichern
-				                    der ersten Konfiguration ausgewählt werden!</p>
+				                    Wenn dieses iPlug selbst das Management-iPlug ist, dann kÃ¶nnen die Partner und Anbieter erst nach dem Speichern
+				                    der ersten Konfiguration ausgewÃ¤hlt werden!</p>
 				                </div>
                             </c:if>
 						</td>
@@ -124,7 +125,7 @@
 						<td>
                             <div class="input full">
                                 <form:select path="organisationAbbr" id="providers" > 
-                                    <form:option value="" label="bitte wählen" /> 
+                                    <form:option value="" label="bitte wÃ¤hlen" /> 
                                 </form:select>
                             </div>
                             <span>Der Anbieter der dieses iPlug betreibt.</span>

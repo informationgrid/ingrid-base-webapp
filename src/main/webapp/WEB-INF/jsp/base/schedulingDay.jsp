@@ -21,6 +21,7 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <tr>
 	<td class="leftCol">Uhrzeit:</td>
 	<td>

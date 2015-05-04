@@ -21,6 +21,7 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -28,7 +29,7 @@
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -56,9 +57,9 @@
 		<h1 id="head">iPlug muss neu gestartet werden!</h1>
 		<div id="content" style="position: relative; text-align:center; top:100px">
 			<p>
-			    <h2>Ihre Angaben wurden gespeichert. Da der Port der Administrationsseite geändert wurde,
-			    müssen Sie nun das iPlug neu starten.</h2>
-			    Rufen Sie dafür "sh start.sh restart" von der Kommandozeile im Wurzelverzeichnis des iPlugs auf!
+			    <h2>Ihre Angaben wurden gespeichert. Da der Port der Administrationsseite geÃ¤ndert wurde,
+			    mÃ¼ssen Sie nun das iPlug neu starten.</h2>
+			    Rufen Sie dafÃ¼r "sh start.sh restart" von der Kommandozeile im Wurzelverzeichnis des iPlugs auf!
 			</p>
 		</div>
 	</div>

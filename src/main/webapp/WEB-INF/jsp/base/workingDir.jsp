@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -54,14 +55,14 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Arbeitsverzeichnis wählen</h1>
+		<h1 id="head">Arbeitsverzeichnis wÃ¤hlen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/welcome.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/welcome.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
@@ -75,7 +76,7 @@
                             <div class="input full space">
                                 <form:input path="realWorkingDir" />
                             </div>
-                            <span>Der Pfand des Arbeitsverzeichnisses. In diesem Ordner werden alle benötigten Dateien abgelegt.</span>
+                            <span>Der Pfand des Arbeitsverzeichnisses. In diesem Ordner werden alle benÃ¶tigten Dateien abgelegt.</span>
                             <form:errors path="workinDirectory" cssClass="error" element="div" />
                         </td>
 					</tr>

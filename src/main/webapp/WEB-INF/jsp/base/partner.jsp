@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -77,19 +78,19 @@
 	<c:import url="subNavi.jsp"></c:import>
 	
 	<div id="contentBox" class="contentMiddle">
-		<h1 id="head">Weitere Partner hinzufügen</h1>
+		<h1 id="head">Weitere Partner hinzufÃ¼gen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/general.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/general.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/general.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/general.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
 		</div>
 		<div id="content">
-			<p>Geben Sie zusätzliche Partner an, für die Daten in dieser Datenquelle abgelegt werden. Diese Einstellung steuert, ob die Datenquelle bei Anfragen angesprochen wird, die auf bestimmte Partner eingeschränkt wurden.</p>
+			<p>Geben Sie zusÃ¤tzliche Partner an, fÃ¼r die Daten in dieser Datenquelle abgelegt werden. Diese Einstellung steuert, ob die Datenquelle bei Anfragen angesprochen wird, die auf bestimmte Partner eingeschrÃ¤nkt wurden.</p>
 			<form:form method="post" action="../base/partner.html" modelAttribute="plugDescription">
 			     <input type="hidden" name="action" value="submit" />
 			     <input type="hidden" name="id" value="" />
@@ -99,7 +100,7 @@
 						<td>
                             <div class="input full">
     							<select name="partner"> 
-                                    <option value="">bitte wählen</option>
+                                    <option value="">bitte wÃ¤hlen</option>
                                     <c:forEach items="${partnerList}" var="partner">
                                         <option value="${partner.shortName}">${partner.displayName}</option>
                                     </c:forEach>
@@ -108,13 +109,13 @@
                             <c:if test="${noManagement}">
                                 <div class="error">
                                     <p>Es konnte keine Verbindung zum Management-iPlug hergestellt werden, oder dieses ist nicht korrekt konfiguriert.
-                                    Wenn dieses iPlug selbst das Management-iPlug ist, dann können die Partner und Anbieter erst nach dem Speichern
-                                    der ersten Konfiguration ausgewählt werden!</p>
+                                    Wenn dieses iPlug selbst das Management-iPlug ist, dann kÃ¶nnen die Partner und Anbieter erst nach dem Speichern
+                                    der ersten Konfiguration ausgewÃ¤hlt werden!</p>
                                 </div>
                             </c:if>
                         </td>
                         <td class="rightCol">
-                            <button type="button" action="add">Hinzufügen</button>
+                            <button type="button" action="add">HinzufÃ¼gen</button>
                         </td>
                     </tr>
                     <tr><td colspan=3><br /><hr /><br /></td></tr>
