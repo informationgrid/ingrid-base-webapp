@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -74,25 +75,25 @@ function getState(){
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Index erstellen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/scheduling.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/scheduling.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='../base/finish.html';">Überspringen</a>
+			<a href="#" onclick="document.location='../base/finish.html';">Ãœberspringen</a>
 			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/scheduling.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/scheduling.html';">ZurÃ¼ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.location='../base/finish.html';">Überspringen</a>
+			<a href="#" onclick="document.location='../base/finish.html';">Ãœberspringen</a>
 			<a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
 		</div>
 		<div id="content">
-			<h2>Sie können Ihre Daten jetzt indizieren, um im Anschluß die Suche zu testen.</h2>
+			<h2>Sie kÃ¶nnen Ihre Daten jetzt indizieren, um im Anschluss die Suche zu testen.</h2>
 			<form action="../base/indexing.html" method="post" id="indexing">
 				<table id="konfigForm">
 					<tr>
 						<td>
-							Abhängig von der Menge der Daten kann dieser Schritt einige Zeit in Anspruch nehmen.<br/>
-							Die Indizierung kann übersprungen werden, um automatisiert wie unter "Scheduling" angegeben zu erfolgen.
+							AbhÃ¤ngig von der Menge der Daten kann dieser Schritt einige Zeit in Anspruch nehmen.<br/>
+							Die Indizierung kann Ã¼bersprungen werden, um automatisiert wie unter "Scheduling" angegeben zu erfolgen.
 							
 							<br/><br/>
 							<!-- 

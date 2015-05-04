@@ -21,6 +21,7 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <div id="navi_vertical">
 	<div class="konf">
 		<p class="no">1</p>
@@ -36,19 +37,19 @@
 	<ul>
 
 		<!-- workingDir -->
-		<menutaglib:MenuTag text="Arbeitsverzeichnis wählen" url="../base/workingDir.html" ></menutaglib:MenuTag>
+		<menutaglib:MenuTag text="Arbeitsverzeichnis wÃ¤hlen" url="../base/workingDir.html" ></menutaglib:MenuTag>
 
 		<!-- general -->
         <menutaglib:MenuTag text="Angaben zu Betreiber und Datenquelle" url="../base/general.html" ></menutaglib:MenuTag>
 		
 		<!-- partner -->
-        <menutaglib:MenuTag text="Hinzufügen von weiteren Partnern" url="../base/partner.html" ></menutaglib:MenuTag>
+        <menutaglib:MenuTag text="HinzufÃ¼gen von weiteren Partnern" url="../base/partner.html" ></menutaglib:MenuTag>
 
 		<!-- provider -->
-        <menutaglib:MenuTag text="Hinzufügen von weiteren Anbietern" url="../base/provider.html" ></menutaglib:MenuTag>
+        <menutaglib:MenuTag text="HinzufÃ¼gen von weiteren Anbietern" url="../base/provider.html" ></menutaglib:MenuTag>
 
 		<!-- fieldQuery -->
-        <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>
+        <menutaglib:MenuTag text="VerfÃ¼gbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>
         
 		<!-- iplug sub navi  -->		
 		<c:catch>
@@ -88,6 +89,9 @@
 		<!-- heartbeat -->
         <menutaglib:MenuTag text="HeartBeat Setup" url="../base/heartbeat.html" ></menutaglib:MenuTag>
 	
+		<!-- search -->
+        <menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>
+        
 		<!-- search -->
         <menutaglib:MenuTag text="Suche Testen" url="../base/search.html" ></menutaglib:MenuTag>
 		

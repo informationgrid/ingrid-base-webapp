@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -89,19 +90,19 @@
     <c:import url="subNavi.jsp"></c:import>
     
     <div id="contentBox" class="contentMiddle">
-        <h1 id="head">Verfügbarkeit der Ergebnisse</h1>
+        <h1 id="head">VerfÃ¼gbarkeit der Ergebnisse</h1>
         <div class="controls">
-            <a href="#" onclick="document.location='../base/provider.html';">Zurück</a>
+            <a href="#" onclick="document.location='../base/provider.html';">ZurÃ¼ck</a>
             <a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
             <a href="#" class="submit">Weiter</a>
         </div>
         <div class="controls cBottom">
-            <a href="#" onclick="document.location='../base/provider.html';">Zurück</a>
+            <a href="#" onclick="document.location='../base/provider.html';">ZurÃ¼ck</a>
             <a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
             <a href="#" class="submit">Weiter</a>
         </div>
         <div id="content">
-            <p>Hier haben Sie die Möglichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen iBussen reagieren soll.</p>
+            <p>Hier haben Sie die MÃ¶glichkeit zu steuern, wie das iPlug auf Anfragen von unterschiedlichen iBussen reagieren soll.</p>
             <h2>Geben Sie Field Queries an</h2>
             <form:form method="post" action="../base/fieldQuery.html" modelAttribute="fieldQuery">
                  <input type="hidden" name="action" value="submit" />
@@ -125,7 +126,7 @@
                             <div class="input full">
                                 <form:input path="regex" />
                             </div>
-                            <span>Der reguläre Ausruck, der die Anfrage erfüllen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
+                            <span>Der regulÃ¤re Ausruck, der die Anfrage erfÃ¼llen muss, damit die Regel angewedet wird.</span><form:errors path="regex" cssClass="error" element="div" /></td>
                     </tr>
                     <tr>
                         <td class="leftCol">Verhalten:</td>
@@ -137,7 +138,7 @@
                                     <option value="modify" selected="selected">Modifizieren</option>
                                 </select>
                             </div>
-                            <span>Wie soll die Anfrage behandelt werden? Ablehnen mit 0 Treffern, Erlauben oder Modifizieren. Beim 'Erlauben' werden alle Anfragen verworfen, die nicht mit diesem regulären Ausdruck übereinstimmen! Werden mehrerer solcher 'Erlauben'-Regeln eingetragen, so müssen alle diese Regeln mit der Anfrage übereinstimmen, ansonsten wird die Anfrage abgewiesen.</span>
+                            <span>Wie soll die Anfrage behandelt werden? Ablehnen mit 0 Treffern, Erlauben oder Modifizieren. Beim 'Erlauben' werden alle Anfragen verworfen, die nicht mit diesem regulÃ¤ren Ausdruck Ã¼bereinstimmen! Werden mehrerer solcher 'Erlauben'-Regeln eingetragen, so mÃ¼ssen alle diese Regeln mit der Anfrage Ã¼bereinstimmen, ansonsten wird die Anfrage abgewiesen.</span>
                         </td>
                     </tr>
                     <tr id="rowIndexFieldName">
@@ -168,7 +169,7 @@
                     <tr>
                         <td colspan="2">
                             <hr />
-                            <button type="button" action="add">Hinzufügen</button>
+                            <button type="button" action="add">HinzufÃ¼gen</button>
                         </td>
                     </tr>
                 </table>
@@ -215,11 +216,11 @@
             </form:form>
             
             <h4><u>Beispiele:</u></h4>
-            <p style="margin-bottom: 30px;">Für Anfragen des iBus <i>"/test-bus:gross-gewaesser"</i>, die das Wort <i>"wasser"</i> enthalten, wollen sie NUR diejenigen Treffer zurückliefern, die im Index das Feld <i>"Typ"</i> den Wert <i>"See"</i> haben.<br />
-            Demnach müssen sie folgende angaben machen: <b>iBus</b>: <i>/test-bus:gross-gewaesser</i>, <b>Regex</b>: <i>wasser</i>, <b>Index Feld Name</b>: <i>Typ</i>, <b>Index Feld Wert</b>: <i>See</i>, <b>Option</b>: <i>erforderlich</i>.<br />
+            <p style="margin-bottom: 30px;">FÃ¼r Anfragen des iBus <i>"/test-bus:gross-gewaesser"</i>, die das Wort <i>"wasser"</i> enthalten, wollen sie NUR diejenigen Treffer zurÃ¼ckliefern, die im Index das Feld <i>"Typ"</i> den Wert <i>"See"</i> haben.<br />
+            Demnach mÃ¼ssen sie folgende angaben machen: <b>iBus</b>: <i>/test-bus:gross-gewaesser</i>, <b>Regex</b>: <i>wasser</i>, <b>Index Feld Name</b>: <i>Typ</i>, <b>Index Feld Wert</b>: <i>See</i>, <b>Option</b>: <i>erforderlich</i>.<br />
             <br />
-            Für Anfragen des iBus <i>"/test-bus:ansprechpartner"</i>, die <i>Telefonnummern</i> enthalten, wollen sie NICHT diejenigen Treffer zurückliefern, die im Index das Feld <i>"Freigabe"</i> den Wert <i>"privat"</i> haben.<br />
-            Die Angaben könnten lauten: <b>iBus</b>: <i>/test-bus:messwerte</i>, <b>Regex</b>: <i>[0-9]+</i>, <b>Index Feld Name</b>: <i>Freigabe</i>, <b>Index Feld Wert</b>: <i>privat</i>, <b>Option</b>: <i>verboten</i>.</p>
+            FÃ¼r Anfragen des iBus <i>"/test-bus:ansprechpartner"</i>, die <i>Telefonnummern</i> enthalten, wollen sie NICHT diejenigen Treffer zurÃ¼ckliefern, die im Index das Feld <i>"Freigabe"</i> den Wert <i>"privat"</i> haben.<br />
+            Die Angaben kÃ¶nnten lauten: <b>iBus</b>: <i>/test-bus:messwerte</i>, <b>Regex</b>: <i>[0-9]+</i>, <b>Index Feld Name</b>: <i>Freigabe</i>, <b>Index Feld Wert</b>: <i>privat</i>, <b>Option</b>: <i>verboten</i>.</p>
             
         </div>
     </div>

@@ -59,4 +59,6 @@ public class IViews {
     public static final String CACHING = "/base/cache";
     
     public static final String RESTART = "/base/restart";
+
+    public static final String INDEX_STATUS = "/base/indexStatus";
 }

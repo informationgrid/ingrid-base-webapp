@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -57,7 +58,7 @@
 		<h1 id="head">Suche testen</h1>
 		<div id="content">
 			<br />
-			<h2>Sie k&ouml;nnen das iPlug jetzt testen. Geben Sie dazu eine Suchanfrage ein!</h2>
+			<h2>Sie können das iPlug jetzt testen. Geben Sie dazu eine Suchanfrage ein!</h2>
 			<form method="get" action="../base/search.html">
 				<table id="konfigForm">
 					<tr>
@@ -76,7 +77,7 @@
 			</form>
 			
 			<c:if test="${!empty hits}">
-				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} f&uuml;r "${query}"</div>
+				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} für "${query}"</div>
 				
 				<c:forEach items="${hits}" var="hit">
 					<div class="searchResult">

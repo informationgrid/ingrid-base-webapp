@@ -21,13 +21,14 @@
   **************************************************#
   --%>
 <%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>Portal U Administration</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 <meta name="author" content="wemove digital solutions" />
@@ -86,8 +87,8 @@
                  </c:otherwise>
              </c:choose>
              <br />
-             <p>Sie haben die Möglichkeit die Verbindung zu trennen, aufzubauen und neu zu starten.
-             <br />Üblicherweise sollte hier "<span class="success">verbunden</span>" zu sehen sein.<br />
+             <p>Sie haben die MÃ¶glichkeit die Verbindung zu trennen, aufzubauen und neu zu starten.
+             <br />Ãœblicherweise sollte hier "<span class="success">verbunden</span>" zu sehen sein.<br />
              Ist dies nicht der Falll, sondern erscheint hier "<span class="error">nicht verbunden</span>", besteht mindestens zu einem der iBusse keine Verbindung.</p>
         </div>
     </div>

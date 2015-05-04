@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import net.weta.components.communication.configuration.XPathService;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,6 +66,7 @@ import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.weta.components.communication.configuration.XPathService;
 
 @PropertiesFiles( {"config", "elasticsearch"} )
 @PropertyLocations(directories = { "conf" }, fromClassLoader = true)
@@ -162,6 +161,8 @@ public class Config {
     public static final int DEFAULT_MAXIMUM_SIZE = 1048576;
 
     public static final int DEFAULT_THREAD_COUNT = 100;
+
+    private static final List<String> IGNORE_LIST = new ArrayList<String>();
 
     /**
      * SERVER - CONFIGURATION
@@ -403,6 +404,11 @@ public class Config {
         if (plugDescription == null) {
             System.setProperty( IKeys.PLUG_DESCRIPTION, plugdescriptionLocation );
         }
+        
+        // ignore the following properties from the plug description, which do not need to be written
+        // to the configuration file
+        IGNORE_LIST.add( "QUERY_EXTENSION_CONTAINER" );
+        IGNORE_LIST.add( "connection" );
 
         //
         writeCommunication();
@@ -548,6 +554,10 @@ public class Config {
 
             for (Iterator<Object> it = pd.keySet().iterator(); it.hasNext();) {
                 String key = (String) it.next();
+                
+                // do not write properties from plug description we do not want
+                if (IGNORE_LIST.contains( key )) continue;
+                
                 Object valObj = pd.get( key );
                 if (valObj instanceof String) {
                     props.setProperty( "plugdescription." + key, (String) pd.get( key ) );
