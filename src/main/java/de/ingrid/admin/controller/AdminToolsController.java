@@ -28,14 +28,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.count.CountRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -47,11 +39,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
-import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IRecordLoader;
@@ -75,17 +64,14 @@ public class AdminToolsController extends AbstractController {
 
     private final CacheService _cacheService;
 
-    private Client client;
-
     // private final PlugDescriptionService _plugDescriptionService;
 
     @Autowired
     public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug, final CacheService cacheService,
-            final PlugDescriptionService plugDescriptionService, ElasticsearchNodeFactoryBean elastic) throws Exception {
+            final PlugDescriptionService plugDescriptionService) throws Exception {
         _communication = communication;
         _plug = plug;
         _cacheService = cacheService;
-        client = elastic.getObject().client();
         // _plugDescriptionService = plugDescriptionService;
     }
 
@@ -125,33 +111,6 @@ public class AdminToolsController extends AbstractController {
             _plug.startHeartBeats();
         }
         return redirect( IUris.HEARTBEAT_SETUP );
-    }
-
-    @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.GET)
-    public String getIndexStatus(final ModelMap modelMap) throws Exception {
-        // get cluster health information
-        ClusterHealthResponse clusterHealthResponse = client.admin().cluster().health( new ClusterHealthRequest() ).get();
-
-        // get current index name
-        String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
-
-        // get mapping
-        GetMappingsResponse mappingResponse = client.admin().indices().getMappings( new GetMappingsRequest() ).get();
-        ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
-        String indexType = JettyStarter.getInstance().config.indexType;
-        
-        long count = client.count( new CountRequest( currentIndex ) ).get().getCount();
-
-        modelMap.addAttribute( "clusterState", clusterHealthResponse );
-        modelMap.addAttribute( "currentIndex", currentIndex );
-        modelMap.addAttribute( "mapping", mapping.get( indexType ).source() );
-        modelMap.addAttribute( "docCount", count );
-        return IViews.INDEX_STATUS;
-    }
-
-    @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.POST)
-    public String setIndexStatus(@RequestParam("action") final String action) throws IOException {
-        return redirect( IUris.INDEX_STATUS );
     }
 
     @RequestMapping(value = IUris.SEARCH, method = RequestMethod.GET)

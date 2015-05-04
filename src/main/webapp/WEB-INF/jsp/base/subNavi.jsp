@@ -74,6 +74,9 @@
 		<!-- indexing -->
         <menutaglib:MenuTag text="Indexieren" url="../base/indexing.html" ></menutaglib:MenuTag>
 	
+		<!-- index status -->
+        <menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>
+        
 	</ul>
 	<% } %>
 	
@@ -89,9 +92,6 @@
 		<!-- heartbeat -->
         <menutaglib:MenuTag text="HeartBeat Setup" url="../base/heartbeat.html" ></menutaglib:MenuTag>
 	
-		<!-- search -->
-        <menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>
-        
 		<!-- search -->
         <menutaglib:MenuTag text="Suche Testen" url="../base/search.html" ></menutaglib:MenuTag>
 		

@@ -22,32 +22,47 @@
  */
 package de.ingrid.admin.controller;
 
+import java.io.IOException;
 import java.lang.Thread.State;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.count.CountRequest;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 
 @Controller
 public class IndexController extends AbstractController {
 
     private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
+    private Client client;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable) {
+    public IndexController(final IndexRunnable indexRunnable, ElasticsearchNodeFactoryBean elastic) throws Exception {
         _indexRunnable = indexRunnable;
         _thread = new Thread(indexRunnable);
+        client = elastic.getObject().client();
     }
 
     @ModelAttribute("state")
@@ -95,5 +110,32 @@ public class IndexController extends AbstractController {
     public String getIndexState(ModelMap model){
     	model.addAttribute("state", _thread.getState());
     	return "/base/indexState";
+    }
+    
+    @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.GET)
+    public String getIndexStatus(final ModelMap modelMap) throws Exception {
+        // get cluster health information
+        ClusterHealthResponse clusterHealthResponse = client.admin().cluster().health( new ClusterHealthRequest() ).get();
+
+        // get current index name
+        String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
+
+        // get mapping
+        GetMappingsResponse mappingResponse = client.admin().indices().getMappings( new GetMappingsRequest() ).get();
+        ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
+        String indexType = JettyStarter.getInstance().config.indexType;
+        
+        long count = client.count( new CountRequest( currentIndex ) ).get().getCount();
+
+        modelMap.addAttribute( "clusterState", clusterHealthResponse );
+        modelMap.addAttribute( "currentIndex", currentIndex );
+        modelMap.addAttribute( "mapping", mapping.get( indexType ).source() );
+        modelMap.addAttribute( "docCount", count );
+        return IViews.INDEX_STATUS;
+    }
+
+    @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.POST)
+    public String setIndexStatus(@RequestParam("action") final String action) throws IOException {
+        return redirect( IUris.INDEX_STATUS );
     }
 }
