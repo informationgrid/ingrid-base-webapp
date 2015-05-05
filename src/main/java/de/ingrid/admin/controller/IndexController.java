@@ -129,7 +129,7 @@ public class IndexController extends AbstractController {
 
         modelMap.addAttribute( "clusterState", clusterHealthResponse );
         modelMap.addAttribute( "currentIndex", currentIndex );
-        modelMap.addAttribute( "mapping", mapping.get( indexType ).source() );
+        modelMap.addAttribute( "mapping", mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "No mapping exists!" );
         modelMap.addAttribute( "docCount", count );
         return IViews.INDEX_STATUS;
     }
