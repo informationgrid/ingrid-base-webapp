@@ -8,12 +8,12 @@
   <groupId>de.ingrid</groupId>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>3.6.0-SNAPSHOT</version>
+  <version>3.6.0</version>
   <name>ingrid-base-webapp</name>
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</developerConnection>
-    <tag>HEAD</tag>
+    <tag>ingrid-base-webapp-3.6.0</tag>
   </scm>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
@@ -204,12 +204,12 @@
               <goal>execute</goal>
             </goals>
             <configuration>
-              <source>ant.zip(destfile: &quot;target/${project.name}-res.zip&quot;) {
+              <source>ant.zip(destfile: "target/${project.name}-res.zip") {
                       fileSet(dir: 'src/main/webapp') {
                          exclude(name: '**/*.xml')
                       }
                   }
-                  ant.jar(destfile: &quot;target/${project.name}.jar&quot;) {
+                  ant.jar(destfile: "target/${project.name}.jar") {
                       fileSet(dir: 'target/classes') {
                           exclude(name: '**/RedirectController.class')
                           exclude(name: '**/BasePlug.class')
