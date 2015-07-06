@@ -281,6 +281,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     @Override
     public IngridHitDetail getDetail(IngridHit hit, IngridQuery ingridQuery, String[] requestedFields) {
+        for (int i = 0; i < requestedFields.length; i++) {
+            requestedFields[i] = requestedFields[i].toLowerCase();
+        }
         String documentId = hit.getDocumentId();
         String fromIndex = hit.getString( ELASTIC_SEARCH_INDEX );
         String fromType = hit.getString( ELASTIC_SEARCH_INDEX_TYPE );
