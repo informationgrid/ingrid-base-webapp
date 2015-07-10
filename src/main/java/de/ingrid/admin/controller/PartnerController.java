@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -102,10 +103,12 @@ public class PartnerController extends AbstractController {
                 _validator.rejectError(errors, "partners", IErrorKeys.EMPTY);
             } else {
                 commandObject.addPartner(partner);
+                JettyStarter.getInstance().config.partner = commandObject.getPartners();
             }
         } else if ("delete".equals(action)) {
             if (!id.equals(commandObject.getOrganisationPartnerAbbr())) {
                 commandObject.removePartner(id);
+                JettyStarter.getInstance().config.partner = commandObject.getPartners();
             }
         } else if ("submit".equals(action)) {
             if (partnerList.isEmpty() || !_validator.validatePartners(errors).hasErrors()) {

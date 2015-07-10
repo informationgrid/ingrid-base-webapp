@@ -218,37 +218,37 @@ public class Config {
     public List<String> datatypes;
 
     @PropertyValue("plugdescription.organisationPartnerAbbr")
-    private String mainPartner;
+    public String mainPartner;
 
     @PropertyValue("plugdescription.organisationAbbr")
-    private String mainProvider;
+    public String mainProvider;
 
     @PropertyValue("plugdescription.organisation")
-    private String organisation;
+    public String organisation;
 
     @PropertyValue("plugdescription.personTitle")
-    private String personTitle;
+    public String personTitle;
 
     @PropertyValue("plugdescription.personName")
-    private String personName;
+    public String personName;
 
     @PropertyValue("plugdescription.personSureName")
-    private String personSurname;
+    public String personSurname;
 
     @PropertyValue("plugdescription.personMail")
-    private String personEmail;
+    public String personEmail;
 
     @PropertyValue("plugdescription.personPhone")
-    private String personPhone;
+    public String personPhone;
 
     @PropertyValue("plugdescription.dataSourceName")
-    private String datasourceName;
+    public String datasourceName;
 
     @PropertyValue("plugdescription.dataSourceDescription")
-    private String datasourceDescription;
+    public String datasourceDescription;
 
     @PropertyValue("plugdescription.IPLUG_ADMIN_GUI_URL")
-    private String guiUrl;
+    public String guiUrl;
 
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.fields")

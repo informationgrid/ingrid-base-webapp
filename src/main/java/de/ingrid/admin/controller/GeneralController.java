@@ -37,8 +37,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.IDataType;
@@ -46,6 +48,7 @@ import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.PlugDescValidator;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Controller
 @SessionAttributes("plugDescription")
@@ -143,7 +146,30 @@ public class GeneralController extends AbstractController {
 
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
+        
+        setConfiguration( commandObject );
+        
         return redirect(IUris.PARTNER);
+    }
+
+    private void setConfiguration(PlugdescriptionCommandObject pd) {
+        Config config = JettyStarter.getInstance().config;
+        
+        config.mainPartner = pd.getOrganisationPartnerAbbr();
+        config.mainProvider = pd.getOrganisationAbbr();
+        config.organisation = pd.getOrganisation();
+        config.personTitle = pd.getPersonTitle();
+        config.personName = pd.getPersonName();
+        config.personSurname = pd.getPersonSureName();
+        config.personPhone = pd.getPersonPhone();
+        config.personEmail = pd.getPersonMail();
+        config.datasourceName = pd.getDataSourceName();
+        config.datasourceDescription = pd.getDataSourceDescription();
+        config.datatypes = new ArrayList<String>(Arrays.asList( pd.getDataTypes() ) );
+        config.guiUrl = pd.getIplugAdminGuiUrl();
+        config.webappPort = pd.getIplugAdminGuiPort();
+        config.pdPassword = pd.getIplugAdminPassword();
+        
     }
 
     private List<Provider> getProviders() throws Exception {

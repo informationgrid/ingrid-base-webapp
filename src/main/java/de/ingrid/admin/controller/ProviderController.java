@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -105,10 +106,12 @@ public class ProviderController extends AbstractController {
                 _validator.rejectError(errors, "providers", IErrorKeys.EMPTY);
             } else {
                 commandObject.addProvider(provider);
+                JettyStarter.getInstance().config.provider = commandObject.getProviders();
             }
         } else if ("delete".equals(action)) {
             if (!id.equals(commandObject.getOrganisationAbbr())) {
                 commandObject.removeProvider(id);
+                JettyStarter.getInstance().config.provider = commandObject.getProviders();
             }
         } else if ("submit".equals(action)) {
             if (noProviderAvailable || !_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {
