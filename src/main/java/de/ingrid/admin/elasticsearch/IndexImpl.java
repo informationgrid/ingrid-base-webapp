@@ -254,9 +254,15 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             // get grouing information, add if exist
             String groupValue = null;
             if (IngridQuery.GROUPED_BY_PARTNER.equalsIgnoreCase(groupBy)) {
-                groupValue = hit.field(IngridQuery.PARTNER).getValue().toString();
+                SearchHitField field = hit.field(IngridQuery.PARTNER);
+                if (field != null) {
+                    groupValue = field.getValue().toString();
+                }
             } else if (IngridQuery.GROUPED_BY_ORGANISATION.equalsIgnoreCase(groupBy)) {
-                groupValue = hit.field(IngridQuery.PROVIDER).getValue().toString();
+                SearchHitField field = hit.field(IngridQuery.PROVIDER);
+                if (field != null) {
+                    groupValue = field.getValue().toString();
+                }
             } else if (IngridQuery.GROUPED_BY_DATASOURCE.equalsIgnoreCase(groupBy)) {
                 groupValue = config.communicationProxyUrl;
                 // TODO: make field for datasource configurable, in order to group by web domains for SE!
