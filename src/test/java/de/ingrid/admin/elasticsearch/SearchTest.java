@@ -48,6 +48,31 @@ public class SearchTest extends ElasticTests {
     }
     
     @Test
+    public void searchComplex() throws Exception {
+        
+        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IngridQuery q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) AND (title:Square OR title:Prime)" );
+        IngridHits search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+
+        q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) AND (partner:bw OR partner:bund)" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 2l ) );
+
+        q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) OR (title:Square OR title:Prime)" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 3l ) );
+        
+        q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) OR (title:Square)" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 3l ) );
+    }
+    
+    @Test
     public void getDoc() throws Exception {
         
         IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
