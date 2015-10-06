@@ -295,6 +295,10 @@ public class Config {
     @DefaultValue("sum")
     public String esBoostMode;
     
+    @PropertyValue("cluster.name")
+    @DefaultValue("ingrid")
+    public String cluster;
+
     @PropertyValue("index.name")
     @DefaultValue("test")
     public String index;

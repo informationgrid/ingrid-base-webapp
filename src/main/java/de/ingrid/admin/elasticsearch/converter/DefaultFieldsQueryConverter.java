@@ -128,8 +128,12 @@ public class DefaultFieldsQueryConverter implements IQueryParsers {
                 if (bq == null) bq = QueryBuilders.boolQuery();
                 bq.should( subQuery );
             }
-                
-            queryBuilder.must( bq );
+            
+            if (terms[0].isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
         }
     }
     

@@ -71,7 +71,11 @@ public class FuzzyQueryConverter implements IQueryParsers {
                 }
             }
                 
-            queryBuilder.must( bq );
+            if (terms[0].isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
         
         }
     }

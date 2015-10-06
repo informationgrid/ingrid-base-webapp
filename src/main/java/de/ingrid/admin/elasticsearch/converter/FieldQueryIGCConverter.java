@@ -114,11 +114,11 @@ public class FieldQueryIGCConverter implements IQueryParsers {
             }
         }
         if (bq != null) {
-            //if (ingridQuery.isRequred()) {
-            //    queryBuilder.must( bq );
-            //} else {
+            if (fields[0].isRequred()) {
+                queryBuilder.must( bq );
+            } else {
                 queryBuilder.should( bq );
-            //}
+            }
         }
         
         if (null == geoMap.get("coord")) {

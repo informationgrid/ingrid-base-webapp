@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.elasticsearch;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -70,6 +92,30 @@ public class SearchTest extends ElasticTests {
         search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
         assertThat( search2.length(), is( 3l ) );
+    }
+    
+    @Test
+    public void searchTwoFields() throws Exception {
+        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IngridQuery q = QueryStringParser.parse( "title:Mathematics partner:bund" );
+        IngridHits search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "title:Mathematics partner:bw" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 0l ) );
+        
+        q = QueryStringParser.parse( "title:Mathematics -partner:bw" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "title:Mathematics -partner:bund" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 0l ) );
     }
     
     @Test

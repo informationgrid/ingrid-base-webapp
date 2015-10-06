@@ -186,6 +186,34 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
+    public void searchCombinedWildcards() throws ParseException {
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IngridQuery q = QueryStringParser.parse( "Deutschl*nd OR Entstehung" );
+        IngridHits search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.getHits().length, is( 2 ) );
+        Utils.checkHitsForIDs( search.getHits(), 6, 9 );
+        
+        q = QueryStringParser.parse( "(Deutschl*nd OR Entstehung)" );
+        search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.getHits().length, is( 2 ) );
+        Utils.checkHitsForIDs( search.getHits(), 6, 9 );
+        
+        q = QueryStringParser.parse( "(Deutschl*nd OR Ents*ung)" );
+        search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.getHits().length, is( 2 ) );
+        Utils.checkHitsForIDs( search.getHits(), 6, 9 );
+        
+        q = QueryStringParser.parse( "(Deutschl*nd OR Ents*ung) title:wemove" );
+        search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.getHits().length, is( 1 ) );
+        Utils.checkHitsForIDs( search.getHits(), 6 );
+    }
+    
+    @Test
     public void searchFuzzy() throws ParseException {
         IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
         IngridQuery q = QueryStringParser.parse( "Deutschlnad" );
@@ -264,6 +292,34 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.length(), is( 5l ) );
         Utils.checkHitsForIDs( search.getHits(), 1, 7, 8, 10, 11 );
+    }
+    
+    @Test
+    public void searchFieldSpecialORComplex() throws ParseException {
+        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IngridQuery q = QueryStringParser.parse( "(datatype:xml OR datatype:pdf) partner:bw" );
+        IngridHits search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.length(), is( 2l ) );
+        Utils.checkHitsForIDs( search.getHits(), 10, 11 );
+
+        q = QueryStringParser.parse( "(datatype:xml OR datatype:pdf) OR partner:bw" );
+        search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.length(), is( 6l ) );
+        Utils.checkHitsForIDs( search.getHits(), 10, 11 );
+        
+        q = QueryStringParser.parse( "(datatype:xml AND partner:bund) OR partner:bw" );
+        search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.length(), is( 4l ) );
+        Utils.checkHitsForIDs( search.getHits(), 3, 7, 10, 11 );
+        
+        q = QueryStringParser.parse( "(datatype:xml AND partner:bund) OR partner:bw Nachrichten" );
+        search = index.search( q, 0, 10 );
+        assertThat( search, not( is( nullValue() ) ) );
+        assertThat( search.length(), is( 1l ) );
+        Utils.checkHitsForIDs( search.getHits(), 3);
     }
     
     @Test
