@@ -39,7 +39,7 @@ public class GlobalQueryConverter implements IQueryParsers {
         
         if (terms.length == 0) {
             bq.must( QueryBuilders.matchAllQuery() );
-            
+            queryBuilder.must( bq );
         } else {
             for (TermQuery term : terms) {
                 if (term.isRequred()) {
@@ -51,10 +51,11 @@ public class GlobalQueryConverter implements IQueryParsers {
                 }
             }
             
+            if (terms[0].isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
         }
-
-        queryBuilder.must( bq );
-        
     }
-
 }

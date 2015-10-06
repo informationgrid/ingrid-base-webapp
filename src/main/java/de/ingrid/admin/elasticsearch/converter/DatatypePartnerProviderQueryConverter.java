@@ -59,7 +59,11 @@ public class DatatypePartnerProviderQueryConverter implements IQueryParsers {
                 
                 bq = ConverterUtils.applyAndOrRules( fieldQuery, bq, subQuery );
             }
-            queryBuilder.must( bq );
+            if (allFields.get( 0 ).isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
         }
     }
 

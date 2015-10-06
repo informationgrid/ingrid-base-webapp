@@ -73,6 +73,30 @@ public class SearchTest extends ElasticTests {
     }
     
     @Test
+    public void searchTwoFields() throws Exception {
+        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IngridQuery q = QueryStringParser.parse( "title:Mathematics partner:bund" );
+        IngridHits search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "title:Mathematics partner:bw" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 0l ) );
+        
+        q = QueryStringParser.parse( "title:Mathematics -partner:bw" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "title:Mathematics -partner:bund" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 0l ) );
+    }
+    
+    @Test
     public void getDoc() throws Exception {
         
         IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );

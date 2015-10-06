@@ -73,7 +73,13 @@ public class WildcardFieldQueryConverter implements IQueryParsers {
                 
             }
         }
-        if (bq != null) queryBuilder.must( bq );
+        if (bq != null) {
+            if (wildFields[0].isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
+        }
     }
 
 }

@@ -78,7 +78,11 @@ public class RangeQueryConverter implements IQueryParsers {
                 }
                 
             }
-            queryBuilder.must( bq );
+            if (rangeQuery.isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
         
         }
     }

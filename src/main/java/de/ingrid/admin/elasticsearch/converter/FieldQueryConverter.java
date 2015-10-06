@@ -66,7 +66,11 @@ public class FieldQueryConverter implements IQueryParsers {
                 }
                 
             }
-            queryBuilder.must( bq );
+            if (fieldQuery.isRequred()) {
+                queryBuilder.must( bq );
+            } else {
+                queryBuilder.should( bq );
+            }
         
         }
     }
