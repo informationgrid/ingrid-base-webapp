@@ -2,7 +2,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-base-pom</artifactId>
-    <version>3.5.1</version>
+    <version>3.6.0.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid</groupId>
@@ -293,6 +293,15 @@
             <exclude>**/*.xml</exclude>
             <exclude>**/base/jquery**</exclude>
           </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>external.atlassian.jgitflow</groupId>
+        <artifactId>jgitflow-maven-plugin</artifactId>
+        <version>1.0-m5.1</version>
+        <configuration>
+          <defaultOriginUrl>https://github.com/informationgrid/ingrid-base-webapp</defaultOriginUrl>
+          <noDeploy>true</noDeploy>
         </configuration>
       </plugin>
     </plugins>
