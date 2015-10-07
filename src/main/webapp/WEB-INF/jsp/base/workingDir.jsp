@@ -27,7 +27,7 @@
 
 <%@page import="de.ingrid.admin.security.IngridPrincipal"%><html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
-<title>Portal U Administration</title>
+<title>InGrid iPlug Administration</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="description" content="" />
 <meta name="keywords" content="" />
@@ -37,7 +37,7 @@
 </head>
 <body>
 	<div id="header">
-		<img src="../images/base/logo.gif" width="168" height="60" alt="Portal U" />
+        <img src="../images/base/logo.gif" alt="InGrid" />
 		<h1>Konfiguration</h1>
 		<%
 		java.security.Principal  principal = request.getUserPrincipal();

@@ -392,7 +392,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     
     public ElasticDocument getDocById(Object id) {
         String idAsString = String.valueOf( id );
-        // TODO: make included/excluded fields configurable
         return new ElasticDocument( client.prepareGet( config.index, config.indexType, idAsString )
                 .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                 .execute()
