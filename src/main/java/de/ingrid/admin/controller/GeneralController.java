@@ -33,6 +33,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,6 +49,8 @@ import de.ingrid.admin.object.IDataType;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.validation.AbstractValidator;
+import de.ingrid.admin.validation.IErrorKeys;
 import de.ingrid.admin.validation.PlugDescValidator;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
@@ -139,6 +142,13 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
         addForcedDatatypes(commandObject);
+        
+        String newPW = (String) errors.getFieldValue("newPassword");
+        String currentPW = JettyStarter.getInstance().config.pdPassword;
+        // only reject empty password if no password has been configured yet at all!
+        if ((currentPW == null || currentPW.isEmpty()) && (newPW.isEmpty())) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "newPassword", AbstractValidator.getErrorKey(PlugdescriptionCommandObject.class, "newPassword", IErrorKeys.EMPTY));
+        }
         
         // if no connection to iBus or no partners could be fetched then ignore the partner field!!! 
         if (_validator.validateGeneral(errors, !_communicationService.hasErrors() && !partners.isEmpty()).hasErrors()) {
