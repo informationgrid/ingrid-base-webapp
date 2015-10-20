@@ -170,9 +170,12 @@ public class GeneralController extends AbstractController {
         config.datatypes = new ArrayList<String>(Arrays.asList( pd.getDataTypes() ) );
         config.guiUrl = pd.getIplugAdminGuiUrl();
         config.webappPort = pd.getIplugAdminGuiPort();
-        String pw_hash = BCrypt.hashpw(pd.getIplugAdminPassword(), BCrypt.gensalt());
-        config.pdPassword = pw_hash;
-        pd.setIplugAdminPassword( pw_hash );
+        String newPassword = pd.getNewPassword();
+        if (newPassword != null && newPassword.trim().length() > 0) {
+            String pw_hash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            config.pdPassword = pw_hash;
+            pd.setIplugAdminPassword( pw_hash );
+        }
         
     }
 

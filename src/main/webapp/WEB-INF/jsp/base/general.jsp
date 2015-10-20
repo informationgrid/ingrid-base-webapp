@@ -61,7 +61,19 @@
             $("#provider_full").val(full);
         });
         
+        $(".passwordRepeat").hide();
     });
+    
+    function submit() {
+        var pwd = $("[name=newPassword]").val();
+        var pwdRepeat = $("[name=newPasswordRepeat]").val();
+        if (pwd === pwdRepeat) {
+            document.getElementById('plugDescription').submit();
+        } else {
+            $(".passwordRepeat").show();
+            alert("Das Passwort und seine Wiederholung stimmen nicht überein.");
+        }
+    };
 </script> 
 </head>
 <body>
@@ -88,12 +100,12 @@
 		<div class="controls">
 			<a href="#" onclick="document.location='../base/workingDir.html';">Zur&uuml;ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
+			<a href="#" onclick="submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
 			<a href="#" onclick="document.location='../base/workingDir.html';">Zur&uuml;ck</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
-			<a href="#" onclick="document.getElementById('plugDescription').submit();">Weiter</a>
+			<a href="#" onclick="submit();">Weiter</a>
 		</div>
 		<div id="content">
 			<h2>Allgemeine Angaben zum Betreiber</h2>
@@ -254,9 +266,19 @@
 						<td>Administrationskennwort:</td>
 						<td>
                             <div class="input full">
-                                <input type="password" name="iplugAdminPassword" value="${plugDescription['IPLUG_ADMIN_PASSWORD']}" />
+                                <input type="password" name="newPassword" value="" />
                             </div>
-                            <span>Das Kennwort mit dessen Hilfe man sich authentifiziert.</span><form:errors path="iplugAdminPassword" cssClass="error" element="div" /></td>
+                            <span>Das Kennwort mit dessen Hilfe man sich authentifiziert.</span><form:errors path="newPassword" cssClass="error" element="div" /></td>
+					</tr>			
+					<tr>
+						<td>Kennwort-Wiederholung:</td>
+						<td>
+                            <div class="input full">
+                                <input type="password" name="newPasswordRepeat" value="" />
+                            </div>
+                            <div class="error passwordRepeat">Die Wiederholung stimmt nicht mit dem Passwort überein.</div>
+                            <span>Wiederholen Sie das Kennwort, um Fehleingaben vorzubeugen.</span>
+                        </td>
 					</tr>			
 				</table>
 			</form:form>
