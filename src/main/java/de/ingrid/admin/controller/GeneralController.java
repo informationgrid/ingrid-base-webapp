@@ -29,6 +29,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.Errors;
@@ -152,6 +153,7 @@ public class GeneralController extends AbstractController {
         return redirect(IUris.PARTNER);
     }
 
+    @SuppressWarnings("unchecked")
     private void setConfiguration(PlugdescriptionCommandObject pd) {
         Config config = JettyStarter.getInstance().config;
         
@@ -168,7 +170,9 @@ public class GeneralController extends AbstractController {
         config.datatypes = new ArrayList<String>(Arrays.asList( pd.getDataTypes() ) );
         config.guiUrl = pd.getIplugAdminGuiUrl();
         config.webappPort = pd.getIplugAdminGuiPort();
-        config.pdPassword = pd.getIplugAdminPassword();
+        String pw_hash = BCrypt.hashpw(pd.getIplugAdminPassword(), BCrypt.gensalt());
+        config.pdPassword = pw_hash;
+        pd.setIplugAdminPassword( pw_hash );
         
     }
 
