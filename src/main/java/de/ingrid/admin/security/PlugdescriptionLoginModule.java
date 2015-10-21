@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.utils.PlugDescription;
@@ -54,14 +55,15 @@ public class PlugdescriptionLoginModule extends AbstractLoginModule {
             }
         }
 
-        if (pwd != null) {            
-                if (userName.equals("admin") && password.equals(pwd)) {
-                    Set<String> set = new HashSet<String>();
-                    set.add("admin");
-                    ingridPrincipal = new IngridPrincipal.KnownPrincipal("admin", pwd, set);
-                } else {
-                    ingridPrincipal = new IngridPrincipal.UnknownPrincipal();
-                }
+        if (pwd != null) {
+            
+            if (userName.equals("admin") && BCrypt.checkpw(password, pwd)) {
+                Set<String> set = new HashSet<String>();
+                set.add("admin");
+                ingridPrincipal = new IngridPrincipal.KnownPrincipal("admin", pwd, set);
+            } else {
+                ingridPrincipal = new IngridPrincipal.UnknownPrincipal();
+            }
         } else {
             ingridPrincipal = new IngridPrincipal.SuperAdmin("superadmin");
         }
