@@ -22,6 +22,8 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -265,12 +267,13 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
                 }
             } else if (IngridQuery.GROUPED_BY_DATASOURCE.equalsIgnoreCase(groupBy)) {
                 groupValue = config.communicationProxyUrl;
-                // TODO: make field for datasource configurable, in order to group by web domains for SE!
-                /*try {
-                    groupValue = new URL(groupValue).getHost();
-                } catch (MalformedURLException e) {
-                    log.warn("can not group url: " + groupValue, e);
-                }*/
+                if (config.groupByUrl) {
+                    try {
+                        groupValue = new URL(hit.getId()).getHost();
+                    } catch (MalformedURLException e) {
+                        log.warn("can not group url: " + groupValue, e);
+                    }
+                }
             }
             if (groupValue != null) {
                 ingridHit.addGroupedField(groupValue);
@@ -392,7 +395,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     
     public ElasticDocument getDocById(Object id) {
         String idAsString = String.valueOf( id );
-        // TODO: make included/excluded fields configurable
         return new ElasticDocument( client.prepareGet( config.index, config.indexType, idAsString )
                 .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                 .execute()

@@ -355,6 +355,12 @@ public class Config {
     @PropertyValue("index.fields.include")
     @DefaultValue("*")
     public String[] indexFieldsIncluded;
+
+    // this field is overwritten in iPlugSE, where results
+    // shall be grouped by URL instead of the iPlug-ID
+    @PropertyValue("index.search.groupByUrl")
+    @DefaultValue("false")
+    public boolean groupByUrl;
     
     public String getWebappDir() {
         return this.webappDir;

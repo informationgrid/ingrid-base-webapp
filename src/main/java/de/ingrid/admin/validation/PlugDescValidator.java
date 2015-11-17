@@ -72,7 +72,6 @@ public class PlugDescValidator extends AbstractValidator<PlugdescriptionCommandO
             }
         } catch (final Exception e) {
         }
-        rejectIfEmptyOrWhitespace(errors, "iplugAdminPassword");
 
         return errors;
     }
