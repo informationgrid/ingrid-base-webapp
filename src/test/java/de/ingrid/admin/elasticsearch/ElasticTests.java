@@ -43,6 +43,7 @@ import de.ingrid.admin.elasticsearch.converter.FuzzyQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.MatchAllQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.elasticsearch.converter.RangeQueryConverter;
+import de.ingrid.admin.elasticsearch.converter.WildcardFieldQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 
@@ -71,6 +72,7 @@ public class ElasticTests {
         parsers.add( new FieldQueryIGCConverter() );
         parsers.add( new RangeQueryConverter() );
         parsers.add( new WildcardQueryConverter() );
+        parsers.add( new WildcardFieldQueryConverter() );
         parsers.add( new FuzzyQueryConverter() );
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );

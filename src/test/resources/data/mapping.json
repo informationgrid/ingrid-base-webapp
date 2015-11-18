@@ -14,7 +14,8 @@
             "type": "string"
         },
         "url": {
-            "type": "string"
+            "type": "string",
+            "index": "not_analyzed"
         },
         "boost": {
             "type": "float",

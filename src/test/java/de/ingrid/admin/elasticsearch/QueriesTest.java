@@ -62,7 +62,7 @@ public class QueriesTest {
         queryConverter.setQueryParsers( parsers  );
         BoolQueryBuilder result = queryConverter.convert( q );
         assertThat( result, not( is( nullValue() ) ) );
-        assertThat( result.toString(), containsString( "\"query\" : \"http*\"" ) );
+        assertThat( result.toString(), containsString( "\"wildcard\" : \"http*\"" ) );
         assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {" ) );
     }
     
@@ -79,7 +79,7 @@ public class QueriesTest {
         queryConverter.setQueryParsers( parsers  );
         BoolQueryBuilder result = queryConverter.convert( q );
         assertThat( result, not( is( nullValue() ) ) );
-        assertThat( result.toString(), containsString( "\"query\" : \"http*\"" ) );
+        assertThat( result.toString(), containsString( "\"wildcard\" : \"http*\"" ) );
         assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {" ) );
     }
 

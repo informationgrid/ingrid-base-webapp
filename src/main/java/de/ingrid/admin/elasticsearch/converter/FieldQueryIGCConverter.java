@@ -107,6 +107,10 @@ public class FieldQueryIGCConverter implements IQueryParsers {
             } else if ("incl_meta".equals(indexField) && "on".equals(value)) {
                 // TODO: booleanQuery.add(new TermQuery(new Term(query.getFieldName(), query.getFieldValue().toLowerCase())), Occur.SHOULD);
                 
+            } else if (value.contains( "*" )) {
+                subQuery = QueryBuilders.wildcardQuery( indexField, value );
+                bq = ConverterUtils.applyAndOrRules( fieldQuery, bq, subQuery );
+                
             } else {
                 subQuery = QueryBuilders.matchQuery( fieldQuery.getFieldName(), fieldQuery.getFieldValue() );
 //                applyAndOrRules( fieldQuery, bq, subQuery )
