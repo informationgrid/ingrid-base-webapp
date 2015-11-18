@@ -8,7 +8,7 @@
   <groupId>de.ingrid</groupId>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>3.6.0.4</version>
+  <version>3.6.0.5-SNAPSHOT</version>
   <name>ingrid-base-webapp</name>
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</connection>
