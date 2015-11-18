@@ -43,7 +43,8 @@ public class WildcardFieldQueryConverter implements IQueryParsers {
         
         for (WildCardFieldQuery fieldQuery : wildFields) {
             
-            QueryBuilder subQuery = QueryBuilders.matchQuery( fieldQuery.getFieldName(), fieldQuery.getFieldValue() );
+            //QueryBuilder subQuery = QueryBuilders.matchQuery( fieldQuery.getFieldName(), fieldQuery.getFieldValue() );
+            QueryBuilder subQuery = QueryBuilders.wildcardQuery( fieldQuery.getFieldName(), fieldQuery.getFieldValue() );
             
             if (fieldQuery.isRequred()) {
                 if (bq == null) bq = QueryBuilders.boolQuery();

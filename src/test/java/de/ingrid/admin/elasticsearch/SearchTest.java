@@ -95,6 +95,25 @@ public class SearchTest extends ElasticTests {
     }
     
     @Test
+    public void searchFieldWithWildcards() throws Exception {
+        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IngridQuery q = QueryStringParser.parse( "title:math*" );
+        IngridHits search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "url:http*" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 4l ) );
+        
+        q = QueryStringParser.parse( "url:\"http://www.h*\"" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+    }
+    
+    @Test
     public void searchTwoFields() throws Exception {
         IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
         IngridQuery q = QueryStringParser.parse( "title:Mathematics partner:bund" );
