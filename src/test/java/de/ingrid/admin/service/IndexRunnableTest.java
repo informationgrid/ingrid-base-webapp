@@ -24,7 +24,9 @@ package de.ingrid.admin.service;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -48,6 +50,7 @@ import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.FacetConverter;
 import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
@@ -86,7 +89,9 @@ public class IndexRunnableTest extends ElasticTests {
         _indexRunnable.configure(_plugDescription);
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
-        _indexRunnable.setDocumentProducer(dummyProducer);
+        List<IDocumentProducer> docProducers = new ArrayList<IDocumentProducer>();
+        docProducers.add( dummyProducer );
+        _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
         ElasticSearchUtils.refreshIndex( client, ElasticSearchUtils.getIndexNameFromAliasName( client ) );

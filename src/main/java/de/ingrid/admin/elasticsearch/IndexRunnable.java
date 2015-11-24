@@ -23,6 +23,7 @@
 package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,7 +57,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
     private static final int RETRIES_FETCH_MAPPING = 10;
     private int _documentCount;
-    private IDocumentProducer _documentProducer;
+    private List<IDocumentProducer> _documentProducers;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final PlugDescriptionService _plugDescriptionService;
@@ -70,8 +71,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     @Autowired(required = false)
-    public void setDocumentProducer(final IDocumentProducer documentProducer) {
-        _documentProducer = documentProducer;
+    public void setDocumentProducers(List<IDocumentProducer> documentProducers) {
+        _documentProducers = documentProducers;
         _produceable = true;
     }
 
@@ -92,35 +93,40 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     ElasticSearchUtils.createIndex( _client, newIndex );
                 }
 
-                while (_documentProducer.hasNext()) {
-                    final ElasticDocument document = _documentProducer.next();
-                    if (document == null) {
-                        LOG.warn( "DocumentProducer " + _documentProducer + " returned null Document, we skip this record (not added to index)!" );
-                        continue;
+                for (IDocumentProducer producer : _documentProducers) {
+                    IndexInfo info = getIndexInfo( producer, config );
+                    while (producer.hasNext()) {
+                        final ElasticDocument document = producer.next();
+                        if (document == null) {
+                            LOG.warn( "DocumentProducer " + producer + " returned null Document, we skip this record (not added to index)!" );
+                            continue;
+                        }
+    
+                        document.put( "datatype", _dataTypes );
+                        document.put( "partner", config.partner );
+                        document.put( "provider", config.provider );
+    
+                        if (_documentCount % 50 == 0) {
+                            LOG.info( "add document to index: " + _documentCount );
+                        }
+    
+                        // index into a temporary
+                        // index and switch the old with the new one at the end
+                        IndexRequest indexRequest = new IndexRequest();
+                        if (config.indexWithAutoId) {
+                            indexRequest.index( newIndex )
+                                .type( info.getToType() );
+                        } else {
+                            indexRequest.index( info.getToIndex() )
+                                .type( info.getToType() )
+                                .id( (String) document.get( info.getDocIdField() ) );
+                        }
+                        bulkProcessor.add( indexRequest.source( document ) );
+                        _documentCount++;
                     }
-
-                    document.put( "datatype", _dataTypes );
-                    document.put( "partner", config.partner );
-                    document.put( "provider", config.provider );
-
-                    if (_documentCount % 50 == 0) {
-                        LOG.info( "add document to index: " + _documentCount );
-                    }
-
-                    // index into a temporary
-                    // index and switch the old with the new one at the end
-                    IndexRequest indexRequest = new IndexRequest();
-                    if (config.indexWithAutoId) {
-                        indexRequest.index( newIndex )
-                            .type( config.indexType );
-                    } else {
-                        indexRequest.index( config.index )
-                            .type( config.indexType )
-                            .id( (String) document.get( config.indexIdFromDoc ) );
-                    }
-                    bulkProcessor.add( indexRequest.source( document ) );
-                    _documentCount++;
+                    producer.configure( _plugDescription );
                 }
+                
                 LOG.info( "number of produced documents: " + _documentCount );
                 bulkProcessor.flush();
                 bulkProcessor.close();
@@ -146,7 +152,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
                 _plugDescriptionService.savePlugDescription( _plugDescription );
 
-                _documentProducer.configure( _plugDescription );
             } catch (final Exception e) {
                 e.printStackTrace();
             } catch (Throwable t) {
@@ -159,6 +164,17 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.warn( "configuration fails. disable index creation." );
         }
 
+    }
+
+    private IndexInfo getIndexInfo(IDocumentProducer producer, Config config) {
+        IndexInfo indexInfo = producer.getIndexInfo();
+        if (indexInfo == null) {
+            indexInfo = new IndexInfo();
+            indexInfo.setToIndex( config.index );
+            indexInfo.setToType( config.indexType );
+            indexInfo.setDocIdField( config.indexIdFromDoc );
+        }
+        return indexInfo;
     }
 
     private Listener getBulkProcessorListener() {
