@@ -93,6 +93,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
                 for (IDocumentProducer producer : _documentProducers) {
                     IndexInfo info = getIndexInfo( producer, config );
+                    if (config.indexWithAutoId) {
+                        info.setToIndex( newIndex );
+                    }
                     while (producer.hasNext()) {
                         final ElasticDocument document = producer.next();
                         if (document == null) {

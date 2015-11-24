@@ -35,7 +35,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.search.ShardSearchFailure;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -49,7 +48,6 @@ import org.springframework.stereotype.Component;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
-import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;
@@ -69,10 +67,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     public static final String DETAIL_URL = "url";
 
     private static Logger log = Logger.getLogger( IndexImpl.class );
-
-    private ElasticsearchNodeFactoryBean elasticSearch;
-
-    private Client client;
 
     private QueryConverter queryConverter;
     
@@ -94,27 +88,28 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     private String[] detailFields;
 
+    private IndexManager indexManager;
+
     @Autowired
-    public IndexImpl(ElasticsearchNodeFactoryBean elasticSearch, QueryConverter qc, FacetConverter fc) {
+    public IndexImpl(IndexManager indexManager, QueryConverter qc, FacetConverter fc) {
         this.config =  JettyStarter.getInstance().config;
         this.indexName = config.index;
+        this.indexManager = indexManager;
         this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
         this.plugId = config.communicationProxyUrl;
         this.detailFields = (String[]) ArrayUtils.addAll( new String[] { config.indexFieldTitle, config.indexFieldSummary }, config.additionalSearchDetailFields);
         
         try {
-            this.elasticSearch = elasticSearch;
             this.queryConverter = qc;
             this.facetConverter = fc;
-            client = elasticSearch.getObject().client();
 
-            log.info( "Elastic Search Settings: " + elasticSearch.getObject().settings().toDelimitedString( ',' ) );
+            log.info( "Elastic Search Settings: " + indexManager.printSettings() );
             
-            String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
+            String currentIndex = indexManager.getIndexNameFromAliasName();
             if (currentIndex == null) {
                 String nextIndexName = ElasticSearchUtils.getNextIndexName( indexName );
-                boolean wasCreated = ElasticSearchUtils.createIndex(client, nextIndexName);
-                if (wasCreated) ElasticSearchUtils.switchAlias( client, nextIndexName );
+                boolean wasCreated = indexManager.createIndex(nextIndexName);
+                if (wasCreated) indexManager.switchAlias(nextIndexName );
             }
             
         } catch (Exception e) {
@@ -152,7 +147,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
 
         // search prepare
-        SearchRequestBuilder srb = client.prepareSearch( indexName )
+        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexName )
                 .setSearchType( searchType  )
                 .setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
                 .setFrom( startHit ).setSize( num )
@@ -304,7 +299,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
                 .must(queryConverter.convert( ingridQuery ));
         
         // search prepare
-        SearchRequestBuilder srb = client.prepareSearch(fromIndex)
+        SearchRequestBuilder srb = indexManager.getClient().prepareSearch(fromIndex)
                 .setTypes(fromType)
                 .setSearchType(searchType)
                 .setQuery(query) // Query
@@ -386,7 +381,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     // FIXME: is destroyed automatically via the BEAN!!!
     public void close() {
         try {
-            elasticSearch.getObject().close();
+            indexManager.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -395,7 +390,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     
     public ElasticDocument getDocById(Object id) {
         String idAsString = String.valueOf( id );
-        return new ElasticDocument( client.prepareGet( config.index, null, idAsString )
+        return new ElasticDocument( indexManager.getClient().prepareGet( config.index, null, idAsString )
                 .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                 .execute()
                 .actionGet()

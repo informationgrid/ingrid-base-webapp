@@ -32,7 +32,6 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.count.CountRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,23 +45,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
-import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 
 @Controller
 public class IndexController extends AbstractController {
 
     private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
-    private Client client;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
+    private IndexManager indexManager;
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable, ElasticsearchNodeFactoryBean elastic) throws Exception {
+    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager) throws Exception {
         _indexRunnable = indexRunnable;
         _thread = new Thread(indexRunnable);
-        client = elastic.getObject().client();
+        this.indexManager = indexManager;
     }
 
     @ModelAttribute("state")
@@ -115,17 +113,17 @@ public class IndexController extends AbstractController {
     @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.GET)
     public String getIndexStatus(final ModelMap modelMap) throws Exception {
         // get cluster health information
-        ClusterHealthResponse clusterHealthResponse = client.admin().cluster().health( new ClusterHealthRequest() ).get();
+        ClusterHealthResponse clusterHealthResponse = indexManager.getClient().admin().cluster().health( new ClusterHealthRequest() ).get();
 
         // get current index name
-        String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
+        String currentIndex = indexManager.getIndexNameFromAliasName();
 
         // get mapping
-        GetMappingsResponse mappingResponse = client.admin().indices().getMappings( new GetMappingsRequest() ).get();
+        GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
         ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
         String indexType = JettyStarter.getInstance().config.indexType;
         
-        long count = client.count( new CountRequest( currentIndex ) ).get().getCount();
+        long count = indexManager.getClient().count( new CountRequest( currentIndex ) ).get().getCount();
 
         modelMap.addAttribute( "clusterState", clusterHealthResponse );
         modelMap.addAttribute( "currentIndex", currentIndex );

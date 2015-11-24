@@ -45,7 +45,6 @@ import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.FacetConverter;
 import de.ingrid.admin.elasticsearch.IndexImpl;
@@ -197,7 +196,7 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     public void testFlipIndex() throws Exception {
         config.indexWithAutoId = true;
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
 
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
@@ -217,7 +216,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
         
         IngridQuery q = QueryStringParser.parse("title:Marko");

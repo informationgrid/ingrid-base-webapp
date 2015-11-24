@@ -2,6 +2,7 @@ package de.ingrid.admin.elasticsearch;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkProcessor.Listener;
@@ -29,8 +30,11 @@ public class IndexManager {
 
     private Config _config;
 
+    private ElasticsearchNodeFactoryBean _elastic;
+
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
+        _elastic = elastic;
         _client = elastic.getObject().client();
         _bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
         _config = JettyStarter.getInstance().config;
@@ -65,6 +69,10 @@ public class IndexManager {
 
     public void flush() {
         _bulkProcessor.flush();
+    }
+
+    public void flushAndClose() {
+        _bulkProcessor.flush();
         _bulkProcessor.close();
     }
 
@@ -75,7 +83,7 @@ public class IndexManager {
         prepareAliases.addAlias( newIndex, aliasName ).execute().actionGet();
     }
 
-    private void removeAlias() {
+    public void removeAlias() {
         String aliasName = _config.index;
         String indexNameFromAliasName = getIndexNameFromAliasName( _client );
         while (indexNameFromAliasName != null) {
@@ -93,6 +101,12 @@ public class IndexManager {
             return indexToAliasesMap.keys().iterator().next().value;
         }
         return null;
+    }
+    
+    public boolean typeExists(String type) {
+        TypesExistsRequest typeRequest = new TypesExistsRequest( new String[] { _config.index }, type );
+        boolean typeExists = _client.admin().indices().typesExists( typeRequest ).actionGet().isExists();
+        return typeExists;
     }
 
     public void deleteIndex(String index) {
@@ -127,4 +141,17 @@ public class IndexManager {
     public void refreshIndex(String indexName) {
         _client.admin().indices().refresh( new RefreshRequest( indexName ) ).actionGet();
     }
+
+    public Client getClient() {
+        return _client;
+    }
+
+    public String printSettings() throws Exception {
+        return _elastic.getObject().settings().toDelimitedString( ',' );
+    }
+
+    public void shutdown() throws Exception {
+        _elastic.getObject().close();
+    }
+
 }
