@@ -395,7 +395,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     
     public ElasticDocument getDocById(Object id) {
         String idAsString = String.valueOf( id );
-        return new ElasticDocument( client.prepareGet( config.index, config.indexType, idAsString )
+        return new ElasticDocument( client.prepareGet( config.index, null, idAsString )
                 .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                 .execute()
                 .actionGet()

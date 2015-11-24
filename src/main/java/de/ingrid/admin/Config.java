@@ -520,6 +520,14 @@ public class Config {
 
         return communication;
     }
+    
+    public Properties getOverrideProperties() throws IOException {
+        Resource override = getOverrideConfigResource();
+        InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
+        Properties props = new Properties();
+        props.load( is );
+        return props;
+    }
 
     public void writeCommunicationToProperties() {
         try {
