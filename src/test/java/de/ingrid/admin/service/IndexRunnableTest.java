@@ -49,6 +49,7 @@ import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.FacetConverter;
 import de.ingrid.admin.elasticsearch.IndexImpl;
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.utils.IngridDocument;
@@ -85,7 +86,8 @@ public class IndexRunnableTest extends ElasticTests {
     }
     
     private void index(int model) throws Exception {
-        _indexRunnable = new IndexRunnable(elastic, pds);
+        IndexManager indexManager = new IndexManager( elastic );
+        _indexRunnable = new IndexRunnable(pds, indexManager );
         _indexRunnable.configure(_plugDescription);
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
@@ -94,7 +96,7 @@ public class IndexRunnableTest extends ElasticTests {
         _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
-        ElasticSearchUtils.refreshIndex( client, ElasticSearchUtils.getIndexNameFromAliasName( client ) );
+        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName() );
         Thread.sleep(1000);
     }
     
@@ -186,7 +188,6 @@ public class IndexRunnableTest extends ElasticTests {
         //createNodeManager();
         
         SearchRequestBuilder srb = client.prepareSearch( config.index )
-                .setTypes( config.indexType )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
