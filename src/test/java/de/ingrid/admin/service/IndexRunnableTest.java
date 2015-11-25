@@ -95,7 +95,7 @@ public class IndexRunnableTest extends ElasticTests {
         _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
-        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName() );
+        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index) );
         Thread.sleep(1000);
     }
     

@@ -1,3 +1,25 @@
+/*
+ * **************************************************-
+ * ingrid-base-webapp
+ * ==================================================
+ * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.admin.elasticsearch;
 
 import org.apache.log4j.Logger;
@@ -16,12 +38,14 @@ import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.utils.ElasticDocument;
 
+@Service
 public class IndexManager {
     private static final Logger LOG = Logger.getLogger( IndexManager.class );
 
@@ -42,7 +66,7 @@ public class IndexManager {
 
     public void update(IndexInfo indexinfo, ElasticDocument doc) {
         IndexRequest indexRequest = new IndexRequest();
-        indexRequest.index( indexinfo.getToIndex() ).type( indexinfo.getToType() );
+        indexRequest.index( indexinfo.getRealIndexName() ).type( indexinfo.getToType() );
 
         if (!_config.indexWithAutoId) {
             indexRequest.id( (String) doc.get( indexinfo.getDocIdField() ) );
@@ -76,35 +100,23 @@ public class IndexManager {
         _bulkProcessor.close();
     }
 
-    public void switchAlias(String newIndex) {
-        String aliasName = _config.index;
-        removeAlias();
+    public void switchAlias(String aliasName, String newIndex) {
+        removeAlias(aliasName);
         IndicesAliasesRequestBuilder prepareAliases = _client.admin().indices().prepareAliases();
         prepareAliases.addAlias( newIndex, aliasName ).execute().actionGet();
     }
 
-    public void removeAlias() {
-        String aliasName = _config.index;
-        String indexNameFromAliasName = getIndexNameFromAliasName( _client );
+    public void removeAlias(String aliasName) {
+        String indexNameFromAliasName = getIndexNameFromAliasName(aliasName);
         while (indexNameFromAliasName != null) {
             IndicesAliasesRequestBuilder prepareAliases = _client.admin().indices().prepareAliases();
             prepareAliases.removeAlias( indexNameFromAliasName, aliasName ).execute().actionGet();
-            indexNameFromAliasName = getIndexNameFromAliasName( _client );
+            indexNameFromAliasName = getIndexNameFromAliasName(aliasName);
         }
     }
-
-    private String getIndexNameFromAliasName(Client _client2) {
-        ImmutableOpenMap<String, AliasMetaData> indexToAliasesMap = _client.admin().cluster().state( Requests.clusterStateRequest() )
-                .actionGet().getState().getMetaData().aliases()
-                .get( JettyStarter.getInstance().config.index );
-        if (indexToAliasesMap != null && !indexToAliasesMap.isEmpty()) {
-            return indexToAliasesMap.keys().iterator().next().value;
-        }
-        return null;
-    }
-    
-    public boolean typeExists(String type) {
-        TypesExistsRequest typeRequest = new TypesExistsRequest( new String[] { _config.index }, type );
+  
+    public boolean typeExists(String indexName, String type) {
+        TypesExistsRequest typeRequest = new TypesExistsRequest( new String[] { indexName }, type );
         boolean typeExists = _client.admin().indices().typesExists( typeRequest ).actionGet().isExists();
         return typeExists;
     }
@@ -122,18 +134,22 @@ public class IndexManager {
         return false;
     }
 
-    public String getIndexNameFromAliasName() {
+    public String getIndexNameFromAliasName(String indexAlias) {
+        // check if alias already is an index
         ImmutableOpenMap<String, AliasMetaData> indexToAliasesMap = _client.admin().cluster().state( Requests.clusterStateRequest() )
                 .actionGet().getState().getMetaData().aliases()
-                .get( _config.index );
+                .get( indexAlias );
         if (indexToAliasesMap != null && !indexToAliasesMap.isEmpty()) {
             return indexToAliasesMap.keys().iterator().next().value;
+        } else if (_client.admin().indices().prepareExists(indexAlias).execute().actionGet().isExists()) {
+            // alias seems to be the index itself
+            return indexAlias;
         }
         return null;
     }
 
     public MappingMetaData getMapping(IndexInfo indexInfo) {
-        String indexName = getIndexNameFromAliasName();
+        String indexName = getIndexNameFromAliasName(indexInfo.getRealIndexName());
         ClusterState cs = _client.admin().cluster().prepareState().setIndices( indexName ).execute().actionGet().getState();
         return cs.getMetaData().index( indexName ).mapping( indexInfo.getToType() );
     }

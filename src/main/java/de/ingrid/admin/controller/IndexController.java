@@ -116,7 +116,7 @@ public class IndexController extends AbstractController {
         ClusterHealthResponse clusterHealthResponse = indexManager.getClient().admin().cluster().health( new ClusterHealthRequest() ).get();
 
         // get current index name
-        String currentIndex = indexManager.getIndexNameFromAliasName();
+        String currentIndex = indexManager.getIndexNameFromAliasName(JettyStarter.getInstance().config.index);
 
         // get mapping
         GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();

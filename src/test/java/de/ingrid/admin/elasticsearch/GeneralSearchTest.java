@@ -48,8 +48,8 @@ public class GeneralSearchTest extends ElasticTests {
         JettyStarter.getInstance().config.indexFieldSummary = "content";
         setup( "test", "data/webUrls.json" );
         IndexManager indexManager = new IndexManager( elastic );
-        indexManager.removeAlias();
-        indexManager.switchAlias( "test_1" );
+        indexManager.removeAlias("test");
+        indexManager.switchAlias( "test", "test_1" );
     }    
     
    

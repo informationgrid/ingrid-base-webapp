@@ -82,7 +82,7 @@ public class ElasticTests {
             setMapping( elastic, "test_1" );
             prepareIndex( elastic, fileData, "test_1" );
             IndexManager indexManager = new IndexManager( elastic );
-            indexManager.switchAlias( "test_1" );
+            indexManager.switchAlias( "test", "test_1" );
         }
     }
     

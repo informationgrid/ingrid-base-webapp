@@ -23,6 +23,8 @@
 package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,20 +84,28 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
                 _plugDescription.remove( PlugDescription.FIELDS );
                 
-                // get the current index from the alias name
-                // if it's the first time then use the name given by the
-                // configuration
-                String oldIndex = _indexManager.getIndexNameFromAliasName();
-                String newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? config.index : oldIndex );
-                if (config.indexWithAutoId) {
-                    _indexManager.createIndex( newIndex );
-                }
+                // TODO: do not use index from global config but instead from configured record producer in IndexInfo
+                String oldIndex = null;
+                String newIndex = null;
+                Map<String, String[]> indexNames = new HashMap<String, String[]>();
 
                 for (IDocumentProducer producer : _documentProducers) {
                     IndexInfo info = getIndexInfo( producer, config );
-                    if (config.indexWithAutoId) {
-                        info.setToIndex( newIndex );
+                    // get the current index from the alias name
+                    // if it's the first time then use the name given by the
+                    // configuration
+                    // only create new index if we did not already ... this depends on the producer settings
+                    if (!indexNames.containsKey( info.getToIndex() )) {
+                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToIndex());
+                        newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? info.getToIndex() : oldIndex );
+                        if (config.indexWithAutoId) {
+                            _indexManager.createIndex( newIndex );
+                        }
+                        indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex } );
                     }
+                    info.setRealIndexName( newIndex );
+                    
+                    
                     while (producer.hasNext()) {
                         final ElasticDocument document = producer.next();
                         if (document == null) {
@@ -131,9 +141,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 LOG.info( "indexing ends" );
 
                 if (config.indexWithAutoId) {
-                    _indexManager.switchAlias( newIndex );
-                    if (oldIndex != null) {
-                        _indexManager.deleteIndex( oldIndex );
+                    // TODO: the index alias name from the producer should be used here instead of the global index name!
+                    // OR use only ever one index with different types -> then the producer does not need the index name
+                    for (String index : indexNames.keySet()) {
+                        String[] indexMore = indexNames.get( index );
+                        _indexManager.switchAlias( index, indexMore[1]);
+                        if (oldIndex != null) {
+                            _indexManager.deleteIndex( indexMore[0] );
+                        }
                     }
                     LOG.info( "switched alias to new index and deleted old one" );
                 } else {

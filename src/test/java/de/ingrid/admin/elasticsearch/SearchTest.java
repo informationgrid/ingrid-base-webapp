@@ -51,8 +51,8 @@ public class SearchTest extends ElasticTests {
         new JettyStarter( false );
         setup( "test", "data/webUrls2.json" );
         IndexManager indexManager = new IndexManager( elastic );
-        indexManager.removeAlias();
-        indexManager.switchAlias( "test_1" );
+        indexManager.removeAlias("test");
+        indexManager.switchAlias( "test", "test_1" );
     }
     
     @AfterClass
