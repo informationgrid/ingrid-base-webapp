@@ -103,7 +103,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         }
                         indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex } );
                     }
-                    info.setRealIndexName( newIndex );
+                    if (config.indexWithAutoId) {
+                        info.setRealIndexName( newIndex );
+                    } else {
+                        info.setRealIndexName( oldIndex );
+                    }
                     
                     
                     while (producer.hasNext()) {

@@ -74,6 +74,8 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Mock
     PlugDescriptionService pds;
+
+    private ArrayList<IDocumentProducer> docProducers;
     
     @Before
     public void beforeTest() {
@@ -90,7 +92,7 @@ public class IndexRunnableTest extends ElasticTests {
         _indexRunnable.configure(_plugDescription);
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
-        List<IDocumentProducer> docProducers = new ArrayList<IDocumentProducer>();
+        docProducers = new ArrayList<IDocumentProducer>();
         docProducers.add( dummyProducer );
         _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
@@ -197,8 +199,8 @@ public class IndexRunnableTest extends ElasticTests {
     public void testFlipIndex() throws Exception {
         config.indexWithAutoId = true;
         IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
-
         index(0);
+        index.setIndexNames( docProducers );
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
         long length = index.search(q, 0, 10).length();
@@ -218,7 +220,7 @@ public class IndexRunnableTest extends ElasticTests {
     public void testGetFacet() throws Exception {
         IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
-        
+        index.setIndexNames( docProducers );
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);
 

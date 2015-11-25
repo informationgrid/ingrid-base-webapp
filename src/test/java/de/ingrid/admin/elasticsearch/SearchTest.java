@@ -36,6 +36,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.admin.service.DummyProducer;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
@@ -45,6 +47,7 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 public class SearchTest extends ElasticTests {
     @SuppressWarnings("unused")
     private static Logger log = Logger.getLogger( SearchTest.class );
+    private static ArrayList<IDocumentProducer> docProducers;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -63,7 +66,8 @@ public class SearchTest extends ElasticTests {
     @Test
     public void search() throws Exception {
         
-        IndexImpl index2 = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
+        
         IngridQuery q = QueryStringParser.parse( "" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -73,7 +77,7 @@ public class SearchTest extends ElasticTests {
     @Test
     public void searchComplex() throws Exception {
         
-        IndexImpl index2 = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
         IngridQuery q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) AND (title:Square OR title:Prime)" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -97,7 +101,7 @@ public class SearchTest extends ElasticTests {
     
     @Test
     public void searchFieldWithWildcards() throws Exception {
-        IndexImpl index2 = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
         IngridQuery q = QueryStringParser.parse( "title:math*" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -116,7 +120,7 @@ public class SearchTest extends ElasticTests {
     
     @Test
     public void searchTwoFields() throws Exception {
-        IndexImpl index2 = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
         IngridQuery q = QueryStringParser.parse( "title:Mathematics partner:bund" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -140,8 +144,7 @@ public class SearchTest extends ElasticTests {
     
     @Test
     public void getDoc() throws Exception {
-        
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         ElasticDocument response = index.getDocById( "4" );
         assertThat( response, not( is( nullValue() ) ) );
         assertThat( (String)response.get( "url" ), is( "http://www.golemXXX.de" ) );
@@ -156,7 +159,7 @@ public class SearchTest extends ElasticTests {
         faceteEntry.put("field", "datatype");
         facetQueries.add(faceteEntry);
         
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "" );
         q.put("FACETS", facetQueries);
         
@@ -179,7 +182,7 @@ public class SearchTest extends ElasticTests {
     @Test
     public void searchTitleAndContent() throws Exception {
         
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         // both terms are found in the content field => one match
         IngridQuery q = QueryStringParser.parse( "biggest number" );
         IngridHits search = index.search( q, 0, 10 );
