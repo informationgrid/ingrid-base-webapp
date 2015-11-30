@@ -24,6 +24,8 @@ package de.ingrid.admin.controller;
 
 import java.io.IOException;
 import java.lang.Thread.State;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +49,7 @@ import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.object.IDocumentProducer;
 
 @Controller
 public class IndexController extends AbstractController {
@@ -55,12 +58,14 @@ public class IndexController extends AbstractController {
     private final IndexRunnable _indexRunnable;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
     private IndexManager indexManager;
+    private List<IDocumentProducer> docProducer;
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager) throws Exception {
+    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager, List<IDocumentProducer> docProducer) throws Exception {
         _indexRunnable = indexRunnable;
         _thread = new Thread(indexRunnable);
         this.indexManager = indexManager;
+        this.docProducer = docProducer;
     }
 
     @ModelAttribute("state")
@@ -115,25 +120,79 @@ public class IndexController extends AbstractController {
         // get cluster health information
         ClusterHealthResponse clusterHealthResponse = indexManager.getClient().admin().cluster().health( new ClusterHealthRequest() ).get();
 
-        // get current index name
-        String currentIndex = indexManager.getIndexNameFromAliasName(JettyStarter.getInstance().config.index);
+        // get all indices
+        List<IndexStatus> indices = new ArrayList<IndexStatus>();
+        for (IDocumentProducer producer : docProducer) {
+            
+            String index = producer.getIndexInfo().getToIndex();
+            String indexType = producer.getIndexInfo().getToType();
+            
+            String currentIndex = indexManager.getIndexNameFromAliasName(index);
+            if (currentIndex == null) continue;
+    
+            // get mapping
+            GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
+            ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
+            
+            long count = indexManager.getClient().count( new CountRequest( currentIndex ).types( indexType ) ).get().getCount();
 
-        // get mapping
-        GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
-        ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
-        String indexType = JettyStarter.getInstance().config.indexType;
-        
-        long count = indexManager.getClient().count( new CountRequest( currentIndex ) ).get().getCount();
-
+            Object mappingAsString = mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "\"No mapping exists!\"";
+            IndexStatus indexStatus = new IndexStatus( currentIndex, indexType, count, mappingAsString );
+            indices.add( indexStatus );
+        }
         modelMap.addAttribute( "clusterState", clusterHealthResponse );
-        modelMap.addAttribute( "currentIndex", currentIndex );
-        modelMap.addAttribute( "mapping", mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "No mapping exists!" );
-        modelMap.addAttribute( "docCount", count );
+        modelMap.addAttribute( "indices", indices );
         return IViews.INDEX_STATUS;
     }
 
     @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.POST)
     public String setIndexStatus(@RequestParam("action") final String action) throws IOException {
         return redirect( IUris.INDEX_STATUS );
+    }
+    
+    public class IndexStatus {
+        private String indexName;
+        private String indexType;
+        private long docCount;
+        private Object mapping;
+        
+        public IndexStatus(String name, String type, long count, Object mappingAsString) {
+            this.setIndexName( name );
+            this.setIndexType( type );
+            this.setDocCount( count );
+            this.setMapping( mappingAsString );
+        }
+
+        public String getIndexName() {
+            return indexName;
+        }
+
+        public void setIndexName(String indexName) {
+            this.indexName = indexName;
+        }
+
+        public long getDocCount() {
+            return docCount;
+        }
+
+        public void setDocCount(long docCount) {
+            this.docCount = docCount;
+        }
+
+        public Object getMapping() {
+            return mapping;
+        }
+
+        public void setMapping(Object mapping) {
+            this.mapping = mapping;
+        }
+
+        public String getIndexType() {
+            return indexType;
+        }
+
+        public void setIndexType(String indextype) {
+            this.indexType = indextype;
+        }
     }
 }
