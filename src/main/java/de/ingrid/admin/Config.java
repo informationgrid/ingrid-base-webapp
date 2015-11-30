@@ -138,6 +138,7 @@ public class Config {
         
         @Override
         public String[] transform( String input ) {
+            if (input.isEmpty()) return new String[0];
             return input.split( "," );
         }
     }
@@ -361,6 +362,16 @@ public class Config {
     @PropertyValue("index.search.groupByUrl")
     @DefaultValue("false")
     public boolean groupByUrl;
+
+    // this field contains all the index names defined in the doc producers
+    // if none was defined there, then the global index from this config is used
+    @TypeTransformers(Config.StringToArray.class)
+    @DefaultValue("")
+    public String[] docProducerIndices;
+
+    @PropertyValue("index.alwaysCreate")
+    @DefaultValue("true")
+    public boolean alwaysCreateNewIndex;
     
     public String getWebappDir() {
         return this.webappDir;

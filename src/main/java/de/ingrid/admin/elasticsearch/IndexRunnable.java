@@ -55,7 +55,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final PlugDescriptionService _plugDescriptionService;
-    private String[] _dataTypes;
     private IndexManager _indexManager;
 
     @Autowired
@@ -68,6 +67,37 @@ public class IndexRunnable implements Runnable, IConfigurable {
     public void setDocumentProducers(List<IDocumentProducer> documentProducers) {
         _documentProducers = documentProducers;
         _produceable = true;
+        
+        JettyStarter.getInstance().config.docProducerIndices = getIndexNamesFromProducers( documentProducers );
+    }
+
+    private String[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
+        ArrayList<String> indices = new ArrayList<String>();
+        
+        for (IDocumentProducer docProducer : documentProducers) {
+            IndexInfo indexInfo = docProducer.getIndexInfo();
+            String currentIndex = null;
+            String indexAlias = null;
+            if (indexInfo == null) {
+                indexAlias = JettyStarter.getInstance().config.index;
+            } else {
+                indexAlias = indexInfo.getToIndex();
+            }
+
+            if (!indices.contains( indexAlias )) {
+                currentIndex = _indexManager.getIndexNameFromAliasName( indexAlias );
+                if (currentIndex == null) {
+                    String nextIndexName = ElasticSearchUtils.getNextIndexName( indexAlias );
+                    boolean wasCreated = _indexManager.createIndex( nextIndexName );
+                    if (wasCreated) {
+                        _indexManager.switchAlias( indexAlias, nextIndexName );
+                    }
+                } else {
+                    indices.add( indexAlias );
+                }
+            }
+        }
+        return indices.toArray( new String[0] );
     }
 
     public void run() {
@@ -75,7 +105,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
             try {
                 LOG.info( "indexing starts" );
                 resetDocumentCount();
-                //BulkProcessor bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
                 Config config = JettyStarter.getInstance().config;
                 
                 // remove all fields from plug description
@@ -84,7 +113,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
                 _plugDescription.remove( PlugDescription.FIELDS );
                 
-                // TODO: do not use index from global config but instead from configured record producer in IndexInfo
                 String oldIndex = null;
                 String newIndex = null;
                 Map<String, String[]> indexNames = new HashMap<String, String[]>();
@@ -98,12 +126,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     if (!indexNames.containsKey( info.getToIndex() )) {
                         oldIndex = _indexManager.getIndexNameFromAliasName(info.getToIndex());
                         newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? info.getToIndex() : oldIndex );
-                        if (config.indexWithAutoId) {
+                        if (config.alwaysCreateNewIndex) {
                             _indexManager.createIndex( newIndex );
                         }
                         indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex } );
                     }
-                    if (config.indexWithAutoId) {
+                    if (config.alwaysCreateNewIndex) {
                         info.setRealIndexName( newIndex );
                     } else {
                         info.setRealIndexName( oldIndex );
@@ -117,9 +145,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                             continue;
                         }
     
-                        document.put( "datatype", _dataTypes );
-                        document.put( "partner", config.partner );
-                        document.put( "provider", config.provider );
+                        _indexManager.addBasicFields( document );
     
                         if (_documentCount % 50 == 0) {
                             LOG.info( "add document to index: " + _documentCount );
@@ -144,9 +170,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 
                 LOG.info( "indexing ends" );
 
-                if (config.indexWithAutoId) {
-                    // TODO: the index alias name from the producer should be used here instead of the global index name!
-                    // OR use only ever one index with different types -> then the producer does not need the index name
+                if (config.alwaysCreateNewIndex) {
+                    // switch aliases of all document producers to the new indices
                     for (String index : indexNames.keySet()) {
                         String[] indexMore = indexNames.get( index );
                         _indexManager.switchAlias( index, indexMore[1]);
@@ -209,7 +234,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
         resetDocumentCount();
         _plugDescription = plugDescription;
-        _dataTypes = plugDescription.getDataTypes();
     }
 
     public PlugDescription getPlugDescription() {

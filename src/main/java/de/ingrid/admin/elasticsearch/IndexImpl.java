@@ -49,7 +49,6 @@ import org.springframework.stereotype.Component;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.QueryConverter;
-import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IDetailer;
 import de.ingrid.utils.IRecordLoader;
@@ -84,8 +83,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-search-type.html
     private SearchType searchType = null;
 
-    private String[] indexNames;
-
     private Config config;
 
     private String[] detailFields;
@@ -95,7 +92,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     @Autowired
     public IndexImpl(IndexManager indexManager, QueryConverter qc, FacetConverter fc) {
         this.config = JettyStarter.getInstance().config;
-        // TODO: indexName must contain all indices from all document producers
         this.indexManager = indexManager;
         this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
         this.plugId = config.communicationProxyUrl;
@@ -112,37 +108,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             e.printStackTrace();
         }
 
-    }
-
-    @Autowired(required = false)
-    public void setIndexNames(List<IDocumentProducer> documentProducers) {
-        ArrayList<String> indices = new ArrayList<String>();
-
-        // create initially an index for all indexNames
-        for (IDocumentProducer docProducer : documentProducers) {
-            IndexInfo indexInfo = docProducer.getIndexInfo();
-            String currentIndex = null;
-            String indexAlias = null;
-            if (indexInfo == null) {
-                indexAlias = config.index;
-            } else {
-                indexAlias = indexInfo.getToIndex();
-            }
-
-            if (!indices.contains( indexAlias )) {
-                currentIndex = indexManager.getIndexNameFromAliasName( indexAlias );
-                if (currentIndex == null) {
-                    String nextIndexName = ElasticSearchUtils.getNextIndexName( indexAlias );
-                    boolean wasCreated = indexManager.createIndex( nextIndexName );
-                    if (wasCreated) {
-                        indexManager.switchAlias( indexAlias, nextIndexName );
-                    }
-                } else {
-                    indices.add( indexAlias );
-                }
-            }
-        }
-        this.indexNames = indices.toArray( new String[0] );
     }
 
     @Override
@@ -172,8 +137,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             // the necessary value id the results ID
         }
 
+        String[] indexNames = JettyStarter.getInstance().config.docProducerIndices;
         // search prepare
-        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexNames ).setSearchType( searchType ).setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
+        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexNames  ).setSearchType( searchType ).setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
                 .setFrom( startHit ).setSize( num ).setExplain( false );
 
         // search only in defined types within the index, if defined
@@ -400,6 +366,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     public ElasticDocument getDocById(Object id) {
         String idAsString = String.valueOf( id );
+        String[] indexNames = JettyStarter.getInstance().config.docProducerIndices;
         // itereate over all indices until document was found
         for (String indexName : indexNames) {
             Map<String, Object> source = indexManager.getClient().prepareGet( indexName, null, idAsString )

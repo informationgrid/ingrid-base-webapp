@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -200,7 +199,6 @@ public class IndexRunnableTest extends ElasticTests {
         config.indexWithAutoId = true;
         IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
-        index.setIndexNames( docProducers );
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
         long length = index.search(q, 0, 10).length();
@@ -220,7 +218,6 @@ public class IndexRunnableTest extends ElasticTests {
     public void testGetFacet() throws Exception {
         IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
-        index.setIndexNames( docProducers );
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);
 
