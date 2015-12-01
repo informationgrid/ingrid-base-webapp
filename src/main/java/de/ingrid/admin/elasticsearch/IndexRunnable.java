@@ -205,7 +205,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     }
 
-    private IndexInfo getIndexInfo(IDocumentProducer producer, Config config) {
+    public IndexInfo getIndexInfo(IDocumentProducer producer, Config config) {
         IndexInfo indexInfo = producer.getIndexInfo();
         if (indexInfo == null) {
             indexInfo = new IndexInfo();

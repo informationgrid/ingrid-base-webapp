@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.object.IDocumentProducer;
@@ -124,8 +125,9 @@ public class IndexController extends AbstractController {
         List<IndexStatus> indices = new ArrayList<IndexStatus>();
         for (IDocumentProducer producer : docProducer) {
             
-            String index = producer.getIndexInfo().getToIndex();
-            String indexType = producer.getIndexInfo().getToType();
+            IndexInfo indexInfo = _indexRunnable.getIndexInfo( producer, JettyStarter.getInstance().config );
+            String index = indexInfo.getToIndex();
+            String indexType = indexInfo.getToType();
             
             String currentIndex = indexManager.getIndexNameFromAliasName(index);
             if (currentIndex == null) continue;
