@@ -23,7 +23,6 @@
 package de.ingrid.admin.controller;
 
 import java.io.IOException;
-import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
@@ -50,69 +50,55 @@ import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.elasticsearch.IndexScheduler;
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.admin.object.IDocumentProducer;
 
 @Controller
 public class IndexController extends AbstractController {
 
-    private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
     private IndexManager indexManager;
     private List<IDocumentProducer> docProducer;
+    
+    @Autowired
+    private StatusProvider statusProvider;
+    
+    @Autowired
+    private IndexScheduler scheduler;
 
     @Autowired
     public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager, List<IDocumentProducer> docProducer) throws Exception {
         _indexRunnable = indexRunnable;
-        _thread = new Thread(indexRunnable);
         this.indexManager = indexManager;
         this.docProducer = docProducer;
     }
 
     @ModelAttribute("state")
-    public State injectState() {
-        return !_indexRunnable.isProduceable() ? State.BLOCKED : _thread.getState();
-    }
-
-    @ModelAttribute("documentCount")
-    public int injectDocumentCount() {
-        int documentCount = 0;
-        if (_indexRunnable != null) {
-        	documentCount = _indexRunnable.getDocumentCount();
-        }
-        return documentCount;
+    public Boolean injectState() {
+        return scheduler.isRunning();
     }
 
     @RequestMapping(value = IUris.INDEXING, method = RequestMethod.GET)
     public String getIndexing(ModelMap model) {
+        if (scheduler.isRunning()) {
+            model.addAttribute("started", true);
+        }
         return IViews.INDEXING;
     }
 
     @RequestMapping(value = IUris.INDEXING, method = RequestMethod.POST)
     public String postIndexing(ModelMap model) throws Exception {
-        if (_indexRunnable.isProduceable()) {
-            if (_thread.getState() == State.NEW) {
-                LOG.info("start indexer");
-                _thread.start();
-            } else if (_thread.getState() == State.TERMINATED) {
-                LOG.info("start indexer");
-                _thread = new Thread(_indexRunnable);
-                _thread.start();
-            } else {
-                LOG.info("indexer was not started");
-            }
-        } else {
-            LOG.warn("can not start indexer, because it is not produceable");
-        }
-
+        scheduler.triggerManually();
         model.addAttribute("started", true);
+        
         return IViews.INDEXING;
-
     }
     
     @RequestMapping(value = IUris.INDEX_STATE, method = RequestMethod.GET)
     public String getIndexState(ModelMap model){
-    	model.addAttribute("state", _thread.getState());
+    	model.addAttribute("state", scheduler.isRunning());
     	return "/base/indexState";
     }
     
@@ -150,6 +136,42 @@ public class IndexController extends AbstractController {
     @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.POST)
     public String setIndexStatus(@RequestParam("action") final String action) throws IOException {
         return redirect( IUris.INDEX_STATUS );
+    }
+    
+    @RequestMapping(value = IUris.LIVE_INDEX_STATE, method = RequestMethod.GET)
+    public @ResponseBody
+    StatusResponse getLiveIndexState(ModelMap model) {
+        return new StatusResponse(scheduler.isRunning(), statusProvider.toString());
+    }
+    
+    private class StatusResponse {
+
+        private Boolean isRunning;
+        private String status;
+
+        public StatusResponse(Boolean isRunning, String status) {
+            this.setIsRunning(isRunning);
+            this.setStatus(status);
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        @SuppressWarnings("unused")
+        public String getStatus() {
+            return status;
+        }
+
+        public void setIsRunning(Boolean isRunning) {
+            this.isRunning = isRunning;
+        }
+
+        @SuppressWarnings("unused")
+        public Boolean getIsRunning() {
+            return isRunning;
+        }
+
     }
     
     public class IndexStatus {

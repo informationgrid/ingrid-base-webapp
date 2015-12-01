@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.utils.ElasticDocument;
@@ -50,12 +51,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
     private static final int RETRIES_FETCH_MAPPING = 10;
-    private int _documentCount;
     private List<IDocumentProducer> _documentProducers;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final PlugDescriptionService _plugDescriptionService;
     private IndexManager _indexManager;
+    
+    @Autowired
+    private StatusProvider statusProvider;
 
     @Autowired
     public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager) throws Exception {
@@ -103,8 +106,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
     public void run() {
         if (_produceable) {
             try {
+                statusProvider.clear();
+                statusProvider.addState( "start_indexing", "Start indexing");
                 LOG.info( "indexing starts" );
-                resetDocumentCount();
                 Config config = JettyStarter.getInstance().config;
                 
                 // remove all fields from plug description
@@ -113,6 +117,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
                 _plugDescription.remove( PlugDescription.FIELDS );
                 
+                int documentCount = 0;
                 String oldIndex = null;
                 String newIndex = null;
                 Map<String, String[]> indexNames = new HashMap<String, String[]>();
@@ -137,24 +142,26 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         info.setRealIndexName( oldIndex );
                     }
                     
+                    this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToIndex() + " -> " + info.getToType());
                     
+                    int count = 1, skip = 0;
+                    Integer totalCount = producer.getDocumentCount();
+                    String indexPostfixString = totalCount == null ? "" : " / " + totalCount;
+                    String indexTag = "indexing_" + info.getToIndex() + "_" + info.getToType();
                     while (producer.hasNext()) {
                         final ElasticDocument document = producer.next();
                         if (document == null) {
                             LOG.warn( "DocumentProducer " + producer + " returned null Document, we skip this record (not added to index)!" );
+                            this.statusProvider.addState(indexTag + "_skipped", "Skipped documents: " + (++skip), Classification.WARN);
                             continue;
                         }
     
                         _indexManager.addBasicFields( document );
     
-                        if (_documentCount % 50 == 0) {
-                            LOG.info( "add document to index: " + _documentCount );
-                        }
+                        this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
                         
                         _indexManager.update( info, document );
-                        
-    
-                        _documentCount++;
+                        documentCount++;
                     }
                     
                     // update index now!
@@ -166,7 +173,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     producer.configure( _plugDescription );
                 }
                 
-                LOG.info( "number of produced documents: " + _documentCount );
+                LOG.info( "number of produced documents: " + documentCount );
                 
                 LOG.info( "indexing ends" );
 
@@ -178,11 +185,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         if (oldIndex != null) {
                             _indexManager.deleteIndex( indexMore[0] );
                         }
+                        this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1]);
                     }
                     LOG.info( "switched alias to new index and deleted old one" );
                 } else {
                     // TODO: remove documents which have not been updated (hence removed!)
                 }
+                
+                this.statusProvider.addState("stop_indexing", "Indexing finished.");
 
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
@@ -192,12 +202,18 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 _plugDescriptionService.savePlugDescription( _plugDescription );
 
             } catch (final Exception e) {
+                this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
                 e.printStackTrace();
             } catch (Throwable t) {
+                this.statusProvider.addState("error_indexing", "An exception occurred: " + t.getMessage() + ". Try increasing the HEAP-size or let it manage automatically.", Classification.ERROR);
                 LOG.error( "Error during indexing", t );
                 LOG.info( "Try increasing the HEAP-size or let it manage automatically." );
             } finally {
-                resetDocumentCount();
+                try {
+                    this.statusProvider.write();
+                } catch (IOException e) {
+                    LOG.error( "Could not write status provider file", e );
+                }
             }
         } else {
             LOG.warn( "configuration fails. disable index creation." );
@@ -216,14 +232,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
         return indexInfo;
     }
 
-    private void resetDocumentCount() {
-        _documentCount = 0;
-    }
-
-    public int getDocumentCount() {
-        return _documentCount;
-    }
-
     public boolean isProduceable() {
         return _produceable;
     }
@@ -232,7 +240,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
         if (LOG.isDebugEnabled()) {
             LOG.debug( "configure plugdescription and new index dir..." );
         }
-        resetDocumentCount();
         _plugDescription = plugDescription;
     }
 
