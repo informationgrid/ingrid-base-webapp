@@ -30,9 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -525,7 +528,13 @@ public class Config {
         try {
             Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
-            Properties props = new Properties();
+            Properties props = new Properties() {
+                private static final long serialVersionUID = 6956076060462348684L;
+                @Override
+                public synchronized Enumeration<Object> keys() {
+                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                }
+            };
             props.load( is );
             // ---------------------------
             props.setProperty( "communication.clientName", communicationProxyUrl );
@@ -559,7 +568,13 @@ public class Config {
 
             Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
-            Properties props = new Properties();
+            Properties props = new Properties() {
+                private static final long serialVersionUID = 6956076060462348684L;
+                @Override
+                public synchronized Enumeration<Object> keys() {
+                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                }
+            };
             props.load( is );
 
             for (Iterator<Object> it = pd.keySet().iterator(); it.hasNext();) {
