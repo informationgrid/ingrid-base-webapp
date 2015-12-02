@@ -59,14 +59,15 @@ public class IndexController extends AbstractController {
     private final IndexRunnable _indexRunnable;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
     private IndexManager indexManager;
-    private List<IDocumentProducer> docProducer;
+    
+    @Autowired(required=false)
+    private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager, List<IDocumentProducer> docProducer) throws Exception {
+    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager) throws Exception {
         _indexRunnable = indexRunnable;
         _thread = new Thread(indexRunnable);
         this.indexManager = indexManager;
-        this.docProducer = docProducer;
     }
 
     @ModelAttribute("state")
