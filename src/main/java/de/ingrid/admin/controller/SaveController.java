@@ -88,6 +88,13 @@ public class SaveController extends AbstractController {
 //            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
 //        }
         
+        if (plugdescriptionCommandObject.containsKey( "needsRestart" )) {
+            if (plugdescriptionCommandObject.getBoolean( "needsRestart" )) {
+                restart = true;
+                plugdescriptionCommandObject.remove( "needsRestart" );
+            }
+        }
+        
         JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
         
         // save plug description

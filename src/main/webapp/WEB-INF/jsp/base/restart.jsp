@@ -57,8 +57,7 @@
 		<h1 id="head">iPlug muss neu gestartet werden!</h1>
 		<div id="content" style="position: relative; text-align:center; top:100px">
 			<p>
-			    <h2>Ihre Angaben wurden gespeichert. Da der Port der Administrationsseite geändert wurde,
-			    müssen Sie nun das iPlug neu starten.</h2>
+			    <h2>Ihre Angaben wurden gespeichert. Eine Einstellung verlangt einen Neustart des iPlugs!</h2>
 			    Rufen Sie dafür "sh start.sh restart" von der Kommandozeile im Wurzelverzeichnis des iPlugs auf!
 			</p>
 		</div>
