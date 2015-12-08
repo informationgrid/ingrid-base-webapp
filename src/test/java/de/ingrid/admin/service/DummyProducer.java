@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
@@ -91,4 +92,9 @@ public class DummyProducer implements IDocumentProducer {
 		_iterator = _dummys.iterator();
 
 	}
+
+    @Override
+    public IndexInfo getIndexInfo() {
+        return null;
+    }
 }

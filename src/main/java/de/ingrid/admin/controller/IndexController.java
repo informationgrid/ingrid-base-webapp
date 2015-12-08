@@ -24,6 +24,8 @@ package de.ingrid.admin.controller;
 
 import java.io.IOException;
 import java.lang.Thread.State;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +34,6 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.count.CountRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,23 +47,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
+import de.ingrid.admin.elasticsearch.IndexInfo;
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
-import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.admin.object.IDocumentProducer;
 
 @Controller
 public class IndexController extends AbstractController {
 
     private Thread _thread = null;
     private final IndexRunnable _indexRunnable;
-    private Client client;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
+    private IndexManager indexManager;
+    
+    @Autowired(required=false)
+    private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable, ElasticsearchNodeFactoryBean elastic) throws Exception {
+    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager) throws Exception {
         _indexRunnable = indexRunnable;
         _thread = new Thread(indexRunnable);
-        client = elastic.getObject().client();
+        this.indexManager = indexManager;
     }
 
     @ModelAttribute("state")
@@ -115,27 +120,82 @@ public class IndexController extends AbstractController {
     @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.GET)
     public String getIndexStatus(final ModelMap modelMap) throws Exception {
         // get cluster health information
-        ClusterHealthResponse clusterHealthResponse = client.admin().cluster().health( new ClusterHealthRequest() ).get();
+        ClusterHealthResponse clusterHealthResponse = indexManager.getClient().admin().cluster().health( new ClusterHealthRequest() ).get();
 
-        // get current index name
-        String currentIndex = ElasticSearchUtils.getIndexNameFromAliasName( client );
+        // get all indices
+        List<IndexStatus> indices = new ArrayList<IndexStatus>();
+        for (IDocumentProducer producer : docProducer) {
+            
+            IndexInfo indexInfo = _indexRunnable.getIndexInfo( producer, JettyStarter.getInstance().config );
+            String index = indexInfo.getToIndex();
+            String indexType = indexInfo.getToType();
+            
+            String currentIndex = indexManager.getIndexNameFromAliasName(index);
+            if (currentIndex == null) continue;
+    
+            // get mapping
+            GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
+            ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
+            
+            long count = indexManager.getClient().count( new CountRequest( currentIndex ).types( indexType ) ).get().getCount();
 
-        // get mapping
-        GetMappingsResponse mappingResponse = client.admin().indices().getMappings( new GetMappingsRequest() ).get();
-        ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
-        String indexType = JettyStarter.getInstance().config.indexType;
-        
-        long count = client.count( new CountRequest( currentIndex ) ).get().getCount();
-
+            Object mappingAsString = mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "\"No mapping exists!\"";
+            IndexStatus indexStatus = new IndexStatus( currentIndex, indexType, count, mappingAsString );
+            indices.add( indexStatus );
+        }
         modelMap.addAttribute( "clusterState", clusterHealthResponse );
-        modelMap.addAttribute( "currentIndex", currentIndex );
-        modelMap.addAttribute( "mapping", mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "No mapping exists!" );
-        modelMap.addAttribute( "docCount", count );
+        modelMap.addAttribute( "indices", indices );
         return IViews.INDEX_STATUS;
     }
 
     @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.POST)
     public String setIndexStatus(@RequestParam("action") final String action) throws IOException {
         return redirect( IUris.INDEX_STATUS );
+    }
+    
+    public class IndexStatus {
+        private String indexName;
+        private String indexType;
+        private long docCount;
+        private Object mapping;
+        
+        public IndexStatus(String name, String type, long count, Object mappingAsString) {
+            this.setIndexName( name );
+            this.setIndexType( type );
+            this.setDocCount( count );
+            this.setMapping( mappingAsString );
+        }
+
+        public String getIndexName() {
+            return indexName;
+        }
+
+        public void setIndexName(String indexName) {
+            this.indexName = indexName;
+        }
+
+        public long getDocCount() {
+            return docCount;
+        }
+
+        public void setDocCount(long docCount) {
+            this.docCount = docCount;
+        }
+
+        public Object getMapping() {
+            return mapping;
+        }
+
+        public void setMapping(Object mapping) {
+            this.mapping = mapping;
+        }
+
+        public String getIndexType() {
+            return indexType;
+        }
+
+        public void setIndexType(String indextype) {
+            this.indexType = indextype;
+        }
     }
 }

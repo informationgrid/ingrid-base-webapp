@@ -1,6 +1,6 @@
 /*
  * **************************************************-
- * ingrid-iplug-se-iplug
+ * ingrid-base-webapp
  * ==================================================
  * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
  * ==================================================
@@ -20,15 +20,41 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.admin.elasticsearch.converter;
+package de.ingrid.admin.elasticsearch;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
-
-import de.ingrid.utils.query.IngridQuery;
-
-// TODO: can be deleted since IQueryParsers is used
-public interface IQueryConverter {
-
-    public void parse(IngridQuery ingridQuery, BoolQueryBuilder queryBuilder);
+public class IndexInfo {
+    private String toIndex;
+    private String toType;
+    private String docIdField;
+    
+    private String realIndexName;
+    
+    public String getToIndex() {
+        return toIndex;
+    }
+    public void setToIndex(String toIndex) {
+        this.toIndex = toIndex;
+    }
+    public String getToType() {
+        return toType;
+    }
+    public void setToType(String toType) {
+        this.toType = toType;
+    }
+    public String getDocIdField() {
+        return docIdField;
+    }
+    public void setDocIdField(String docIdField) {
+        this.docIdField = docIdField;
+    }
+    public String getRealIndexName() {
+        if (realIndexName == null) {
+            return toIndex;
+        }
+        return realIndexName;
+    }
+    public void setRealIndexName(String realIndexName) {
+        this.realIndexName = realIndexName;
+    }
     
 }

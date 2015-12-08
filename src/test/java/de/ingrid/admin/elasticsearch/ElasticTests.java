@@ -45,6 +45,8 @@ import de.ingrid.admin.elasticsearch.converter.QueryConverter;
 import de.ingrid.admin.elasticsearch.converter.RangeQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.WildcardFieldQueryConverter;
 import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.admin.service.DummyProducer;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 
 public class ElasticTests {
@@ -52,6 +54,7 @@ public class ElasticTests {
     public static ElasticsearchNodeFactoryBean elastic;
     public static QueryConverter qc;
     public static Client client;
+    private static List<IDocumentProducer> docProducers;
 
     /**
      * This will set up an elastic search environment with an index and some test data,
@@ -81,8 +84,12 @@ public class ElasticTests {
             JettyStarter.getInstance().config.index = index;
             setMapping( elastic, "test_1" );
             prepareIndex( elastic, fileData, "test_1" );
-            ElasticSearchUtils.switchAlias( client, "test_1" );
+            IndexManager indexManager = new IndexManager( elastic );
+            indexManager.switchAlias( "test", "test_1" );
         }
+        
+        docProducers = new ArrayList<IDocumentProducer>();
+        docProducers.add( new DummyProducer() );
     }
     
     public static void setup(String index, String fileData) throws Exception {
@@ -141,6 +148,12 @@ public class ElasticTests {
             e.printStackTrace();
         }
         
+    }
+    
+    protected IndexImpl getIndexer() throws Exception {
+        IndexImpl indexImpl = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        JettyStarter.getInstance().config.docProducerIndices = new String[] { "test" };
+        return indexImpl;
     }
     
     public static void createNodeManager() {

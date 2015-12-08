@@ -42,7 +42,6 @@ public class Utils {
         try {
             return QueryStringParser.parse( term );
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
