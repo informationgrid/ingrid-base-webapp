@@ -435,32 +435,15 @@ public class Config {
         IGNORE_LIST.add( "connection" );
 
         //
-        writeCommunication();
+        writeCommunication(this.communicationLocation, this.ibusses );
     }
 
     public boolean getIndexing() {
         return this.indexing;
     }
 
-    /*    public boolean writeConfig(String key, String value) {
-        try {
-            InputStream is = new FileInputStream( "conf/config.override.properties" );
-            Properties props = new Properties();
-            props.load( is );
-            props.setProperty( key, value );
-            is.close();
-            OutputStream os = new FileOutputStream( "conf/config.override.properties" );
-            props.store( os, "Override configuration written by the application" );
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }*/
-
-    public boolean writeCommunication() {
-        File communicationFile = new File( this.communicationLocation );
+    public boolean writeCommunication(String communicationLocation, List<CommunicationCommandObject> ibusses) {
+        File communicationFile = new File( communicationLocation );
         if (ibusses == null || ibusses.isEmpty()) {
             // do not remove communication file if no
             if (communicationFile.exists()) {
@@ -472,15 +455,8 @@ public class Config {
         try {
             final XPathService communication = openCommunication( communicationFile );
             Integer id = 0;
-            // if server information shall be deleted
-            // if (serverName == null) {
-            // } else {
-            // check if xpath to server exists
-            // boolean serverExists = communication.exsistsNode(
-            // "/communication/client/connections/server" );
 
             communication.setAttribute( "/communication/client", "name", this.communicationProxyUrl );
-
             communication.removeNode( "/communication/client/connections/server", id );
             // create default nodes and attributes if server tag does not exist
 
@@ -524,13 +500,9 @@ public class Config {
 
         // open template xml or communication file
         final XPathService communication = new XPathService();
-        // if (!communicationFile.exists()) {
         final InputStream inputStream = CommunicationConfigurationController.class
                 .getResourceAsStream( "/communication-template.xml" );
         communication.registerDocument( inputStream );
-        // } else {
-        // communication.registerDocument(communicationFile);
-        // }
 
         return communication;
     }

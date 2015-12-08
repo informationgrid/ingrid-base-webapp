@@ -36,4 +36,11 @@ public interface IDocumentProducer extends IConfigurable {
 	ElasticDocument next();
 
 	IndexInfo getIndexInfo();
+	
+	/**
+	 * Get the number of documents to be indexed. If it cannot be determined
+	 * then null is returned.
+	 * @return the number of docs, otherwise null
+	 */
+	Integer getDocumentCount();
 }

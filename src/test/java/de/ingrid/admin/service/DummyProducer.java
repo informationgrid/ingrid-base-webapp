@@ -97,4 +97,9 @@ public class DummyProducer implements IDocumentProducer {
     public IndexInfo getIndexInfo() {
         return null;
     }
+
+    @Override
+    public Integer getDocumentCount() {
+        return null;
+    }
 }

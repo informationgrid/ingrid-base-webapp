@@ -67,4 +67,6 @@ public class IUris {
     public static final String RESTART = "/base/restart.html";
 
     public static final String INDEX_STATUS = "/base/indexStatus.html";
+
+    public static final String LIVE_INDEX_STATE = "/base/liveIndexState.json";
 }
