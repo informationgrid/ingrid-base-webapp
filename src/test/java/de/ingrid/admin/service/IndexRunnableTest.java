@@ -49,6 +49,7 @@ import de.ingrid.admin.elasticsearch.FacetConverter;
 import de.ingrid.admin.elasticsearch.IndexImpl;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
@@ -89,6 +90,7 @@ public class IndexRunnableTest extends ElasticTests {
         IndexManager indexManager = new IndexManager( elastic );
         _indexRunnable = new IndexRunnable(pds, indexManager );
         _indexRunnable.configure(_plugDescription);
+        _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
         docProducers = new ArrayList<IDocumentProducer>();

@@ -293,6 +293,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 LOG.debug( "added index field " + property + " to plugdescription." );
             }
         }
-
+    }
+    
+    public void setStatusProvider(StatusProvider statusProvider) {
+        this.statusProvider = statusProvider;
     }
 }
