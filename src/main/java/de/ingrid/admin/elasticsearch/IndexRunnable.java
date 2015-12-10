@@ -160,7 +160,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     
                         this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
                         
-                        _indexManager.update( info, document );
+                        _indexManager.update( info, document, false );
                         documentCount++;
                     }
                     

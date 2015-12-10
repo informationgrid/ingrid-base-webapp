@@ -57,4 +57,16 @@ public class IndexInfo {
         this.realIndexName = realIndexName;
     }
     
+    /**
+     * Create a copy of this object.
+     */
+    public IndexInfo clone() {
+        IndexInfo indexInfo = new IndexInfo();
+        indexInfo.setDocIdField( docIdField );
+        indexInfo.setRealIndexName( realIndexName );
+        indexInfo.setToIndex( toIndex );
+        indexInfo.setToType( toType );
+        return indexInfo;
+    }
+    
 }
