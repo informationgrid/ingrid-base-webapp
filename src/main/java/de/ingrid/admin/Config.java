@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -628,12 +629,17 @@ public class Config {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void setDatatypes(PlugdescriptionCommandObject pd, Properties props) {
         if (datatypesOfIndex != null) {
+            Set<String> allUniqueTypes = new LinkedHashSet<>();
             Set<String> indices = datatypesOfIndex.keySet();
             for (String index : indices) {
-                props.setProperty( "datatype_" + index, StringUtils.join( datatypesOfIndex.get( index ), ',' ) );
+                props.setProperty( "plugdescription.dataType." + index, StringUtils.join( datatypesOfIndex.get( index ), ',' ) );
+                allUniqueTypes.addAll( Arrays.asList( datatypesOfIndex.get( index )) );
             }
+            // write all collected datatypes, which are transmitted to the iBus
+            props.setProperty( "plugdescription.dataType", StringUtils.join( allUniqueTypes, "," ) );
         }
     }
 

@@ -22,6 +22,7 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -47,9 +48,11 @@ import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.utils.ElasticDocument;
+import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
 
 @Service
-public class IndexManager {
+public class IndexManager implements IConfigurable {
     private static final Logger LOG = Logger.getLogger( IndexManager.class );
 
     private Client _client;
@@ -59,7 +62,7 @@ public class IndexManager {
 
     private ElasticsearchNodeFactoryBean _elastic;
 
-    private Properties _props;
+    private Properties _props = null;
 
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
@@ -67,7 +70,6 @@ public class IndexManager {
         _client = elastic.getObject().client();
         _bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
         _config = JettyStarter.getInstance().config;
-        _props = _config.getOverrideProperties();
     }
 
     /**
@@ -240,6 +242,16 @@ public class IndexManager {
             document.put( "provider", provider.split( "," ) );
         } else {
             document.put( "provider", _config.provider );
+        }
+    }
+
+    @Override
+    public void configure(PlugDescription plugDescription) {
+        try {
+            this._props = _config.getOverrideProperties();
+        } catch (IOException e) {
+            LOG.error( "Error reading override configuration.", e );
+            e.printStackTrace();
         }
     }
 }

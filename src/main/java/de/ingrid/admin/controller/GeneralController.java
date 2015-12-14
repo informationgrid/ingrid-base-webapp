@@ -168,7 +168,7 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
-        List<String> forcedDatatypes = addForcedDatatypes(commandObject);
+        addForcedDatatypes(commandObject);
         
         String newPW = (String) errors.getFieldValue("newPassword");
         String currentPW = JettyStarter.getInstance().config.pdPassword;
@@ -184,8 +184,6 @@ public class GeneralController extends AbstractController {
 
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
-        
-        // enrich datatypes 
         
         setConfiguration( commandObject );
         
@@ -266,17 +264,14 @@ public class GeneralController extends AbstractController {
         return result.toString();
     }
 
-    private List<String> addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
-        List<String> forcedTypes = new ArrayList<String>();
+    private void addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {
                     commandObject.addDataType(type.getName());
-                    forcedTypes.add( type.getName() );
                     commandObject.addDatatypesOfAllIndices( type.getName() );
                 }
             }
         }
-        return forcedTypes;
     }
 }
