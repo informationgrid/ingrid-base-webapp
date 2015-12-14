@@ -234,14 +234,6 @@
 							<td>Adresse des iPlugs:</td>
 							<td>${plugDescription.proxyServiceUrl}<br /><span>Der bereits angegebene Name des iPlugs.</span></td>
 						</tr>
-						<tr>
-							<td>Adresse des korrespondierenden iPlugs:</td>
-							<td>
-                                <div class="input full">
-                                    <form:input path="correspondentProxyServiceURL" />
-                                </div>
-                                <span>Name des korrespondierenden iPlugs.</span><form:errors path="correspondentProxyServiceURL" cssClass="error" element="div" /><br/>/&lt;Gruppen Name&gt;:&lt;iPlug Name&gt;</td>
-						</tr>
 					</c:if>
 					<tr>
 						<td colspan="2"><h3>Administrationsinterface:</h3></td>
