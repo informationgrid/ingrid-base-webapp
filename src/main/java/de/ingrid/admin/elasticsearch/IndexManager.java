@@ -62,7 +62,7 @@ public class IndexManager implements IConfigurable {
 
     private ElasticsearchNodeFactoryBean _elastic;
 
-    private Properties _props = null;
+    private Properties _props = new Properties();
 
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
