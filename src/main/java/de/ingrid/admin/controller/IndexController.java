@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.Utils;
 import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
@@ -57,7 +58,6 @@ import de.ingrid.admin.object.IDocumentProducer;
 @Controller
 public class IndexController extends AbstractController {
 
-    private final IndexRunnable _indexRunnable;
     private static final Log LOG = LogFactory.getLog(IndexController.class);
     private IndexManager indexManager;
     
@@ -71,10 +71,8 @@ public class IndexController extends AbstractController {
     private IndexScheduler scheduler;
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager, List<IDocumentProducer> docProducer) throws Exception {
-        _indexRunnable = indexRunnable;
+    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager) throws Exception {
         this.indexManager = indexManager;
-        this.docProducer = docProducer;
     }
 
     @ModelAttribute("state")
@@ -113,7 +111,7 @@ public class IndexController extends AbstractController {
         List<IndexStatus> indices = new ArrayList<IndexStatus>();
         for (IDocumentProducer producer : docProducer) {
             
-            IndexInfo indexInfo = _indexRunnable.getIndexInfo( producer, JettyStarter.getInstance().config );
+            IndexInfo indexInfo = Utils.getIndexInfo( producer, JettyStarter.getInstance().config );
             String index = indexInfo.getToIndex();
             String indexType = indexInfo.getToType();
             

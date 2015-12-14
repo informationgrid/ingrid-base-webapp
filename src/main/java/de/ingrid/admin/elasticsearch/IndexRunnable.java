@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
@@ -123,7 +124,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 Map<String, String[]> indexNames = new HashMap<String, String[]>();
 
                 for (IDocumentProducer producer : _documentProducers) {
-                    IndexInfo info = getIndexInfo( producer, config );
+                    IndexInfo info = Utils.getIndexInfo( producer, config );
                     // get the current index from the alias name
                     // if it's the first time then use the name given by the
                     // configuration
@@ -156,7 +157,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                             continue;
                         }
     
-                        _indexManager.addBasicFields( document );
+                        _indexManager.addBasicFields( document, info );
     
                         this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
                         
@@ -203,6 +204,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
             } catch (final Exception e) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
+                LOG.error( "Exception occurred during indexing: " + e );
                 e.printStackTrace();
             } catch (Throwable t) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + t.getMessage() + ". Try increasing the HEAP-size or let it manage automatically.", Classification.ERROR);
@@ -219,17 +221,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.warn( "configuration fails. disable index creation." );
         }
 
-    }
-
-    public IndexInfo getIndexInfo(IDocumentProducer producer, Config config) {
-        IndexInfo indexInfo = producer.getIndexInfo();
-        if (indexInfo == null) {
-            indexInfo = new IndexInfo();
-            indexInfo.setToIndex( config.index );
-            indexInfo.setToType( config.indexType );
-            indexInfo.setDocIdField( config.indexIdFromDoc );
-        }
-        return indexInfo;
     }
 
     public boolean isProduceable() {

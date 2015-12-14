@@ -22,6 +22,8 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
@@ -57,12 +59,15 @@ public class IndexManager {
 
     private ElasticsearchNodeFactoryBean _elastic;
 
+    private Properties _props;
+
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
         _elastic = elastic;
         _client = elastic.getObject().client();
         _bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
         _config = JettyStarter.getInstance().config;
+        _props = _config.getOverrideProperties();
     }
 
     /**
@@ -213,9 +218,28 @@ public class IndexManager {
         _elastic.getObject().close();
     }
 
-    public void addBasicFields(ElasticDocument document) {
-        document.put( "datatype", _config.datatypes.toArray( new String[0] ) );
-        document.put( "partner", _config.partner );
-        document.put( "provider", _config.provider );
+    public void addBasicFields(ElasticDocument document, IndexInfo info) {
+        String identifier = info.getIdentifier();
+        String datatypes = (String) _props.get( "plugdescription.dataType." + identifier );
+        String partner = (String) _props.get( "plugdescription.partner." + identifier );
+        String provider = (String) _props.get( "plugdescription.provider." + identifier );
+        
+        if (datatypes != null) {
+            document.put( "datatype", datatypes.split( "," ) );
+        } else {
+            document.put( "datatype", _config.datatypes.toArray( new String[0] ) );
+        } 
+        
+        if (partner != null) {
+            document.put( "partner", partner.split( "," ) );
+        } else {
+            document.put( "partner", _config.partner );
+        }
+        
+        if (provider != null) {
+            document.put( "provider", provider.split( "," ) );
+        } else {
+            document.put( "provider", _config.provider );
+        }
     }
 }

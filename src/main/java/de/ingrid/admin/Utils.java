@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import de.ingrid.admin.elasticsearch.IndexInfo;
+import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.utils.IBus;
@@ -92,6 +94,17 @@ public class Utils {
         }
 
         return list;
+    }
+    
+    public static IndexInfo getIndexInfo(IDocumentProducer producer, Config config) {
+        IndexInfo indexInfo = producer.getIndexInfo();
+        if (indexInfo == null) {
+            indexInfo = new IndexInfo();
+            indexInfo.setToIndex( config.index );
+            indexInfo.setToType( config.indexType );
+            indexInfo.setDocIdField( config.indexIdFromDoc );
+        }
+        return indexInfo;
     }
     
 }

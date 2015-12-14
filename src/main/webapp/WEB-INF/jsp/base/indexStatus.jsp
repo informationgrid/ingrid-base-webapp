@@ -36,20 +36,6 @@
 <link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
 <script type="text/javascript" src="../js/base/jquery-1.8.0.min.js"></script>
 <script type="text/javascript" src="../js/base/jquery.tabslet.min.js"></script>
-<style>
-    .tabs ul {
-        padding: 0;
-    }
-    .tabs li {
-        margin: 0 10px 0 0;
-        display: inline-block;
-        padding: 10px;
-        background-color: #D1E4F1;
-    }
-    .tabs li.active {
-        background-color: #F0F8FF;
-    }
-</style>
 </head>
 <script>
    var clusterState = ${clusterState};

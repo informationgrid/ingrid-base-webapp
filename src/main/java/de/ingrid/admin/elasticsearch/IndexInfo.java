@@ -69,4 +69,8 @@ public class IndexInfo {
         return indexInfo;
     }
     
+    public String getIdentifier() {
+        return getToIndex() + "." + getToType();
+    }
+    
 }

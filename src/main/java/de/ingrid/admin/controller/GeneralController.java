@@ -45,7 +45,9 @@ import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDataType;
+import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.admin.service.CommunicationService;
@@ -67,6 +69,9 @@ public class GeneralController extends AbstractController {
     private final CommunicationService _communicationService;
     
     private List<Partner> _partners = null;
+    
+    @Autowired(required=false)
+    private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
 
     @Autowired
     public GeneralController(final CommunicationService communicationInterface,
@@ -133,6 +138,28 @@ public class GeneralController extends AbstractController {
 
         addForcedDatatypes(commandObject);
         
+        List<IndexInfo> indices = new ArrayList<IndexInfo>();
+        Config config = JettyStarter.getInstance().config;
+        if (config.datatypesOfIndex == null) {
+            for (IDocumentProducer producer : docProducer) {
+                IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+                String datatypes = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
+                if (datatypes == null) {
+                    commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), config.datatypes.toArray( new String[0] ) );
+                } else {
+                    commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), datatypes.split( "," ) );
+                }
+                indices.add( indexInfo );
+            }
+            config.datatypesOfIndex = commandObject.getDatatypesOfIndex();
+        } else {
+            for (IDocumentProducer producer : docProducer) {
+                indices.add( Utils.getIndexInfo( producer, config ) );
+            }
+            commandObject.setDatatypesOfIndex(config.datatypesOfIndex);
+        }
+        
+        modelMap.addAttribute( "indices", indices );
         return IViews.GENERAL;
     }
 
@@ -141,7 +168,7 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
-        addForcedDatatypes(commandObject);
+        List<String> forcedDatatypes = addForcedDatatypes(commandObject);
         
         String newPW = (String) errors.getFieldValue("newPassword");
         String currentPW = JettyStarter.getInstance().config.pdPassword;
@@ -158,11 +185,13 @@ public class GeneralController extends AbstractController {
         // add data type includes
         commandObject.addIncludedDataTypes(_dataTypes);
         
+        // enrich datatypes 
+        
         setConfiguration( commandObject );
         
         return redirect(IUris.PARTNER);
     }
-
+  
     @SuppressWarnings("unchecked")
     private void setConfiguration(PlugdescriptionCommandObject pd) {
         Config config = JettyStarter.getInstance().config;
@@ -178,6 +207,7 @@ public class GeneralController extends AbstractController {
         config.datasourceName = pd.getDataSourceName();
         config.datasourceDescription = pd.getDataSourceDescription();
         config.datatypes = new ArrayList<String>(Arrays.asList( pd.getDataTypes() ) );
+        config.datatypesOfIndex = pd.getDatatypesOfIndex();
         config.guiUrl = pd.getIplugAdminGuiUrl();
         config.webappPort = pd.getIplugAdminGuiPort();
         String newPassword = pd.getNewPassword();
@@ -236,13 +266,17 @@ public class GeneralController extends AbstractController {
         return result.toString();
     }
 
-    private void addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
+    private List<String> addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
+        List<String> forcedTypes = new ArrayList<String>();
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {
                     commandObject.addDataType(type.getName());
+                    forcedTypes.add( type.getName() );
+                    commandObject.addDatatypesOfAllIndices( type.getName() );
                 }
             }
         }
+        return forcedTypes;
     }
 }

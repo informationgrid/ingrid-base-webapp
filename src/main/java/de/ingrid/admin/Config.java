@@ -34,7 +34,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
@@ -220,6 +222,8 @@ public class Config {
     @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
     @PropertyValue("plugdescription.dataType")
     public List<String> datatypes;
+    
+    public Map<String, String[]> datatypesOfIndex = null;
 
     @PropertyValue("plugdescription.organisationPartnerAbbr")
     public String mainPartner;
@@ -601,7 +605,9 @@ public class Config {
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
             
-            props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) ); 
+            props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) );
+            
+            setDatatypes(pd, props);
 
             IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
             if (externalConfig != null) {
@@ -619,6 +625,15 @@ public class Config {
             os.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setDatatypes(PlugdescriptionCommandObject pd, Properties props) {
+        if (datatypesOfIndex != null) {
+            Set<String> indices = datatypesOfIndex.keySet();
+            for (String index : indices) {
+                props.setProperty( "datatype_" + index, StringUtils.join( datatypesOfIndex.get( index ), ',' ) );
+            }
         }
     }
 
