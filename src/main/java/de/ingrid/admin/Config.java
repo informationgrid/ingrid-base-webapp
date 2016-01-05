@@ -161,13 +161,6 @@ public class Config {
             return list;
         }
     }
-    
-
-    public static final int DEFAULT_TIMEOUT = 10;
-
-    public static final int DEFAULT_MAXIMUM_SIZE = 1048576;
-
-    public static final int DEFAULT_THREAD_COUNT = 100;
 
     private static final List<String> IGNORE_LIST = new ArrayList<String>();
 
@@ -183,6 +176,18 @@ public class Config {
     @PropertyValue("jetty.port")
     @DefaultValue("8082")
     public Integer webappPort;
+    
+    @PropertyValue("communication.server.timeout")
+    @DefaultValue("10")
+    public int ibusTimeout;
+    
+    @PropertyValue("communication.server.maxMsgSize")
+    @DefaultValue("1048576")
+    public int ibusMaxMsgSize;
+    
+    @PropertyValue("communication.server.threadCount")
+    @DefaultValue("100")
+    public int ibusThreadCount;
 
     /**
      * COMMUNICATION - SETTINGS
@@ -200,6 +205,8 @@ public class Config {
     @PropertyValue("communications.ibus")
     @DefaultValue("")
     public List<CommunicationCommandObject> ibusses;
+    
+    
 
     /**
      * PLUGDESCRIPTION
@@ -470,12 +477,12 @@ public class Config {
                 communication.addNode( "/communication/client/connections", "server" );
                 communication.addNode( "/communication/client/connections/server", "socket", id );
                 communication.addAttribute( "/communication/client/connections/server/socket", "timeout", ""
-                        + DEFAULT_TIMEOUT, id );
+                        + this.ibusTimeout, id );
                 communication.addNode( "/communication/client/connections/server", "messages", id );
                 communication.addAttribute( "/communication/client/connections/server/messages", "maximumSize", ""
-                        + DEFAULT_MAXIMUM_SIZE, id );
+                        + this.ibusMaxMsgSize, id );
                 communication.addAttribute( "/communication/client/connections/server/messages", "threadCount", ""
-                        + DEFAULT_THREAD_COUNT, id );
+                        + this.ibusThreadCount, id );
 
                 communication.addAttribute( "/communication/client/connections/server", "name",
                         ibus.getBusProxyServiceUrl(), id );
