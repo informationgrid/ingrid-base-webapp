@@ -82,6 +82,27 @@ public class SearchTest extends ElasticTests {
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
         assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "(title:Mathematics OR xxx:zzz) partner:bund" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "(title:Mathematics) OR ((xxx:yyy) partner:bund)" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        // this should have the same result as the previous one, but since partner, provider and dataype
+        // are separated from the other fields inside the InGridQuery, we cannot know the original 
+        // combination with the other fields. So it could be that partner is connected to title or xxx 
+        // or even both! See also REDMINE-251
+        /*
+        q = QueryStringParser.parse( "title:Mathematics OR xxx:www partner:bund" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        */
 
         q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) AND (partner:bw OR partner:bund)" );
         search2 = index2.search( q, 0, 10 );
