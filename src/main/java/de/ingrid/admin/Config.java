@@ -387,6 +387,20 @@ public class Config {
     @PropertyValue("index.alwaysCreate")
     @DefaultValue("true")
     public boolean alwaysCreateNewIndex;
+
+    // CACHE - PROPERTIES
+    @PropertyValue("plugdescription.CACHED_ELEMENTS")
+    @DefaultValue("1000")
+    private int cacheElements;
+    @PropertyValue("plugdescription.CACHED_IN_DISK_STORE")
+    @DefaultValue("false")
+    private boolean cacheDiskStore;
+    @PropertyValue("plugdescription.CACHED_LIFE_TIME")
+    @DefaultValue("10")
+    private int cacheLifeTime;
+    @PropertyValue("plugdescription.CACHE_ACTIVE")
+    @DefaultValue("true")
+    private boolean cacheActive;
     
     public String getWebappDir() {
         return this.webappDir;
@@ -724,6 +738,11 @@ public class Config {
         pd.setIplugAdminGuiUrl( guiUrl );
         pd.setIplugAdminGuiPort( this.webappPort );
         pd.setRecordLoader( recordLoader );
+        pd.setCacheActive( cacheActive );
+        pd.setCachedLifeTime(cacheLifeTime );
+        pd.setCachedElements( cacheElements );
+        pd.setCachedInDiskStore( cacheDiskStore );
+        
 
         if (partner != null) {
             for (String p : partner) {
