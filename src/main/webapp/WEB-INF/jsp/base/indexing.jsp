@@ -36,12 +36,22 @@
 <link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
 <script type="text/javascript" src="../js/base/jquery-1.8.0.min.js"></script>
 <script>
+function showIndexProcess() {
+    $( document ).ready(function() {
+        $("#content_info").hide();
+        $("#content_index").show();
+        $(".btnIndex").addClass("not-active");
+        getState();
+    });
+}
+
 function getState(){
     $.ajaxSetup({ cache: false });
     $.getJSON("../base/liveIndexState.json", {}, function(statusResponse){
           if(!statusResponse.isRunning){
             document.getElementById('dialog_done').style.display = '';
             $("#content_index").html(statusResponse.status.replace(/\n/g,"<br />"));
+            $(".btnIndex").removeClass("not-active");
           } else {
             $("#content_index").html(statusResponse.status.replace(/\n/g,"<br />"));
             setTimeout(getState, 1000);
@@ -51,7 +61,7 @@ function getState(){
 }
 </script>
 <c:if test="${started == 'true'}">
-    <script>getState();</script>
+    <script>showIndexProcess();</script>
 </c:if>
 </head>
 <body>
@@ -79,15 +89,15 @@ function getState(){
             <a href="#" onclick="document.location='../base/scheduling.html';">Zurück</a>
             <a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
             <a href="#" onclick="document.location='../base/finish.html';">Überspringen</a>
-            <a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+            <a href="#" class="btnIndex" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
         </div>
         <div class="controls cBottom">
             <a href="#" onclick="document.location='../base/scheduling.html';">Zurück</a>
             <a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
             <a href="#" onclick="document.location='../base/finish.html';">Überspringen</a>
-            <a href="#" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
+            <a href="#" class="btnIndex" onclick="document.getElementById('indexing').submit();">Jetzt Indizieren</a>
         </div>
-        <div id="content_index" class="status">
+        <div id="content_info" class="status">
             <h2>Sie können Ihre Daten jetzt indizieren, um im Anschluss die Suche zu testen.</h2>
             <form action="../base/indexing.html" method="post" id="indexing">
                 <table id="konfigForm">
@@ -101,6 +111,8 @@ function getState(){
                 </table>
             </form>     
         </div>
+        
+        <div id="content_index" class="status" style="display:none"></div>
         
         <div class="status" id="dialog_done" style="display:none">
             <div class="content">Die Daten wurden indexiert.</div>

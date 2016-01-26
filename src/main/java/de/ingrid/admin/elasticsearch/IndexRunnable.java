@@ -107,6 +107,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     public void run() {
         if (_produceable) {
+            // remember newIndex in case it has to be cleaned up, after an unsuccessful index process
+            String newIndex = null;
             try {
                 statusProvider.clear();
                 statusProvider.addState( "start_indexing", "Start indexing");
@@ -121,7 +123,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 
                 int documentCount = 0;
                 String oldIndex = null;
-                String newIndex = null;
                 Map<String, String[]> indexNames = new HashMap<String, String[]>();
 
                 for (IDocumentProducer producer : _documentProducers) {
@@ -207,10 +208,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
                 LOG.error( "Exception occurred during indexing: " + e );
                 e.printStackTrace();
+                cleanUp(newIndex);
             } catch (Throwable t) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + t.getMessage() + ". Try increasing the HEAP-size or let it manage automatically.", Classification.ERROR);
                 LOG.error( "Error during indexing", t );
                 LOG.info( "Try increasing the HEAP-size or let it manage automatically." );
+                cleanUp(newIndex);
             } finally {
                 try {
                     this.statusProvider.write();
@@ -222,6 +225,13 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.warn( "configuration fails. disable index creation." );
         }
 
+    }
+
+    private void cleanUp(String newIndex) {
+        if (JettyStarter.getInstance().config.alwaysCreateNewIndex && newIndex != null) {
+            _indexManager.deleteIndex( newIndex );
+        }
+        statusProvider.addState( "CLEANUP", "Cleaned up data and reverted to old index" );
     }
 
     public boolean isProduceable() {

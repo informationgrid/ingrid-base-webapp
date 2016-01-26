@@ -185,3 +185,9 @@ ul.tabs li.active a {color:#000}
 .tabs li.active {
     background-color: #D1E4F1;
 }
+
+.not-active {
+   pointer-events: none;
+   cursor: default;
+   background: #D1E4F1 !important;
+}
