@@ -145,7 +145,12 @@ public class GeneralController extends AbstractController {
                 IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
                 String datatypes = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
                 if (datatypes == null) {
-                    commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), config.datatypes.toArray( new String[0] ) );
+                    if (config.datatypes != null) {
+                        commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), config.datatypes.toArray( new String[0] ) );
+                    } else {
+                        // only add forced datatypes on very first configuration
+                        commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), commandObject.getDataTypes() );
+                    }
                 } else {
                     commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), datatypes.split( "," ) );
                 }
