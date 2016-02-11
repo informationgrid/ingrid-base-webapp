@@ -119,6 +119,7 @@ public class JettyStarter {
         
         Server server = new Server(port);
         server.setHandler(webAppContext);
+        webAppContext.getSessionHandler().getSessionManager().setSessionCookie( "JSESSIONID_" + port );
         server.start();
     }
 
