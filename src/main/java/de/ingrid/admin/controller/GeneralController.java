@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
@@ -54,7 +55,6 @@ import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.AbstractValidator;
 import de.ingrid.admin.validation.IErrorKeys;
 import de.ingrid.admin.validation.PlugDescValidator;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Controller
 @SessionAttributes("plugDescription")
@@ -173,8 +173,6 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
-        addForcedDatatypes(commandObject);
-        
         String newPW = (String) errors.getFieldValue("newPassword");
         String currentPW = JettyStarter.getInstance().config.pdPassword;
         // only reject empty password if no password has been configured yet at all!
@@ -187,15 +185,50 @@ public class GeneralController extends AbstractController {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
 
-        // add data type includes
-        commandObject.addIncludedDataTypes(_dataTypes);
-        
         setConfiguration( commandObject );
+        
+        // add forced datatypes
+        addForcedDatatypesToConfig();
+        
+        // add data type includes
+        addIncludedDataTypes( _dataTypes );
         
         return redirect(IUris.PARTNER);
     }
+    
+    private void addIncludedDataTypes(final IDataType... types) {
+        Config config = JettyStarter.getInstance().config;
+        // for all indices
+        // check if index has the parent field and add then the included ones
+        for (IDocumentProducer producer : docProducer) {
+            IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+            List<String> included = new ArrayList<String>();
+            String[] datatypesOfIndex = config.datatypesOfIndex.get( indexInfo.getIdentifier() );
+            
+            // check all data types
+            for (final String dataType : datatypesOfIndex) {
+                // find correct idatatype
+                for (final IDataType type : types) {
+                    if (type.getName().equals(dataType)) {
+                        // if found add all included data types
+                        if (type.getIncludedDataTypes() != null) {
+                            for (final IDataType include : type.getIncludedDataTypes()) {
+                                // add to all datatypes field
+                                if (!config.datatypes.contains( include.getName() )) {
+                                    config.datatypes.add( include.getName() );
+                                }
+                                if (ArrayUtils.contains( datatypesOfIndex, dataType )) {
+                                    included.add( include.getName() );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            config.datatypesOfIndex.put( indexInfo.getIdentifier(), (String[]) ArrayUtils.addAll( datatypesOfIndex, included.toArray() ) );
+        }
+    }
   
-    @SuppressWarnings("unchecked")
     private void setConfiguration(PlugdescriptionCommandObject pd) {
         Config config = JettyStarter.getInstance().config;
         
@@ -209,8 +242,9 @@ public class GeneralController extends AbstractController {
         config.personEmail = pd.getPersonMail();
         config.datasourceName = pd.getDataSourceName();
         config.datasourceDescription = pd.getDataSourceDescription();
-        config.datatypes = new ArrayList<String>(Arrays.asList( pd.getDataTypes() ) );
         config.datatypesOfIndex = pd.getDatatypesOfIndex();
+        config.datatypes.clear();
+        config.datatypes.addAll( Utils.getUnionOfDatatypes(config.datatypesOfIndex) );
         config.guiUrl = pd.getIplugAdminGuiUrl();
         config.webappPort = pd.getIplugAdminGuiPort();
         String newPassword = pd.getNewPassword();
@@ -269,12 +303,30 @@ public class GeneralController extends AbstractController {
         return result.toString();
     }
 
+    private void addForcedDatatypesToConfig() {
+        Config config = JettyStarter.getInstance().config;
+        if (_dataTypes != null) {
+            for (final IDataType type : _dataTypes) {
+                if (type.getIsForced()) {
+                    for (IDocumentProducer producer : docProducer) {
+                        IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+                        Utils.addDatatypeToIndex( indexInfo.getIdentifier(), type.getName() );
+                    }
+                }
+            }
+        }
+    }
+    
     private void addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
+        Config config = JettyStarter.getInstance().config;
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {
                     commandObject.addDataType(type.getName());
-                    commandObject.addDatatypesOfAllIndices( type.getName() );
+                    for (IDocumentProducer producer : docProducer) {
+                        IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+                        commandObject.addDatatypesOfIndex( indexInfo.getIdentifier(), type.getName() );
+                    }
                 }
             }
         }

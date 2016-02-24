@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -629,7 +628,7 @@ public class Config {
             
             props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) );
             
-            setDatatypes(pd, props);
+            setDatatypes(props);
 
             IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
             if (externalConfig != null) {
@@ -650,17 +649,14 @@ public class Config {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void setDatatypes(PlugdescriptionCommandObject pd, Properties props) {
+    private void setDatatypes(Properties props) {
         if (datatypesOfIndex != null) {
-            Set<String> allUniqueTypes = new LinkedHashSet<>();
             Set<String> indices = datatypesOfIndex.keySet();
             for (String index : indices) {
                 props.setProperty( "plugdescription.dataType." + index, StringUtils.join( datatypesOfIndex.get( index ), ',' ) );
-                allUniqueTypes.addAll( Arrays.asList( datatypesOfIndex.get( index )) );
             }
             // write all collected datatypes, which are transmitted to the iBus
-            props.setProperty( "plugdescription.dataType", StringUtils.join( allUniqueTypes, "," ) );
+            props.setProperty( "plugdescription.dataType", StringUtils.join( datatypes, "," ) );
         }
     }
 
@@ -705,7 +701,7 @@ public class Config {
         return Joiner.on( "," ).join( list );
     }
 
-    public PlugdescriptionCommandObject getPlugdescriptionFromProperties() {
+    public PlugdescriptionCommandObject getPlugdescriptionFromConfiguration() {
         PlugdescriptionCommandObject pd = new PlugdescriptionCommandObject();
 
         // working directory
@@ -719,6 +715,13 @@ public class Config {
         if (datatypes != null) {
             for (String datatype : datatypes) {
                 pd.addDataType( datatype.trim() );
+            }
+        }
+        if (datatypesOfIndex != null) {
+            for (String index : datatypesOfIndex.keySet()) {
+                for (String type : datatypesOfIndex.get( index )) {
+                    pd.addDatatypesOfIndex( index, type );
+                }
             }
         }
 

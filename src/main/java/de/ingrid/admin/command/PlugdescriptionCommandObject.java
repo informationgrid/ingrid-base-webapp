@@ -198,8 +198,9 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
     
     public void addDatatypesOfIndex(String indexId, String type) {
-        if (!StringUtils.isEmptyOrWhiteSpace(type) && !existsInArray(getDatatypesOfIndex(indexId), type)) {
-            setDatatypesOfIndex( indexId, (String[]) ArrayUtils.add( getDatatypesOfIndex(indexId), type ) );
+        String[] indexDatatypes = getDatatypesOfIndex(indexId);
+        if (!StringUtils.isEmptyOrWhiteSpace(type) && (indexDatatypes == null || !existsInArray(indexDatatypes, type))) {
+            setDatatypesOfIndex( indexId, (String[]) ArrayUtils.add( indexDatatypes, type ) );
         }
     }
     

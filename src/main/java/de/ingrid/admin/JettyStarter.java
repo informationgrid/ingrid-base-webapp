@@ -104,7 +104,7 @@ public class JettyStarter {
         }
         
         // add external configurations to the plugdescription
-        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromProperties();
+        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromConfiguration();
         if (externalConfig != null) {
             externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
         }

@@ -23,9 +23,14 @@
 package de.ingrid.admin;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
@@ -35,6 +40,7 @@ import de.ingrid.utils.IBus;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class Utils {
 
@@ -105,6 +111,33 @@ public class Utils {
             indexInfo.setDocIdField( config.indexIdFromDoc );
         }
         return indexInfo;
+    }
+    
+    public static void addDatatypeToIndex(String index, String type) {
+        Config config = JettyStarter.getInstance().config;
+        
+        if (config.datatypesOfIndex != null) {
+            String[] types = config.datatypesOfIndex.get( index );
+            if (types != null) {
+                if (!ArrayUtils.contains( types, type )) {
+                    config.datatypesOfIndex.put( index, (String[]) ArrayUtils.add( types, type ) );
+                    if (!config.datatypes.contains( type )) {
+                        config.datatypes.add( type );
+                    }
+                }
+            }
+        }
+    }
+
+    public static Set<String> getUnionOfDatatypes(Map<String, String[]> datatypesOfIndex) {
+        Set<String> allUniqueTypes = new LinkedHashSet<>();
+        if (datatypesOfIndex != null) {
+            Set<String> indices = datatypesOfIndex.keySet();
+            for (String index : indices) {
+                allUniqueTypes.addAll( Arrays.asList( datatypesOfIndex.get( index )) );
+            }
+        }
+        return allUniqueTypes;
     }
     
 }

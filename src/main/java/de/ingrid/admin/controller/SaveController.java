@@ -65,7 +65,7 @@ public class SaveController extends AbstractController {
 
     @RequestMapping(value = IUris.SAVE, method = RequestMethod.POST)
     public String postSave(
-            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugdescriptionCommandObject,
+            @ModelAttribute("plugDescription") PlugdescriptionCommandObject plugdescriptionCommandObject,
             @ModelAttribute("postCommandObject") final Command postCommandObject)
             throws Exception {
         
@@ -75,7 +75,7 @@ public class SaveController extends AbstractController {
         plugdescriptionCommandObject.setIPlugClass(_plug.getClass().getName());
         plugdescriptionCommandObject.setRecordLoader(_plug instanceof IRecordLoader);
 
-     // if port has changed show a message to the user to restart the iPlug
+        // if port has changed show a message to the user to restart the iPlug
         if (plugdescriptionCommandObject.containsKey("originalPort")) {
             if (plugdescriptionCommandObject.getIplugAdminGuiPort() != plugdescriptionCommandObject.getInt("originalPort")) {
                 restart = true;
@@ -84,10 +84,6 @@ public class SaveController extends AbstractController {
             plugdescriptionCommandObject.remove("originalPort");
         }
         
-//        if (JettyStarter.getInstance().getExternalConfig() != null) {
-//            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
-//        }
-        
         if (plugdescriptionCommandObject.containsKey( "needsRestart" )) {
             if (plugdescriptionCommandObject.getBoolean( "needsRestart" )) {
                 restart = true;
@@ -95,8 +91,15 @@ public class SaveController extends AbstractController {
             }
         }
         
+        // read plug description again from configuration
+        plugdescriptionCommandObject = JettyStarter.getInstance().config.getPlugdescriptionFromConfiguration();
+        if (JettyStarter.getInstance().getExternalConfig() != null) {
+            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
+        }
+
         JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
-        
+
+        // TODO: try to work without filebased plug description
         // save plug description
         _plugDescriptionService.savePlugDescription(plugdescriptionCommandObject);
         
