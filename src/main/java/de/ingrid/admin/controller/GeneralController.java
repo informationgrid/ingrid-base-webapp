@@ -323,6 +323,7 @@ public class GeneralController extends AbstractController {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {
                     commandObject.addDataType(type.getName());
+                    if (!config.datatypes.contains( type.getName() )) config.datatypes.add( type.getName() ); 
                     for (IDocumentProducer producer : docProducer) {
                         IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
                         commandObject.addDatatypesOfIndex( indexInfo.getIdentifier(), type.getName() );

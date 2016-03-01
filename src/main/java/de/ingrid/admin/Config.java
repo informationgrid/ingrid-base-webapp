@@ -226,8 +226,9 @@ public class Config {
     @DefaultValue("false")
     private boolean indexing;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @TypeTransformers(StringToList.class)
     @PropertyValue("plugdescription.dataType")
+    @DefaultValue("")
     public List<String> datatypes;
     
     public Map<String, String[]> datatypesOfIndex = null;
