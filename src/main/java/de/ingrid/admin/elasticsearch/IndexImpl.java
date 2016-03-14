@@ -77,8 +77,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     private static final String ELASTIC_SEARCH_INDEX_TYPE = "es_type";
 
-    private String plugId = null;
-
     // SearchType see:
     // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-search-type.html
     private SearchType searchType = null;
@@ -94,7 +92,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         this.config = JettyStarter.getInstance().config;
         this.indexManager = indexManager;
         this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
-        this.plugId = config.communicationProxyUrl;
         this.detailFields = (String[]) ArrayUtils.addAll( new String[] { config.indexFieldTitle, config.indexFieldSummary }, config.additionalSearchDetailFields );
 
         try {
@@ -227,10 +224,14 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         int totalHits = (int) hits.getTotalHits();
         IngridHit[] hitArray = new IngridHit[length];
         int pos = 0;
+        
+        if (log.isDebugEnabled()) {
+            log.debug( "Received " + length + " from " + totalHits + " hits." );
+        }
 
         String groupBy = ingridQuery.getGrouped();
         for (SearchHit hit : hits.hits()) {
-            IngridHit ingridHit = new IngridHit( this.plugId, hit.getId(), -1, hit.getScore() );
+            IngridHit ingridHit = new IngridHit( config.communicationProxyUrl, hit.getId(), -1, hit.getScore() );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
 
