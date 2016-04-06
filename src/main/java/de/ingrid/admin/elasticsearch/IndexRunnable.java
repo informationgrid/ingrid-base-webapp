@@ -171,7 +171,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     _indexManager.flush();
                     
                     // Extend PD with all field names in index and save
-                    addFieldNamesToPlugdescription( info, _plugDescription, RETRIES_FETCH_MAPPING );
+                    if (documentCount > 0) {
+                        addFieldNamesToPlugdescription( info, _plugDescription, RETRIES_FETCH_MAPPING );
+                    }
                     
                     producer.configure( _plugDescription );
                 }
