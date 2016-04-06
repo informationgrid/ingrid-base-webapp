@@ -145,7 +145,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         info.setRealIndexName( oldIndex );
                     }
                     
-                    this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToIndex() + " -> " + info.getToType());
+                    this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToIndex() + ", Type:" + info.getToType());
                     
                     int count = 1, skip = 0;
                     Integer totalCount = producer.getDocumentCount();
