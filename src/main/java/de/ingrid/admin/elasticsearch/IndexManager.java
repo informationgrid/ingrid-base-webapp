@@ -41,6 +41,7 @@ import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.indices.IndexMissingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -167,8 +168,12 @@ public class IndexManager implements IConfigurable {
   
     public boolean typeExists(String indexName, String type) {
         TypesExistsRequest typeRequest = new TypesExistsRequest( new String[] { indexName }, type );
-        boolean typeExists = _client.admin().indices().typesExists( typeRequest ).actionGet().isExists();
-        return typeExists;
+        try {
+            boolean typeExists = _client.admin().indices().typesExists( typeRequest ).actionGet().isExists();
+            return typeExists;
+        } catch (IndexMissingException e) {
+            return false;
+        }
     }
 
     public void deleteIndex(String index) {
@@ -182,6 +187,10 @@ public class IndexManager implements IConfigurable {
             return true;
         }
         return false;
+    }
+    
+    public boolean indexExists(String name) {
+        return _client.admin().indices().prepareExists( name ).execute().actionGet().isExists();
     }
 
     public String getIndexNameFromAliasName(String indexAlias) {
