@@ -5,3 +5,4 @@
 conf/
 test-data/
 /last_status.xml
+/bin/
