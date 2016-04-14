@@ -43,8 +43,10 @@ import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.admin.validation.CommunicationValidator;
 import de.ingrid.admin.validation.IErrorKeys;
+import de.ingrid.utils.PlugDescription;
 
 @Controller
 public class CommunicationConfigurationController extends AbstractController {
@@ -61,10 +63,14 @@ public class CommunicationConfigurationController extends AbstractController {
 
     private final CommunicationValidator _validator;
 
+    private PlugDescriptionService _plugDescriptionService;
+
     @Autowired
     public CommunicationConfigurationController(final CommunicationService communicationService,
+            final PlugDescriptionService pdService,
             final CommunicationValidator validator) {
         _communicationService = communicationService;
+        _plugDescriptionService = pdService;
         _validator = validator;
     }
 
@@ -187,6 +193,11 @@ public class CommunicationConfigurationController extends AbstractController {
 
             // save the new data
             config.writeCommunication(config.communicationLocation, config.ibusses);
+            
+            PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
+            plugDescription.setProxyServiceURL( commandObject.getProxyServiceUrl() );
+            _plugDescriptionService.savePlugDescription( plugDescription );
+            
             config.writeCommunicationToProperties();
 
             // when busses have been switched we need to restart communication with new config-file
