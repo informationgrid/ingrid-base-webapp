@@ -113,7 +113,7 @@ public class PartnerController extends AbstractController {
                 config.partner = commandObject.getPartners();
                 // remove all provider that belong to the partner
                 for (String provider : commandObject.getProviders()) {
-                    if (provider.startsWith( id + "_" )) {
+                    if (provider.startsWith( id + "_" ) || ("bund".equals( id ) && provider.startsWith( "bu_" ))) {
                         commandObject.removeProvider( provider );
                     };
                 }
