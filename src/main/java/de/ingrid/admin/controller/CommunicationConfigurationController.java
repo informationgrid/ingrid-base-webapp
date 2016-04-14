@@ -195,8 +195,10 @@ public class CommunicationConfigurationController extends AbstractController {
             config.writeCommunication(config.communicationLocation, config.ibusses);
             
             PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
-            plugDescription.setProxyServiceURL( commandObject.getProxyServiceUrl() );
-            _plugDescriptionService.savePlugDescription( plugDescription );
+            if (plugDescription != null) {
+                plugDescription.setProxyServiceURL( commandObject.getProxyServiceUrl() );
+                _plugDescriptionService.savePlugDescription( plugDescription );
+            }
             
             config.writeCommunicationToProperties();
 
