@@ -36,8 +36,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.admin.service.DummyProducer;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
@@ -47,7 +45,6 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 public class SearchTest extends ElasticTests {
     @SuppressWarnings("unused")
     private static Logger log = Logger.getLogger( SearchTest.class );
-    private static ArrayList<IDocumentProducer> docProducers;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {

@@ -25,6 +25,7 @@ package de.ingrid.admin.elasticsearch;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.search.ShardSearchFailure;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -60,6 +62,7 @@ import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.dsc.Column;
 import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 
 @Component
@@ -118,7 +121,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             funcScoreQuery = queryConverter.addScoreModifier( query );
         }
 
-        boolean isLocationSearch = ingridQuery.containsField( "x1" );
+        boolean isLocationSearch = containsBoundingBox(ingridQuery);
         boolean hasFacets = ingridQuery.containsKey( "FACETS" );
         String[] instances = getSearchInstances( ingridQuery );
 
@@ -186,6 +189,20 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             log.error( "Search failed on index: " + indexNames, ex );
             return new IngridHits( 0, new IngridHit[0] );
         }
+    }
+
+    private boolean containsBoundingBox(IngridQuery ingridQuery) {
+        boolean found = ingridQuery.containsField( "x1" );
+        
+        // also try to look in clauses 
+        if (!found) {
+            for (IngridQuery clause : ingridQuery.getAllClauses()) {
+                if (clause.containsField( "x1" )) {
+                    return true;
+                }
+            }
+        }
+        return found;
     }
 
     /**
