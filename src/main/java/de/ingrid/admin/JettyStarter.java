@@ -110,8 +110,9 @@ public class JettyStarter {
         }
         // if a configuration was never written for the plugdescription then do not write one!
         // the proxyServiceUrl must be different from the default value, so we can check here 
-        // for valid propterties 
-        if (!"/ingrid-group:base-webapp".equals( plugdescriptionFromProperties.getProxyServiceURL() )) {
+        // for valid propterties
+        String proxyServiceURL = plugdescriptionFromProperties.getProxyServiceURL();
+        if (!"/ingrid-group:base-webapp".equals( proxyServiceURL ) && !proxyServiceURL.isEmpty()) {
             (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
         } else {
             log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
