@@ -509,6 +509,7 @@ public class Config {
             communication.store( communicationFile );
 
         } catch (Exception e) {
+            log.error( "Error writing communication.xml: ", e );
             e.printStackTrace();
             return false;
         }
@@ -571,6 +572,7 @@ public class Config {
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
+            log.error( "Error writing properties: " , e );
             e.printStackTrace();
         }
     }
@@ -602,19 +604,23 @@ public class Config {
                 
                 Object valObj = pd.get( key );
                 if (valObj instanceof String) {
-                    props.setProperty( "plugdescription." + key, (String) pd.get( key ) );
+                    props.setProperty( "plugdescription." + key, (String) valObj );
                 } else if (valObj instanceof List) {
-                    props.setProperty( "plugdescription." + key, convertListToString( (List) pd.get( key ) ) );
+                    props.setProperty( "plugdescription." + key, convertListToString( (List) valObj ) );
                 } else if (valObj instanceof Integer) {
                     if ("IPLUG_ADMIN_GUI_PORT".equals( key )) {
-                        props.setProperty( "jetty.port", String.valueOf( pd.get( key ) ) );
+                        props.setProperty( "jetty.port", String.valueOf( valObj ) );
                     } else {
-                        props.setProperty( "plugdescription." + key, String.valueOf( pd.get( key ) ) );
+                        props.setProperty( "plugdescription." + key, String.valueOf( valObj ) );
                     }
                 } else if (valObj instanceof File) {
-                    props.setProperty( "plugdescription." + key, ((File) pd.get( key )).getPath() );
+                    props.setProperty( "plugdescription." + key, ((File) valObj).getPath() );
                 } else {
-                    props.setProperty( "plugdescription." + key, pd.get( key ).toString() );
+                    if (valObj != null) {
+                        props.setProperty( "plugdescription." + key, valObj.toString() );
+                    } else {
+                        log.warn( "value of plugdescription field was NULL: " + key );
+                    }
                 }
             }
             
@@ -646,7 +652,7 @@ public class Config {
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error( "Error writing properties:", e );
         }
     }
 
@@ -864,7 +870,7 @@ public class Config {
                 busses.add( bus );
             }
         } catch (Exception e) {
-            log.error( "Error when reading from communication.xml" );
+            log.error( "Error when reading from communication.xml", e );
             e.printStackTrace();
         }
         // return all busses
@@ -889,7 +895,7 @@ public class Config {
         } catch (FileNotFoundException e) {
             return new FileSystemResource( "conf/config.override.properties" );
         } catch (IOException e) {
-            log.error( "Error when getting config.override.properties" );
+            log.error( "Error when getting config.override.properties", e );
             e.printStackTrace();
         }
         return null;
