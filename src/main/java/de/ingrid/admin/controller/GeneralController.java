@@ -312,6 +312,9 @@ public class GeneralController extends AbstractController {
                         IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
                         Utils.addDatatypeToIndex( indexInfo.getIdentifier(), type.getName() );
                     }
+                    if (docProducer.size() == 0) {
+                        config.datatypes.add( type.getName() );
+                    }
                 }
             }
         }
