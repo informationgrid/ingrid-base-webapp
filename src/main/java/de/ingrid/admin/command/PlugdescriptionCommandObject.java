@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,6 +24,10 @@ package de.ingrid.admin.command;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.JettyStarter;
@@ -38,6 +42,8 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     
     private String newPassword = null;
     
+    private Map<String,String[]> datatypesOfIndex = new HashMap<String,String[]>(); 
+
     // needed for xmlserializer
     public PlugdescriptionCommandObject() {
 
@@ -78,7 +84,7 @@ public class PlugdescriptionCommandObject extends PlugDescription {
             }
         }
     }
-
+    
     public void removePartner(final String partner) {
         removeFromList(PlugDescription.PARTNER, partner);
     }
@@ -169,5 +175,38 @@ public class PlugdescriptionCommandObject extends PlugDescription {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+    }
+
+    
+    /**
+     * 
+     */
+    public String[] getDatatypesOfIndex(Object key) { 
+        return datatypesOfIndex.get(key); 
+    } 
+
+    public void setDatatypesOfIndex(String key, String[] value) { 
+        datatypesOfIndex.put(key, value); 
+    } 
+
+    public Map<String,String[]> getDatatypesOfIndex() { 
+        return datatypesOfIndex; 
+    } 
+
+    public void setDatatypesOfIndex(Map<String,String[]> currentCarrierMap) { 
+        this.datatypesOfIndex = currentCarrierMap; 
+    }
+    
+    public void addDatatypesOfIndex(String indexId, String type) {
+        String[] indexDatatypes = getDatatypesOfIndex(indexId);
+        if (!StringUtils.isEmptyOrWhiteSpace(type) && (indexDatatypes == null || !existsInArray(indexDatatypes, type))) {
+            setDatatypesOfIndex( indexId, (String[]) ArrayUtils.add( indexDatatypes, type ) );
+        }
+    }
+    
+    public void addDatatypesOfAllIndices(String type) {
+        for (String index : getDatatypesOfIndex().keySet()) {
+            addDatatypesOfIndex( index, type );
+        }
     }
 }

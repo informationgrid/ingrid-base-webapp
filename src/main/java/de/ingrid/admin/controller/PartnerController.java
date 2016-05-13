@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
@@ -98,17 +99,25 @@ public class PartnerController extends AbstractController {
             @RequestParam(value = "partner", required = false) final String partner,
             @RequestParam(value = "id", required = false) final String id) {
 
+        Config config = JettyStarter.getInstance().config;
         if ("add".equals(action)) {
             if (StringUtils.isEmptyOrWhiteSpace(partner)) {
                 _validator.rejectError(errors, "partners", IErrorKeys.EMPTY);
             } else {
                 commandObject.addPartner(partner);
-                JettyStarter.getInstance().config.partner = commandObject.getPartners();
+                config.partner = commandObject.getPartners();
             }
         } else if ("delete".equals(action)) {
             if (!id.equals(commandObject.getOrganisationPartnerAbbr())) {
                 commandObject.removePartner(id);
-                JettyStarter.getInstance().config.partner = commandObject.getPartners();
+                config.partner = commandObject.getPartners();
+                // remove all provider that belong to the partner
+                for (String provider : commandObject.getProviders()) {
+                    if (provider.startsWith( id + "_" ) || ("bund".equals( id ) && provider.startsWith( "bu_" ))) {
+                        commandObject.removeProvider( provider );
+                    };
+                }
+                config.provider = commandObject.getProviders();
             }
         } else if ("submit".equals(action)) {
             if (partnerList.isEmpty() || !_validator.validatePartners(errors).hasErrors()) {

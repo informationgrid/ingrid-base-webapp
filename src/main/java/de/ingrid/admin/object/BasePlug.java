@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
+import de.ingrid.utils.IngridCall;
+import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
@@ -65,5 +67,10 @@ public class BasePlug extends HeartBeatPlug {
             details[i] = new IngridHitDetail(hits[i], "Test Titel #" + (i + 1), "Test Summary #" + (i + 1));
         }
         return details;
+    }
+
+    @Override
+    public IngridDocument call(IngridCall targetInfo) throws Exception {
+        throw new RuntimeException( "call-function not implemented in Base-iPlug" );
     }
 }

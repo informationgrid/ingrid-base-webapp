@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -31,6 +31,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.utils.PlugDescription;
 
 @Service
@@ -98,11 +100,12 @@ public class CacheService {
 
             // update plug description
             LOG.info("updating cache setting in plug description");
-            final PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
+            final PlugdescriptionCommandObject plugDescription = _plugDescriptionService.getCommandObect();
             plugDescription.setCacheActive(_active);
             plugDescription.setCachedLifeTime(_lifeTime);
             plugDescription.setCachedElements(_elements);
             plugDescription.setCachedInDiskStore(_diskStore);
+            JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugDescription );
             _plugDescriptionService.savePlugDescription(plugDescription);
         } else {
             LOG.warn("try to use function without necessary plug description service");

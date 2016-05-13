@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -50,8 +50,9 @@ public class SearchTest extends ElasticTests {
     public static void setUpBeforeClass() throws Exception {
         new JettyStarter( false );
         setup( "test", "data/webUrls2.json" );
-        ElasticSearchUtils.removeAlias( client );
-        ElasticSearchUtils.switchAlias( client, "test_1" );
+        IndexManager indexManager = new IndexManager( elastic );
+        indexManager.removeAlias("test");
+        indexManager.switchAlias( "test", "test_1" );
     }
     
     @AfterClass
@@ -62,7 +63,8 @@ public class SearchTest extends ElasticTests {
     @Test
     public void search() throws Exception {
         
-        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
+        
         IngridQuery q = QueryStringParser.parse( "" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -72,11 +74,32 @@ public class SearchTest extends ElasticTests {
     @Test
     public void searchComplex() throws Exception {
         
-        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
         IngridQuery q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) AND (title:Square OR title:Prime)" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
         assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "(title:Mathematics OR xxx:zzz) partner:bund" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        q = QueryStringParser.parse( "(title:Mathematics) OR ((xxx:yyy) partner:bund)" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        
+        // this should have the same result as the previous one, but since partner, provider and dataype
+        // are separated from the other fields inside the InGridQuery, we cannot know the original 
+        // combination with the other fields. So it could be that partner is connected to title or xxx 
+        // or even both! See also REDMINE-251
+        /*
+        q = QueryStringParser.parse( "title:Mathematics OR xxx:www partner:bund" );
+        search2 = index2.search( q, 0, 10 );
+        assertThat( search2, not( is( nullValue() ) ) );
+        assertThat( search2.length(), is( 1l ) );
+        */
 
         q = QueryStringParser.parse( "(title:Mathematics OR title:Prime) AND (partner:bw OR partner:bund)" );
         search2 = index2.search( q, 0, 10 );
@@ -96,7 +119,7 @@ public class SearchTest extends ElasticTests {
     
     @Test
     public void searchFieldWithWildcards() throws Exception {
-        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
         IngridQuery q = QueryStringParser.parse( "title:math*" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -115,7 +138,7 @@ public class SearchTest extends ElasticTests {
     
     @Test
     public void searchTwoFields() throws Exception {
-        IndexImpl index2 = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index2 = getIndexer();
         IngridQuery q = QueryStringParser.parse( "title:Mathematics partner:bund" );
         IngridHits search2 = index2.search( q, 0, 10 );
         assertThat( search2, not( is( nullValue() ) ) );
@@ -139,8 +162,7 @@ public class SearchTest extends ElasticTests {
     
     @Test
     public void getDoc() throws Exception {
-        
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         ElasticDocument response = index.getDocById( "4" );
         assertThat( response, not( is( nullValue() ) ) );
         assertThat( (String)response.get( "url" ), is( "http://www.golemXXX.de" ) );
@@ -155,7 +177,7 @@ public class SearchTest extends ElasticTests {
         faceteEntry.put("field", "datatype");
         facetQueries.add(faceteEntry);
         
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "" );
         q.put("FACETS", facetQueries);
         
@@ -178,7 +200,7 @@ public class SearchTest extends ElasticTests {
     @Test
     public void searchTitleAndContent() throws Exception {
         
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         // both terms are found in the content field => one match
         IngridQuery q = QueryStringParser.parse( "biggest number" );
         IngridHits search = index.search( q, 0, 10 );

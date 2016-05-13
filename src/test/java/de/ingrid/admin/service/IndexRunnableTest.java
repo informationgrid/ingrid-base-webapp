@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,6 +24,7 @@ package de.ingrid.admin.service;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -43,11 +44,13 @@ import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.FacetConverter;
 import de.ingrid.admin.elasticsearch.IndexImpl;
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.elasticsearch.StatusProvider;
+import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
@@ -71,6 +74,8 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Mock
     PlugDescriptionService pds;
+
+    private ArrayList<IDocumentProducer> docProducers;
     
     @Before
     public void beforeTest() {
@@ -82,14 +87,18 @@ public class IndexRunnableTest extends ElasticTests {
     }
     
     private void index(int model) throws Exception {
-        _indexRunnable = new IndexRunnable(elastic, pds);
+        IndexManager indexManager = new IndexManager( elastic );
+        _indexRunnable = new IndexRunnable(pds, indexManager );
         _indexRunnable.configure(_plugDescription);
+        _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
-        _indexRunnable.setDocumentProducer(dummyProducer);
+        docProducers = new ArrayList<IDocumentProducer>();
+        docProducers.add( dummyProducer );
+        _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
-        ElasticSearchUtils.refreshIndex( client, ElasticSearchUtils.getIndexNameFromAliasName( client ) );
+        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index) );
         Thread.sleep(1000);
     }
     
@@ -181,7 +190,6 @@ public class IndexRunnableTest extends ElasticTests {
         //createNodeManager();
         
         SearchRequestBuilder srb = client.prepareSearch( config.index )
-                .setTypes( config.indexType )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
@@ -191,8 +199,7 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     public void testFlipIndex() throws Exception {
         config.indexWithAutoId = true;
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
-
+        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
@@ -211,9 +218,8 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
-        
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);
 

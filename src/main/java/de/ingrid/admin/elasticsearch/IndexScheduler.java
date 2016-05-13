@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,8 +22,6 @@
  */
 package de.ingrid.admin.elasticsearch;
 
-import it.sauronsoftware.cron4j.Scheduler;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,6 +35,10 @@ import org.springframework.stereotype.Service;
 
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
+import it.sauronsoftware.cron4j.Scheduler;
+import it.sauronsoftware.cron4j.Task;
+import it.sauronsoftware.cron4j.TaskExecutionContext;
+import it.sauronsoftware.cron4j.TaskExecutor;
 
 @Service
 public class IndexScheduler implements IConfigurable {
@@ -53,18 +55,18 @@ public class IndexScheduler implements IConfigurable {
 
     private static final Log LOG = LogFactory.getLog(IndexScheduler.class);
 
-    private static class LockRunnable implements Runnable {
+    private static class LockRunnable extends Task  {
 
         private final Runnable _runnable;
 
-        private boolean _isRunning = false;
+        private static boolean _isRunning = false;
 
         public LockRunnable(final Runnable runnable) {
             _runnable = runnable;
         }
 
         @Override
-        public void run() {
+        public void execute(TaskExecutionContext arg0) throws RuntimeException {
             LOG.debug("trying to run index scheduler");
             if (!_isRunning) {
                 LOG.info("starting and locking index scheduler");
@@ -140,6 +142,33 @@ public class IndexScheduler implements IConfigurable {
             LOG.info("start scheduler");
             _scheduler.start();
         }
+    }
+    
+    public boolean isRunning() {
+        if (!_scheduler.isStarted()) {
+            return false;
+        }
+        for (TaskExecutor task : _scheduler.getExecutingTasks()) {
+            if (task.isAlive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean triggerManually() {
+        try {
+            if (!isRunning()) {
+                if (!_scheduler.isStarted()) {
+                    _scheduler.start();
+                }
+                _scheduler.launch( new LockRunnable(_runnable) );
+                return true;
+            }
+        } catch (Exception e) {
+            LOG.error("Error running task now!", e);
+        }
+        return false;
     }
 
     private void loadPatternFile() {

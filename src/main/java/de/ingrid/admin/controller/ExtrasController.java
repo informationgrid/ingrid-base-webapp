@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -34,8 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.Extras;
 import de.ingrid.admin.validation.ExtrasValidator;
@@ -72,13 +74,11 @@ public class ExtrasController extends AbstractController {
             return redirect(IUris.IPLUG_WELCOME);
         }
         
+        Config config = JettyStarter.getInstance().config;
+        
         Extras e = new Extras();
         // check if the forced parameter (for ranking) was set before
-        if (plugDescription.containsKey("forceAddRankingOff")) {
-            e.setShowInUnranked(plugDescription.getBoolean("forceAddRankingOff"));
-        } else {
-            e.setShowInUnranked(false);
-        }
+        e.setShowInUnranked(config.forceAddRankingOff);
         
         // write object into model
         modelMap.addAttribute("extrasConfig", e);
@@ -97,19 +97,16 @@ public class ExtrasController extends AbstractController {
             return IViews.EXTRAS;
         }
         
-        // remember previous ranking values
-        boolean isScore = plugDescription.containsRankingType("score");
-        boolean isDate  = plugDescription.containsRankingType("date");
+        Config config = JettyStarter.getInstance().config;
+        if (commandObject.getShowInUnranked()) {
+            if (!config.rankings.contains( IngridQuery.NOT_RANKED )) {
+                config.rankings.add( IngridQuery.NOT_RANKED );
+            }
+        } else {
+            config.rankings.remove( IngridQuery.NOT_RANKED );
+        }
         
-        // write Ranking-information after list got emptied
-        if (plugDescription.getArrayList(IngridQuery.RANKED) != null )
-            plugDescription.getArrayList(IngridQuery.RANKED).clear();
-        
-        // parameter "off" decides about visibility in unranked results
-        plugDescription.setRankinTypes(isScore, isDate, commandObject.getShowInUnranked());
-        
-        // set to remember next time starting Administration-page 
-        plugDescription.putBoolean("forceAddRankingOff", commandObject.getShowInUnranked());
+        config.forceAddRankingOff = commandObject.getShowInUnranked();
         
         return redirect(IUris.IPLUG_WELCOME);
     }

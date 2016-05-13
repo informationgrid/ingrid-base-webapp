@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2016 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -35,6 +35,7 @@
 <meta name="copyright" content="wemove digital solutions GmbH" />
 <link rel="StyleSheet" href="../css/base/portal_u.css" type="text/css" media="all" />
 <script type="text/javascript" src="../js/base/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="../js/base/jquery.tabslet.min.js"></script>
 </head>
 <script>
    var clusterState = ${clusterState};
@@ -46,7 +47,11 @@
        $('#number_of_nodes').text( clusterState.number_of_nodes );
        $('#number_of_data_nodes').text( clusterState.number_of_data_nodes );
        
-       $('#mapping').text( JSON.stringify( ${mapping}, null, 2 ) );
+       <c:forEach items="${indices}" var="index">
+           $('#tab-${index.indexName}-${index.indexType} .mapping').text( JSON.stringify( ${index.mapping}, null, 2 ) );
+       </c:forEach>
+       
+       $('.tabs').tabslet();
    });
 </script>
 <body>
@@ -65,7 +70,7 @@
     
     <div id="help"><a href="#">[?]</a></div>
     
-    <c:set var="active" value="indexState" scope="request"/>
+    <c:set var="active" value="indexStatus" scope="request"/>
     <c:import url="subNavi.jsp"></c:import>
     
     <div id="contentBox" class="contentMiddle">
@@ -84,12 +89,23 @@
                 <div># Data Nodes: <span id="number_of_data_nodes"></span></div>
             </div>
             
-            <h3>Aktueller Index</h3>
-            <div>Index Name: ${currentIndex}</div>
-            <div>Anzahl Dokumente: ${docCount}</div>
-            
-            <h3>Mapping</h3>
-            <pre id="mapping"></pre>
+            <h3>Indizes:</h3>
+            <div class="tabs">
+                <ul>
+                <c:forEach items="${indices}" var="index">
+                    <li><a href="#tab-${index.indexName}-${index.indexType}">${index.indexName}:${index.indexType}</a></li>
+                </c:forEach>
+                </ul>
+                
+                <c:forEach items="${indices}" var="index">
+                    <div id="tab-${index.indexName}-${index.indexType}">
+                        <div>Anzahl Dokumente: ${index.docCount}</div>
+                        
+                        <h3>Mapping</h3>
+                        <pre class="mapping"></pre>
+                    </div>
+                </c:forEach>
+            </div>
             
         </div>
     </div>

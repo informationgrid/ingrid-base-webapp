@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -37,13 +37,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.admin.validation.CommunicationValidator;
 import de.ingrid.admin.validation.IErrorKeys;
+import de.ingrid.utils.PlugDescription;
 
 @Controller
 public class CommunicationConfigurationController extends AbstractController {
@@ -60,10 +63,14 @@ public class CommunicationConfigurationController extends AbstractController {
 
     private final CommunicationValidator _validator;
 
+    private PlugDescriptionService _plugDescriptionService;
+
     @Autowired
     public CommunicationConfigurationController(final CommunicationService communicationService,
+            final PlugDescriptionService pdService,
             final CommunicationValidator validator) {
         _communicationService = communicationService;
+        _plugDescriptionService = pdService;
         _validator = validator;
     }
 
@@ -161,6 +168,7 @@ public class CommunicationConfigurationController extends AbstractController {
                     tryToAdd = true;
                 }
             }
+            Config config = JettyStarter.getInstance().config;
 
             if ("add".equals(action) || tryToAdd) {
                 // set proxy url
@@ -172,20 +180,27 @@ public class CommunicationConfigurationController extends AbstractController {
                     return IViews.COMMUNICATION;
                 }
                 
-                JettyStarter.getInstance().config.ibusses.add( commandObject );
+                config.ibusses.add( commandObject );
 
             } else if ("delete".equals(action)) {
                 // delete bus
-                JettyStarter.getInstance().config.ibusses.remove( id.intValue() );
+                config.ibusses.remove( id.intValue() );
             } else if ("set".equals(action)) {
                 // set base bus
-                CommunicationCommandObject newDefault = JettyStarter.getInstance().config.ibusses.remove( id.intValue() );
-                JettyStarter.getInstance().config.ibusses.add( 0, newDefault );
+                CommunicationCommandObject newDefault = config.ibusses.remove( id.intValue() );
+                config.ibusses.add( 0, newDefault );
             }
 
             // save the new data
-            JettyStarter.getInstance().config.writeCommunication();
-            JettyStarter.getInstance().config.writeCommunicationToProperties();
+            config.writeCommunication(config.communicationLocation, config.ibusses);
+            
+            PlugDescription plugDescription = _plugDescriptionService.getPlugDescription();
+            if (plugDescription != null) {
+                plugDescription.setProxyServiceURL( commandObject.getProxyServiceUrl() );
+                _plugDescriptionService.savePlugDescription( plugDescription );
+            }
+            
+            config.writeCommunicationToProperties();
 
             // when busses have been switched we need to restart communication with new config-file
             if ("set".equals(action) || "add".equals(action)) { // || "delete".equals(action)) {

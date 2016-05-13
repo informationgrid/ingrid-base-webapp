@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
@@ -45,14 +46,15 @@ import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDataType;
+import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.AbstractValidator;
 import de.ingrid.admin.validation.IErrorKeys;
 import de.ingrid.admin.validation.PlugDescValidator;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Controller
 @SessionAttributes("plugDescription")
@@ -67,6 +69,9 @@ public class GeneralController extends AbstractController {
     private final CommunicationService _communicationService;
     
     private List<Partner> _partners = null;
+    
+    @Autowired(required=false)
+    private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
 
     @Autowired
     public GeneralController(final CommunicationService communicationInterface,
@@ -133,6 +138,33 @@ public class GeneralController extends AbstractController {
 
         addForcedDatatypes(commandObject);
         
+        List<IndexInfo> indices = new ArrayList<IndexInfo>();
+        Config config = JettyStarter.getInstance().config;
+        if (config.datatypesOfIndex == null) {
+            for (IDocumentProducer producer : docProducer) {
+                IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+                String datatypes = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
+                if (datatypes == null) {
+                    if (config.datatypes != null) {
+                        commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), config.datatypes.toArray( new String[0] ) );
+                    } else {
+                        // only add forced datatypes on very first configuration
+                        commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), commandObject.getDataTypes() );
+                    }
+                } else {
+                    commandObject.setDatatypesOfIndex( indexInfo.getIdentifier(), datatypes.split( "," ) );
+                }
+                indices.add( indexInfo );
+            }
+            config.datatypesOfIndex = commandObject.getDatatypesOfIndex();
+        } else {
+            for (IDocumentProducer producer : docProducer) {
+                indices.add( Utils.getIndexInfo( producer, config ) );
+            }
+            commandObject.setDatatypesOfIndex(config.datatypesOfIndex);
+        }
+        
+        modelMap.addAttribute( "indices", indices );
         return IViews.GENERAL;
     }
 
@@ -141,8 +173,6 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject, final Errors errors,
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
-        addForcedDatatypes(commandObject);
-        
         String newPW = (String) errors.getFieldValue("newPassword");
         String currentPW = JettyStarter.getInstance().config.pdPassword;
         // only reject empty password if no password has been configured yet at all!
@@ -155,15 +185,50 @@ public class GeneralController extends AbstractController {
             return getGeneral(modelMap, commandObject, errors, partners);
         }
 
-        // add data type includes
-        commandObject.addIncludedDataTypes(_dataTypes);
-        
         setConfiguration( commandObject );
+        
+        // add forced datatypes
+        addForcedDatatypesToConfig();
+        
+        // add data type includes
+        addIncludedDataTypes( _dataTypes );
         
         return redirect(IUris.PARTNER);
     }
-
-    @SuppressWarnings("unchecked")
+    
+    private void addIncludedDataTypes(final IDataType... types) {
+        Config config = JettyStarter.getInstance().config;
+        // for all indices
+        // check if index has the parent field and add then the included ones
+        for (IDocumentProducer producer : docProducer) {
+            IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+            List<String> included = new ArrayList<String>();
+            String[] datatypesOfIndex = config.datatypesOfIndex.get( indexInfo.getIdentifier() );
+            
+            // check all data types
+            for (final String dataType : datatypesOfIndex) {
+                // find correct idatatype
+                for (final IDataType type : types) {
+                    if (type.getName().equals(dataType)) {
+                        // if found add all included data types
+                        if (type.getIncludedDataTypes() != null) {
+                            for (final IDataType include : type.getIncludedDataTypes()) {
+                                // add to all datatypes field
+                                if (!config.datatypes.contains( include.getName() )) {
+                                    config.datatypes.add( include.getName() );
+                                }
+                                if (ArrayUtils.contains( datatypesOfIndex, dataType )) {
+                                    included.add( include.getName() );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            config.datatypesOfIndex.put( indexInfo.getIdentifier(), (String[]) ArrayUtils.addAll( datatypesOfIndex, included.toArray() ) );
+        }
+    }
+  
     private void setConfiguration(PlugdescriptionCommandObject pd) {
         Config config = JettyStarter.getInstance().config;
         
@@ -177,7 +242,9 @@ public class GeneralController extends AbstractController {
         config.personEmail = pd.getPersonMail();
         config.datasourceName = pd.getDataSourceName();
         config.datasourceDescription = pd.getDataSourceDescription();
-        config.datatypes = new ArrayList<String>(Arrays.asList( pd.getDataTypes() ) );
+        config.datatypesOfIndex = pd.getDatatypesOfIndex();
+        config.datatypes.clear();
+        config.datatypes.addAll( Utils.getUnionOfDatatypes(config.datatypesOfIndex) );
         config.guiUrl = pd.getIplugAdminGuiUrl();
         config.webappPort = pd.getIplugAdminGuiPort();
         String newPassword = pd.getNewPassword();
@@ -236,11 +303,34 @@ public class GeneralController extends AbstractController {
         return result.toString();
     }
 
+    private void addForcedDatatypesToConfig() {
+        Config config = JettyStarter.getInstance().config;
+        if (_dataTypes != null) {
+            for (final IDataType type : _dataTypes) {
+                if (type.getIsForced()) {
+                    for (IDocumentProducer producer : docProducer) {
+                        IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+                        Utils.addDatatypeToIndex( indexInfo.getIdentifier(), type.getName() );
+                    }
+                    if (docProducer.size() == 0) {
+                        config.datatypes.add( type.getName() );
+                    }
+                }
+            }
+        }
+    }
+    
     private void addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
+        Config config = JettyStarter.getInstance().config;
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {
                     commandObject.addDataType(type.getName());
+                    if (!config.datatypes.contains( type.getName() )) config.datatypes.add( type.getName() ); 
+                    for (IDocumentProducer producer : docProducer) {
+                        IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
+                        commandObject.addDatatypesOfIndex( indexInfo.getIdentifier(), type.getName() );
+                    }
                 }
             }
         }

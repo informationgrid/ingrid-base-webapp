@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -30,9 +30,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -138,6 +143,7 @@ public class Config {
         
         @Override
         public String[] transform( String input ) {
+            if (input.isEmpty()) return new String[0];
             return input.split( "," );
         }
     }
@@ -154,13 +160,6 @@ public class Config {
             return list;
         }
     }
-    
-
-    public static final int DEFAULT_TIMEOUT = 10;
-
-    public static final int DEFAULT_MAXIMUM_SIZE = 1048576;
-
-    public static final int DEFAULT_THREAD_COUNT = 100;
 
     private static final List<String> IGNORE_LIST = new ArrayList<String>();
 
@@ -176,6 +175,18 @@ public class Config {
     @PropertyValue("jetty.port")
     @DefaultValue("8082")
     public Integer webappPort;
+    
+    @PropertyValue("communication.server.timeout")
+    @DefaultValue("10")
+    public int ibusTimeout;
+    
+    @PropertyValue("communication.server.maxMsgSize")
+    @DefaultValue("1048576")
+    public int ibusMaxMsgSize;
+    
+    @PropertyValue("communication.server.threadCount")
+    @DefaultValue("100")
+    public int ibusThreadCount;
 
     /**
      * COMMUNICATION - SETTINGS
@@ -193,6 +204,8 @@ public class Config {
     @PropertyValue("communications.ibus")
     @DefaultValue("")
     public List<CommunicationCommandObject> ibusses;
+    
+    
 
     /**
      * PLUGDESCRIPTION
@@ -213,9 +226,12 @@ public class Config {
     @DefaultValue("false")
     private boolean indexing;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
+    @TypeTransformers(StringToList.class)
     @PropertyValue("plugdescription.dataType")
+    @DefaultValue("")
     public List<String> datatypes;
+    
+    public Map<String, String[]> datatypesOfIndex = null;
 
     @PropertyValue("plugdescription.organisationPartnerAbbr")
     public String mainPartner;
@@ -361,6 +377,30 @@ public class Config {
     @PropertyValue("index.search.groupByUrl")
     @DefaultValue("false")
     public boolean groupByUrl;
+
+    // this field contains all the index names defined in the doc producers
+    // if none was defined there, then the global index from this config is used
+    @TypeTransformers(Config.StringToArray.class)
+    @DefaultValue("")
+    public String[] docProducerIndices;
+
+    @PropertyValue("index.alwaysCreate")
+    @DefaultValue("true")
+    public boolean alwaysCreateNewIndex;
+
+    // CACHE - PROPERTIES
+    @PropertyValue("plugdescription.CACHED_ELEMENTS")
+    @DefaultValue("1000")
+    private int cacheElements;
+    @PropertyValue("plugdescription.CACHED_IN_DISK_STORE")
+    @DefaultValue("false")
+    private boolean cacheDiskStore;
+    @PropertyValue("plugdescription.CACHED_LIFE_TIME")
+    @DefaultValue("10")
+    private int cacheLifeTime;
+    @PropertyValue("plugdescription.CACHE_ACTIVE")
+    @DefaultValue("true")
+    private boolean cacheActive;
     
     public String getWebappDir() {
         return this.webappDir;
@@ -421,32 +461,15 @@ public class Config {
         IGNORE_LIST.add( "connection" );
 
         //
-        writeCommunication();
+        writeCommunication(this.communicationLocation, this.ibusses );
     }
 
     public boolean getIndexing() {
         return this.indexing;
     }
 
-    /*    public boolean writeConfig(String key, String value) {
-        try {
-            InputStream is = new FileInputStream( "conf/config.override.properties" );
-            Properties props = new Properties();
-            props.load( is );
-            props.setProperty( key, value );
-            is.close();
-            OutputStream os = new FileOutputStream( "conf/config.override.properties" );
-            props.store( os, "Override configuration written by the application" );
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }*/
-
-    public boolean writeCommunication() {
-        File communicationFile = new File( this.communicationLocation );
+    public boolean writeCommunication(String communicationLocation, List<CommunicationCommandObject> ibusses) {
+        File communicationFile = new File( communicationLocation );
         if (ibusses == null || ibusses.isEmpty()) {
             // do not remove communication file if no
             if (communicationFile.exists()) {
@@ -458,15 +481,8 @@ public class Config {
         try {
             final XPathService communication = openCommunication( communicationFile );
             Integer id = 0;
-            // if server information shall be deleted
-            // if (serverName == null) {
-            // } else {
-            // check if xpath to server exists
-            // boolean serverExists = communication.exsistsNode(
-            // "/communication/client/connections/server" );
 
             communication.setAttribute( "/communication/client", "name", this.communicationProxyUrl );
-
             communication.removeNode( "/communication/client/connections/server", id );
             // create default nodes and attributes if server tag does not exist
 
@@ -475,12 +491,12 @@ public class Config {
                 communication.addNode( "/communication/client/connections", "server" );
                 communication.addNode( "/communication/client/connections/server", "socket", id );
                 communication.addAttribute( "/communication/client/connections/server/socket", "timeout", ""
-                        + DEFAULT_TIMEOUT, id );
+                        + this.ibusTimeout, id );
                 communication.addNode( "/communication/client/connections/server", "messages", id );
                 communication.addAttribute( "/communication/client/connections/server/messages", "maximumSize", ""
-                        + DEFAULT_MAXIMUM_SIZE, id );
+                        + this.ibusMaxMsgSize, id );
                 communication.addAttribute( "/communication/client/connections/server/messages", "threadCount", ""
-                        + DEFAULT_THREAD_COUNT, id );
+                        + this.ibusThreadCount, id );
 
                 communication.addAttribute( "/communication/client/connections/server", "name",
                         ibus.getBusProxyServiceUrl(), id );
@@ -493,6 +509,7 @@ public class Config {
             communication.store( communicationFile );
 
         } catch (Exception e) {
+            log.error( "Error writing communication.xml: ", e );
             e.printStackTrace();
             return false;
         }
@@ -510,22 +527,32 @@ public class Config {
 
         // open template xml or communication file
         final XPathService communication = new XPathService();
-        // if (!communicationFile.exists()) {
         final InputStream inputStream = CommunicationConfigurationController.class
                 .getResourceAsStream( "/communication-template.xml" );
         communication.registerDocument( inputStream );
-        // } else {
-        // communication.registerDocument(communicationFile);
-        // }
 
         return communication;
+    }
+    
+    public Properties getOverrideProperties() throws IOException {
+        Resource override = getOverrideConfigResource();
+        InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
+        Properties props = new Properties();
+        props.load( is );
+        return props;
     }
 
     public void writeCommunicationToProperties() {
         try {
             Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
-            Properties props = new Properties();
+            Properties props = new Properties() {
+                private static final long serialVersionUID = 6956076060462348684L;
+                @Override
+                public synchronized Enumeration<Object> keys() {
+                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                }
+            };
             props.load( is );
             // ---------------------------
             props.setProperty( "communication.clientName", communicationProxyUrl );
@@ -545,6 +572,7 @@ public class Config {
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
+            log.error( "Error writing properties: " , e );
             e.printStackTrace();
         }
     }
@@ -559,7 +587,13 @@ public class Config {
 
             Resource override = getOverrideConfigResource();
             InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
-            Properties props = new Properties();
+            Properties props = new Properties() {
+                private static final long serialVersionUID = 6956076060462348684L;
+                @Override
+                public synchronized Enumeration<Object> keys() {
+                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                }
+            };
             props.load( is );
 
             for (Iterator<Object> it = pd.keySet().iterator(); it.hasNext();) {
@@ -570,19 +604,23 @@ public class Config {
                 
                 Object valObj = pd.get( key );
                 if (valObj instanceof String) {
-                    props.setProperty( "plugdescription." + key, (String) pd.get( key ) );
+                    props.setProperty( "plugdescription." + key, (String) valObj );
                 } else if (valObj instanceof List) {
-                    props.setProperty( "plugdescription." + key, convertListToString( (List) pd.get( key ) ) );
+                    props.setProperty( "plugdescription." + key, convertListToString( (List) valObj ) );
                 } else if (valObj instanceof Integer) {
                     if ("IPLUG_ADMIN_GUI_PORT".equals( key )) {
-                        props.setProperty( "jetty.port", String.valueOf( pd.get( key ) ) );
+                        props.setProperty( "jetty.port", String.valueOf( valObj ) );
                     } else {
-                        props.setProperty( "plugdescription." + key, String.valueOf( pd.get( key ) ) );
+                        props.setProperty( "plugdescription." + key, String.valueOf( valObj ) );
                     }
                 } else if (valObj instanceof File) {
-                    props.setProperty( "plugdescription." + key, ((File) pd.get( key )).getPath() );
+                    props.setProperty( "plugdescription." + key, ((File) valObj).getPath() );
                 } else {
-                    props.setProperty( "plugdescription." + key, pd.get( key ).toString() );
+                    if (valObj != null) {
+                        props.setProperty( "plugdescription." + key, valObj.toString() );
+                    } else {
+                        log.warn( "value of plugdescription field was NULL: " + key );
+                    }
                 }
             }
             
@@ -595,7 +633,9 @@ public class Config {
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
             
-            props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) ); 
+            props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) );
+            
+            setDatatypes(props);
 
             IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
             if (externalConfig != null) {
@@ -612,7 +652,18 @@ public class Config {
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error( "Error writing properties:", e );
+        }
+    }
+
+    private void setDatatypes(Properties props) {
+        if (datatypesOfIndex != null) {
+            Set<String> indices = datatypesOfIndex.keySet();
+            for (String index : indices) {
+                props.setProperty( "plugdescription.dataType." + index, StringUtils.join( datatypesOfIndex.get( index ), ',' ) );
+            }
+            // write all collected datatypes, which are transmitted to the iBus
+            props.setProperty( "plugdescription.dataType", StringUtils.join( datatypes, "," ) );
         }
     }
 
@@ -657,7 +708,7 @@ public class Config {
         return Joiner.on( "," ).join( list );
     }
 
-    public PlugdescriptionCommandObject getPlugdescriptionFromProperties() {
+    public PlugdescriptionCommandObject getPlugdescriptionFromConfiguration() {
         PlugdescriptionCommandObject pd = new PlugdescriptionCommandObject();
 
         // working directory
@@ -671,6 +722,13 @@ public class Config {
         if (datatypes != null) {
             for (String datatype : datatypes) {
                 pd.addDataType( datatype.trim() );
+            }
+        }
+        if (datatypesOfIndex != null) {
+            for (String index : datatypesOfIndex.keySet()) {
+                for (String type : datatypesOfIndex.get( index )) {
+                    pd.addDatatypesOfIndex( index, type );
+                }
             }
         }
 
@@ -690,6 +748,11 @@ public class Config {
         pd.setIplugAdminGuiUrl( guiUrl );
         pd.setIplugAdminGuiPort( this.webappPort );
         pd.setRecordLoader( recordLoader );
+        pd.setCacheActive( cacheActive );
+        pd.setCachedLifeTime(cacheLifeTime );
+        pd.setCachedElements( cacheElements );
+        pd.setCachedInDiskStore( cacheDiskStore );
+        
 
         if (partner != null) {
             for (String p : partner) {
@@ -807,7 +870,7 @@ public class Config {
                 busses.add( bus );
             }
         } catch (Exception e) {
-            log.error( "Error when reading from communication.xml" );
+            log.error( "Error when reading from communication.xml", e );
             e.printStackTrace();
         }
         // return all busses
@@ -832,7 +895,7 @@ public class Config {
         } catch (FileNotFoundException e) {
             return new FileSystemResource( "conf/config.override.properties" );
         } catch (IOException e) {
-            log.error( "Error when getting config.override.properties" );
+            log.error( "Error when getting config.override.properties", e );
             e.printStackTrace();
         }
         return null;

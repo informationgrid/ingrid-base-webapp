@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -41,6 +41,7 @@ import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.TestUtils;
+import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.utils.PlugDescription;
@@ -60,7 +61,7 @@ public class IndexSchedulerTest {
         private int _counter = 0;
 
         public DummyRunnable(final long time, PlugDescriptionService pdService) throws Exception {
-            super(elastic, pdService);
+            super(pdService, new IndexManager( elastic ));
             _time = time;
         }
 

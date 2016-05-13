@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -123,7 +123,7 @@ public class AdminToolsController extends AbstractController {
             modelMap.addAttribute( "totalHitCount", results.length() );
 
             final IngridHit[] hits = results.getHits();
-            final IngridHitDetail[] details = _plug.getDetails( hits, query, new String[] {} );
+            final IngridHitDetail[] details = _plug.getDetails( hits, query, new String[] { "t02_address.firstname", "t02_address.lastname"} );
 
             // convert details to map
             // this is necessary because it's not possible to access the
@@ -131,6 +131,12 @@ public class AdminToolsController extends AbstractController {
             final Map<String, IngridHitDetail> detailsMap = new HashMap<String, IngridHitDetail>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
+                    try {
+                        // if no title is given, then assume it might be an address
+                        if (detail.getString("title").isEmpty()) {
+                            detail.put( "title", detail.getArray( "t02_address.lastname")[0] + ", " + detail.getArray( "t02_address.firstname" )[0] );
+                        }
+                    } catch (Exception ex) {}
                     detailsMap.put( detail.getDocumentId(), detail );
                 }
             }

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-iplug-se-iplug
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -38,7 +38,6 @@ import de.ingrid.admin.JettyStarter;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.queryparser.ParseException;
 import de.ingrid.utils.queryparser.QueryStringParser;
 
 public class GeneralSearchTest extends ElasticTests {
@@ -48,8 +47,9 @@ public class GeneralSearchTest extends ElasticTests {
         new JettyStarter( false );
         JettyStarter.getInstance().config.indexFieldSummary = "content";
         setup( "test", "data/webUrls.json" );
-        ElasticSearchUtils.removeAlias( client );
-        ElasticSearchUtils.switchAlias( client, "test_1" );
+        IndexManager indexManager = new IndexManager( elastic );
+        indexManager.removeAlias("test");
+        indexManager.switchAlias( "test", "test_1" );
     }    
     
    
@@ -59,9 +59,9 @@ public class GeneralSearchTest extends ElasticTests {
     }
 
     @Test
-    public void searchForOneTerm() throws ParseException {
+    public void searchForOneTerm() throws Exception {
         //elastic.getObject().client().settings().
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "wemove" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -70,8 +70,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
 
     @Test
-    public void searchForMultipleTermsWithAnd() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchForMultipleTermsWithAnd() throws Exception {
+        IndexImpl index = getIndexer();
         // both words must be present inside a field!
         IngridQuery q = QueryStringParser.parse( "Welt Neuigkeit" );
         IngridHits search = index.search( q, 0, 10 );
@@ -81,8 +81,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
 
     @Test
-    public void searchForMultipleTermsWithOr() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchForMultipleTermsWithOr() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "wemove OR reisen" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -101,8 +101,8 @@ public class GeneralSearchTest extends ElasticTests {
      * containing "golem".
      */
     @Test
-    public void searchForMultipleTermsWithAndOr() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchForMultipleTermsWithAndOr() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt AND Firma OR golem" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -111,8 +111,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchForMultipleTermsWithAndOrParentheses() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchForMultipleTermsWithAndOrParentheses() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt AND (Firma OR golem)" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -121,8 +121,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchForTermNot() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchForTermNot() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "-wemove" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -131,8 +131,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchForMultipleTermsNot() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchForMultipleTermsNot() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt -Firma" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -141,8 +141,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchWithWildcardCharacter() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchWithWildcardCharacter() throws Exception {
+        IndexImpl index = getIndexer();
         // the term Deutschland should be found
         IngridQuery q = QueryStringParser.parse( "Deutschl?nd" );
         IngridHits search = index.search( q, 0, 10 );
@@ -164,8 +164,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchWithWildcardString() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchWithWildcardString() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Deutschl*nd" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -186,8 +186,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchCombinedWildcards() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchCombinedWildcards() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Deutschl*nd OR Entstehung" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -214,8 +214,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFuzzy() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFuzzy() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Deutschlnad" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -229,8 +229,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFuzzyCombination() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFuzzyCombination() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "faxen Deutschlnad~" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -245,8 +245,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchField() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchField() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "title:ausland" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -255,8 +255,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFieldAND() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFieldAND() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "content:urlaub content:welt" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -265,8 +265,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFieldOR() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFieldOR() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "content:urlaub OR content:welt" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -275,8 +275,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFieldSpecialAND() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFieldSpecialAND() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "partner:bund datatype:pdf" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -285,8 +285,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFieldSpecialOR() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFieldSpecialOR() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "datatype:xml OR datatype:pdf" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -295,8 +295,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchFieldSpecialORComplex() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchFieldSpecialORComplex() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "(datatype:xml OR datatype:pdf) partner:bw" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -323,8 +323,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchPhrase() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchPhrase() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "\"der Wirtschaft\"" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -339,8 +339,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void stopWordsRemoval() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void stopWordsRemoval() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt das ein Computer" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -349,8 +349,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void searchWithPaging() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void searchWithPaging() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "" );
         IngridHits search = index.search( q, 0, 5 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -377,8 +377,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
 
     @Test
-    public void getDetail() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void getDetail() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt Firma" );
         IngridHits search = index.search( q, 0, 10 );
         IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
@@ -392,8 +392,8 @@ public class GeneralSearchTest extends ElasticTests {
     }
     
     @Test
-    public void getDetailWithRequestedField() throws ParseException {
-        IndexImpl index = new IndexImpl( elastic, qc, new FacetConverter(qc) );
+    public void getDetailWithRequestedField() throws Exception {
+        IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt Firma" );
         IngridHits search = index.search( q, 0, 10 );
         String[] extraFields = new String[] { "url", "fetched" };

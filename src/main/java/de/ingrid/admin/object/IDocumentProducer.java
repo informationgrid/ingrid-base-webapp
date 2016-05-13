@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,6 +22,7 @@
  */
 package de.ingrid.admin.object;
 
+import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 
@@ -34,4 +35,12 @@ public interface IDocumentProducer extends IConfigurable {
 	 */
 	ElasticDocument next();
 
+	IndexInfo getIndexInfo();
+	
+	/**
+	 * Get the number of documents to be indexed. If it cannot be determined
+	 * then null is returned.
+	 * @return the number of docs, otherwise null
+	 */
+	Integer getDocumentCount();
 }

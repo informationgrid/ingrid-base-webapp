@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -104,14 +104,15 @@ public class JettyStarter {
         }
         
         // add external configurations to the plugdescription
-        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromProperties();
+        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromConfiguration();
         if (externalConfig != null) {
             externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
         }
         // if a configuration was never written for the plugdescription then do not write one!
         // the proxyServiceUrl must be different from the default value, so we can check here 
-        // for valid propterties 
-        if (!"/ingrid-group:base-webapp".equals( plugdescriptionFromProperties.getProxyServiceURL() )) {
+        // for valid propterties
+        String proxyServiceURL = plugdescriptionFromProperties.getProxyServiceURL();
+        if (!"/ingrid-group:base-webapp".equals( proxyServiceURL ) && !proxyServiceURL.isEmpty()) {
             (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
         } else {
             log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
@@ -119,6 +120,7 @@ public class JettyStarter {
         
         Server server = new Server(port);
         server.setHandler(webAppContext);
+        webAppContext.getSessionHandler().getSessionManager().setSessionCookie( "JSESSIONID_" + port );
         server.start();
     }
 
