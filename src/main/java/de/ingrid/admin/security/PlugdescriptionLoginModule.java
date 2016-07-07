@@ -56,12 +56,16 @@ public class PlugdescriptionLoginModule extends AbstractLoginModule {
         }
 
         if (pwd != null) {
-            
-            if (userName.equals("admin") && BCrypt.checkpw(password, pwd)) {
-                Set<String> set = new HashSet<String>();
-                set.add("admin");
-                ingridPrincipal = new IngridPrincipal.KnownPrincipal("admin", pwd, set);
-            } else {
+            try {
+                if (userName.equals("admin") && BCrypt.checkpw(password, pwd)) {
+                    Set<String> set = new HashSet<String>();
+                    set.add("admin");
+                    ingridPrincipal = new IngridPrincipal.KnownPrincipal("admin", pwd, set);
+                } else {
+                    ingridPrincipal = new IngridPrincipal.UnknownPrincipal();
+                }
+            } catch (Exception e) {
+                LOG.error( "Error during password check:", e );
                 ingridPrincipal = new IngridPrincipal.UnknownPrincipal();
             }
         } else {
