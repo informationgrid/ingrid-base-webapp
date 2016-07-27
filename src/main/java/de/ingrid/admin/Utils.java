@@ -23,6 +23,7 @@
 package de.ingrid.admin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import de.ingrid.utils.IBus;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class Utils {
 
