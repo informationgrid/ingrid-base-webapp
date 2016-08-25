@@ -23,6 +23,7 @@
 package de.ingrid.admin.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -244,7 +245,11 @@ public class GeneralController extends AbstractController {
         config.datasourceDescription = pd.getDataSourceDescription();
         config.datatypesOfIndex = pd.getDatatypesOfIndex();
         config.datatypes.clear();
-        config.datatypes.addAll( Utils.getUnionOfDatatypes(config.datatypesOfIndex) );
+        if (pd.getDatatypesOfIndex().isEmpty()) {
+            config.datatypes.addAll( Arrays.asList(pd.getDataTypes()) );
+        } else {
+            config.datatypes.addAll( Utils.getUnionOfDatatypes(config.datatypesOfIndex) );
+        }
         config.guiUrl = pd.getIplugAdminGuiUrl();
         config.webappPort = pd.getIplugAdminGuiPort();
         String newPassword = pd.getNewPassword();
