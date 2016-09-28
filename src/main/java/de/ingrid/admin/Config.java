@@ -295,6 +295,15 @@ public class Config {
     @DefaultValue("off")
     public List<String> rankings;
 
+    @PropertyValue("elastic.remote.node")
+    @DefaultValue("true")
+    public boolean esRemoteNode;
+    
+    @TypeTransformers(Config.StringToArray.class)
+    @PropertyValue("elastic.remote.hosts")
+    @DefaultValue("127.0.0.1:9300")
+    public String[] esRemoteHosts;
+    
     @PropertyValue("elastic.boost.field")
     @DefaultValue("boost")
     public String esBoostField;

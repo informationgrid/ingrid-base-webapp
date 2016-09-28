@@ -23,12 +23,18 @@
 package de.ingrid.admin.service;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.DisposableBean;
@@ -38,6 +44,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 
 /**
@@ -76,6 +83,8 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 	private Map<String, String> settings;
 
 	private Node node = null;
+	
+	private Client client = null;
 
     private Properties properties;
 
@@ -110,24 +119,69 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+	    Config config = JettyStarter.getInstance().config;
 	    // only setup elastic nodes if indexing is enabled
-	    if (JettyStarter.getInstance().config.getIndexing()) {
-	        internalCreateNode();
+	    if (config.getIndexing()) {
+	        if (config.esRemoteNode) {
+	            createTransportClient(config.esRemoteHosts);
+	        } else {
+	            internalCreateNode();
+	        }
 	    } else {
 	        logger.warn( "Since Indexing is not enabled, this component should not have Elastic Search enabled at all! This bean should be excluded in the spring configuration." );
 	    }
 	}
+	
+	public Client getClient() {
+	    return JettyStarter.getInstance().config.esRemoteNode ? client : node.client();
+	}
 
+	private void createTransportClient(String[] esRemoteHosts) throws UnknownHostException {
+	    TransportClient transportClient = null;
+	    
+	    Properties props = getPropertiesFromElasticsearch();
+	    if (props != null) {
+	        transportClient = TransportClient.builder().settings( Settings.builder().put( props ) ).build();
+	    } else {
+	        transportClient = TransportClient.builder().build();
+	    }
+	    
+	    for (String host : esRemoteHosts) {
+	        String[] splittedHost = host.split( ":" );
+	        transportClient.addTransportAddress( new InetSocketTransportAddress(InetAddress.getByName(splittedHost[0]), Integer.valueOf( splittedHost[1] )) ); 
+        }
+	    
+	    client = transportClient;
+	}
+	
+	private Properties getPropertiesFromElasticsearch() {
+	    try {
+            ClassPathResource resource = new ClassPathResource( "/elasticsearch.properties" );
+            Properties p = new Properties();
+            if (resource.exists()) {
+                p.load( resource.getInputStream() );
+                ClassPathResource resourceOverride = new ClassPathResource( "/elasticsearch.override.properties" );
+                if (resourceOverride.exists()) {
+                    p.load( resourceOverride.getInputStream() );
+                }
+            }
+            return p;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+	
 	private void internalCreateNode() {
 	    
 	    // TransportClient tc = TransportClient.builder
 		final NodeBuilder nodeBuilder = NodeBuilder.nodeBuilder();
 		
 		// set inital configurations coming from the property file
-		Properties p = new Properties();
 		try {
 		    ClassPathResource resource = new ClassPathResource( "/elasticsearch.properties" );
 		    if (resource.exists()) {
+		        Properties p = new Properties();
 		        p.load( resource.getInputStream() );
 		        nodeBuilder.getSettings().put( p );
 		        ClassPathResource resourceOverride = new ClassPathResource( "/elasticsearch.override.properties" );

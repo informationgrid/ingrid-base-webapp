@@ -23,6 +23,7 @@
 package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -52,6 +53,7 @@ import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.xml.XMLSerializer;
 
 @Service
 public class IndexManager implements IConfigurable {
@@ -62,14 +64,11 @@ public class IndexManager implements IConfigurable {
 
     private Config _config;
 
-    private ElasticsearchNodeFactoryBean _elastic;
-
     private Properties _props = new Properties();
 
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
-        _elastic = elastic;
-        _client = elastic.getObject().client();
+        _client = elastic.getClient();
         _bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
         _config = JettyStarter.getInstance().config;
     }
@@ -184,10 +183,19 @@ public class IndexManager implements IConfigurable {
     }
 
     public boolean createIndex(String name) {
-        boolean indexExists = _client.admin().indices().prepareExists( name ).execute().actionGet().isExists();
+        boolean indexExists = indexExists( name );
         if (!indexExists) {
-            _client.admin().indices().prepareCreate( name ).execute().actionGet();
-            return true;
+            InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-mapping.json");
+            String source;
+            try {
+                source = XMLSerializer.getContents( mappingStream );
+                _client.admin().indices().prepareCreate( name ).addMapping( "_default_", source ).execute().actionGet();
+                return true;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return false;
+            }
         }
         return false;
     }
@@ -200,10 +208,6 @@ public class IndexManager implements IConfigurable {
         
         ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = _client.admin().indices().getAliases(new GetAliasesRequest(indexAlias)).actionGet().getAliases();
         
-        // check if alias already is an index
-//        ImmutableOpenMap<String, AliasMetaData> indexToAliasesMap = _client.admin().cluster().state( Requests.clusterStateRequest() )
-//                .actionGet().getState().getMetaData().findAliases()
-//                .get( indexAlias );
         if (indexToAliasesMap != null && !indexToAliasesMap.isEmpty()) {
             return indexToAliasesMap.keys().iterator().next().value;
         } else if (_client.admin().indices().prepareExists(indexAlias).execute().actionGet().isExists()) {
@@ -228,11 +232,11 @@ public class IndexManager implements IConfigurable {
     }
 
     public String printSettings() throws Exception {
-        return _elastic.getObject().settings().toDelimitedString( ',' );
+        return _client.settings().toDelimitedString( ',' );
     }
 
     public void shutdown() throws Exception {
-        _elastic.getObject().close();
+        _client.close();
     }
 
     public void addBasicFields(ElasticDocument document, IndexInfo info) {
