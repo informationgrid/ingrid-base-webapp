@@ -28,8 +28,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.HashMap;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +42,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import de.ingrid.admin.IKeys;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
@@ -89,6 +92,7 @@ public class IndexSchedulerTest {
     
     @Before
     public void setUp() throws Exception {
+        new JettyStarter( false );
         //setup( "test2", "data/webUrls2.json" );
         MockitoAnnotations.initMocks(this);
         
@@ -96,6 +100,7 @@ public class IndexSchedulerTest {
         Node node = Mockito.mock( Node.class );
         Mockito.when( elastic.getObject() ).thenReturn( node );
         Mockito.when( node.client() ).thenReturn( client );
+        Mockito.when( client.settings() ).thenReturn( Settings.builder().build() );
 
         final PlugDescription pd = new PlugDescription();
         final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());

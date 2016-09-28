@@ -23,10 +23,12 @@
 package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -36,12 +38,11 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.Requests;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.indices.IndexMissingException;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -152,7 +153,9 @@ public class IndexManager implements IConfigurable {
     }
 
     public void switchAlias(String aliasName, String newIndex) {
-        removeAlias(aliasName);
+        // check if alias actually exists
+        boolean aliasExists = _client.admin().indices().aliasesExist( new GetAliasesRequest( aliasName ) ).actionGet().exists();
+        if (aliasExists) removeAlias(aliasName);
         IndicesAliasesRequestBuilder prepareAliases = _client.admin().indices().prepareAliases();
         prepareAliases.addAlias( newIndex, aliasName ).execute().actionGet();
     }
@@ -171,7 +174,7 @@ public class IndexManager implements IConfigurable {
         try {
             boolean typeExists = _client.admin().indices().typesExists( typeRequest ).actionGet().isExists();
             return typeExists;
-        } catch (IndexMissingException e) {
+        } catch (IndexNotFoundException e) {
             return false;
         }
     }
@@ -194,10 +197,13 @@ public class IndexManager implements IConfigurable {
     }
 
     public String getIndexNameFromAliasName(String indexAlias) {
+        
+        ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = _client.admin().indices().getAliases(new GetAliasesRequest(indexAlias)).actionGet().getAliases();
+        
         // check if alias already is an index
-        ImmutableOpenMap<String, AliasMetaData> indexToAliasesMap = _client.admin().cluster().state( Requests.clusterStateRequest() )
-                .actionGet().getState().getMetaData().aliases()
-                .get( indexAlias );
+//        ImmutableOpenMap<String, AliasMetaData> indexToAliasesMap = _client.admin().cluster().state( Requests.clusterStateRequest() )
+//                .actionGet().getState().getMetaData().findAliases()
+//                .get( indexAlias );
         if (indexToAliasesMap != null && !indexToAliasesMap.isEmpty()) {
             return indexToAliasesMap.keys().iterator().next().value;
         } else if (_client.admin().indices().prepareExists(indexAlias).execute().actionGet().isExists()) {

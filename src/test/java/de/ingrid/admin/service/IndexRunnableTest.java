@@ -27,8 +27,10 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -78,7 +80,11 @@ public class IndexRunnableTest extends ElasticTests {
     private ArrayList<IDocumentProducer> docProducers;
     
     @Before
-    public void beforeTest() {
+    public void beforeTest() throws Exception {
+        try {
+            elastic.getObject().client().admin().indices().prepareDelete( "test" ).execute().actionGet();
+        } catch (IndexNotFoundException ex) {}
+        
         MockitoAnnotations.initMocks(this);
         this.config = JettyStarter.getInstance().config;
         config.indexWithAutoId = false;
@@ -103,10 +109,8 @@ public class IndexRunnableTest extends ElasticTests {
     }
     
     private void deleteIndex(String index) {
-        client.prepareDeleteByQuery(index).
-            setQuery(QueryBuilders.matchAllQuery()).
-            //setTypes(indexType).
-            execute().actionGet();
+        client.admin().indices().prepareDelete( index ).execute().actionGet();
+        client.admin().indices().prepareCreate( index ).execute().actionGet();
         refreshIndex( index, client );
     }
 

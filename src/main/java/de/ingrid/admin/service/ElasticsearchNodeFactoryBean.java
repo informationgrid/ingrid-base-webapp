@@ -29,7 +29,6 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.DisposableBean;
@@ -121,7 +120,7 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 
 	private void internalCreateNode() {
 	    
-	    
+	    // TransportClient tc = TransportClient.builder
 		final NodeBuilder nodeBuilder = NodeBuilder.nodeBuilder();
 		
 		// set inital configurations coming from the property file
@@ -131,6 +130,11 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 		    if (resource.exists()) {
 		        p.load( resource.getInputStream() );
 		        nodeBuilder.getSettings().put( p );
+		        ClassPathResource resourceOverride = new ClassPathResource( "/elasticsearch.override.properties" );
+		        if (resourceOverride.exists()) {
+	                p.load( resourceOverride.getInputStream() );
+	                nodeBuilder.getSettings().put( p );
+	            }
 		    }
         } catch (IOException e) {
             e.printStackTrace();

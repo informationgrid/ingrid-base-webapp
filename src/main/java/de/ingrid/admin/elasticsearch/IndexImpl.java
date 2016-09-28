@@ -36,7 +36,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.search.ShardSearchFailure;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -152,7 +151,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         // Filter for results only with location information
         if (isLocationSearch) {
-            srb.setPostFilter( FilterBuilders.existsFilter( "x1" ) );
+            srb.setPostFilter( QueryBuilders.existsQuery( "x1" ) );
         }
 
         // pre-processing: add facets/aggregations to the query

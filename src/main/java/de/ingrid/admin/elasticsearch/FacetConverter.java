@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -85,7 +84,7 @@ public class FacetConverter {
                     IngridQuery facetQuery;
                     try {
                         facetQuery = QueryStringParser.parse( fClass.getFragment() );
-                        aggr = AggregationBuilders.filter( fClass.getName() ).filter( FilterBuilders.queryFilter( queryConverter.convert( facetQuery ) ) );
+                        aggr = AggregationBuilders.filter( fClass.getName() ).filter( queryConverter.convert( facetQuery ) );
                         aggregations.add( aggr );
                     } catch (ParseException e) {
                         log.error( "Error during parsing facets." );

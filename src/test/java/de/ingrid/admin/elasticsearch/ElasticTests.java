@@ -32,6 +32,7 @@ import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.core.io.ClassPathResource;
 
@@ -80,11 +81,20 @@ public class ElasticTests {
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
         
+        IndexManager indexManager = new IndexManager( elastic );
+        try {
+            indexManager.deleteIndex( "test" );
+        } catch (IndexNotFoundException ex) {}
+
         if (init) {
             JettyStarter.getInstance().config.index = index;
+            try {
+                indexManager.deleteIndex( "test_1" );
+            } catch (IndexNotFoundException ex) {}
+            
+            indexManager.createIndex( "test_1" );
             setMapping( elastic, "test_1" );
             prepareIndex( elastic, fileData, "test_1" );
-            IndexManager indexManager = new IndexManager( elastic );
             indexManager.switchAlias( "test", "test_1" );
         }
         
@@ -106,7 +116,7 @@ public class ElasticTests {
 
         byte[] urlsData = Files.readAllBytes( Paths.get( resource.getURI() ) );
 
-        client.prepareBulk().add( urlsData, 0, urlsData.length, true )
+        client.prepareBulk().add( urlsData, 0, urlsData.length)
                 .execute()
                 .actionGet();
 
@@ -115,6 +125,11 @@ public class ElasticTests {
     }
 
     public static void refreshIndex(String index, Client client) {
+        RefreshRequest refreshRequest = new RefreshRequest( index );
+        client.admin().indices().refresh( refreshRequest ).actionGet();
+    }
+    
+    public static void deleteIndex(String index, Client client) {
         RefreshRequest refreshRequest = new RefreshRequest( index );
         client.admin().indices().refresh( refreshRequest ).actionGet();
     }
