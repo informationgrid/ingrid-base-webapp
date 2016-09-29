@@ -188,8 +188,12 @@ public class IndexManager implements IConfigurable {
             InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-mapping.json");
             String source;
             try {
-                source = XMLSerializer.getContents( mappingStream );
-                _client.admin().indices().prepareCreate( name ).addMapping( "_default_", source ).execute().actionGet();
+                if (mappingStream != null) {
+                    source = XMLSerializer.getContents( mappingStream );
+                    _client.admin().indices().prepareCreate( name ).addMapping( "_default_", source ).execute().actionGet();
+                } else {
+                    _client.admin().indices().prepareCreate( name ).execute().actionGet();
+                }
                 return true;
             } catch (IOException e) {
                 // TODO Auto-generated catch block

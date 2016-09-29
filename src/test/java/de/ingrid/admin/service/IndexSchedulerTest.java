@@ -97,9 +97,7 @@ public class IndexSchedulerTest {
         MockitoAnnotations.initMocks(this);
         
         Client client = Mockito.mock( Client.class );
-        Node node = Mockito.mock( Node.class );
-        Mockito.when( elastic.getObject() ).thenReturn( node );
-        Mockito.when( node.client() ).thenReturn( client );
+        Mockito.when( elastic.getClient() ).thenReturn( client );
         Mockito.when( client.settings() ).thenReturn( Settings.builder().build() );
 
         final PlugDescription pd = new PlugDescription();
