@@ -296,7 +296,7 @@ public class Config {
     public List<String> rankings;
 
     @PropertyValue("elastic.remote.node")
-    @DefaultValue("true")
+    @DefaultValue("false")
     public boolean esRemoteNode;
     
     @TypeTransformers(Config.StringToArray.class)
