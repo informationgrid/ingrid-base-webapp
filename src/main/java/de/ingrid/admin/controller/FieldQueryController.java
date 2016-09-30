@@ -67,6 +67,9 @@ public class FieldQueryController extends AbstractController {
 
     @ModelAttribute("busUrls")
     public final String[] getBusUrls() throws Exception {
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        if (iBusDisabled) return new String[0];
+        
         // open the communication file
         final XPathService pathService = new XPathService();
         pathService.registerDocument(_communicationInterface.getCommunicationFile());
@@ -90,6 +93,9 @@ public class FieldQueryController extends AbstractController {
     public String getFieldQuery(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) throws Exception {
 
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        if (iBusDisabled) return redirect(IUris.EXTRAS);
+        
         // catching all field queries together in a list of maps
         final List<FieldQueryCommandObject> fields = getFields(commandObject.getQueryExtensions());
         modelMap.addAttribute("fields", fields);

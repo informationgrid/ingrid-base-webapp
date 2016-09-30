@@ -42,18 +42,22 @@ public class CommunicationService {
 
     private final IPlug _iPlug;
 
-    private final File _communicationFile;
+    private File _communicationFile = null;
 
     private boolean _error = false;
 
     @Autowired
     public CommunicationService(final IPlug iPlug) {
         _iPlug = iPlug;
-        _communicationFile = new File(JettyStarter.getInstance().config.communicationLocation);
-        if (!_communicationFile.exists()) {
-            LOG.warn("communication does not exist. please create one via ui setup.");
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        
+        if (!iBusDisabled) {
+            _communicationFile = new File(JettyStarter.getInstance().config.communicationLocation);
+            if (!_communicationFile.exists()) {
+                LOG.warn("communication does not exist. please create one via ui setup.");
+            }
+            getBusClient();
         }
-        getBusClient();
     }
 
     public String getPeerName() {
@@ -128,10 +132,14 @@ public class CommunicationService {
     }
 
     public boolean hasErrors() {
-        return _communicationFile.exists() ? _error || !isConnected() : false;
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        return iBusDisabled ? false : _communicationFile.exists() ? _error || !isConnected() : false;
     }
 
     private BusClient getBusClient() {
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        if (iBusDisabled) return null;
+        
         BusClient busClient = BusClientFactory.getBusClient();
         if (busClient == null) {
             try {

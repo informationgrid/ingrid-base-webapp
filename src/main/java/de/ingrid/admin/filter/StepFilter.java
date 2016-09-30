@@ -58,6 +58,9 @@ public class StepFilter implements Filter {
         _plugDescription = new File(JettyStarter.getInstance().config.getPlugdescription());
         _communication = new File(JettyStarter.getInstance().config.communicationLocation);
 
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        if (iBusDisabled) return;
+        
         _needComm.add(IUris.WORKING_DIR);
         _needComm.add(IUris.GENERAL);
         _needComm.add(IUris.PARTNER);

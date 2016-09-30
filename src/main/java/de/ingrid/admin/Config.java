@@ -205,6 +205,9 @@ public class Config {
     @DefaultValue("")
     public List<CommunicationCommandObject> ibusses;
     
+    @PropertyValue("communications.disableIBus")
+    @DefaultValue("false")
+    public boolean disableIBus;
     
 
     /**
@@ -410,7 +413,7 @@ public class Config {
     @PropertyValue("plugdescription.CACHE_ACTIVE")
     @DefaultValue("true")
     private boolean cacheActive;
-    
+
     public String getWebappDir() {
         return this.webappDir;
     }

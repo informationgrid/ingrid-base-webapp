@@ -84,6 +84,8 @@ public class CommunicationConfigurationController extends AbstractController {
 
         // open communication file
         final File communicationFile = _communicationService.getCommunicationFile();
+        
+        if (communicationFile == null) return null;
 
         // bus count
         Integer count = 0;
@@ -142,6 +144,11 @@ public class CommunicationConfigurationController extends AbstractController {
 
     @RequestMapping(value = IUris.COMMUNICATION, method = RequestMethod.GET)
     public String getCommunication() {
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        
+        if (iBusDisabled) {
+            return redirect(IUris.WORKING_DIR);
+        }
         return IViews.COMMUNICATION;
     }
 
