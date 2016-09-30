@@ -325,6 +325,6 @@
     </plugins>
   </build>
   <properties>
-      <spring.version>4.1.6.RELEASE</spring.version>
+      <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 </project>

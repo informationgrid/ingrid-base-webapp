@@ -473,7 +473,10 @@ public class Config {
         IGNORE_LIST.add( "connection" );
 
         //
-        writeCommunication(this.communicationLocation, this.ibusses );
+        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        if (!iBusDisabled) {
+            writeCommunication(this.communicationLocation, this.ibusses );
+        }
     }
 
     public boolean getIndexing() {

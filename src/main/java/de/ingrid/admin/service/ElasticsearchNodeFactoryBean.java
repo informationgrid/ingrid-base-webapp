@@ -238,7 +238,8 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 	@Override
 	public void destroy() throws Exception {
 		try {
-			node.close();
+		    if (client != null) client.close();
+			if (node != null) node.close();
 		} catch (final Exception e) {
 			logger.error( "Error closing Elasticsearch node: ", e );
 		}
