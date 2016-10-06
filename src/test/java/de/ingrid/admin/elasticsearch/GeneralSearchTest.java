@@ -49,7 +49,7 @@ public class GeneralSearchTest extends ElasticTests {
         setup( "test", "data/webUrls.json" );
         IndexManager indexManager = new IndexManager( elastic );
         indexManager.removeAlias("test");
-        indexManager.switchAlias( "test", "test_1" );
+        indexManager.switchAlias( "test", null, "test_1" );
     }    
     
    

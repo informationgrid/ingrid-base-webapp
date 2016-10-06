@@ -25,6 +25,7 @@ package de.ingrid.admin.elasticsearch;
 public class IndexInfo {
     private String toIndex;
     private String toType;
+    private String toAlias = null;
     private String docIdField;
     
     private String realIndexName;
@@ -71,6 +72,12 @@ public class IndexInfo {
     
     public String getIdentifier() {
         return getToIndex() + "." + getToType();
+    }
+    public String getToAlias() {
+        return (toAlias == null) ? toIndex : toAlias;
+    }
+    public void setToAlias(String toAlias) {
+        this.toAlias = toAlias;
     }
     
 }

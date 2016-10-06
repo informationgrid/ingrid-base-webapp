@@ -22,6 +22,7 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileSystemUtils;
 
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.converter.DatatypePartnerProviderQueryConverter;
@@ -65,6 +67,10 @@ public class ElasticTests {
      * @throws Exception
      */
     public static void setup(String index, String fileData, boolean init) throws Exception {
+        File dir = new File( "./target/test-data" );
+        if (dir.exists())
+            FileSystemUtils.deleteRecursively( dir );
+        
         elastic = new ElasticsearchNodeFactoryBean();
         elastic.afterPropertiesSet();
         client = elastic.getObject().client();
@@ -88,6 +94,7 @@ public class ElasticTests {
 
         if (init) {
             JettyStarter.getInstance().config.index = index;
+            JettyStarter.getInstance().config.indexType = "base";
             try {
                 indexManager.deleteIndex( "test_1" );
             } catch (IndexNotFoundException ex) {}
@@ -95,7 +102,7 @@ public class ElasticTests {
             indexManager.createIndex( "test_1" );
             setMapping( elastic, "test_1" );
             prepareIndex( elastic, fileData, "test_1" );
-            indexManager.switchAlias( "test", "test_1" );
+            indexManager.switchAlias( "test", null, "test_1" );
         }
         
         docProducers = new ArrayList<IDocumentProducer>();

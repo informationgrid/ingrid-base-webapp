@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.IndexNotFoundException;
@@ -104,7 +103,7 @@ public class IndexRunnableTest extends ElasticTests {
         _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
-        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index) );
+        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index, config.index) );
         Thread.sleep(1000);
     }
     
@@ -116,7 +115,7 @@ public class IndexRunnableTest extends ElasticTests {
 
     @After
     public void tearDown() throws Exception {
-        deleteIndex( config.index );
+        // deleteIndex( config.index );
         //elastic.getObject().close();
     }
 

@@ -52,7 +52,7 @@ public class SearchTest extends ElasticTests {
         setup( "test", "data/webUrls2.json" );
         IndexManager indexManager = new IndexManager( elastic );
         indexManager.removeAlias("test");
-        indexManager.switchAlias( "test", "test_1" );
+        indexManager.switchAlias( "test", null, "test_1" );
     }
     
     @AfterClass

@@ -82,19 +82,25 @@ public class IndexRunnable implements Runnable, IConfigurable {
             IndexInfo indexInfo = docProducer.getIndexInfo();
             String currentIndex = null;
             String indexAlias = null;
+            
+            // use the override alias name to force a certain alias name
             if (indexInfo == null) {
                 indexAlias = JettyStarter.getInstance().config.index;
+                indexInfo = new IndexInfo();
+                indexInfo.setToIndex( indexAlias );
+                indexInfo.setToType( JettyStarter.getInstance().config.indexType );
             } else {
                 indexAlias = indexInfo.getToIndex();
             }
 
+            // create a new index for each provider
             if (!indices.contains( indexAlias )) {
-                currentIndex = _indexManager.getIndexNameFromAliasName( indexAlias );
+                currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
                 if (currentIndex == null) {
                     String nextIndexName = ElasticSearchUtils.getNextIndexName( indexAlias );
                     boolean wasCreated = _indexManager.createIndex( nextIndexName );
                     if (wasCreated) {
-                        _indexManager.switchAlias( indexAlias, nextIndexName );
+                        _indexManager.switchAlias( indexAlias, currentIndex, nextIndexName );
                         indices.add( indexAlias );
                     }
                 } else {
@@ -132,12 +138,13 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     // configuration
                     // only create new index if we did not already ... this depends on the producer settings
                     if (!indexNames.containsKey( info.getToIndex() )) {
-                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToIndex());
+                        // TODO: what if there are more indices in an alias???
+                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
                         newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? info.getToIndex() : oldIndex );
                         if (config.alwaysCreateNewIndex) {
                             _indexManager.createIndex( newIndex );
                         }
-                        indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex } );
+                        indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex, info.getToAlias() } );
                     }
                     if (config.alwaysCreateNewIndex) {
                         info.setRealIndexName( newIndex );
@@ -145,7 +152,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         info.setRealIndexName( oldIndex );
                     }
                     
-                    this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToIndex() + ", Type:" + info.getToType());
+                    this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToAlias() + ", Type:" + info.getToType());
                     
                     int count = 1, skip = 0;
                     Integer totalCount = producer.getDocumentCount();
@@ -186,11 +193,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     // switch aliases of all document producers to the new indices
                     for (String index : indexNames.keySet()) {
                         String[] indexMore = indexNames.get( index );
-                        _indexManager.switchAlias( index, indexMore[1]);
+                        _indexManager.switchAlias( indexMore[2], indexMore[0], indexMore[1]);
                         if (oldIndex != null) {
                             _indexManager.deleteIndex( indexMore[0] );
                         }
-                        this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1]);
+                        this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1] + " under the alias: " + indexMore[2]);
                     }
                     LOG.info( "switched alias to new index and deleted old one" );
                 } else {

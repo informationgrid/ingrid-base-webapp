@@ -112,10 +112,11 @@ public class IndexController extends AbstractController {
         for (IDocumentProducer producer : docProducer) {
             
             IndexInfo indexInfo = Utils.getIndexInfo( producer, JettyStarter.getInstance().config );
+            String indexAlias = indexInfo.getToAlias();
             String index = indexInfo.getToIndex();
             String indexType = indexInfo.getToType();
             
-            String currentIndex = indexManager.getIndexNameFromAliasName(index);
+            String currentIndex = indexManager.getIndexNameFromAliasName(indexAlias, index);
             if (currentIndex == null) continue;
     
             // get mapping

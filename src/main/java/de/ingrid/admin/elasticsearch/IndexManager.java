@@ -24,6 +24,7 @@ package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -47,8 +48,11 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.carrotsearch.hppc.cursors.ObjectCursor;
+
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
@@ -65,6 +69,9 @@ public class IndexManager implements IConfigurable {
     private Config _config;
 
     private Properties _props = new Properties();
+    
+    @Autowired
+    private StatusProvider statusProvider;
 
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
@@ -92,7 +99,7 @@ public class IndexManager implements IConfigurable {
         _bulkProcessor.add( indexRequest.source( doc ) );
         
         if (updateOldIndex) {
-            String oldIndex = getIndexNameFromAliasName(indexinfo.getToIndex());
+            String oldIndex = getIndexNameFromAliasName(indexinfo.getToIndex(), null);
             // if the current index differs from the real index, then it means there's an indexing going on
             // and if the real index name is the same as the index alias, it means that no complete indexing happened yet
             if (!oldIndex.equals( indexinfo.getRealIndexName() ) && (!indexinfo.getToIndex().equals( indexinfo.getRealIndexName()) )) {
@@ -117,7 +124,7 @@ public class IndexManager implements IConfigurable {
         _bulkProcessor.add( deleteRequest );
         
         if (updateOldIndex) {
-            String oldIndex = getIndexNameFromAliasName(indexinfo.getToIndex());
+            String oldIndex = getIndexNameFromAliasName(indexinfo.getToIndex(), null);
             if (!oldIndex.equals( indexinfo.getRealIndexName() )) {
                 IndexInfo otherIndexInfo = indexinfo.clone();
                 otherIndexInfo.setRealIndexName( oldIndex );
@@ -150,22 +157,31 @@ public class IndexManager implements IConfigurable {
         _bulkProcessor.flush();
         _bulkProcessor.close();
     }
-
-    public void switchAlias(String aliasName, String newIndex) {
+    
+    public void switchAlias(String aliasName, String oldIndex, String newIndex) {
         // check if alias actually exists
-        boolean aliasExists = _client.admin().indices().aliasesExist( new GetAliasesRequest( aliasName ) ).actionGet().exists();
-        if (aliasExists) removeAlias(aliasName);
+        // boolean aliasExists = _client.admin().indices().aliasesExist( new GetAliasesRequest( aliasName ) ).actionGet().exists();
+        if (oldIndex != null) removeFromAlias(aliasName, oldIndex);
         IndicesAliasesRequestBuilder prepareAliases = _client.admin().indices().prepareAliases();
         prepareAliases.addAlias( newIndex, aliasName ).execute().actionGet();
     }
 
-    public void removeAlias(String aliasName) {
-        String indexNameFromAliasName = getIndexNameFromAliasName(aliasName);
+    public void addToAlias(String aliasName, String newIndex) {
+        IndicesAliasesRequestBuilder prepareAliases = _client.admin().indices().prepareAliases();
+        prepareAliases.addAlias( newIndex, aliasName ).execute().actionGet();
+    }
+
+    public void removeFromAlias(String aliasName, String index) {
+        String indexNameFromAliasName = getIndexNameFromAliasName(aliasName, index);
         while (indexNameFromAliasName != null) {
             IndicesAliasesRequestBuilder prepareAliases = _client.admin().indices().prepareAliases();
             prepareAliases.removeAlias( indexNameFromAliasName, aliasName ).execute().actionGet();
-            indexNameFromAliasName = getIndexNameFromAliasName(aliasName);
+            indexNameFromAliasName = getIndexNameFromAliasName(aliasName, index);
         }
+    }
+    
+    public void removeAlias(String aliasName) {
+        removeFromAlias( aliasName, null );
     }
   
     public boolean typeExists(String indexName, String type) {
@@ -208,12 +224,33 @@ public class IndexManager implements IConfigurable {
         return _client.admin().indices().prepareExists( name ).execute().actionGet().isExists();
     }
 
-    public String getIndexNameFromAliasName(String indexAlias) {
+    /**
+     * Get the index matching the partial name from an alias.
+     * @param indexAlias is the alias name to check for connected indices
+     * @param partialName is the first part of the index to be matched, if there are several
+     * @return the found index name
+     */
+    public String getIndexNameFromAliasName(String indexAlias, String partialName) {
         
         ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = _client.admin().indices().getAliases(new GetAliasesRequest(indexAlias)).actionGet().getAliases();
         
         if (indexToAliasesMap != null && !indexToAliasesMap.isEmpty()) {
-            return indexToAliasesMap.keys().iterator().next().value;
+            Iterator<ObjectCursor<String>> iterator = indexToAliasesMap.keys().iterator();
+            String result = null;
+            int count = 0;
+            while (iterator.hasNext()) {
+                String next = iterator.next().value;
+                if (partialName == null || next.indexOf( partialName ) != -1) {
+                    result = next;
+                    count++;
+                }
+            }
+            
+            if (count > 1) {
+                this.statusProvider.addState( "MULTIPLE_INDICES", "The index name could not be determined correctly, since the alias contains " + count + " indices with the same prefix '" + partialName + "'", Classification.ERROR );
+            }
+            
+            return result;
         } else if (_client.admin().indices().prepareExists(indexAlias).execute().actionGet().isExists()) {
             // alias seems to be the index itself
             return indexAlias;
@@ -222,7 +259,7 @@ public class IndexManager implements IConfigurable {
     }
 
     public MappingMetaData getMapping(IndexInfo indexInfo) {
-        String indexName = getIndexNameFromAliasName(indexInfo.getRealIndexName());
+        String indexName = getIndexNameFromAliasName(indexInfo.getRealIndexName(), null);
         ClusterState cs = _client.admin().cluster().prepareState().setIndices( indexName ).execute().actionGet().getState();
         return cs.getMetaData().index( indexName ).mapping( indexInfo.getToType() );
     }
@@ -276,5 +313,9 @@ public class IndexManager implements IConfigurable {
             LOG.error( "Error reading override configuration.", e );
             e.printStackTrace();
         }
+    }
+    
+    public void setStatusProvider(StatusProvider statusProvider) {
+        this.statusProvider = statusProvider;
     }
 }
