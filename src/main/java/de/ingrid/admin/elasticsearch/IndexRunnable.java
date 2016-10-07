@@ -90,10 +90,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     boolean wasCreated = _indexManager.createIndex( nextIndexName );
                     if (wasCreated) {
                         _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
-                        indices.add( indexInfo.getToIndex() );
+                        indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
                     }
                 } else {
-                    indices.add( indexInfo.getToIndex() );
+                    indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
                 }
             }
         }

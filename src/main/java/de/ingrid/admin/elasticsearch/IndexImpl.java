@@ -134,6 +134,16 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
 
         String[] indexNames = JettyStarter.getInstance().config.docProducerIndices;
+        
+        // if we are remotely connected to an elasticsearch node then get the real indices of the aliases
+        // otherwise we also get the results from other indices, since an alias can contain several indices!
+        String[] realIndices = new String[indexNames.length];
+        for (int i=0; i < indexNames.length; i++) {
+            String[] indexNameAlias = indexNames[i].split( ":" );
+            realIndices[i] = indexManager.getIndexNameFromAliasName( indexNameAlias[0], indexNameAlias[1] );
+        }
+        indexNames = realIndices;
+        
         // search prepare
         SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexNames  ).setSearchType( searchType ).setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
                 .setFrom( startHit ).setSize( num ).setExplain( false );
@@ -383,7 +393,8 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         String[] indexNames = JettyStarter.getInstance().config.docProducerIndices;
         // itereate over all indices until document was found
         for (String indexName : indexNames) {
-            Map<String, Object> source = indexManager.getClient().prepareGet( indexName, null, idAsString )
+            String[] aliasInfo = indexName.split( ":" );
+            Map<String, Object> source = indexManager.getClient().prepareGet( aliasInfo[0], null, idAsString )
                     .setFetchSource( config.indexFieldsIncluded, config.indexFieldsExcluded )
                     .execute().actionGet().getSource();
             

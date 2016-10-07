@@ -74,7 +74,7 @@ import de.ingrid.admin.JettyStarter;
 public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 		InitializingBean, DisposableBean {
 
-	protected final Log logger = LogFactory.getLog( getClass() );
+	protected final Log log = LogFactory.getLog( getClass() );
 
 	private List<Resource> configLocations;
 
@@ -123,12 +123,14 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 	    // only setup elastic nodes if indexing is enabled
 	    if (config.getIndexing()) {
 	        if (config.esRemoteNode) {
+	            log.debug( "Elasticsearch: creating transport client" );
 	            createTransportClient(config.esRemoteHosts);
 	        } else {
+	            log.debug( "Elasticsearch: creating node" );
 	            internalCreateNode();
 	        }
 	    } else {
-	        logger.warn( "Since Indexing is not enabled, this component should not have Elastic Search enabled at all! This bean should be excluded in the spring configuration." );
+	        log.warn( "Since Indexing is not enabled, this component should not have Elastic Search enabled at all! This bean should be excluded in the spring configuration." );
 	    }
 	}
 	
@@ -223,8 +225,8 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 
 		try {
 			final String filename = configLocation.getFilename();
-			if (logger.isInfoEnabled()) {
-				logger.info( "Loading configuration file from: " + filename );
+			if (log.isInfoEnabled()) {
+				log.info( "Loading configuration file from: " + filename );
 			}
 			nodeBuilder.getSettings().loadFromStream( filename,
 					configLocation.getInputStream() );
@@ -241,7 +243,7 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 		    if (client != null) client.close();
 			if (node != null) node.close();
 		} catch (final Exception e) {
-			logger.error( "Error closing Elasticsearch node: ", e );
+			log.error( "Error closing Elasticsearch node: ", e );
 		}
 	}
 
@@ -249,12 +251,12 @@ public class ElasticsearchNodeFactoryBean implements FactoryBean<Node>,
 	public Node getObject() throws Exception {
 		int cnt = 1;
 	    while (node == null && cnt <= 10) {
-		    logger.info("Wait for elastic search node to start: " + cnt + " sec.");
+		    log.info("Wait for elastic search node to start: " + cnt + " sec.");
 	        Thread.sleep(1000);
 		    cnt ++;
 		}
 	    if (node == null) {
-	        logger.error("Could not start Elastic Search node within 10 sec!");
+	        log.error("Could not start Elastic Search node within 10 sec!");
 	        throw new RuntimeException("Could not start Elastic Search node within 10 sec!");
 	    }
 	    return node;

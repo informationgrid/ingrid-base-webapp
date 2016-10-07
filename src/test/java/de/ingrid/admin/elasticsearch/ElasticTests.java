@@ -174,7 +174,7 @@ public class ElasticTests {
     
     protected IndexImpl getIndexer() throws Exception {
         IndexImpl indexImpl = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
-        JettyStarter.getInstance().config.docProducerIndices = new String[] { "test" };
+        JettyStarter.getInstance().config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }
     
