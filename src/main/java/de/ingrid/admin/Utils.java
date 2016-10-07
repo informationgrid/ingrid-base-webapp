@@ -106,6 +106,11 @@ public class Utils {
         if (indexInfo == null) {
             indexInfo = new IndexInfo();
             indexInfo.setToIndex( config.index );
+            if (config.indexAlias != null && config.indexAlias.length() > 0) {
+                indexInfo.setToAlias( config.indexAlias );
+            } else {
+                indexInfo.setToAlias( config.index );
+            }
             indexInfo.setToType( config.indexType );
             indexInfo.setDocIdField( config.indexIdFromDoc );
         }

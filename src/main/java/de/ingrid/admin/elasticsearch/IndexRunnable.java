@@ -79,32 +79,21 @@ public class IndexRunnable implements Runnable, IConfigurable {
         ArrayList<String> indices = new ArrayList<String>();
         
         for (IDocumentProducer docProducer : documentProducers) {
-            IndexInfo indexInfo = docProducer.getIndexInfo();
+            IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
             String currentIndex = null;
-            String indexAlias = null;
-            
-            // use the override alias name to force a certain alias name
-            if (indexInfo == null) {
-                indexAlias = JettyStarter.getInstance().config.index;
-                indexInfo = new IndexInfo();
-                indexInfo.setToIndex( indexAlias );
-                indexInfo.setToType( JettyStarter.getInstance().config.indexType );
-            } else {
-                indexAlias = indexInfo.getToIndex();
-            }
 
             // create a new index for each provider
-            if (!indices.contains( indexAlias )) {
+            if (!indices.contains( indexInfo.getToIndex() )) {
                 currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
                 if (currentIndex == null) {
-                    String nextIndexName = ElasticSearchUtils.getNextIndexName( indexAlias );
+                    String nextIndexName = ElasticSearchUtils.getNextIndexName( indexInfo.getToIndex() );
                     boolean wasCreated = _indexManager.createIndex( nextIndexName );
                     if (wasCreated) {
-                        _indexManager.switchAlias( indexAlias, currentIndex, nextIndexName );
-                        indices.add( indexAlias );
+                        _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
+                        indices.add( indexInfo.getToIndex() );
                     }
                 } else {
-                    indices.add( indexAlias );
+                    indices.add( indexInfo.getToIndex() );
                 }
             }
         }

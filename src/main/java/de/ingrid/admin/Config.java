@@ -335,6 +335,10 @@ public class Config {
     @DefaultValue("base")
     public String indexType;
     
+    @PropertyValue("index.alias")
+    @DefaultValue("")
+    public String indexAlias;
+    
     @TypeTransformers(StringToList.class)
     @PropertyValue("index.searchInTypes")
     @DefaultValue("")
