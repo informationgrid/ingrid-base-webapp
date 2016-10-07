@@ -13,6 +13,7 @@ import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,6 +47,11 @@ public class IndexManagerTest {
         indexManager = new IndexManager( elastic );
         statusProvider = new StatusProvider();
         indexManager.setStatusProvider( statusProvider );
+    }
+    
+    @AfterClass
+    public static void afterClass() throws Exception {
+        elastic.getObject().close();
     }
 
     @Test

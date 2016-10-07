@@ -36,6 +36,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,17 +67,18 @@ public class IndexRunnableTest extends ElasticTests {
     private PlugDescription _plugDescription;
 
     private Config config = null;
+    
+    @Mock
+    PlugDescriptionService pds;
+    
+    private ArrayList<IDocumentProducer> docProducers;
+    
 
     @BeforeClass
     public static void setUp() throws Exception {
         new JettyStarter( false );
         setup();
     }
-    
-    @Mock
-    PlugDescriptionService pds;
-
-    private ArrayList<IDocumentProducer> docProducers;
     
     @Before
     public void beforeTest() throws Exception {
@@ -89,6 +91,11 @@ public class IndexRunnableTest extends ElasticTests {
         config.indexWithAutoId = false;
         
         Mockito.when( _plugDescription.getFields() ).thenReturn( new String[] {} );
+    }
+    
+    @AfterClass
+    public static void afterClass() throws Exception {
+        elastic.getObject().close();
     }
     
     private void index(int model) throws Exception {
@@ -111,12 +118,6 @@ public class IndexRunnableTest extends ElasticTests {
         client.admin().indices().prepareDelete( index ).execute().actionGet();
         client.admin().indices().prepareCreate( index ).execute().actionGet();
         refreshIndex( index, client );
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        // deleteIndex( config.index );
-        //elastic.getObject().close();
     }
 
     /**
