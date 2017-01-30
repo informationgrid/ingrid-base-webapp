@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-iplug-se-iplug
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -106,23 +106,26 @@ public class FacetConverter {
         IngridDocument facets = new IngridDocument();
         
         List<Aggregation> aggregations = response.getAggregations().asList();
-        for (Aggregation aggregation : aggregations) {
-            if ( aggregation.getClass() == UnmappedTerms.class ) {
-                // nothing to do here!?
-            } else if ( aggregation.getClass() == StringTerms.class ) {
-                StringTerms partnerAgg = (StringTerms) aggregation;
-                for (Bucket bucket : partnerAgg.getBuckets()) {
-                    facets.put(aggregation.getName() + ":" + bucket.getKey(), bucket.getDocCount() );
+        
+        // aggregations seem to become null if no index was created yet
+        if (aggregations != null) {
+            for (Aggregation aggregation : aggregations) {
+                if ( aggregation.getClass() == UnmappedTerms.class ) {
+                    // nothing to do here!?
+                } else if ( aggregation.getClass() == StringTerms.class ) {
+                    StringTerms partnerAgg = (StringTerms) aggregation;
+                    for (Bucket bucket : partnerAgg.getBuckets()) {
+                        facets.put(aggregation.getName() + ":" + bucket.getKey(), bucket.getDocCount() );
+                    }
+                } else if ( aggregation.getClass() == InternalFilter.class ) {
+                    InternalFilter agg = (InternalFilter) aggregation;
+                    facets.put(aggregation.getName(), agg.getDocCount() );
+                    
+                } else {
+                    throw new RuntimeException( "Aggregation Class not supported: " + aggregation.getClass() );
                 }
-            } else if ( aggregation.getClass() == InternalFilter.class ) {
-                InternalFilter agg = (InternalFilter) aggregation;
-                facets.put(aggregation.getName(), agg.getDocCount() );
-                
-            } else {
-                throw new RuntimeException( "Aggregation Class not supported: " + aggregation.getClass() );
             }
         }
-        
         
         return facets; 
     }
