@@ -327,7 +327,17 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         if (requestedFields != null) {
             for (String field : requestedFields) {
                 if (dHit.field( field ) != null) {
-                    if (dHit.field( field ).getValue() instanceof String) {
+                    if (dHit.field( field ).getValues() instanceof List){
+                        if(dHit.field( field ).getValues().size() > 1){
+                            detail.put( field, dHit.field( field ).getValues());
+                        }else{
+                            if (dHit.field( field ).getValue() instanceof String) {
+                                detail.put( field, new String[] { dHit.field( field ).getValue() } );
+                            } else {
+                                detail.put( field, dHit.field( field ).getValue() );
+                            }
+                        }
+                    } else if (dHit.field( field ).getValue() instanceof String) {
                         detail.put( field, new String[] { dHit.field( field ).getValue() } );
                     } else {
                         detail.put( field, dHit.field( field ).getValue() );
