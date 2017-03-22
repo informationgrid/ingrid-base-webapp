@@ -40,7 +40,7 @@
     <dependency>
       <groupId>com.tngtech.java</groupId>
       <artifactId>config-builder</artifactId>
-      <version>1.3</version>
+      <version>1.3.1</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
@@ -204,15 +204,6 @@
         <inherited>true</inherited>
         <configuration>
           <useProjectReferences>false</useProjectReferences>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.3</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
