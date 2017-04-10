@@ -387,7 +387,18 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( (String)detail.getArray( IndexImpl.DETAIL_URL )[0], is( "http://www.wemove.com" ) );
         assertThat( (String)detail.getArray("fetched")[0], is( "2014-06-03" ) );
         assertThat( detail.getTitle(), is( "wemove" ) );
-        assertThat( detail.getSummary(), is( "Die beste IT-<em>Firma</em> auf der <em>Welt</em>!" ) );
+        assertThat( detail.getSummary(), is( "Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit" ) );
+        assertThat( detail.getScore(), greaterThan( 0.1f ) );
+    }
+    
+    @Test
+    public void getCompoundDetail() throws Exception {
+        IndexImpl index = getIndexer();
+        IngridQuery q = QueryStringParser.parse( "Preis" );
+        IngridHits search = index.search( q, 0, 10 );
+        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
+        assertThat( detail, not( is( nullValue() ) ) );
+        assertThat( detail.getSummary(), is( "Die beste IT-Firma auf der Welt! <em>Preishit</em>" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
     }
     
