@@ -402,6 +402,11 @@ public class Config {
     @DefaultValue("true")
     private boolean cacheActive;
     
+    @SystemPropertyValue("indexOnStartup")
+    @PropertyValue("indexOnStartup")
+    @DefaultValue("false")
+    public boolean indexOnStartup;
+    
     public String getWebappDir() {
         return this.webappDir;
     }
