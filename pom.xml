@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>4.0.2</version>
+  <version>4.0.3</version>
   <name>ingrid-base-webapp</name>
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</connection>
@@ -35,7 +35,7 @@
     <dependency>
         <groupId>org.xbib.elasticsearch.plugin</groupId>
 	    <artifactId>elasticsearch-analysis-decompound</artifactId>
-	    <version>1.5.2.0</version>
+	    <version>1.5.2.0-highlight-fix</version>
     </dependency>
     <dependency>
       <groupId>com.tngtech.java</groupId>
