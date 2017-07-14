@@ -181,7 +181,7 @@ public class Config {
     public int ibusTimeout;
     
     @PropertyValue("communication.server.maxMsgSize")
-    @DefaultValue("1048576")
+    @DefaultValue("10485760")
     public int ibusMaxMsgSize;
     
     @PropertyValue("communication.server.threadCount")
