@@ -42,6 +42,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -154,9 +155,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
 
         if (fields == null) {
-            srb = srb.setNoFields();
+            srb = srb.setFetchSource( false );
         } else {
-            srb = srb.addFields( fields );
+            srb = srb.storedFields( fields );
         }
 
         // Filter for results only with location information
@@ -305,10 +306,20 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         // We have to search here again, to get a highlighted summary of the result!
         QueryBuilder query = QueryBuilders.boolQuery().must( QueryBuilders.matchQuery( IngridDocument.DOCUMENT_UID, documentId ) ).must( queryConverter.convert( ingridQuery ) );
+        
+        HighlightBuilder hb = new HighlightBuilder();
+        hb.field("config.indexFieldSummary");
 
         // search prepare
-        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( fromIndex ).setTypes( fromType ).setSearchType( searchType ).setQuery( query ) // Query
-                .setFrom( 0 ).setSize( 1 ).addHighlightedField( config.indexFieldSummary ).addFields( allFields ).setExplain( false );
+        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( fromIndex ).setTypes( fromType )
+                .setSearchType( searchType )
+                .setQuery( query ) // Query
+                .setFrom( 0 )
+                .setSize( 1 )
+                //.addHighlightedField( config.indexFieldSummary )
+                .highlighter( hb )
+                .storedFields( allFields )
+                .setExplain( false );
 
         SearchResponse searchResponse = srb.execute().actionGet();
 

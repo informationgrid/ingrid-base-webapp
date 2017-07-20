@@ -24,6 +24,7 @@ package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -147,7 +150,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     Integer totalCount = producer.getDocumentCount();
                     String indexPostfixString = totalCount == null ? "" : " / " + totalCount;
                     String indexTag = "indexing_" + info.getToIndex() + "_" + info.getToType();
+                    
                     while (producer.hasNext()) {
+                        
+                        
                         final ElasticDocument document = producer.next();
                         if (document == null) {
                             LOG.warn( "DocumentProducer " + producer + " returned null Document, we skip this record (not added to index)!" );
@@ -160,8 +166,17 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
                         
                         _indexManager.update( info, document, false );
+                        
+                        // send info every 100 docs
+                        if (count % 100 == 2) {
+                            this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, true, count, totalCount ) );
+                        }
+
                         documentCount++;
                     }
+                    
+                    // update central index with iPlug information
+                    this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, false, null, null ) );
                     
                     // update index now!
                     _indexManager.flush();
@@ -223,6 +238,25 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.warn( "configuration fails. disable index creation." );
         }
 
+    }
+
+    private XContentBuilder getIPlugInfo(String infoId, IndexInfo info, boolean running, Integer count, Integer totalCount) throws IOException {
+        Config _config = JettyStarter.getInstance().config;
+        
+        return XContentFactory.jsonBuilder().startObject()
+            .field( "plugId", infoId )
+            .field( "iPlugName", _config.datasourceName )
+            .field( "linkedIndex", info.getRealIndexName() )
+            .field( "linkedType", info.getToType() )
+            .field( "adminUrl", _config.guiUrl )
+            .field( "lastHeartbeat", new Date() )
+            .field( "lastIndexed", new Date() )
+            .startObject( "indexingState" )
+                .field( "numProcessed", count )
+                .field( "totalDocs", totalCount )
+                .field( "running", running )
+                .endObject()
+            .endObject();
     }
 
     private void cleanUp(String newIndex) {

@@ -26,17 +26,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FieldValueFactorFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder.FilterFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.index.query.functionscore.fieldvaluefactor.FieldValueFactorFunctionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticSearchUtils;
 import de.ingrid.admin.elasticsearch.IQueryParsers;
 import de.ingrid.utils.query.ClauseQuery;
 import de.ingrid.utils.query.IngridQuery;
@@ -103,15 +105,87 @@ public class QueryConverter implements IQueryParsers {
         Config config = JettyStarter.getInstance().config;
         
         // describe the function to manipulate the score
-        FieldValueFactorFunctionBuilder scoreFunc = ScoreFunctionBuilders.fieldValueFactorFunction( config.esBoostField );
-        scoreFunc.modifier( ElasticSearchUtils.getModifierFromString( config.esBoostModifier ) );
-        scoreFunc.factor( config.esBoostFactor );
+        FieldValueFactorFunctionBuilder scoreFunc = ScoreFunctionBuilders
+            .fieldValueFactorFunction( config.esBoostField )
+            .modifier( getModifier(config.esBoostModifier) )
+            .factor( config.esBoostFactor );
         
         // create the wrapper query to apply the score function to the query
-        FunctionScoreQueryBuilder funcScoreQuery = new FunctionScoreQueryBuilder( query );
-        funcScoreQuery.add( scoreFunc );
-        funcScoreQuery.boostMode( config.esBoostMode );
+        FilterFunctionBuilder[] functions = new FilterFunctionBuilder[1];
+        functions[0] = new FunctionScoreQueryBuilder.FilterFunctionBuilder( query, scoreFunc );
+        
+        FunctionScoreQueryBuilder funcScoreQuery = new FunctionScoreQueryBuilder( functions );
+        funcScoreQuery.boostMode( getBoostMode(config.esBoostMode) );
         return funcScoreQuery;
+    }
+
+    private Modifier getModifier(String esBoostModifier) {
+        Modifier result = null;
+        switch (esBoostModifier) {
+        case "LN":
+            result = Modifier.LN;
+            break;
+        case "LN1P":
+            result = Modifier.LN1P;
+            break;
+        case "LN2P":
+            result = Modifier.LN2P;
+            break;
+        case "LOG":
+            result = Modifier.LOG;
+            break;
+        case "LOG1P":
+            result = Modifier.LOG1P;
+            break;
+        case "LOG2P":
+            result = Modifier.LOG2P;
+            break;
+        case "NONE":
+            result = Modifier.NONE;
+            break;
+        case "RECIPROCAL":
+            result = Modifier.RECIPROCAL;
+            break;
+        case "SQRT":
+            result = Modifier.SQRT;
+            break;
+        case "SQUARE":
+            result = Modifier.SQUARE;
+            break;
+
+        default:
+            result = Modifier.LOG1P;
+            break;
+        }
+        return result;
+    }
+
+    private CombineFunction getBoostMode(String esBoostMode) {
+        CombineFunction result = null;
+        switch (esBoostMode) {
+        case "SUM":
+            result = CombineFunction.SUM;
+            break;
+        case "AVG":
+            result = CombineFunction.AVG;
+            break;
+        case "MAX":
+            result = CombineFunction.MAX;
+            break;
+        case "MIN":
+            result = CombineFunction.MIN;
+            break;
+        case "MULTIPLY":
+            result = CombineFunction.MULTIPLY;
+            break;
+        case "REPLACE":
+            result = CombineFunction.REPLACE;
+            break;
+        default:
+            result = CombineFunction.SUM;
+            break;
+        }
+        return result;
     }
 
 }

@@ -84,7 +84,7 @@ public class FacetConverter {
                     IngridQuery facetQuery;
                     try {
                         facetQuery = QueryStringParser.parse( fClass.getFragment() );
-                        aggr = AggregationBuilders.filter( fClass.getName() ).filter( queryConverter.convert( facetQuery ) );
+                        aggr = AggregationBuilders.filter( fClass.getName(), queryConverter.convert( facetQuery ) );
                         aggregations.add( aggr );
                     } catch (ParseException e) {
                         log.error( "Error during parsing facets." );

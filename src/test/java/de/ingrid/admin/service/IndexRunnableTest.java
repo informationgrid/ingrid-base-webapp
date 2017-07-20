@@ -35,7 +35,6 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -149,7 +148,7 @@ public class IndexRunnableTest extends ElasticTests {
         
         SearchRequestBuilder srb = client.prepareSearch( config.index )
                 .setTypes( config.indexType )
-                .addFields( "url", "mylist" )
+                .storedFields( "url", "mylist" )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
@@ -168,7 +167,7 @@ public class IndexRunnableTest extends ElasticTests {
         
         SearchRequestBuilder srb = client.prepareSearch( config.index )
                 .setTypes( config.indexType )
-                .addFields( "url", "mylist" )
+                .storedFields( "url", "mylist" )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         

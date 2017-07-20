@@ -33,8 +33,9 @@ import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.node.Node;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileSystemUtils;
 
@@ -180,9 +181,14 @@ public class ElasticTests {
     
     public static void createNodeManager() {
         // create a test master node with http support
-        NodeBuilder nodeBuilder = NodeBuilder.nodeBuilder();
-        nodeBuilder.getSettings().put( "node.master", "false" );
-        nodeBuilder.getSettings().put( "http.enabled", "true" );
-        nodeBuilder.clusterName( "ingrid" ).data( false ).client( true ).local( false ).node();
+        Settings settings = Settings.builder()
+            .put( "cluster.name", "ingrid" )
+            .put( "node.local", "false" )
+            .put( "node.data", "false" )
+            .put( "node.master", "false" )
+            .put( "http.enabled", "false" )
+            .put( "node.client", "true" )
+            .build();
+        Node nodeBuilder = new Node(settings);
     }
 }

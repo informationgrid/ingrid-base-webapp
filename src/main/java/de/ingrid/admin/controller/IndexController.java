@@ -32,9 +32,9 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.count.CountRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -123,7 +123,7 @@ public class IndexController extends AbstractController {
             GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
             ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
             
-            long count = indexManager.getClient().count( new CountRequest( currentIndex ).types( indexType ) ).get().getCount();
+            long count = indexManager.getClient().prepareSearch( currentIndex ).setTypes( indexType ).setSource(new SearchSourceBuilder().size(0)).get().getHits().totalHits;
 
             Object mappingAsString = mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "\"No mapping exists!\"";
             IndexStatus indexStatus = new IndexStatus( currentIndex, indexType, count, mappingAsString );

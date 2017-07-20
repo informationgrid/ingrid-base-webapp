@@ -70,27 +70,27 @@ public class ElasticSearchUtils {
     public static SearchType getSearchTypeFromString( String input ) {
         SearchType type;
         switch (input) {
-        case "COUNT":
-            type = SearchType.COUNT;
-            break;
+        //case "COUNT":
+        //    type = SearchType.COUNT;
+        //    break;
         case "DEFAULT":
             type = SearchType.DEFAULT;
             break;
-        case "DFS_QUERY_AND_FETCH":
-            type = SearchType.DFS_QUERY_AND_FETCH;
-            break;
+        //case "DFS_QUERY_AND_FETCH":
+        //    type = SearchType.DFS_QUERY_AND_FETCH;
+        //    break;
         case "DFS_QUERY_THEN_FETCH":
             type = SearchType.DFS_QUERY_THEN_FETCH;
             break;
-        case "QUERY_AND_FETCH":
-            type = SearchType.QUERY_AND_FETCH;
-            break;
+        //case "QUERY_AND_FETCH":
+        //    type = SearchType.QUERY_AND_FETCH;
+        //    break;
         case "QUERY_THEN_FETCH":
             type = SearchType.QUERY_THEN_FETCH;
             break;
-        case "SCAN":
-            type = SearchType.SCAN;
-            break;
+        //case "SCAN":
+        //    type = SearchType.SCAN;
+        //    break;
         default:
             log.error( "Unknown SearchType (" + input + "), using default one: DFS_QUERY_THEN_FETCH" );
             type = SearchType.DFS_QUERY_THEN_FETCH;
