@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -131,13 +131,15 @@ public class AdminToolsController extends AbstractController {
             final Map<String, IngridHitDetail> detailsMap = new HashMap<String, IngridHitDetail>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
-                    try {
-                        // if no title is given, then assume it might be an address
-                        if (detail.getString("title").isEmpty()) {
-                            detail.put( "title", detail.getArray( "t02_address.lastname")[0] + ", " + detail.getArray( "t02_address.firstname" )[0] );
-                        }
-                    } catch (Exception ex) {}
-                    detailsMap.put( detail.getDocumentId(), detail );
+                    if(detail != null){
+                        try {
+                            // if no title is given, then assume it might be an address
+                            if (detail.getString("title").isEmpty()) {
+                                detail.put( "title", detail.getArray( "t02_address.lastname")[0] + ", " + detail.getArray( "t02_address.firstname" )[0] );
+                            }
+                        } catch (Exception ex) {}
+                        detailsMap.put( detail.getDocumentId(), detail );
+                    }
                 }
             }
 

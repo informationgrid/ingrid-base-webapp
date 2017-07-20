@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import it.sauronsoftware.cron4j.Scheduler;
@@ -92,6 +93,12 @@ public class IndexScheduler implements IConfigurable {
         _scheduler = new Scheduler();
         if (_runnable.getPlugDescription() != null) {
             configure(_runnable.getPlugDescription());
+        }
+        
+        // if we want to index on startup we start a new Thread for this, since the
+        // other services still need to be configured and we cannot let this thread sleep
+        if (JettyStarter.getInstance().config.indexOnStartup) {
+            new InitialIndexRun().start();
         }
     }
 
@@ -199,6 +206,26 @@ public class IndexScheduler implements IConfigurable {
         if (_patternFile != null && _patternFile.exists()) {
             LOG.debug("deleting pattern file");
             _patternFile.delete();
+        }
+    }
+    
+    /**
+     * A separate Thread to start an index action on startup.
+     * Since some services need to be configured, we have to add a little delay here.
+     * @author Andre
+     *
+     */
+    private class InitialIndexRun extends Thread {
+        
+        // delay execution in ms
+        private int delay = 5000; 
+        
+        @Override
+        public void run() {
+            try {
+                Thread.sleep( delay );
+            } catch (InterruptedException e) {}
+            triggerManually();
         }
     }
 }
