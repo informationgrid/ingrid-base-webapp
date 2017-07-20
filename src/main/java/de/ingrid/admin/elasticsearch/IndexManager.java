@@ -24,6 +24,7 @@ package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
@@ -50,6 +52,7 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -358,9 +361,10 @@ public class IndexManager implements IConfigurable {
             if (totalHits == 1) {
                 docId = response.getHits().getAt( 0 ).getId();
                 iPlugDocIdMap.put( id, docId );
-                indexRequest.id( docId );
+                UpdateRequest updateRequest = new UpdateRequest( "ingrid_meta", "info", docId );
+                // indexRequest.id( docId );
                 // add index request to queue to avoid sending of too many requests
-                _bulkProcessor.add( indexRequest.source( info ) );
+                _bulkProcessor.add( updateRequest.doc( info ) );
             } else if (totalHits == 0) {
                 // create document immediately so that it's available for further requests
                 docId = _client.index( indexRequest.source( info ) ).get().getId();
@@ -370,9 +374,29 @@ public class IndexManager implements IConfigurable {
             }
 
         } else {
-            indexRequest.id( docId );
-            _bulkProcessor.add( indexRequest.source( info ) );
+            // indexRequest.id( docId );
+            UpdateRequest updateRequest = new UpdateRequest( "ingrid_meta", "info", docId );
+            _bulkProcessor.add( updateRequest.doc( info ) );
         }
 
+    }
+    
+    public void updateHearbeatInformation(List<String> iPlugIds) throws InterruptedException, ExecutionException, IOException {
+        
+        for (String id : iPlugIds) {
+            updateIPlugInformation(id, getHearbeatInfo(id));
+        }
+        
+    }
+
+    public String getIndexTypeIdentifier(IndexInfo indexInfo) {
+        return _config.communicationProxyUrl + "=>" + indexInfo.getToType();
+    }
+    
+    private XContentBuilder getHearbeatInfo(String id) throws IOException {
+        return XContentFactory.jsonBuilder().startObject()
+                .field( "plugId", id )
+                .field( "lastHeartbeat", new Date() )
+                .endObject();
     }
 }

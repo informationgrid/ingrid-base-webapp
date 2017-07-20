@@ -422,6 +422,10 @@ public class Config {
     @PropertyValue("indexOnStartup")
     @DefaultValue("false")
     public boolean indexOnStartup;
+    
+    @PropertyValue("heartbeatInterval")
+    @DefaultValue("60")
+    public int heartbeatInterval;
 
     public String getWebappDir() {
         return this.webappDir;

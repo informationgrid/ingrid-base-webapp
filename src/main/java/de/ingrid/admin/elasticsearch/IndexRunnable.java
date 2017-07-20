@@ -169,14 +169,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         
                         // send info every 100 docs
                         if (count % 100 == 2) {
-                            this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, true, count, totalCount ) );
+                            this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, oldIndex, true, count - 1, totalCount ) );
                         }
 
                         documentCount++;
                     }
                     
                     // update central index with iPlug information
-                    this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, false, null, null ) );
+                    this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, newIndex, false, null, null ) );
                     
                     // update index now!
                     _indexManager.flush();
@@ -240,13 +240,13 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     }
 
-    private XContentBuilder getIPlugInfo(String infoId, IndexInfo info, boolean running, Integer count, Integer totalCount) throws IOException {
+    private XContentBuilder getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
         Config _config = JettyStarter.getInstance().config;
         
         return XContentFactory.jsonBuilder().startObject()
             .field( "plugId", infoId )
             .field( "iPlugName", _config.datasourceName )
-            .field( "linkedIndex", info.getRealIndexName() )
+            .field( "linkedIndex", indexName )
             .field( "linkedType", info.getToType() )
             .field( "adminUrl", _config.guiUrl )
             .field( "lastHeartbeat", new Date() )
