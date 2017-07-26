@@ -53,8 +53,10 @@ import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -216,26 +218,46 @@ public class IndexManager implements IConfigurable {
         _client.admin().indices().prepareDelete( index ).execute().actionGet();
     }
 
-    public boolean createIndex(String name) {
+    public boolean createIndex(String name, String type, String source) {
         boolean indexExists = indexExists( name );
         if (!indexExists) {
-            InputStream mappingStream = getClass().getClassLoader().getResourceAsStream( "default-mapping.json" );
-            String source;
+            
+            if (source != null) {
+                _client.admin().indices().prepareCreate( name )
+                    .addMapping( type, source, XContentType.JSON )
+                    .execute().actionGet();
+            } else {
+                _client.admin().indices().prepareCreate( name )
+                .execute().actionGet();
+            }
+            return true;
+            
+        }
+        return false;
+    }
+    
+    public boolean createIndex(String name) {
+        InputStream defaultMappingStream = getClass().getClassLoader().getResourceAsStream( "default-mapping.json" );
+        XContentType mapping = null;
+        String source = null; 
+        if (defaultMappingStream != null) {
             try {
-                if (mappingStream != null) {
-                    source = XMLSerializer.getContents( mappingStream );
-                    _client.admin().indices().prepareCreate( name ).addMapping( "_default_", source ).execute().actionGet();
-                } else {
-                    _client.admin().indices().prepareCreate( name ).execute().actionGet();
-                }
-                return true;
+                mapping = XContentFactory.xContentType( defaultMappingStream );
+                source = XMLSerializer.getContents( defaultMappingStream );
+
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                return false;
             }
         }
-        return false;
+        
+        if (mapping == null) {
+            return createIndex( name, null, null );
+            
+        } else {
+            return createIndex( name, "_default_", source );
+            
+        }
     }
 
     public boolean indexExists(String name) {
@@ -384,13 +406,24 @@ public class IndexManager implements IConfigurable {
     public void updateHearbeatInformation(List<String> iPlugIds) throws InterruptedException, ExecutionException, IOException {
         
         for (String id : iPlugIds) {
-            updateIPlugInformation(id, getHearbeatInfo(id));
+            try {
+                updateIPlugInformation(id, getHearbeatInfo(id));
+            } catch (IndexNotFoundException ex) {
+                Log.warn( "Index for iPlug information not found ... creating: " + id );
+                InputStream ingridMetaMappingStream = getClass().getClassLoader().getResourceAsStream( "ingrid-meta-mapping.json" );
+                String source = XMLSerializer.getContents( ingridMetaMappingStream );
+
+                // XContentType ingridMetaMapping = XContentFactory.xContentType( ingridMetaMappingStream );
+                createIndex( "ingrid_meta", "info", source );
+                updateIPlugInformation(id, getHearbeatInfo(id));
+            }
         }
         
     }
 
     public String getIndexTypeIdentifier(IndexInfo indexInfo) {
-        return _config.communicationProxyUrl + "=>" + indexInfo.getToType();
+        String clientId = _config.communicationProxyUrl.replace( "/", "" );
+        return clientId + "=>" + indexInfo.getToType();
     }
     
     private XContentBuilder getHearbeatInfo(String id) throws IOException {

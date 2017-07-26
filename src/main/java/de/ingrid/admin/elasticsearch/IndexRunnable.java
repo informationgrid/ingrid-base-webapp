@@ -150,6 +150,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     Integer totalCount = producer.getDocumentCount();
                     String indexPostfixString = totalCount == null ? "" : " / " + totalCount;
                     String indexTag = "indexing_" + info.getToIndex() + "_" + info.getToType();
+                    String plugIdInfo = _indexManager.getIndexTypeIdentifier( info );
                     
                     while (producer.hasNext()) {
                         
@@ -168,15 +169,17 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         _indexManager.update( info, document, false );
                         
                         // send info every 100 docs
-                        if (count % 100 == 2) {
-                            this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, oldIndex, true, count - 1, totalCount ) );
+                        if (config.esRemoteNode && count % 100 == 2) {
+                            this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, oldIndex, true, count - 1, totalCount ) );
                         }
 
                         documentCount++;
                     }
                     
                     // update central index with iPlug information
-                    this._indexManager.updateIPlugInformation( config.communicationProxyUrl + "=>" + info.getToType(), getIPlugInfo( config.communicationProxyUrl + "=>" + info.getToType(), info, newIndex, false, null, null ) );
+                    if (config.esRemoteNode) {
+                        this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, newIndex, false, null, null ) );
+                    }
                     
                     // update index now!
                     _indexManager.flush();
