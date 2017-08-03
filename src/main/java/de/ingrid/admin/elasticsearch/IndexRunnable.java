@@ -122,6 +122,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 int documentCount = 0;
                 String oldIndex = null;
                 Map<String, String[]> indexNames = new HashMap<String, String[]>();
+                
+                // check if pluginfo index exists or create it
+                if (config.esRemoteNode) {
+                    this._indexManager.checkAndCreateInformationIndex();
+                }
 
                 for (IDocumentProducer producer : _documentProducers) {
                     IndexInfo info = Utils.getIndexInfo( producer, config );

@@ -407,18 +407,26 @@ public class IndexManager implements IConfigurable {
         
         for (String id : iPlugIds) {
             try {
+                checkAndCreateInformationIndex();
                 updateIPlugInformation(id, getHearbeatInfo(id));
             } catch (IndexNotFoundException ex) {
                 Log.warn( "Index for iPlug information not found ... creating: " + id );
-                InputStream ingridMetaMappingStream = getClass().getClassLoader().getResourceAsStream( "ingrid-meta-mapping.json" );
-                String source = XMLSerializer.getContents( ingridMetaMappingStream );
-
-                // XContentType ingridMetaMapping = XContentFactory.xContentType( ingridMetaMappingStream );
-                createIndex( "ingrid_meta", "info", source );
-                updateIPlugInformation(id, getHearbeatInfo(id));
             }
         }
         
+    }
+    
+    public void checkAndCreateInformationIndex() {
+        if (!indexExists( "ingrid_meta" )) {
+            InputStream ingridMetaMappingStream = getClass().getClassLoader().getResourceAsStream( "ingrid-meta-mapping.json" );
+            try {
+                String source = XMLSerializer.getContents( ingridMetaMappingStream );
+                createIndex( "ingrid_meta", "info", source );
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     public String getIndexTypeIdentifier(IndexInfo indexInfo) {

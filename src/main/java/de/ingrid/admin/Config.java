@@ -227,7 +227,7 @@ public class Config {
     @SystemPropertyValue("indexing")
     @PropertyValue("indexing")
     @DefaultValue("false")
-    private boolean indexing;
+    public boolean indexing;
 
     @TypeTransformers(StringToList.class)
     @PropertyValue("plugdescription.dataType")

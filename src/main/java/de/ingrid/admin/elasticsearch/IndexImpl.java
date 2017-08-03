@@ -312,7 +312,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         // search prepare
         SearchRequestBuilder srb = indexManager.getClient().prepareSearch( fromIndex ).setTypes( fromType )
-                .setSearchType( searchType )
+                // .setSearchType( searchType )
                 .setQuery( query ) // Query
                 .setFrom( 0 )
                 .setSize( 1 )
