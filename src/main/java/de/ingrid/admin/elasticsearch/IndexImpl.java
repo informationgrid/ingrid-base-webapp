@@ -35,6 +35,7 @@ import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -67,6 +68,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     public static final String DETAIL_URL = "url";
 
     private static Logger log = Logger.getLogger( IndexImpl.class );
+    
+    @Autowired
+    private QueryBuilderService queryBuilderService;
 
     private QueryConverter queryConverter;
 
@@ -131,6 +135,13 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         String[] indexNames = JettyStarter.getInstance().config.docProducerIndices;
         
+        if (indexNames.length == 0) {
+            log.warn( "No configured index to search on!" );
+            return new IngridHits( 0, new IngridHit[0] );
+        }
+        
+        BoolQueryBuilder indexTypeFilter = queryBuilderService.createIndexTypeFilter( indexNames );
+        
         // if we are remotely connected to an elasticsearch node then get the real indices of the aliases
         // otherwise we also get the results from other indices, since an alias can contain several indices!
         String[] realIndices = new String[indexNames.length];
@@ -140,9 +151,13 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
         indexNames = realIndices;
         
+        
         // search prepare
         SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexNames  )
                 .setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
+                .setQuery( config.indexEnableBoost 
+                        ? QueryBuilders.boolQuery().must( funcScoreQuery ).must( indexTypeFilter )
+                        : QueryBuilders.boolQuery().must( query ).must( indexTypeFilter ) ) // Query
                 .setFrom( startHit ).setSize( num ).setExplain( false );
 
         // search only in defined types within the index, if defined
