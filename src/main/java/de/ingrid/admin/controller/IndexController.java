@@ -58,6 +58,7 @@ import de.ingrid.admin.object.IDocumentProducer;
 @Controller
 public class IndexController extends AbstractController {
 
+    @SuppressWarnings("unused")
     private static final Log LOG = LogFactory.getLog(IndexController.class);
     private IndexManager indexManager;
     

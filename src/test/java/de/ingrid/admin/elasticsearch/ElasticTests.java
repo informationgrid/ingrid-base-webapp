@@ -34,6 +34,7 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.node.Node;
 import org.springframework.core.io.ClassPathResource;
@@ -124,7 +125,7 @@ public class ElasticTests {
 
         byte[] urlsData = Files.readAllBytes( Paths.get( resource.getURI() ) );
 
-        client.prepareBulk().add( urlsData, 0, urlsData.length)
+        client.prepareBulk().add( urlsData, 0, urlsData.length, XContentType.JSON)
                 .execute()
                 .actionGet();
 
@@ -160,7 +161,7 @@ public class ElasticTests {
             
             client.admin().indices().preparePutMapping().setIndices( index )
                     .setType("base")
-                    .setSource( mappingSource )
+                    .setSource( mappingSource, XContentType.JSON )
                     .execute()
                     .actionGet();
             
@@ -179,6 +180,7 @@ public class ElasticTests {
         return indexImpl;
     }
     
+    @SuppressWarnings("resource")
     public static void createNodeManager() {
         // create a test master node with http support
         Settings settings = Settings.builder()
@@ -189,6 +191,6 @@ public class ElasticTests {
             .put( "http.enabled", "false" )
             .put( "node.client", "true" )
             .build();
-        Node nodeBuilder = new Node(settings);
+        new Node(settings);
     }
 }

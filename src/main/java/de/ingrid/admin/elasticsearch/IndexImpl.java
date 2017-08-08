@@ -34,7 +34,6 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -77,10 +76,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     private static final String ELASTIC_SEARCH_INDEX_TYPE = "es_type";
 
-    // SearchType see:
-    // http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-search-type.html
-    private SearchType searchType = null;
-
     private Config config;
 
     private String[] detailFields;
@@ -91,7 +86,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
     public IndexImpl(IndexManager indexManager, QueryConverter qc, FacetConverter fc) {
         this.config = JettyStarter.getInstance().config;
         this.indexManager = indexManager;
-        this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
         this.detailFields = (String[]) ArrayUtils.addAll( new String[] { config.indexFieldTitle, config.indexFieldSummary }, config.additionalSearchDetailFields );
 
         try {
@@ -107,6 +101,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public IngridHits search(IngridQuery ingridQuery, int startHit, int num) {
 
@@ -146,7 +141,8 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         indexNames = realIndices;
         
         // search prepare
-        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexNames  ).setSearchType( searchType ).setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
+        SearchRequestBuilder srb = indexManager.getClient().prepareSearch( indexNames  )
+                .setQuery( config.indexEnableBoost ? funcScoreQuery : query ) // Query
                 .setFrom( startHit ).setSize( num ).setExplain( false );
 
         // search only in defined types within the index, if defined
@@ -254,7 +250,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         }
 
         String groupBy = ingridQuery.getGrouped();
-        for (SearchHit hit : hits.hits()) {
+        for (SearchHit hit : hits.getHits()) {
             IngridHit ingridHit = new IngridHit( config.communicationProxyUrl, hit.getId(), -1, hit.getScore() );
             ingridHit.put( ELASTIC_SEARCH_INDEX, hit.getIndex() );
             ingridHit.put( ELASTIC_SEARCH_INDEX_TYPE, hit.getType() );
@@ -262,12 +258,12 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
             // get grouing information, add if exist
             String groupValue = null;
             if (IngridQuery.GROUPED_BY_PARTNER.equalsIgnoreCase( groupBy )) {
-                SearchHitField field = hit.field( IngridQuery.PARTNER );
+                SearchHitField field = hit.getField( IngridQuery.PARTNER );
                 if (field != null) {
                     groupValue = field.getValue().toString();
                 }
             } else if (IngridQuery.GROUPED_BY_ORGANISATION.equalsIgnoreCase( groupBy )) {
-                SearchHitField field = hit.field( IngridQuery.PROVIDER );
+                SearchHitField field = hit.getField( IngridQuery.PROVIDER );
                 if (field != null) {
                     groupValue = field.getValue().toString();
                 }
@@ -312,11 +308,9 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         // search prepare
         SearchRequestBuilder srb = indexManager.getClient().prepareSearch( fromIndex ).setTypes( fromType )
-                // .setSearchType( searchType )
                 .setQuery( query ) // Query
                 .setFrom( 0 )
                 .setSize( 1 )
-                //.addHighlightedField( config.indexFieldSummary )
                 .highlighter( hb )
                 .storedFields( allFields )
                 .setExplain( false );
@@ -327,16 +321,16 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         SearchHit dHit = dHits.getAt( 0 );
 
         String title = "untitled";
-        if (dHit.field( config.indexFieldTitle ) != null) {
-            title = (String) dHit.field( config.indexFieldTitle ).getValue();
+        if (dHit.getField( config.indexFieldTitle ) != null) {
+            title = (String) dHit.getField( config.indexFieldTitle ).getValue();
         }
         String summary = "";
         // try to get the summary first from the highlighted fields
         if (dHit.getHighlightFields().containsKey( config.indexFieldSummary )) {
             summary = StringUtils.join( dHit.getHighlightFields().get( config.indexFieldSummary ).fragments(), " ... " );
             // otherwise get it from the original field
-        } else if (dHit.field( config.indexFieldSummary ) != null) {
-            summary = (String) dHit.field( config.indexFieldSummary ).getValue();
+        } else if (dHit.getField( config.indexFieldSummary ) != null) {
+            summary = (String) dHit.getField( config.indexFieldSummary ).getValue();
         }
 
         IngridHitDetail detail = new IngridHitDetail( hit, title, summary );
@@ -346,21 +340,21 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         detail.setDocumentId( documentId );
         if (requestedFields != null) {
             for (String field : requestedFields) {
-                if (dHit.field( field ) != null) {
-                    if (dHit.field( field ).getValues() instanceof List){
-                        if(dHit.field( field ).getValues().size() > 1){
-                            detail.put( field, dHit.field( field ).getValues());
+                if (dHit.getField( field ) != null) {
+                    if (dHit.getField( field ).getValues() instanceof List){
+                        if(dHit.getField( field ).getValues().size() > 1){
+                            detail.put( field, dHit.getField( field ).getValues());
                         }else{
-                            if (dHit.field( field ).getValue() instanceof String) {
-                                detail.put( field, new String[] { dHit.field( field ).getValue() } );
+                            if (dHit.getField( field ).getValue() instanceof String) {
+                                detail.put( field, new String[] { dHit.getField( field ).getValue() } );
                             } else {
-                                detail.put( field, dHit.field( field ).getValue() );
+                                detail.put( field, dHit.getField( field ).getValue() );
                             }
                         }
-                    } else if (dHit.field( field ).getValue() instanceof String) {
-                        detail.put( field, new String[] { dHit.field( field ).getValue() } );
+                    } else if (dHit.getField( field ).getValue() instanceof String) {
+                        detail.put( field, new String[] { dHit.getField( field ).getValue() } );
                     } else {
-                        detail.put( field, dHit.field( field ).getValue() );
+                        detail.put( field, dHit.getField( field ).getValue() );
                     }
                 }
             }

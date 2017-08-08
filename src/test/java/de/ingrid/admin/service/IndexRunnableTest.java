@@ -113,12 +113,6 @@ public class IndexRunnableTest extends ElasticTests {
         Thread.sleep(1000);
     }
     
-    private void deleteIndex(String index) {
-        client.admin().indices().prepareDelete( index ).execute().actionGet();
-        client.admin().indices().prepareCreate( index ).execute().actionGet();
-        refreshIndex( index, client );
-    }
-
     /**
      * Each document supports its own ID. In case there's an ID twice
      * only the latest document is used. Here we only get 9 of 10 results
@@ -153,10 +147,10 @@ public class IndexRunnableTest extends ElasticTests {
         SearchResponse searchResponse = srb.execute().actionGet();
         
         SearchHits hitsRes = searchResponse.getHits();
-        SearchHit[] hits = hitsRes.hits();
+        SearchHit[] hits = hitsRes.getHits();
         assertEquals( 5, hitsRes.getTotalHits() );
-        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
-        assertEquals( 1, hits[ 0 ].field( "mylist" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].getField( "url" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].getField( "mylist" ).getValues().size() );
     }
     
     @Test
@@ -172,10 +166,10 @@ public class IndexRunnableTest extends ElasticTests {
         SearchResponse searchResponse = srb.execute().actionGet();
         
         SearchHits hitsRes = searchResponse.getHits();
-        SearchHit[] hits = hitsRes.hits();
+        SearchHit[] hits = hitsRes.getHits();
         assertEquals( 1, hitsRes.getTotalHits() );
-        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
-        assertEquals( 2, hits[ 0 ].field( "mylist" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].getField( "url" ).getValues().size() );
+        assertEquals( 2, hits[ 0 ].getField( "mylist" ).getValues().size() );
     }
     
     /**

@@ -26,11 +26,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction.Modifier;
 
 public class ElasticSearchUtils {
     
+    @SuppressWarnings("unused")
     private static Logger log = Logger.getLogger( ElasticSearchUtils.class ); 
 
     /**
@@ -65,37 +65,6 @@ public class ElasticSearchUtils {
         } else {
             return name.substring( 0, delimiterPos + 1 ) + date;
         }
-    }
-
-    public static SearchType getSearchTypeFromString( String input ) {
-        SearchType type;
-        switch (input) {
-        //case "COUNT":
-        //    type = SearchType.COUNT;
-        //    break;
-        case "DEFAULT":
-            type = SearchType.DEFAULT;
-            break;
-        //case "DFS_QUERY_AND_FETCH":
-        //    type = SearchType.DFS_QUERY_AND_FETCH;
-        //    break;
-        case "DFS_QUERY_THEN_FETCH":
-            type = SearchType.DFS_QUERY_THEN_FETCH;
-            break;
-        //case "QUERY_AND_FETCH":
-        //    type = SearchType.QUERY_AND_FETCH;
-        //    break;
-        case "QUERY_THEN_FETCH":
-            type = SearchType.QUERY_THEN_FETCH;
-            break;
-        //case "SCAN":
-        //    type = SearchType.SCAN;
-        //    break;
-        default:
-            log.error( "Unknown SearchType (" + input + "), using default one: DFS_QUERY_THEN_FETCH" );
-            type = SearchType.DFS_QUERY_THEN_FETCH;
-        }
-        return type;
     }
     
     public static Modifier getModifierFromString( String input ) {

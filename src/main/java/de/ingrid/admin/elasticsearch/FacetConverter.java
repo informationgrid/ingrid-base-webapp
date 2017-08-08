@@ -63,6 +63,7 @@ public class FacetConverter {
         this.queryConverter = qc;
     }
 
+    @SuppressWarnings("rawtypes")
     public List<AbstractAggregationBuilder> getAggregations(IngridQuery ingridQuery) {
         // get all FacetDefinitions from the Query
         List<FacetDefinition> defs = FacetUtils.getFacetDefinitions(ingridQuery);

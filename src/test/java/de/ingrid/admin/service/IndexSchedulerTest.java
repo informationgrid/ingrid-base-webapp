@@ -28,11 +28,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.Node;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

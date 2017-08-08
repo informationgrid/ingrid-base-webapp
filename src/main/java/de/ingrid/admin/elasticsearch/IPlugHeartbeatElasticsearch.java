@@ -2,14 +2,13 @@ package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +18,8 @@ import de.ingrid.admin.object.IDocumentProducer;
 
 @Service
 public class IPlugHeartbeatElasticsearch extends TimerTask {
+    
+    private static Logger log = LogManager.getLogger(IPlugHeartbeatElasticsearch.class);
 
     @Autowired
     private IndexManager indexManager;
@@ -54,8 +55,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
             indexManager.flush();
 
         } catch (InterruptedException | ExecutionException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error( "Error updating Heartbeat information.", e );
         }
     }
 
