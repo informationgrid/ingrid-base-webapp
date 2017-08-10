@@ -252,7 +252,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
         Config _config = JettyStarter.getInstance().config;
         
         return XContentFactory.jsonBuilder().startObject()
-            .field( "plugId", infoId )
+            .field( "plugId", _config.communicationProxyUrl )
+            .field( "indexId", infoId )
             .field( "iPlugName", _config.datasourceName )
             .field( "linkedIndex", indexName )
             .field( "linkedType", info.getToType() )

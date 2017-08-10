@@ -6,6 +6,9 @@
     	"linkedType": {
     		"type": "keyword"
     	},
+    	"indexId": {
+    		"type": "keyword"
+    	},
     	"plugId": {
     		"type": "keyword"
     	},

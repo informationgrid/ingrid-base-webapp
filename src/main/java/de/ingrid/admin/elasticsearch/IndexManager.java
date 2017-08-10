@@ -436,7 +436,8 @@ public class IndexManager implements IConfigurable {
     
     private XContentBuilder getHearbeatInfo(String id) throws IOException {
         return XContentFactory.jsonBuilder().startObject()
-                .field( "plugId", id )
+                .field( "plugId", _config.communicationProxyUrl )
+                .field( "indexId", id )
                 .field( "lastHeartbeat", new Date() )
                 .endObject();
     }
