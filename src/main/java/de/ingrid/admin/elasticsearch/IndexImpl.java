@@ -144,12 +144,15 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         
         // if we are remotely connected to an elasticsearch node then get the real indices of the aliases
         // otherwise we also get the results from other indices, since an alias can contain several indices!
-        String[] realIndices = new String[indexNames.length];
+        List<String> realIndices = new ArrayList<String>();
         for (int i=0; i < indexNames.length; i++) {
             String[] indexNameAlias = indexNames[i].split( ":" );
-            realIndices[i] = indexManager.getIndexNameFromAliasName( indexNameAlias[0], indexNameAlias[1] );
+            String realIndex = indexManager.getIndexNameFromAliasName( indexNameAlias[0], indexNameAlias[1] );
+            if (realIndex != null) {
+                realIndices.add( realIndex );
+            }
         }
-        indexNames = realIndices;
+        indexNames = realIndices.toArray( new String[0] );
         
         
         // search prepare
