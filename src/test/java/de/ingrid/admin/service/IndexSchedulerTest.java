@@ -63,7 +63,7 @@ public class IndexSchedulerTest {
         private int _counter = 0;
 
         public DummyRunnable(final long time, PlugDescriptionService pdService) throws Exception {
-            super(pdService, new IndexManager( elastic ), null, null);
+            super(pdService, new IndexManager( elastic ), null);
             _time = time;
         }
 

@@ -100,7 +100,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     private void index(int model) throws Exception {
         IndexManager indexManager = new IndexManager( elastic );
-        _indexRunnable = new IndexRunnable(pds, indexManager, null, null );
+        _indexRunnable = new IndexRunnable(pds, indexManager, null );
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);

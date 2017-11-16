@@ -66,17 +66,20 @@ public class IndexRunnable implements Runnable, IConfigurable {
     
     @Autowired
     private StatusProvider statusProvider;
+    
+    // only needed to have ibus connection started!
+    @Autowired
+    private CommunicationService commService;
 
     /**
      * 
      * @param pds
      * @param indexManager
      * @param ibusIndexManager
-     * @param commService is needed here so that iBus connection is initialized before this service
      * @throws Exception
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, CommunicationService commService) throws Exception {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager) throws Exception {
         Config config = JettyStarter.getInstance().config;
         _plugDescriptionService = pds;
         _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
