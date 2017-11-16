@@ -35,6 +35,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.utils.IngridHitDetail;
@@ -49,7 +50,7 @@ public class GeneralSearchTest extends ElasticTests {
         new JettyStarter( false );
         JettyStarter.getInstance().config.indexFieldSummary = "content";
         setup( "test", "data/webUrls.json" );
-        IndexManager indexManager = new IndexManager( elastic );
+        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
         indexManager.removeAlias("test");
         indexManager.switchAlias( "test", null, "test_1" );
     }    

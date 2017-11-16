@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IIndexManager;
 import de.ingrid.elasticsearch.IndexManager;
 
 @Service
@@ -22,17 +24,23 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
     
     private static Logger log = LogManager.getLogger(IPlugHeartbeatElasticsearch.class);
 
-    @Autowired
-    private IndexManager indexManager;
+    private IIndexManager indexManager;
 
     private Timer timer;
 
     private List<String> docProducerIndices;
 
-    public IPlugHeartbeatElasticsearch() {
+    @Autowired
+    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager) {
         Config config = JettyStarter.getInstance().config;
 
         if (config.esRemoteNode) {
+            if (config.esCommunicationThroughIBus) {
+                this.indexManager = ibusIndexManager;
+            } else {
+                this.indexManager = indexManager;
+            }
+            
             int interval = config.heartbeatInterval;
 
             timer = new Timer( true );

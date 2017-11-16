@@ -36,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.utils.ElasticDocument;
@@ -52,7 +53,7 @@ public class SearchTest extends ElasticTests {
     public static void setUpBeforeClass() throws Exception {
         new JettyStarter( false );
         setup( "test", "data/webUrls2.json" );
-        IndexManager indexManager = new IndexManager( elastic );
+        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
         indexManager.removeAlias("test");
         indexManager.switchAlias( "test", null, "test_1" );
     }

@@ -94,7 +94,7 @@ public class ElasticTests {
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
         
-        IndexManager indexManager = new IndexManager( elastic );
+        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
         try {
             indexManager.deleteIndex( "test" );
         } catch (IndexNotFoundException ex) {}
@@ -180,7 +180,7 @@ public class ElasticTests {
     }
     
     protected IndexImpl getIndexer() throws Exception {
-        IndexImpl indexImpl = new IndexImpl( new ElasticConfig(), new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl indexImpl = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc) );
         JettyStarter.getInstance().config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }
