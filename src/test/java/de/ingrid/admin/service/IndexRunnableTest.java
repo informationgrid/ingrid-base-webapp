@@ -107,7 +107,7 @@ public class IndexRunnableTest extends ElasticTests {
         dummyProducer.configure(_plugDescription);
         docProducers = new ArrayList<IDocumentProducer>();
         docProducers.add( dummyProducer );
-        _indexRunnable.setDocumentProducers(docProducers);
+        _indexRunnable.setDocumentProducers(new ElasticConfig(), docProducers);
         _indexRunnable.run();
 
         indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index, config.index) );

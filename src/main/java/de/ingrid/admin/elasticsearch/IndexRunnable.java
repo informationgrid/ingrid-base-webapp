@@ -41,8 +41,8 @@ import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
 import de.ingrid.elasticsearch.IIndexManager;
 import de.ingrid.elasticsearch.IndexInfo;
@@ -67,10 +67,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
     @Autowired
     private StatusProvider statusProvider;
     
-    // only needed to have ibus connection started!
-    @Autowired
-    private CommunicationService commService;
-
     /**
      * 
      * @param pds
@@ -86,11 +82,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     @Autowired(required = false)
-    public void setDocumentProducers(List<IDocumentProducer> documentProducers) {
+    public void setDocumentProducers(ElasticConfig configElastic, List<IDocumentProducer> documentProducers) {
         _documentProducers = documentProducers;
         _produceable = true;
         
-        JettyStarter.getInstance().config.docProducerIndices = getIndexNamesFromProducers( documentProducers );
+        configElastic.docProducerIndices = getIndexNamesFromProducers( documentProducers );
     }
 
     private String[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
@@ -98,22 +94,22 @@ public class IndexRunnable implements Runnable, IConfigurable {
         
         for (IDocumentProducer docProducer : documentProducers) {
             IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
-            String currentIndex = null;
-
-            // create a new index for each provider
-            if (!indices.contains( indexInfo.getToIndex() )) {
-                currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
-                if (currentIndex == null) {
-                    String nextIndexName = IndexManager.getNextIndexName( indexInfo.getToIndex() );
-                    boolean wasCreated = _indexManager.createIndex( nextIndexName );
-                    if (wasCreated) {
-                        _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
+//            String currentIndex = null;
+//
+//            // create a new index for each provider
+//            if (!indices.contains( indexInfo.getToIndex() )) {
+//                currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
+//                if (currentIndex == null) {
+//                    String nextIndexName = IndexManager.getNextIndexName( indexInfo.getToIndex() );
+//                    boolean wasCreated = _indexManager.createIndex( nextIndexName );
+//                    if (wasCreated) {
+//                        _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
                         indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
-                    }
-                } else {
-                    indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
-                }
-            }
+//                    }
+//                } else {
+//                    indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
+//                }
+//            }
         }
         return indices.toArray( new String[0] );
     }
