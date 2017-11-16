@@ -35,6 +35,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.IngridQuery;

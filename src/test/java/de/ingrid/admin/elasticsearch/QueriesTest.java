@@ -35,11 +35,12 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.ingrid.admin.elasticsearch.converter.DatatypePartnerProviderQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.FieldQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.QueryConverter;
-import de.ingrid.admin.elasticsearch.converter.WildcardFieldQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
+import de.ingrid.elasticsearch.search.IQueryParsers;
+import de.ingrid.elasticsearch.search.converter.DatatypePartnerProviderQueryConverter;
+import de.ingrid.elasticsearch.search.converter.FieldQueryConverter;
+import de.ingrid.elasticsearch.search.converter.QueryConverter;
+import de.ingrid.elasticsearch.search.converter.WildcardFieldQueryConverter;
+import de.ingrid.elasticsearch.search.converter.WildcardQueryConverter;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.ParseException;
 import de.ingrid.utils.queryparser.QueryStringParser;

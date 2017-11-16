@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,12 @@ import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IIndexManager;
+import de.ingrid.elasticsearch.IndexInfo;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
@@ -59,15 +62,24 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final PlugDescriptionService _plugDescriptionService;
-    private IndexManager _indexManager;
+    private IIndexManager _indexManager;
     
     @Autowired
     private StatusProvider statusProvider;
 
+    /**
+     * 
+     * @param pds
+     * @param indexManager
+     * @param ibusIndexManager
+     * @param commService is needed here so that iBus connection is initialized before this service
+     * @throws Exception
+     */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager) throws Exception {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, CommunicationService commService) throws Exception {
+        Config config = JettyStarter.getInstance().config;
         _plugDescriptionService = pds;
-        _indexManager = indexManager;
+        _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
     }
 
     @Autowired(required = false)
@@ -89,7 +101,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
             if (!indices.contains( indexInfo.getToIndex() )) {
                 currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
                 if (currentIndex == null) {
-                    String nextIndexName = ElasticSearchUtils.getNextIndexName( indexInfo.getToIndex() );
+                    String nextIndexName = IndexManager.getNextIndexName( indexInfo.getToIndex() );
                     boolean wasCreated = _indexManager.createIndex( nextIndexName );
                     if (wasCreated) {
                         _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
@@ -137,7 +149,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     if (!indexNames.containsKey( info.getToIndex() )) {
                         // TODO: what if there are more indices in an alias???
                         oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
-                        newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? info.getToIndex() : oldIndex );
+                        newIndex = IndexManager.getNextIndexName( oldIndex == null ? info.getToIndex() : oldIndex );
                         if (config.alwaysCreateNewIndex) {
                             _indexManager.createIndex( newIndex );
                         }
@@ -248,7 +260,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     }
 
-    private XContentBuilder getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
+    private String getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
         Config _config = JettyStarter.getInstance().config;
         
         return XContentFactory.jsonBuilder().startObject()
@@ -265,7 +277,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 .field( "totalDocs", totalCount )
                 .field( "running", running )
                 .endObject()
-            .endObject();
+            .endObject()
+            .string();
     }
 
     private void cleanUp(String newIndex) {
@@ -306,7 +319,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
 
         // get the fields from the mapping, which is updated after each indexing
-        MappingMetaData mdd = _indexManager.getMapping(indexInfo);
+        Map<String, Object> mdd = _indexManager.getMapping(indexInfo);
         
         if (mdd == null && retries > 0) {
             LOG.warn( "Cluster state was not ready yet for fetching mapping ... waiting 1s" );
@@ -327,7 +340,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
 
         @SuppressWarnings("unchecked")
-        ElasticDocument fields = new ElasticDocument( (Map<String, Object>) mdd.getSourceAsMap().get( "properties" ) );
+        ElasticDocument fields = new ElasticDocument( (Map<String, Object>) mdd.get( "properties" ) );
         Set<String> propertiesSet = fields.keySet();
 
         for (String property : propertiesSet) {

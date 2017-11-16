@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.PlugDescription;
 

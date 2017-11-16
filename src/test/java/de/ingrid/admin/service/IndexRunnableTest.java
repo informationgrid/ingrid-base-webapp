@@ -46,12 +46,13 @@ import org.mockito.MockitoAnnotations;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.ElasticTests;
-import de.ingrid.admin.elasticsearch.FacetConverter;
-import de.ingrid.admin.elasticsearch.IndexImpl;
-import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.search.FacetConverter;
+import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
@@ -99,7 +100,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     private void index(int model) throws Exception {
         IndexManager indexManager = new IndexManager( elastic );
-        _indexRunnable = new IndexRunnable(pds, indexManager );
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, null );
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
@@ -196,7 +197,7 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     public void testFlipIndex() throws Exception {
         config.indexWithAutoId = true;
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
@@ -215,7 +216,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic ), qc, new FacetConverter(qc) );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);

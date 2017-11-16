@@ -32,10 +32,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.object.Partner;
 import de.ingrid.admin.object.Provider;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.utils.IBus;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.FieldQuery;
@@ -105,6 +105,7 @@ public class Utils {
         IndexInfo indexInfo = producer.getIndexInfo();
         if (indexInfo == null) {
             indexInfo = new IndexInfo();
+            indexInfo.setComponentIdentifier( config.communicationProxyUrl );
             indexInfo.setToIndex( config.index );
             if (config.indexAlias != null && config.indexAlias.length() > 0) {
                 indexInfo.setToAlias( config.indexAlias );
@@ -113,6 +114,10 @@ public class Utils {
             }
             indexInfo.setToType( config.indexType );
             indexInfo.setDocIdField( config.indexIdFromDoc );
+        } else {
+            if (indexInfo.getComponentIdentifier() == null) {
+                indexInfo.setComponentIdentifier( config.communicationProxyUrl );
+            }
         }
         return indexInfo;
     }

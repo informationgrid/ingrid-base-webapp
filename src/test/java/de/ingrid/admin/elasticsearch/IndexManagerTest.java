@@ -20,7 +20,8 @@ import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
+import de.ingrid.elasticsearch.IndexManager;
 
 public class IndexManagerTest {
 
@@ -46,7 +47,7 @@ public class IndexManagerTest {
     public void prepare() throws Exception {
         indexManager = new IndexManager( elastic );
         statusProvider = new StatusProvider();
-        indexManager.setStatusProvider( statusProvider );
+        // TODO: indexManager.setStatusProvider( statusProvider );
     }
     
     @AfterClass

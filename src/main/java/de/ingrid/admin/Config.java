@@ -427,6 +427,10 @@ public class Config {
     @DefaultValue("60")
     public int heartbeatInterval;
 
+    @PropertyValue("elastic.communication.ibus")
+    @DefaultValue("false")
+    public boolean esCommunicationThroughIBus;
+
     public String getWebappDir() {
         return this.webappDir;
     }
@@ -780,6 +784,7 @@ public class Config {
         pd.setCachedLifeTime(cacheLifeTime );
         pd.setCachedElements( cacheElements );
         pd.setCachedInDiskStore( cacheDiskStore );
+        pd.put( "useRemoteElasticsearch", esRemoteNode );
         
 
         if (partner != null) {

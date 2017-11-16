@@ -47,7 +47,6 @@ import de.ingrid.admin.IViews;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.elasticsearch.IndexInfo;
 import de.ingrid.admin.object.IDataType;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.object.Partner;
@@ -56,6 +55,7 @@ import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.AbstractValidator;
 import de.ingrid.admin.validation.IErrorKeys;
 import de.ingrid.admin.validation.PlugDescValidator;
+import de.ingrid.elasticsearch.IndexInfo;
 
 @Controller
 @SessionAttributes("plugDescription")

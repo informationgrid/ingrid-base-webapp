@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.IndexManager;
 
 @Service
 public class IPlugHeartbeatElasticsearch extends TimerTask {

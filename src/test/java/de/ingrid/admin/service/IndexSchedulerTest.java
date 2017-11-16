@@ -42,9 +42,10 @@ import org.mockito.MockitoAnnotations;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
-import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
+import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.utils.PlugDescription;
 
 public class IndexSchedulerTest {
@@ -62,7 +63,7 @@ public class IndexSchedulerTest {
         private int _counter = 0;
 
         public DummyRunnable(final long time, PlugDescriptionService pdService) throws Exception {
-            super(pdService, new IndexManager( elastic ));
+            super(pdService, new IndexManager( elastic ), null, null);
             _time = time;
         }
 

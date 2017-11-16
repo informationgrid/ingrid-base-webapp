@@ -41,18 +41,23 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileSystemUtils;
 
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.converter.DatatypePartnerProviderQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.DefaultFieldsQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.FieldQueryIGCConverter;
-import de.ingrid.admin.elasticsearch.converter.FuzzyQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.MatchAllQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.QueryConverter;
-import de.ingrid.admin.elasticsearch.converter.RangeQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.WildcardFieldQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.DummyProducer;
-import de.ingrid.admin.service.ElasticsearchNodeFactoryBean;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.search.FacetConverter;
+import de.ingrid.elasticsearch.search.IQueryParsers;
+import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.elasticsearch.search.converter.DatatypePartnerProviderQueryConverter;
+import de.ingrid.elasticsearch.search.converter.DefaultFieldsQueryConverter;
+import de.ingrid.elasticsearch.search.converter.FieldQueryIGCConverter;
+import de.ingrid.elasticsearch.search.converter.FuzzyQueryConverter;
+import de.ingrid.elasticsearch.search.converter.MatchAllQueryConverter;
+import de.ingrid.elasticsearch.search.converter.QueryConverter;
+import de.ingrid.elasticsearch.search.converter.RangeQueryConverter;
+import de.ingrid.elasticsearch.search.converter.WildcardFieldQueryConverter;
+import de.ingrid.elasticsearch.search.converter.WildcardQueryConverter;
 
 public class ElasticTests {
 
@@ -79,7 +84,7 @@ public class ElasticTests {
 
         qc = new QueryConverter();
         List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
-        parsers.add( new DefaultFieldsQueryConverter() );
+        parsers.add( new DefaultFieldsQueryConverter(new ElasticConfig()) );
         parsers.add( new DatatypePartnerProviderQueryConverter() );
         parsers.add( new FieldQueryIGCConverter() );
         parsers.add( new RangeQueryConverter() );
@@ -175,7 +180,7 @@ public class ElasticTests {
     }
     
     protected IndexImpl getIndexer() throws Exception {
-        IndexImpl indexImpl = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl indexImpl = new IndexImpl( new ElasticConfig(), new IndexManager( elastic ), qc, new FacetConverter(qc) );
         JettyStarter.getInstance().config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }
