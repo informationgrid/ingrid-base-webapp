@@ -86,11 +86,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
         _documentProducers = documentProducers;
         _produceable = true;
         
-        configElastic.docProducerIndices = getIndexNamesFromProducers( documentProducers );
+        configElastic.activeIndices = getIndexNamesFromProducers( documentProducers );
     }
 
-    private String[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
-        ArrayList<String> indices = new ArrayList<String>();
+    private IndexInfo[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
+        List<IndexInfo> indices = new ArrayList<IndexInfo>();
         
         for (IDocumentProducer docProducer : documentProducers) {
             IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
@@ -104,14 +104,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
 //                    boolean wasCreated = _indexManager.createIndex( nextIndexName );
 //                    if (wasCreated) {
 //                        _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
-                        indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
+                        indices.add( indexInfo );
 //                    }
 //                } else {
 //                    indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
 //                }
 //            }
         }
-        return indices.toArray( new String[0] );
+        return indices.toArray( new IndexInfo[0] );
     }
 
     public void run() {
@@ -154,11 +154,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         }
                         indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex, info.getToAlias() } );
                     }
-                    if (config.alwaysCreateNewIndex) {
-                        info.setRealIndexName( newIndex );
-                    } else {
-                        info.setRealIndexName( oldIndex );
-                    }
+
+                    // set name of new (or old) index
+                    info.setRealIndexName( config.alwaysCreateNewIndex ? newIndex : oldIndex);
                     
                     this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToAlias() + ", Type:" + info.getToType());
                     
@@ -170,7 +168,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     
                     while (producer.hasNext()) {
                         
-                        
                         final ElasticDocument document = producer.next();
                         if (document == null) {
                             LOG.warn( "DocumentProducer " + producer + " returned null Document, we skip this record (not added to index)!" );
@@ -178,10 +175,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                             continue;
                         }
     
+                        // add partner, provider and datatypes
                         _indexManager.addBasicFields( document, info );
     
                         this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
                         
+                        // add document to index
                         _indexManager.update( info, document, false );
                         
                         // send info every 100 docs
@@ -209,20 +208,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
                 
                 LOG.info( "number of produced documents: " + documentCount );
-                
                 LOG.info( "indexing ends" );
 
                 if (config.alwaysCreateNewIndex) {
-                    // switch aliases of all document producers to the new indices
-                    for (String index : indexNames.keySet()) {
-                        String[] indexMore = indexNames.get( index );
-                        _indexManager.switchAlias( indexMore[2], indexMore[0], indexMore[1]);
-                        if (oldIndex != null) {
-                            _indexManager.deleteIndex( indexMore[0] );
-                        }
-                        this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1] + " under the alias: " + indexMore[2]);
-                    }
-                    LOG.info( "switched alias to new index and deleted old one" );
+                    switchIndexAlias( oldIndex, indexNames );
                 } else {
                     // TODO: remove documents which have not been updated (hence removed!)
                 }
@@ -238,8 +227,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
             } catch (final Exception e) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
-                LOG.error( "Exception occurred during indexing: " + e );
-                e.printStackTrace();
+                LOG.error( "Exception occurred during indexing: ", e );
                 cleanUp(newIndex);
             } catch (Throwable t) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + t.getMessage() + ". Try increasing the HEAP-size or let it manage automatically.", Classification.ERROR);
@@ -257,6 +245,19 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.warn( "configuration fails. disable index creation." );
         }
 
+    }
+
+    private void switchIndexAlias(String oldIndex, Map<String, String[]> indexNames) {
+        // switch aliases of all document producers to the new indices
+        for (String index : indexNames.keySet()) {
+            String[] indexMore = indexNames.get( index );
+            _indexManager.switchAlias( indexMore[2], indexMore[0], indexMore[1]);
+            if (oldIndex != null) {
+                _indexManager.deleteIndex( indexMore[0] );
+            }
+            this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1] + " under the alias: " + indexMore[2]);
+        }
+        LOG.info( "switched alias to new index and deleted old one" );
     }
 
     private String getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
