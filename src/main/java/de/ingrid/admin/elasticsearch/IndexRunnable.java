@@ -176,7 +176,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         }
     
                         // add partner, provider and datatypes
-                        _indexManager.addBasicFields( document, info );
+                        addBasicFields( document, info );
     
                         this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
                         
@@ -353,5 +353,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
     
     public void setStatusProvider(StatusProvider statusProvider) {
         this.statusProvider = statusProvider;
+    }
+    
+    
+    private void addBasicFields(ElasticDocument document, IndexInfo info) {
+        Config config = JettyStarter.getInstance().config;
+
+        document.put( PlugDescription.DATA_TYPE, config.datatypes.toArray(new String[0]) );
+        document.put( PlugDescription.PARTNER, config.partner );
+        document.put( PlugDescription.PROVIDER, config.provider );
     }
 }
