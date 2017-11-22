@@ -359,7 +359,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private void addBasicFields(ElasticDocument document, IndexInfo info) {
         Config config = JettyStarter.getInstance().config;
 
-        document.put( PlugDescription.DATA_TYPE, config.datatypes.toArray(new String[0]) );
+        document.put( "datatype", config.datatypes.toArray(new String[0]) );
         document.put( PlugDescription.PARTNER, config.partner );
         document.put( PlugDescription.PROVIDER, config.provider );
     }
