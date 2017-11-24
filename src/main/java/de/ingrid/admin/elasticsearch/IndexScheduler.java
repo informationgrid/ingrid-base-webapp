@@ -138,6 +138,10 @@ public class IndexScheduler implements IConfigurable {
     }
 
     private void schedule() {
+        if (_pattern == null) {
+            LOG.info("No valid pattern found: '" + _pattern + "'");
+            return;
+        }
         if (_scheduleId == null) {
             LOG.info("scheduling indexer with pattern '" + _pattern + "'");
             _scheduleId = _scheduler.schedule(_pattern, new LockRunnable(_runnable));
