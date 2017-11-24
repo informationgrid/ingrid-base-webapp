@@ -2,13 +2,17 @@ package de.ingrid.admin.elasticsearch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,12 +64,36 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
     public void run() {
         try {
 
-            indexManager.updateHearbeatInformation( docProducerIndices );
+            indexManager.updateHearbeatInformation( getIPlugInfos(docProducerIndices) );
             indexManager.flush();
 
         } catch (InterruptedException | ExecutionException | IOException e) {
             log.error( "Error updating Heartbeat information.", e );
         }
+    }
+    
+    private Map<String, String> getIPlugInfos(List<String> docProducerIndices) {
+		Map<String,String> map = new HashMap<String, String>();
+		
+		for (String docProdId : docProducerIndices) {
+			map.put(docProdId, getHearbeatInfo(docProdId));
+		}
+		
+		return map;
+	}
+
+	private String getHearbeatInfo(String id) {
+		try {
+			return XContentFactory.jsonBuilder().startObject()
+					.field( "plugId", JettyStarter.getInstance().config.communicationProxyUrl )
+					.field( "indexId", id )
+					.field( "lastHeartbeat", new Date() )
+					.endObject()
+					.string();
+		} catch (IOException ex) {
+			log.error("Error creating iPlug information", ex);
+			return null;
+		}
     }
 
 }
