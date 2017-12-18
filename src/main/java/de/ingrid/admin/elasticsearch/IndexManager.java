@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -201,23 +202,40 @@ public class IndexManager implements IConfigurable {
     public boolean createIndex(String name) {
         boolean indexExists = indexExists( name );
         if (!indexExists) {
-            InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-mapping.json");
-            String source;
-            try {
-                if (mappingStream != null) {
-                    source = XMLSerializer.getContents( mappingStream );
-                    _client.admin().indices().prepareCreate( name ).addMapping( "_default_", source ).execute().actionGet();
-                } else {
-                    _client.admin().indices().prepareCreate( name ).execute().actionGet();
-                }
-                return true;
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return false;
-            }
+            CreateIndexRequestBuilder prepareCreate = _client.admin().indices().prepareCreate( name );
+            setSettings( prepareCreate );
+            setMapping( prepareCreate );
+            prepareCreate.execute().actionGet();
+
+            return true;
         }
         return false;
+    }
+    
+    private void setMapping(CreateIndexRequestBuilder prepareCreate) {
+        InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-mapping.json");
+        if (mappingStream != null) {
+            String source;
+            try {
+                source = XMLSerializer.getContents( mappingStream );
+                prepareCreate.addMapping( "_default_", source );
+            } catch (IOException e) {
+                LOG.error( "Could not update settings to index", e );
+            }
+        }
+    }
+    
+    private void setSettings(CreateIndexRequestBuilder prepareCreate) {
+        InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-settings.json");
+        if (mappingStream != null) {
+            String source;
+            try {
+                source = XMLSerializer.getContents( mappingStream );
+                prepareCreate.setSettings( source );
+            } catch (IOException e) {
+                LOG.error( "Could not update settings to index", e );
+            }
+        }
     }
     
     public boolean indexExists(String name) {
