@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2017 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -110,7 +110,7 @@
                                 <div class="error">
                                     <p>Es konnte keine Verbindung zum Management-iPlug hergestellt werden, oder dieses ist nicht korrekt konfiguriert.
                                     Wenn dieses iPlug selbst das Management-iPlug ist, dann können die Partner und Anbieter erst nach dem Speichern
-                                    der ersten Konfiguration ausgewählt werden!</p>
+                                    der ersten Konfiguration ausgewählt werden und wenn das iPlug im iBus angeschaltet ist!</p>
                                 </div>
                             </c:if>
                         </td>

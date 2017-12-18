@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -171,7 +171,8 @@ ul.tabs li.active a {color:#000}
 .value:hover { font-weight: bold; }
 .value.marked { color: #fff; background-color: #68A5D2; }
 
-.status { border:1px solid #68A5D2; padding:10px; background:#F5F8EB; margin: 20px; }
+/* padding 20px to bottom to avoid vanishing last line when lots of status lines ! */
+.status { border:1px solid #68A5D2; padding:10px 10px 20px 10px; background:#F5F8EB; margin: 20px; }
 
 .tabs ul {
     padding: 0;

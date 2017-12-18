@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2016 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -181,7 +181,7 @@ public class Config {
     public int ibusTimeout;
     
     @PropertyValue("communication.server.maxMsgSize")
-    @DefaultValue("1048576")
+    @DefaultValue("10485760")
     public int ibusMaxMsgSize;
     
     @PropertyValue("communication.server.threadCount")
@@ -417,6 +417,11 @@ public class Config {
     @PropertyValue("plugdescription.CACHE_ACTIVE")
     @DefaultValue("true")
     private boolean cacheActive;
+    
+    @SystemPropertyValue("indexOnStartup")
+    @PropertyValue("indexOnStartup")
+    @DefaultValue("false")
+    public boolean indexOnStartup;
 
     public String getWebappDir() {
         return this.webappDir;
