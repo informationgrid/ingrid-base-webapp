@@ -898,11 +898,10 @@ public class Config {
             override.getFile();
             return override;
         } catch (FileNotFoundException e) {
-            return new FileSystemResource( "conf/config.override.properties" );
+            // do nothing here! get file from conf directory (see return value)
         } catch (IOException e) {
             log.error( "Error when getting config.override.properties", e );
-            e.printStackTrace();
         }
-        return null;
+        return new FileSystemResource( "conf/config.override.properties" );
     }
 }
