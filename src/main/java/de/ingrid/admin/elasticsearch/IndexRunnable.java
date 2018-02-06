@@ -267,7 +267,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
         for (Entry entry : ed.entrySet()) {
             String key = (String) entry.getKey();
             Object value = entry.getValue();
-            _indexHelper.putIfAbsent(key, value);
+            if (key != null && value != null) { 
+                _indexHelper.putIfAbsent(key, value);
+            }
         }
     }
 
