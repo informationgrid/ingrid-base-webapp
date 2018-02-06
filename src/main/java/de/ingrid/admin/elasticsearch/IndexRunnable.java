@@ -220,7 +220,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
             } catch (final Exception e) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
-                LOG.error( "Exception occurred during indexing: " + e );
+                LOG.error( "Exception occurred during indexing: ", e );
                 cleanUp(newIndex);
             } catch (Throwable t) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + t.getMessage() + ". Try increasing the HEAP-size or let it manage automatically.", Classification.ERROR);
