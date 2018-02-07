@@ -140,6 +140,7 @@ public class CommunicationService {
             } catch (final Exception e) {
                 LOG.warn("error creating bus client");
                 _error = true;
+                throw new RuntimeException( "error creating bus client" );
             }
         }
         return busClient;
