@@ -548,9 +548,9 @@ public class Config {
     }
 
     public void writeCommunicationToProperties() {
-        try {
-            Resource override = getOverrideConfigResource();
-            InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
+        Resource override = getOverrideConfigResource();
+        try (InputStream is = new FileInputStream( override.getFile().getAbsolutePath() )) {
+            
             Properties props = new Properties() {
                 private static final long serialVersionUID = 6956076060462348684L;
                 @Override
@@ -572,13 +572,11 @@ public class Config {
             props.setProperty( "communications.ibus", communications );
 
             // ---------------------------
-            is.close();
-            OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() );
-            props.store( os, "Override configuration written by the application" );
-            os.close();
+            try (OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() )) {
+                props.store( os, "Override configuration written by the application" );
+            }
         } catch (Exception e) {
             log.error( "Error writing properties: " , e );
-            e.printStackTrace();
         }
     }
 
