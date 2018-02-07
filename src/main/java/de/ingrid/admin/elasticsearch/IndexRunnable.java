@@ -264,11 +264,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     private void collectIndexFields(ElasticDocument ed) {
-        for (Entry entry : ed.entrySet()) {
-            String key = (String) entry.getKey();
-            Object value = entry.getValue();
-            if (key != null && value != null) { 
-                _indexHelper.putIfAbsent(key, value);
+        for (Entry<String, Object> entry : ed.entrySet()) {
+            String key = entry.getKey();
+            if (key == null) {
+                LOG.warn( "A key of an ElasticDocument was null, when collecting fields for PlugDescription" );
+            } else {
+                _indexHelper.putIfAbsent(key, "");
             }
         }
     }
