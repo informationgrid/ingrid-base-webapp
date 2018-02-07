@@ -28,17 +28,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class AdminManager {
+    
+    protected static final Logger LOG = Logger.getLogger(AdminManager.class);
     
     /**
      * Read the override configuration and convert the clear text password to a bcrypt-hash,
      * which is used and needed by the base-webapp v3.6.1 
      */
     private static void migratePassword() {
-        try {
-            InputStream is = new FileInputStream( "conf/config.override.properties" );
+        try (InputStream is = new FileInputStream( "conf/config.override.properties" )) {
             Properties props = new Properties();
             props.load( is );
             String oldPassword = props.getProperty( "plugdescription.IPLUG_ADMIN_PASSWORD" );
@@ -50,7 +52,7 @@ public class AdminManager {
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error( "Could not migrate password", e );
         }
     }
     
@@ -68,7 +70,7 @@ public class AdminManager {
             props.store( os, "Override configuration written by the application" );
             os.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error( "Could not reset password", e );
         }
     }
 
