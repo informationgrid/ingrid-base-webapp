@@ -14,6 +14,9 @@
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</developerConnection>
     <tag>HEAD</tag>
   </scm>
+  <properties>
+    <spring.version>4.1.6.RELEASE</spring.version>
+  </properties>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
     <repository>
@@ -199,16 +202,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <useProjectReferences>false</useProjectReferences>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.groovy.maven</groupId>
         <artifactId>gmaven-plugin</artifactId>
+        <version>1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -318,8 +314,5 @@
       </plugin>
     </plugins>
   </build>
-  <properties>
-      <spring.version>4.1.6.RELEASE</spring.version>
-  </properties>
 </project>
 
