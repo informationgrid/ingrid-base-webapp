@@ -648,12 +648,12 @@ public class Config {
 
             // ---------------------------
             is.close();
-            OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() );
-            if (log.isDebugEnabled()) {
-                log.debug( "writing configuration to: " + override.getFile().getAbsolutePath() );
+            try (OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() )) {
+                if (log.isDebugEnabled()) {
+                    log.debug( "writing configuration to: " + override.getFile().getAbsolutePath() );
+                }
+                props.store( os, "Override configuration written by the application" );
             }
-            props.store( os, "Override configuration written by the application" );
-            os.close();
         } catch (Exception e) {
             log.error( "Error writing properties:", e );
         }
