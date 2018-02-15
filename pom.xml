@@ -2,7 +2,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-base-pom</artifactId>
-    <version>4.0.1</version>
+    <version>4.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
@@ -14,12 +14,15 @@
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</developerConnection>
     <tag>HEAD</tag>
   </scm>
+  <properties>
+    <spring.version>4.3.3.RELEASE</spring.version>
+  </properties>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
     <repository>
-      <id>de.ingrid.all</id>
-      <name>Maven Repo InGrid</name>
-      <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
+      <id>nexus</id>
+      <name>Nexus Repo</name>
+      <url>https://nexus.informationgrid.eu/repository/maven-public</url>
     </repository>
     <repository>
       <id>xbib.org</id>
@@ -246,16 +249,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <useProjectReferences>false</useProjectReferences>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.groovy.maven</groupId>
         <artifactId>gmaven-plugin</artifactId>
+        <version>1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -365,7 +361,5 @@
       </plugin>
     </plugins>
   </build>
-  <properties>
-      <spring.version>4.3.3.RELEASE</spring.version>
-  </properties>
 </project>
+

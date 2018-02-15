@@ -54,14 +54,16 @@ public class SimpleForwardServlet extends HttpServlet {
         if (file.getName().endsWith( ".css" )) {
             resp.setContentType( "text/css" );
         }
-        final FileInputStream fileInputStream = new FileInputStream(file);
-        final ServletOutputStream outputStream = resp.getOutputStream();
-        int read = -1;
-        final byte[] buffer = new byte[1024];
-        while ((read = fileInputStream.read(buffer)) > -1) {
-            outputStream.write(buffer, 0, read);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            final ServletOutputStream outputStream = resp.getOutputStream();
+            int read = -1;
+            final byte[] buffer = new byte[1024];
+            while ((read = fileInputStream.read(buffer)) > -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.flush();
+        } catch (Exception e) {
+            LOG.error( "Could not find file: " + file.getName(), e );
         }
-        fileInputStream.close();
-        outputStream.flush();
     }
 }

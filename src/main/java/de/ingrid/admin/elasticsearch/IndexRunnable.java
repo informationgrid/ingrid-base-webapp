@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -52,18 +51,22 @@ import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class IndexRunnable implements Runnable, IConfigurable {
 
     private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
-    private static final int RETRIES_FETCH_MAPPING = 10;
     private List<IDocumentProducer> _documentProducers;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final PlugDescriptionService _plugDescriptionService;
-    private IIndexManager _indexManager;
-    
+    private final IIndexManager _indexManager;
+
+    private final ConcurrentMap<String, Object> _indexHelper;
+
     @Autowired
     private StatusProvider statusProvider;
     
@@ -79,19 +82,20 @@ public class IndexRunnable implements Runnable, IConfigurable {
         Config config = JettyStarter.getInstance().config;
         _plugDescriptionService = pds;
         _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
+        _indexHelper = new ConcurrentHashMap<>();
     }
 
     @Autowired(required = false)
     public void setDocumentProducers(ElasticConfig configElastic, List<IDocumentProducer> documentProducers) {
         _documentProducers = documentProducers;
         _produceable = true;
-        
+
         configElastic.activeIndices = getIndexNamesFromProducers( documentProducers );
     }
 
     private IndexInfo[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
-        List<IndexInfo> indices = new ArrayList<IndexInfo>();
-        
+        List<IndexInfo> indices = new ArrayList<>();
+
         for (IDocumentProducer docProducer : documentProducers) {
             IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
 //            String currentIndex = null;
@@ -114,7 +118,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
         return indices.toArray( new IndexInfo[0] );
     }
 
+    @Override
     public void run() {
+        _indexHelper.clear();
         if (_produceable) {
             // remember newIndex in case it has to be cleaned up, after an unsuccessful index process
             String newIndex = null;
@@ -132,7 +138,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 
                 int documentCount = 0;
                 String oldIndex = null;
-                Map<String, String[]> indexNames = new HashMap<String, String[]>();
+                Map<String, String[]> indexNames = new HashMap<>();
                 
                 // check if pluginfo index exists or create it
                 if (config.esRemoteNode) {
@@ -158,8 +164,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     // set name of new (or old) index
                     info.setRealIndexName( config.alwaysCreateNewIndex ? newIndex : oldIndex);
                     
-                    this.statusProvider.addState("producer_" + info.getToIndex() + "_" + info.getToType(), "Writing to Index: " + info.getToAlias() + ", Type:" + info.getToType());
-                    
+                    String stateKey = String.format("producer_%s_%s",
+                            info.getToIndex(),
+                            info.getToType());
+                    String stateValue = String.format("Writing to Index: %s, Type: %s",
+                            info.getToIndex(),
+                            info.getToType());
+                    this.statusProvider.addState(stateKey, stateValue);
+
                     int count = 1, skip = 0;
                     Integer totalCount = producer.getDocumentCount();
                     String indexPostfixString = totalCount == null ? "" : " / " + totalCount;
@@ -187,10 +199,12 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         if (config.esRemoteNode && count % 100 == 2) {
                             this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, oldIndex, true, count - 1, totalCount ) );
                         }
+                        
+                        collectIndexFields( document );
 
                         documentCount++;
                     }
-                    
+
                     // update central index with iPlug information
                     if (config.esRemoteNode) {
                         this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, newIndex, false, null, null ) );
@@ -198,16 +212,15 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     
                     // update index now!
                     _indexManager.flush();
-                    
-                    // Extend PD with all field names in index and save
-                    if (documentCount > 0) {
-                        addFieldNamesToPlugdescription( info, _plugDescription, RETRIES_FETCH_MAPPING );
-                    }
-                    
+
                     producer.configure( _plugDescription );
                 }
-                
+                if (documentCount > 0) {
+                    writeFieldNamesToPlugdescription();
+                }
+
                 LOG.info( "number of produced documents: " + documentCount );
+
                 LOG.info( "indexing ends" );
 
                 if (config.alwaysCreateNewIndex) {
@@ -292,6 +305,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         return _produceable;
     }
 
+    @Override
     public void configure(final PlugDescription plugDescription) {
         if (LOG.isDebugEnabled()) {
             LOG.debug( "configure plugdescription and new index dir..." );
@@ -303,54 +317,36 @@ public class IndexRunnable implements Runnable, IConfigurable {
         return _plugDescription;
     }
 
-    /** Add all field names of the given index to the given plug description ! */
-    private void addFieldNamesToPlugdescription(IndexInfo indexInfo, PlugDescription pd, int retries) throws IOException {
+    private void collectIndexFields(ElasticDocument ed) {
+        for (Entry<String, Object> entry : ed.entrySet()) {
+            String key = entry.getKey();
+            if (key == null) {
+                LOG.warn( "A key of an ElasticDocument was null, when collecting fields for PlugDescription" );
+            } else {
+                _indexHelper.putIfAbsent(key, "");
+            }
+        }
+    }
+
+    private void writeFieldNamesToPlugdescription() throws IOException {
         // first add "metainfo" field, so plug won't be filtered when field is
         // part of query !
         if (LOG.isInfoEnabled()) {
             LOG.info( "Add meta fields to PD." );
         }
-        PlugDescriptionUtil.addFieldToPlugDescription( pd, QueryUtil.FIELDNAME_METAINFO );
-        PlugDescriptionUtil.addFieldToPlugDescription( pd, QueryUtil.FIELDNAME_INCL_META );
+        PlugDescriptionUtil.addFieldToPlugDescription( _plugDescription, QueryUtil.FIELDNAME_METAINFO );
+        PlugDescriptionUtil.addFieldToPlugDescription( _plugDescription, QueryUtil.FIELDNAME_INCL_META );
 
         // then add fields from index
         if (LOG.isInfoEnabled()) {
             LOG.info( "Add fields from new index to PD." );
         }
-
-        // get the fields from the mapping, which is updated after each indexing
-        Map<String, Object> mdd = _indexManager.getMapping(indexInfo);
-        
-        if (mdd == null && retries > 0) {
-            LOG.warn( "Cluster state was not ready yet for fetching mapping ... waiting 1s" );
-            try {
-                // since this thread is independent from the others (e.g. search), we can allow to let it sleep
-                Thread.sleep( 1000 );
-            } catch (InterruptedException e) {
-                LOG.error( "Thread has been interrupted, while waiting for ClusterState" );
-                e.printStackTrace();
-            }
-            addFieldNamesToPlugdescription(indexInfo, pd, --retries);
-            return;
-        }
-        
-        if (mdd == null) {
-            LOG.error( "Mapping metadata was not received. PlugDescription won't be updated with indexed fields." );
-            return;
-        }
-
-        @SuppressWarnings("unchecked")
-        ElasticDocument fields = new ElasticDocument( (Map<String, Object>) mdd.get( "properties" ) );
-        Set<String> propertiesSet = fields.keySet();
-
-        for (String property : propertiesSet) {
-            pd.addField( property );
-            if (LOG.isDebugEnabled()) {
-                LOG.debug( "added index field " + property + " to plugdescription." );
-            }
+        for (String property : _indexHelper.keySet()) {
+            _plugDescription.addField( property );
+            LOG.debug( String.format( "added index field %s to plugdescription.", property ) );
         }
     }
-    
+
     public void setStatusProvider(StatusProvider statusProvider) {
         this.statusProvider = statusProvider;
     }
