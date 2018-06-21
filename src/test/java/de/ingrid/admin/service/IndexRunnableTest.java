@@ -22,11 +22,21 @@
  */
 package de.ingrid.admin.service;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.elasticsearch.ElasticTests;
+import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.elasticsearch.StatusProvider;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.search.FacetConverter;
+import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.queryparser.QueryStringParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.IndexNotFoundException;
@@ -43,21 +53,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticTests;
-import de.ingrid.admin.elasticsearch.IndexRunnable;
-import de.ingrid.admin.elasticsearch.StatusProvider;
-import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.elasticsearch.ElasticConfig;
-import de.ingrid.elasticsearch.IndexManager;
-import de.ingrid.elasticsearch.search.FacetConverter;
-import de.ingrid.elasticsearch.search.IndexImpl;
-import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.IngridHits;
-import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.queryparser.QueryStringParser;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 public class IndexRunnableTest extends ElasticTests {
 
@@ -150,8 +149,8 @@ public class IndexRunnableTest extends ElasticTests {
         SearchHits hitsRes = searchResponse.getHits();
         SearchHit[] hits = hitsRes.getHits();
         assertEquals( 5, hitsRes.getTotalHits() );
-        assertEquals( 1, hits[ 0 ].getField( "url" ).getValues().size() );
-        assertEquals( 1, hits[ 0 ].getField( "mylist" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].field( "mylist" ).getValues().size() );
     }
     
     @Test
@@ -169,8 +168,8 @@ public class IndexRunnableTest extends ElasticTests {
         SearchHits hitsRes = searchResponse.getHits();
         SearchHit[] hits = hitsRes.getHits();
         assertEquals( 1, hitsRes.getTotalHits() );
-        assertEquals( 1, hits[ 0 ].getField( "url" ).getValues().size() );
-        assertEquals( 2, hits[ 0 ].getField( "mylist" ).getValues().size() );
+        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
+        assertEquals( 2, hits[ 0 ].field( "mylist" ).getValues().size() );
     }
     
     /**

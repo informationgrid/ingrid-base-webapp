@@ -49,6 +49,9 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
 
             timer = new Timer( true );
             timer.schedule( this, 5000, interval * 1000 );
+        } else {
+            // TODO: implement local node, although not supported since Elasticsearch 5
+            log.warn("Elasticsearch 5+ does not support local nodes anymore.");
         }
     }
 
@@ -73,7 +76,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
     }
     
     private Map<String, String> getIPlugInfos(List<String> docProducerIndices) {
-		Map<String,String> map = new HashMap<String, String>();
+		Map<String,String> map = new HashMap<>();
 		
 		for (String docProdId : docProducerIndices) {
 			map.put(docProdId, getHearbeatInfo(docProdId));
