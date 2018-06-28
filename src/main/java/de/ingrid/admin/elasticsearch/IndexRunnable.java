@@ -62,7 +62,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private StatusProvider statusProvider;
 
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager) throws Exception {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager) {
         _plugDescriptionService = pds;
         _indexManager = indexManager;
     }
@@ -76,11 +76,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     private String[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
-        ArrayList<String> indices = new ArrayList<String>();
+        ArrayList<String> indices = new ArrayList<>();
         
         for (IDocumentProducer docProducer : documentProducers) {
             IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
-            String currentIndex = null;
+            String currentIndex;
 
             // create a new index for each provider
             if (!indices.contains( indexInfo.getToIndex() )) {
@@ -89,7 +89,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     String nextIndexName = ElasticSearchUtils.getNextIndexName( indexInfo.getToIndex() );
                     boolean wasCreated = _indexManager.createIndex( nextIndexName );
                     if (wasCreated) {
-                        _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
+                        _indexManager.switchAlias( indexInfo.getToAlias(), null, nextIndexName );
                         indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
                     }
                 } else {
@@ -118,7 +118,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 
                 int documentCount = 0;
                 String oldIndex = null;
-                Map<String, String[]> indexNames = new HashMap<String, String[]>();
+                Map<String, String[]> indexNames = new HashMap<>();
 
                 for (IDocumentProducer producer : _documentProducers) {
                     IndexInfo info = Utils.getIndexInfo( producer, config );
@@ -204,7 +204,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
             } catch (final Exception e) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
-                LOG.error( "Exception occurred during indexing: " + e );
+                LOG.error( "Exception occurred during indexing: ", e );
                 e.printStackTrace();
                 cleanUp(newIndex);
             } catch (Throwable t) {
