@@ -567,9 +567,9 @@ public class Config {
     }
 
     public void writeCommunicationToProperties() {
-        try {
-            Resource override = getOverrideConfigResource();
-            InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
+        Resource override = getOverrideConfigResource();
+        try (InputStream is = new FileInputStream( override.getFile().getAbsolutePath() )) {
+            
             Properties props = new Properties() {
                 private static final long serialVersionUID = 6956076060462348684L;
                 @Override
@@ -591,13 +591,11 @@ public class Config {
             props.setProperty( "communications.ibus", communications );
 
             // ---------------------------
-            is.close();
-            OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() );
-            props.store( os, "Override configuration written by the application" );
-            os.close();
+            try (OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() )) {
+                props.store( os, "Override configuration written by the application" );
+            }
         } catch (Exception e) {
             log.error( "Error writing properties: " , e );
-            e.printStackTrace();
         }
     }
 
@@ -669,12 +667,12 @@ public class Config {
 
             // ---------------------------
             is.close();
-            OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() );
-            if (log.isDebugEnabled()) {
-                log.debug( "writing configuration to: " + override.getFile().getAbsolutePath() );
+            try (OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() )) {
+                if (log.isDebugEnabled()) {
+                    log.debug( "writing configuration to: " + override.getFile().getAbsolutePath() );
+                }
+                props.store( os, "Override configuration written by the application" );
             }
-            props.store( os, "Override configuration written by the application" );
-            os.close();
         } catch (Exception e) {
             log.error( "Error writing properties:", e );
         }
@@ -917,11 +915,10 @@ public class Config {
             override.getFile();
             return override;
         } catch (FileNotFoundException e) {
-            return new FileSystemResource( "conf/config.override.properties" );
+            // do nothing here! get file from conf directory (see return value)
         } catch (IOException e) {
             log.error( "Error when getting config.override.properties", e );
-            e.printStackTrace();
         }
-        return null;
+        return new FileSystemResource( "conf/config.override.properties" );
     }
 }
