@@ -86,7 +86,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
             String currentIndex;
 
             // create a new index for each provider
-            if (!indices.contains( indexInfo.getToIndex() )) {
+            if (!indices.contains( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() )) {
                 currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
                 if (currentIndex == null) {
                     String nextIndexName = ElasticSearchUtils.getNextIndexName( indexInfo.getToIndex() );
