@@ -57,7 +57,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
 
     @Autowired(required = false)
     public void setDocumentProducers(List<IDocumentProducer> documentProducers) {
-        docProducerIndices = new ArrayList<String>();
+        docProducerIndices = new ArrayList<>();
         for (IDocumentProducer producer : documentProducers) {
             docProducerIndices.add( indexManager.getIndexTypeIdentifier( producer.getIndexInfo() ) );
         }

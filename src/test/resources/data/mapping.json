@@ -19,6 +19,21 @@
             "type": "string",
             "index": "not_analyzed"
         },
+        "dataSourceName": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+        },
+        "organisation": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+        },
+        "iPlugId": {
+            "type": "string",
+            "index": "not_analyzed",
+            "store": true
+        },
         "boost": {
             "type": "float",
             "null_value" : "0.0"

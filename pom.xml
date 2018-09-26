@@ -2,7 +2,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-base-pom</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
@@ -16,6 +16,7 @@
   </scm>
   <properties>
     <spring.version>4.3.3.RELEASE</spring.version>
+    <log4j2.version>2.8.2</log4j2.version>
   </properties>
   <repositories>
     <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
@@ -35,15 +36,16 @@
   <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
     <!-- lib to collect all configuration -->
-    <dependency>
+    <!-- the elasticsearch plugin must be added to the elasticseach node cluster! -->
+    <!--<dependency>
         <groupId>org.xbib.elasticsearch.plugin</groupId>
 	    <artifactId>elasticsearch-analysis-decompound</artifactId>
 	    <version>1.5.2.0-highlight-fix</version>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.tngtech.java</groupId>
       <artifactId>config-builder</artifactId>
-      <version>1.3</version>
+      <version>1.6.0</version>
     </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
@@ -83,13 +85,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>4.0.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>5.0.0-SNAPSHOT</version>
     </dependency>
     <!-- The two following dependencies are needed for Jetty -->
     <dependency>
@@ -190,18 +186,18 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-1.2-api</artifactId>
-      <version>2.8.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <!-- end -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.8.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.8.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     
     <!-- END -->
@@ -238,7 +234,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>5.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

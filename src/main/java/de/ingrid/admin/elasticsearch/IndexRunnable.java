@@ -358,5 +358,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
         document.put( "datatype", config.datatypes.toArray(new String[0]) );
         document.put( PlugDescription.PARTNER, config.partner );
         document.put( PlugDescription.PROVIDER, config.provider );
+        document.put( PlugDescription.DATA_SOURCE_NAME, config.datasourceName );
+        document.put( PlugDescription.ORGANISATION, config.organisation );
+        document.put( "iPlugId", config.communicationProxyUrl );
     }
 }
