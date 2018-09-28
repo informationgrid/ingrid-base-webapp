@@ -66,9 +66,12 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
     @Override
     public void run() {
         try {
-
-            indexManager.updateHearbeatInformation( getIPlugInfos(docProducerIndices) );
-            indexManager.flush();
+            if (docProducerIndices == null) {
+                log.error("No index info for this iPlug defined!");
+            } else {
+                indexManager.updateHearbeatInformation(getIPlugInfos(docProducerIndices));
+                indexManager.flush();
+            }
 
         } catch (InterruptedException | ExecutionException | IOException e) {
             log.error( "Error updating Heartbeat information.", e );
