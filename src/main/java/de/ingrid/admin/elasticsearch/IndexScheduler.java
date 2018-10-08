@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -98,6 +98,7 @@ public class IndexScheduler implements IConfigurable {
         // if we want to index on startup we start a new Thread for this, since the
         // other services still need to be configured and we cannot let this thread sleep
         if (JettyStarter.getInstance().config.indexOnStartup) {
+            LOG.info("Initial indexing on startup ...");
             new InitialIndexRun().start();
         }
     }
@@ -222,13 +223,13 @@ public class IndexScheduler implements IConfigurable {
     private class InitialIndexRun extends Thread {
         
         // delay execution in ms
-        private int delay = 5000; 
+        private int delay = 10000;
         
         @Override
         public void run() {
             try {
                 Thread.sleep( delay );
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
             triggerManually();
         }
     }

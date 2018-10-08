@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -54,14 +54,16 @@ public class SimpleForwardServlet extends HttpServlet {
         if (file.getName().endsWith( ".css" )) {
             resp.setContentType( "text/css" );
         }
-        final FileInputStream fileInputStream = new FileInputStream(file);
-        final ServletOutputStream outputStream = resp.getOutputStream();
-        int read = -1;
-        final byte[] buffer = new byte[1024];
-        while ((read = fileInputStream.read(buffer)) > -1) {
-            outputStream.write(buffer, 0, read);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            final ServletOutputStream outputStream = resp.getOutputStream();
+            int read = -1;
+            final byte[] buffer = new byte[1024];
+            while ((read = fileInputStream.read(buffer)) > -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.flush();
+        } catch (Exception e) {
+            LOG.error( "Could not find file: " + file.getName(), e );
         }
-        fileInputStream.close();
-        outputStream.flush();
     }
 }
