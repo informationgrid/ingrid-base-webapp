@@ -78,7 +78,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
      * @throws Exception
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager) throws Exception {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager) {
         Config config = JettyStarter.getInstance().config;
         _plugDescriptionService = pds;
         _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
@@ -98,22 +98,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
         for (IDocumentProducer docProducer : documentProducers) {
             IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
-//            String currentIndex = null;
-//
-//            // create a new index for each provider
-//            if (!indices.contains( indexInfo.getToIndex() )) {
-//                currentIndex = _indexManager.getIndexNameFromAliasName( indexInfo.getToAlias(), indexInfo.getToIndex() );
-//                if (currentIndex == null) {
-//                    String nextIndexName = IndexManager.getNextIndexName( indexInfo.getToIndex() );
-//                    boolean wasCreated = _indexManager.createIndex( nextIndexName );
-//                    if (wasCreated) {
-//                        _indexManager.switchAlias( indexInfo.getToAlias(), currentIndex, nextIndexName );
-                        indices.add( indexInfo );
-//                    }
-//                } else {
-//                    indices.add( indexInfo.getToAlias() + ":" + indexInfo.getToIndex() );
-//                }
-//            }
+            indices.add( indexInfo );
         }
         return indices.toArray( new IndexInfo[0] );
     }
@@ -141,9 +126,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 Map<String, String[]> indexNames = new HashMap<>();
                 
                 // check if pluginfo index exists or create it
-                if (config.esRemoteNode) {
-                    this._indexManager.checkAndCreateInformationIndex();
-                }
+                this._indexManager.checkAndCreateInformationIndex();
 
                 for (IDocumentProducer producer : _documentProducers) {
                     IndexInfo info = Utils.getIndexInfo( producer, config );
@@ -196,7 +179,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         _indexManager.update( info, document, false );
                         
                         // send info every 100 docs
-                        if (config.esRemoteNode && count % 100 == 2) {
+                        if (count % 100 == 2) {
                             this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, oldIndex, true, count - 1, totalCount ) );
                         }
                         
@@ -206,10 +189,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     }
 
                     // update central index with iPlug information
-                    if (config.esRemoteNode) {
-                        this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, newIndex, false, null, null ) );
-                    }
-                    
+                    this._indexManager.updateIPlugInformation( plugIdInfo, getIPlugInfo( plugIdInfo, info, newIndex, false, null, null ) );
+
                     // update index now!
                     _indexManager.flush();
 
@@ -328,7 +309,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
     }
 
-    private void writeFieldNamesToPlugdescription() throws IOException {
+    private void writeFieldNamesToPlugdescription() {
         // first add "metainfo" field, so plug won't be filtered when field is
         // part of query !
         if (LOG.isInfoEnabled()) {

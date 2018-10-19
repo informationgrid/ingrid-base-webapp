@@ -83,11 +83,7 @@ public class PartnerController extends AbstractController {
             addedPartners.add(getByShortName(partnerList, shortName));
         }
         modelMap.addAttribute("partners", addedPartners);
-        
-        if (partners == null || partners.size() == 0) {
-            modelMap.addAttribute("noManagement", true);
-        }
-        
+
         return IViews.PARTNER;
 	}
 

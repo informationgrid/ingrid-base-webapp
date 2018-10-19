@@ -83,7 +83,7 @@ public class JettyStarter {
             
             //config = new ConfigBuilder<Config>(Config.class).withCommandLineArgs(args).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error during configuration", e);
         }
     }
     

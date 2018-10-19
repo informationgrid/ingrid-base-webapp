@@ -30,6 +30,7 @@ import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.QueryBuilderService;
 import de.ingrid.elasticsearch.search.FacetConverter;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.utils.IngridDocument;
@@ -196,7 +197,7 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     public void testFlipIndex() throws Exception {
         config.indexWithAutoId = true;
-        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
@@ -215,7 +216,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService() );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);

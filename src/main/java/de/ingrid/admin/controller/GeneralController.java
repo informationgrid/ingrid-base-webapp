@@ -132,10 +132,6 @@ public class GeneralController extends AbstractController {
         if (!commandObject.containsKey("originalPort")) {
             commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
         }
-        
-        if (partners == null || partners.size() == 0) {
-            modelMap.addAttribute("noManagement", true);
-        }
 
         addForcedDatatypes(commandObject);
         

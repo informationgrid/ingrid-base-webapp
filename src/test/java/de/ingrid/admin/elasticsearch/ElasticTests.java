@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.elasticsearch.QueryBuilderService;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
@@ -171,16 +172,14 @@ public class ElasticTests {
                     .actionGet();
             
             
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
     
     protected IndexImpl getIndexer() throws Exception {
-        IndexImpl indexImpl = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc) );
+        IndexImpl indexImpl = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
         JettyStarter.getInstance().config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }

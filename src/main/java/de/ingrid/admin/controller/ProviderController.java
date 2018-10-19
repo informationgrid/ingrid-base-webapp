@@ -87,10 +87,6 @@ public class ProviderController extends AbstractController {
         }
         modelMap.addAttribute("providers", addedProviders);
         
-        if (providers == null || providers.size() == 0) {
-            modelMap.addAttribute("noManagement", true);
-        }
-
         return IViews.PROVIDER;
     }
 

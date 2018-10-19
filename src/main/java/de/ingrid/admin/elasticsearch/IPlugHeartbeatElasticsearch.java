@@ -38,21 +38,16 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
     public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager) {
         Config config = JettyStarter.getInstance().config;
 
-        if (config.esRemoteNode) {
-            if (config.esCommunicationThroughIBus) {
-                this.indexManager = ibusIndexManager;
-            } else {
-                this.indexManager = indexManager;
-            }
-            
-            int interval = config.heartbeatInterval;
-
-            timer = new Timer( true );
-            timer.schedule( this, 5000, interval * 1000 );
+        if (config.esCommunicationThroughIBus) {
+            this.indexManager = ibusIndexManager;
         } else {
-            // TODO: implement local node, although not supported since Elasticsearch 5
-            log.warn("Elasticsearch 5+ does not support local nodes anymore.");
+            this.indexManager = indexManager;
         }
+
+        int interval = config.heartbeatInterval;
+
+        timer = new Timer( true );
+        timer.schedule( this, 5000, interval * 1000 );
     }
 
     @Autowired(required = false)

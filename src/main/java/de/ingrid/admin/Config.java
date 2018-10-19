@@ -88,7 +88,7 @@ public class Config {
 
         @Override
         public List<CommunicationCommandObject> transform(String input) {
-            List<CommunicationCommandObject> list = new ArrayList<CommunicationCommandObject>();
+            List<CommunicationCommandObject> list = new ArrayList<>();
             String[] split = input.split( "##" );
             for (String comm : split) {
                 String[] communication = comm.split( "," );
@@ -109,7 +109,7 @@ public class Config {
 
         @Override
         public List<FieldQueryCommandObject> transform(String input) {
-            List<FieldQueryCommandObject> list = new ArrayList<FieldQueryCommandObject>();
+            List<FieldQueryCommandObject> list = new ArrayList<>();
             if ("".equals( input )) return list;
             
             String[] split = input.split( "##" );
@@ -153,7 +153,7 @@ public class Config {
         @SuppressWarnings("unchecked")
         @Override
         public List<String> transform( String input ) {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             if (!"".equals( input )) {
                 list.addAll( Arrays.asList( input.split( "," ) ) );
             }
@@ -161,7 +161,7 @@ public class Config {
         }
     }
 
-    private static final List<String> IGNORE_LIST = new ArrayList<String>();
+    private static final List<String> IGNORE_LIST = new ArrayList<>();
 
     /**
      * SERVER - CONFIGURATION
@@ -298,10 +298,6 @@ public class Config {
     @DefaultValue("off")
     public List<String> rankings;
 
-    @PropertyValue("elastic.remote.node")
-    @DefaultValue("false")
-    public boolean esRemoteNode;
-    
     @TypeTransformers(Config.StringToArray.class)
     @PropertyValue("elastic.remote.hosts")
     @DefaultValue("127.0.0.1:9300")
@@ -542,7 +538,6 @@ public class Config {
 
         } catch (Exception e) {
             log.error( "Error writing communication.xml: ", e );
-            e.printStackTrace();
             return false;
         }
 
@@ -582,7 +577,7 @@ public class Config {
                 private static final long serialVersionUID = 6956076060462348684L;
                 @Override
                 public synchronized Enumeration<Object> keys() {
-                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                    return Collections.enumeration(new TreeSet<>(super.keySet()));
                 }
             };
             props.load( is );
@@ -621,7 +616,7 @@ public class Config {
                 private static final long serialVersionUID = 6956076060462348684L;
                 @Override
                 public synchronized Enumeration<Object> keys() {
-                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                    return Collections.enumeration(new TreeSet<>(super.keySet()));
                 }
             };
             props.load( is );
@@ -699,7 +694,7 @@ public class Config {
 
     public void addQueryExtensionsToProperties(FieldQueryCommandObject fq) {
         if (this.queryExtensions == null)
-            this.queryExtensions = new ArrayList<FieldQueryCommandObject>();
+            this.queryExtensions = new ArrayList<>();
         this.queryExtensions.add( fq );
     }
 
@@ -782,7 +777,8 @@ public class Config {
         pd.setCachedLifeTime(cacheLifeTime );
         pd.setCachedElements( cacheElements );
         pd.setCachedInDiskStore( cacheDiskStore );
-        pd.put( "useRemoteElasticsearch", esRemoteNode );
+        // all iPlugs with this version of the base webapp will use the central index
+        pd.put("useRemoteElasticsearch", true);
         
 
         if (partner != null) {
@@ -889,7 +885,7 @@ public class Config {
             this.communicationProxyUrl = communication.parseAttribute( "/communication/client", "name" );
 
             // create List of communication
-            busses = new ArrayList<CommunicationCommandObject>();
+            busses = new ArrayList<>();
             // and get all information about each ibus
             for (int i = 0; i < count; i++) {
                 final CommunicationCommandObject bus = new CommunicationCommandObject();
@@ -902,7 +898,6 @@ public class Config {
             }
         } catch (Exception e) {
             log.error( "Error when reading from communication.xml", e );
-            e.printStackTrace();
         }
         // return all busses
         return busses;

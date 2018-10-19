@@ -75,7 +75,7 @@ public class IndexScheduler implements IConfigurable {
                 try {
                     _runnable.run();
                 } catch (final Throwable t) {
-                    LOG.error(t);
+                    LOG.error("Error during indexing", t);
                 } finally {
                     LOG.info("unlocking index scheduler");
                     _isRunning = false;

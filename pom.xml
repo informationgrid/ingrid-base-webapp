@@ -8,7 +8,7 @@
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
   <version>5.0.0-SNAPSHOT</version>
-  <name>ingrid-base-webapp</name>
+  <name>InGrid Base-Webapp</name>
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-base-webapp</developerConnection>
