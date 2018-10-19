@@ -65,7 +65,7 @@ public abstract class IngridPrincipal implements Principal {
     @Override
     public boolean equals(Object obj) {
         IngridPrincipal other = (IngridPrincipal) obj;
-        return other._name.equals(_name);
+        return other != null && other._name.equals(_name);
     }
 
     @Override

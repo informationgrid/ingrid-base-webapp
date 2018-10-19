@@ -38,6 +38,8 @@ public class Filter implements Externalizable {
 
 	private FilterType _filterType = FilterType.GREATER_THAN;
 
+	public Filter() {}
+
 	public Filter(final Comparable<? extends Serializable> expression,
 			final FilterType filterType) {
 		_expression = expression;

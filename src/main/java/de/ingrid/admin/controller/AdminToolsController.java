@@ -143,7 +143,7 @@ public class AdminToolsController extends AbstractController {
                 }
             }
 
-            modelMap.addAttribute( "hitCount", details.length );
+            modelMap.addAttribute( "hitCount", details != null ? details.length : 0);
             modelMap.addAttribute( "hits", detailsMap );
             modelMap.addAttribute( "details", _plug instanceof IRecordLoader );
         }

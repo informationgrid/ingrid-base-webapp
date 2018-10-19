@@ -47,7 +47,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
         int interval = config.heartbeatInterval;
 
         timer = new Timer( true );
-        timer.schedule( this, 5000, interval * 1000 );
+        timer.schedule( this, 5000, interval * 1000L );
     }
 
     @Autowired(required = false)

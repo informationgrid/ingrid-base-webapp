@@ -23,6 +23,7 @@
 package de.ingrid.admin.service;
 
 import java.io.File;
+import java.util.Objects;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,17 +68,17 @@ public class CommunicationService {
 
     public boolean isConnected() {
         final BusClient busClient = getBusClient();
-        return busClient == null ? false : busClient.allConnected();
+        return busClient != null && busClient.allConnected();
     }
     
     /**
      * Check if the nth connection is established.
-     * @param pos
-     * @return
+     * @param pos is the connection number
+     * @return true, if the nth connection is still connected
      */
     public boolean isConnected(int pos) {
         final BusClient busClient = getBusClient();
-        return busClient == null ? false : busClient.isConnected( pos );
+        return busClient != null && busClient.isConnected(pos);
     }
 
     private void reconfigure() {
@@ -88,7 +89,7 @@ public class CommunicationService {
 
     public void start() {
         try {
-            getBusClient().start();
+            Objects.requireNonNull(getBusClient()).start();
             _error = false;
         } catch (final Exception e) {
             LOG.warn("some of the busses are not available");
@@ -97,9 +98,9 @@ public class CommunicationService {
         reconfigure();
     }
 
-    public void shutdown() throws Exception {
+    public void shutdown() {
         try {
-            getBusClient().shutdown();
+            Objects.requireNonNull(getBusClient()).shutdown();
             _error = false;
         } catch (final Exception e) {
             LOG.warn("some of the busses are not available");
@@ -113,7 +114,7 @@ public class CommunicationService {
             if (_iPlug instanceof HeartBeatPlug) {
                 ((HeartBeatPlug) _iPlug).stopHeartBeats();
             }
-            getBusClient().restart();
+            Objects.requireNonNull(getBusClient()).restart();
             _error = false;
         } catch (final Exception e) {
             LOG.warn("some of the busses are not available");
@@ -133,7 +134,7 @@ public class CommunicationService {
 
     public boolean hasErrors() {
         boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
-        return iBusDisabled ? false : _communicationFile.exists() ? _error || !isConnected() : false;
+        return !iBusDisabled && (_communicationFile.exists() && (_error || !isConnected()));
     }
 
     private BusClient getBusClient() {

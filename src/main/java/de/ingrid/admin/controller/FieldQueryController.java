@@ -91,7 +91,7 @@ public class FieldQueryController extends AbstractController {
 
     @RequestMapping(value = IUris.FIELD_QUERY, method = RequestMethod.GET)
     public String getFieldQuery(final ModelMap modelMap,
-            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) throws Exception {
+            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) {
 
         boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
         if (iBusDisabled) return redirect(IUris.EXTRAS);
@@ -108,8 +108,7 @@ public class FieldQueryController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("fieldQuery") final FieldQueryCommandObject fieldQuery, final Errors errors,
             @RequestParam("action") final String action, @RequestParam(value = "id", required = false) final Integer id,
-            @RequestParam("behaviour") final String behaviour)
-            throws Exception {
+            @RequestParam("behaviour") final String behaviour) {
         if ("add".equals(action)) {
             System.out.println("behaviour: " + behaviour);
             if (behaviour.equals(Config.QUERYTYPE_MODIFY)) {
@@ -136,7 +135,7 @@ public class FieldQueryController extends AbstractController {
 	}
 
     private List<FieldQueryCommandObject> getFields(final Map<String, QueryExtension> extensions) {
-        final List<FieldQueryCommandObject> fields = new ArrayList<FieldQueryCommandObject>();
+        final List<FieldQueryCommandObject> fields = new ArrayList<>();
         if (extensions != null) {
             int pos = -1;
             for (final String key : extensions.keySet()) {
@@ -191,12 +190,14 @@ public class FieldQueryController extends AbstractController {
             }
         }
         // find correct field query
-        for (final FieldQuery fq : fieldQueries) {
-            if (fieldQuery.getKey().equals(fq.getFieldName()) && fieldQuery.getValue().equals(fq.getFieldValue())
-                    && fieldQuery.getProhibited() == fq.isProhibited() && fieldQuery.getRequired() == fq.isRequred()) {
-                // delete it
-                fieldQueries.remove(fq);
-                break;
+        if (fieldQueries != null) {
+            for (final FieldQuery fq : fieldQueries) {
+                if (fieldQuery.getKey().equals(fq.getFieldName()) && fieldQuery.getValue().equals(fq.getFieldValue())
+                        && fieldQuery.getProhibited() == fq.isProhibited() && fieldQuery.getRequired() == fq.isRequred()) {
+                    // delete it
+                    fieldQueries.remove(fq);
+                    break;
+                }
             }
         }
     }

@@ -184,10 +184,8 @@ public class IndexScheduler implements IConfigurable {
 
     private void loadPatternFile() {
         LOG.debug("try to load pattern from file");
-        try {
-            final ObjectInputStream reader = new ObjectInputStream(new FileInputStream(_patternFile));
+        try (ObjectInputStream reader = new ObjectInputStream(new FileInputStream(_patternFile))) {
             _pattern = (String) reader.readObject();
-            reader.close();
         } catch (final Exception e) {
             LOG.error(e);
         }
@@ -196,11 +194,8 @@ public class IndexScheduler implements IConfigurable {
     private void savePatternFile() {
         deletePatternFile();
         LOG.debug("saving pattern to file");
-        try {
-
-            final ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile));
+        try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile))) {
             writer.writeObject(_pattern);
-            writer.close();
         } catch (final Exception e) {
             LOG.error(e);
         }
@@ -228,7 +223,10 @@ public class IndexScheduler implements IConfigurable {
         public void run() {
             try {
                 Thread.sleep( delay );
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
             triggerManually();
         }
     }

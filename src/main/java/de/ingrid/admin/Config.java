@@ -82,7 +82,7 @@ public class Config {
 
     private static String QUERYTYPE_ALLOW = "allow";
     private static String QUERYTYPE_DENY = "deny";
-    public static String QUERYTYPE_MODIFY = "modify";
+    public static final String QUERYTYPE_MODIFY = "modify";
 
     public class StringToCommunications extends TypeTransformer<String, List<CommunicationCommandObject>> {
 
@@ -465,7 +465,6 @@ public class Config {
                 writePlugdescriptionToProperties( pd );
             } catch (IOException e1) {
                 log.error( "Error creating override configuration", e1 );
-                e1.printStackTrace();
             }
         }
 
