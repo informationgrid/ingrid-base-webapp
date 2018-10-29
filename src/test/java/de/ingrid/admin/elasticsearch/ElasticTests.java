@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.ingrid.elasticsearch.QueryBuilderService;
+import de.ingrid.elasticsearch.*;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
@@ -44,9 +44,6 @@ import org.springframework.util.FileSystemUtils;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.DummyProducer;
-import de.ingrid.elasticsearch.ElasticConfig;
-import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
-import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.search.FacetConverter;
 import de.ingrid.elasticsearch.search.IQueryParsers;
 import de.ingrid.elasticsearch.search.IndexImpl;
@@ -66,6 +63,7 @@ public class ElasticTests {
     public static QueryConverter qc;
     public static Client client;
     private static List<IDocumentProducer> docProducers;
+    private static ElasticConfig elasticConfig;
 
     /**
      * This will set up an elastic search environment with an index and some test data,
@@ -80,12 +78,25 @@ public class ElasticTests {
             FileSystemUtils.deleteRecursively( dir );
         
         elastic = new ElasticsearchNodeFactoryBean();
+        elasticConfig = new ElasticConfig();
+        elasticConfig.isEnabled = true;
+        IndexInfo[] activeIndices = new IndexInfo[1];
+        IndexInfo indexInfo = new IndexInfo();
+        indexInfo.setToIndex("test_1");
+        indexInfo.setToType("base");
+        activeIndices[0] = indexInfo;
+        elasticConfig.activeIndices = activeIndices;
+        elasticConfig.indexFieldSummary = "content";
+        elasticConfig.additionalSearchDetailFields = new String[0];
+        elasticConfig.indexSearchDefaultFields = new String[] { "title", "content" };
+        elasticConfig.remoteHosts = new String[] { "localhost:9300" };
+        elastic.init(elasticConfig);
         elastic.afterPropertiesSet();
-        client = elastic.getObject().client();
+        client = elastic.getClient();
 
         qc = new QueryConverter();
-        List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
-        parsers.add( new DefaultFieldsQueryConverter(new ElasticConfig()) );
+        List<IQueryParsers> parsers = new ArrayList<>();
+        parsers.add( new DefaultFieldsQueryConverter(elasticConfig) );
         parsers.add( new DatatypePartnerProviderQueryConverter() );
         parsers.add( new FieldQueryIGCConverter() );
         parsers.add( new RangeQueryConverter() );
@@ -95,7 +106,7 @@ public class ElasticTests {
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
         
-        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
+        IndexManager indexManager = new IndexManager( elastic, elasticConfig );
         try {
             indexManager.deleteIndex( "test" );
         } catch (IndexNotFoundException ex) {}
@@ -113,7 +124,7 @@ public class ElasticTests {
             indexManager.switchAlias( "test", null, "test_1" );
         }
         
-        docProducers = new ArrayList<IDocumentProducer>();
+        docProducers = new ArrayList<>();
         docProducers.add( new DummyProducer() );
     }
     
@@ -126,7 +137,7 @@ public class ElasticTests {
     }
     
     private static void prepareIndex(ElasticsearchNodeFactoryBean elastic, String fileData, String index) throws ElasticsearchException, Exception {
-        Client client = elastic.getObject().client();
+        Client client = elastic.getClient();
         ClassPathResource resource = new ClassPathResource( fileData );
 
         byte[] urlsData = Files.readAllBytes( Paths.get( resource.getURI() ) );
@@ -152,7 +163,7 @@ public class ElasticTests {
     private static void setMapping(ElasticsearchNodeFactoryBean elastic, String index) {
         String mappingSource = "";
         try {
-            Client client = elastic.getObject().client();
+            Client client = elastic.getClient();
             ClassPathResource resource = new ClassPathResource( "data/mapping.json" );
 
             List<String> urlsData = Files.readAllLines( Paths.get( resource.getURI() ), Charset.defaultCharset() );
@@ -179,7 +190,7 @@ public class ElasticTests {
     }
     
     protected IndexImpl getIndexer() throws Exception {
-        IndexImpl indexImpl = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
+        IndexImpl indexImpl = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService());
         JettyStarter.getInstance().config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }

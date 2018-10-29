@@ -58,7 +58,7 @@ public class GeneralSearchTest extends ElasticTests {
    
     @AfterClass
     public static void afterClass() throws Exception {
-        elastic.getObject().close();
+        // elastic.getObject().close();
     }
 
     @Test

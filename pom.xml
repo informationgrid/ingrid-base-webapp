@@ -330,6 +330,8 @@
             </connector>
           </connectors>
           <scanIntervalSeconds>2</scanIntervalSeconds>
+          <stopKey/>
+          <stopPort/>
         </configuration>
       </plugin>
       <plugin>

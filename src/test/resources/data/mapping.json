@@ -2,35 +2,35 @@
     "properties": {
         "fetched": {
             "format": "dateOptionalTime",
-            "type": "date"
+            "type": "date",
+            "store": true
         },
         "title": {
-            "index_analyzer": "decomp",
-            "search_analyzer": "no_decomp",
-            "type": "string",
-            "boost": 1.1
+            "type": "text",
+            "boost": 1.1,
+            "store": true
         },
         "content": {
-            "index_analyzer": "decomp",
-            "search_analyzer": "no_decomp",
-            "type": "string"
+            "type": "text",
+            "store": true
         },
         "url": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "text",
+            "index": "not_analyzed",
+            "store": true
         },
         "dataSourceName": {
-            "type": "string",
+            "type": "text",
             "index": "not_analyzed",
             "store": true
         },
         "organisation": {
-            "type": "string",
+            "type": "text",
             "index": "not_analyzed",
             "store": true
         },
         "iPlugId": {
-            "type": "string",
+            "type": "text",
             "index": "not_analyzed",
             "store": true
         },
