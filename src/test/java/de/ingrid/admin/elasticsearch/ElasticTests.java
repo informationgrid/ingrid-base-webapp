@@ -79,7 +79,7 @@ public class ElasticTests {
         if (dir.exists())
             FileSystemUtils.deleteRecursively( dir );
 
-        Properties elasticProperties = getElasticProperties();
+        Properties elasticProperties = getConfigProperties();
         
         elastic = new ElasticsearchNodeFactoryBean();
         elasticConfig = new ElasticConfig();
@@ -93,7 +93,7 @@ public class ElasticTests {
         elasticConfig.indexFieldSummary = "content";
         elasticConfig.additionalSearchDetailFields = new String[0];
         elasticConfig.indexSearchDefaultFields = new String[] { "title", "content" };
-        elasticConfig.remoteHosts = new String[] { elasticProperties.get("network.host") + ":9300" };
+        elasticConfig.remoteHosts = ((String)elasticProperties.get("elastic.remoteHosts")).split(",");
         elastic.init(elasticConfig);
         elastic.afterPropertiesSet();
         client = elastic.getClient();
@@ -132,13 +132,13 @@ public class ElasticTests {
         docProducers.add( new DummyProducer() );
     }
 
-    private static Properties getElasticProperties() {
+    private static Properties getConfigProperties() {
         Properties p = new Properties();
         try {
             // check for elastic search settings in classpath, which works
             // during development
             // and production
-            Resource resource = new ClassPathResource("/elasticsearch.properties");
+            Resource resource = new ClassPathResource("/config.override.properties");
             if (resource.exists()) {
                 p.load(resource.getInputStream());
             }
