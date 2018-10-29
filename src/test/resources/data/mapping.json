@@ -14,9 +14,12 @@
             "type": "text",
             "store": true
         },
+        "datatype": {
+            "type": "keyword",
+            "store": true
+        },
         "url": {
-            "type": "text",
-            "index": "not_analyzed",
+            "type": "keyword",
             "store": true
         },
         "dataSourceName": {
@@ -30,7 +33,7 @@
             "store": true
         },
         "iPlugId": {
-            "type": "text",
+            "type": "keyword",
             "index": "not_analyzed",
             "store": true
         },

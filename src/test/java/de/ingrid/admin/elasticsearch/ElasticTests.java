@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import de.ingrid.elasticsearch.*;
 import org.elasticsearch.ElasticsearchException;
@@ -39,6 +40,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.node.Node;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.util.FileSystemUtils;
 
 import de.ingrid.admin.JettyStarter;
@@ -76,6 +78,8 @@ public class ElasticTests {
         File dir = new File( "./target/test-data" );
         if (dir.exists())
             FileSystemUtils.deleteRecursively( dir );
+
+        Properties elasticProperties = getElasticProperties();
         
         elastic = new ElasticsearchNodeFactoryBean();
         elasticConfig = new ElasticConfig();
@@ -89,7 +93,7 @@ public class ElasticTests {
         elasticConfig.indexFieldSummary = "content";
         elasticConfig.additionalSearchDetailFields = new String[0];
         elasticConfig.indexSearchDefaultFields = new String[] { "title", "content" };
-        elasticConfig.remoteHosts = new String[] { "localhost:9300" };
+        elasticConfig.remoteHosts = new String[] { elasticProperties.get("network.host") + ":9300" };
         elastic.init(elasticConfig);
         elastic.afterPropertiesSet();
         client = elastic.getClient();
@@ -127,7 +131,23 @@ public class ElasticTests {
         docProducers = new ArrayList<>();
         docProducers.add( new DummyProducer() );
     }
-    
+
+    private static Properties getElasticProperties() {
+        Properties p = new Properties();
+        try {
+            // check for elastic search settings in classpath, which works
+            // during development
+            // and production
+            Resource resource = new ClassPathResource("/elasticsearch.properties");
+            if (resource.exists()) {
+                p.load(resource.getInputStream());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+
     public static void setup(String index, String fileData) throws Exception {
         setup( index, fileData, true );
     }

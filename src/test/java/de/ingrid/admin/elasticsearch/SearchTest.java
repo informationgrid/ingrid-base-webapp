@@ -59,8 +59,8 @@ public class SearchTest extends ElasticTests {
     }
     
     @AfterClass
-    public static void afterClass() throws Exception {
-        elastic.getObject().close();
+    public static void afterClass() {
+        elastic.getClient().close();
     }
 
     @Test
