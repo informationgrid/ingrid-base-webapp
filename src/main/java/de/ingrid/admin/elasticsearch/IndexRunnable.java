@@ -72,15 +72,19 @@ public class IndexRunnable implements Runnable, IConfigurable {
     
     /**
      * 
-     * @param pds
-     * @param indexManager
-     * @param ibusIndexManager
-     * @throws Exception
+     * @param pds is the service to handle PlugDescriptions
+     * @param indexManager is the manager to handle indices directly
+     * @param ibusIndexManager is the manager to handle indices via the iBus
      */
     @Autowired
     public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager) {
         Config config = JettyStarter.getInstance().config;
         _plugDescriptionService = pds;
+        try {
+            _plugDescription = pds.getPlugDescription();
+        } catch (IOException e) {
+            LOG.error("Error getting PlugDescription from service", e);
+        }
         _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
         _indexHelper = new ConcurrentHashMap<>();
     }
@@ -206,9 +210,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
                 if (config.alwaysCreateNewIndex) {
                     switchIndexAlias( oldIndex, indexNames );
-                } else {
-                    // TODO: remove documents which have not been updated (hence removed!)
                 }
+                /* else {
+                    // TODO: remove documents which have not been updated (hence removed!)
+                }*/
                 
                 this.statusProvider.addState("stop_indexing", "Indexing finished.");
 
