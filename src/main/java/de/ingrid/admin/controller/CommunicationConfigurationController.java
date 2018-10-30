@@ -22,12 +22,16 @@
  */
 package de.ingrid.admin.controller;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
+import de.ingrid.admin.command.CommunicationCommandObject;
+import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.admin.validation.CommunicationValidator;
+import de.ingrid.admin.validation.IErrorKeys;
+import de.ingrid.utils.PlugDescription;
 import net.weta.components.communication.configuration.XPathService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -37,16 +41,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.command.CommunicationCommandObject;
-import de.ingrid.admin.service.CommunicationService;
-import de.ingrid.admin.service.PlugDescriptionService;
-import de.ingrid.admin.validation.CommunicationValidator;
-import de.ingrid.admin.validation.IErrorKeys;
-import de.ingrid.utils.PlugDescription;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 
 @Controller
 public class CommunicationConfigurationController extends AbstractController {
@@ -65,13 +62,16 @@ public class CommunicationConfigurationController extends AbstractController {
 
     private PlugDescriptionService _plugDescriptionService;
 
+    private final Config config;
+
     @Autowired
     public CommunicationConfigurationController(final CommunicationService communicationService,
-            final PlugDescriptionService pdService,
-            final CommunicationValidator validator) {
+                                                final PlugDescriptionService pdService,
+                                                final CommunicationValidator validator, Config config) {
         _communicationService = communicationService;
         _plugDescriptionService = pdService;
         _validator = validator;
+        this.config = config;
     }
 
     @ModelAttribute("communication")
@@ -96,7 +96,7 @@ public class CommunicationConfigurationController extends AbstractController {
             commandObject.setProxyServiceUrl(communication.parseAttribute("/communication/client", "name"));
             count = getBusCount(communication);
         } else {
-            commandObject.setProxyServiceUrl( JettyStarter.getInstance().config.communicationProxyUrl );
+            commandObject.setProxyServiceUrl( config.communicationProxyUrl );
         }
 
         if (count < 1) {
@@ -126,7 +126,7 @@ public class CommunicationConfigurationController extends AbstractController {
 
     @ModelAttribute("busses")
     public List<CommunicationCommandObject> existingBusses() throws Exception {
-        List<CommunicationCommandObject> ibusses = JettyStarter.getInstance().config.ibusses;
+        List<CommunicationCommandObject> ibusses = config.ibusses;
         for (int i = 0; i < ibusses.size(); i++) {
             if (_communicationService.isConnected(i)) {
                 ibusses.get( i ).setIsConnected( true );
@@ -144,7 +144,7 @@ public class CommunicationConfigurationController extends AbstractController {
 
     @RequestMapping(value = IUris.COMMUNICATION, method = RequestMethod.GET)
     public String getCommunication() {
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        boolean iBusDisabled = config.disableIBus;
         
         if (iBusDisabled) {
             return redirect(IUris.WORKING_DIR);
@@ -175,7 +175,6 @@ public class CommunicationConfigurationController extends AbstractController {
                     tryToAdd = true;
                 }
             }
-            Config config = JettyStarter.getInstance().config;
 
             if ("add".equals(action) || tryToAdd) {
                 // set proxy url
@@ -261,7 +260,7 @@ public class CommunicationConfigurationController extends AbstractController {
 
     private void setProxyUrl(final XPathService communication, final String proxyUrl) throws Exception {
         //communication.setAttribute("/communication/client", "name", proxyUrl);
-        JettyStarter.getInstance().config.communicationProxyUrl = proxyUrl;
+        config.communicationProxyUrl = proxyUrl;
     }
 
 

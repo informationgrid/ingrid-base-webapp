@@ -64,7 +64,7 @@ public class IndexSchedulerTest {
         private int _counter = 0;
 
         public DummyRunnable(final long time, PlugDescriptionService pdService) throws Exception {
-            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null);
+            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, null);
             _time = time;
         }
 
@@ -113,11 +113,11 @@ public class IndexSchedulerTest {
         System.setProperty(IKeys.PLUG_DESCRIPTION, new File(file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
 
         //IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
-        PlugDescriptionService pdService = new PlugDescriptionService();
+        PlugDescriptionService pdService = new PlugDescriptionService(null);
         _runnable = new DummyRunnable(1000L, pdService);
         _runnable.configure(pd);
 
-        _scheduler = new IndexScheduler(_runnable);
+        _scheduler = new IndexScheduler(_runnable, null);
     }
 
     @After
@@ -172,7 +172,7 @@ public class IndexSchedulerTest {
         assertEquals(pattern, _scheduler.getPattern());
 
         // lets simulate a new start
-        final IndexScheduler scheduler2 = new IndexScheduler(_runnable);
+        final IndexScheduler scheduler2 = new IndexScheduler(_runnable, null);
         assertEquals(pattern, scheduler2.getPattern());
         scheduler2.deletePattern();
     }

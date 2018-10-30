@@ -25,6 +25,7 @@ package de.ingrid.admin.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.admin.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -35,11 +36,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.StringUtils;
-import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.object.Provider;
 import de.ingrid.admin.service.CommunicationService;
@@ -60,13 +56,16 @@ public class ProviderController extends AbstractController {
 
     private List<Provider> providers;
 
+    private final Config config;
+
     @Autowired
     public ProviderController(final CommunicationService communicationInterface,
-            final CommunicationService communicationService, final PlugDescValidator validator)
+                              final CommunicationService communicationService, final PlugDescValidator validator, Config config)
             throws Exception {
         _communicationInterface = communicationInterface;
         _communicationService = communicationService;
         _validator = validator;
+        this.config = config;
     }
 
     @RequestMapping(value = IUris.PROVIDER, method = RequestMethod.GET)
@@ -102,12 +101,12 @@ public class ProviderController extends AbstractController {
                 _validator.rejectError(errors, "providers", IErrorKeys.EMPTY);
             } else {
                 commandObject.addProvider(provider);
-                JettyStarter.getInstance().config.provider = commandObject.getProviders();
+                config.provider = commandObject.getProviders();
             }
         } else if ("delete".equals(action)) {
             if (!id.equals(commandObject.getOrganisationAbbr())) {
                 commandObject.removeProvider(id);
-                JettyStarter.getInstance().config.provider = commandObject.getProviders();
+                config.provider = commandObject.getProviders();
             }
         } else if ("submit".equals(action)) {
             if (noProviderAvailable || !_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {

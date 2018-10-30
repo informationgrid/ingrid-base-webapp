@@ -27,24 +27,61 @@ import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
 
-import com.tngtech.configbuilder.ConfigBuilder;
-
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * This class starts a Jetty server where the webapp will be executed.
  * @author André Wallat
  *
  */
+@Service
 public class JettyStarter {
     private static final Log log = LogFactory.getLog(JettyStarter.class);
-    
-	public Config config;
-	
-	private IConfig externalConfig = null;
+
+    public Config config;
+
+    private IConfig externalConfig;
+
+
+    private PlugDescriptionService plugDescriptionService;
 
 	private static JettyStarter instance;
+
+    @Autowired
+    public JettyStarter(Config config, IConfig externalConfig, PlugDescriptionService plugDescriptionService) throws Exception {
+        this.config = config;
+        this.externalConfig = externalConfig;
+        this.plugDescriptionService = plugDescriptionService;
+
+        // do some initialization by reading properties and writing configuration files
+        config.initialize();
+        if (externalConfig != null) {
+            externalConfig.initialize();
+        } else {
+            log.info("No external configuration found.");
+        }
+
+        // add external configurations to the plugdescription
+        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromConfiguration();
+        if (externalConfig != null) {
+            externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
+        }
+        // if a configuration was never written for the plugdescription then do not write one!
+        // the proxyServiceUrl must be different from the default value, so we can check here
+        // for valid propterties
+        String proxyServiceURL = plugdescriptionFromProperties.getProxyServiceURL();
+        if (!"/ingrid-group:base-webapp".equals( proxyServiceURL ) && !proxyServiceURL.isEmpty()) {
+            plugDescriptionService.savePlugDescription( plugdescriptionFromProperties );
+        } else {
+            log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
+        }
+    }
 
     public static void main(String[] args) throws Exception {
     	instance = new JettyStarter();
@@ -57,12 +94,12 @@ public class JettyStarter {
     }
     
     public JettyStarter() throws Exception {
+        setExternalConfig(this.externalConfig);
         configure();
         start();
     }
     
     public JettyStarter(boolean startImmediately) throws Exception {
-        instance = this;
         configure();
         if (startImmediately) {
             start();
@@ -70,58 +107,36 @@ public class JettyStarter {
     }
     
     public JettyStarter( IConfig config ) throws Exception {
-        this.externalConfig = config;
+        this.setExternalConfig(config);
         configure();
         start();
     }
     
     private void configure() {
         instance = this;
-        try {
-            // load configurations
-            config = new ConfigBuilder<Config>(Config.class).build();
-            
-            //config = new ConfigBuilder<Config>(Config.class).withCommandLineArgs(args).build();
-        } catch (Exception e) {
-            log.error("Error during configuration", e);
-        }
     }
     
     private void start() throws Exception {
-        WebAppContext webAppContext = new WebAppContext( config.getWebappDir(), "/");
+        Properties config = this.getProperties();
+        String webApp = (String) config.get("jetty.webapp");
+        WebAppContext webAppContext = new WebAppContext(webApp, "/");
 
-        int port = config.getWebappPort();
+        int port = Integer.valueOf((String) config.get("jetty.port"));
         log.info("==================================================");
-        log.info("Start server using directory \"" + config.getWebappDir() + "\" at port: " + port);
+        log.info("Start server using directory \"" + webApp + "\" at port: " + port);
         log.info("==================================================");
-        
-        // do some initialization by reading properties and writing configuration files
-        config.initialize();
-        if (externalConfig != null) {
-            externalConfig.initialize();
-        } else {
-            log.info("No external configuration found.");
-        }
-        
-        // add external configurations to the plugdescription
-        PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromConfiguration();
-        if (externalConfig != null) {
-            externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
-        }
-        // if a configuration was never written for the plugdescription then do not write one!
-        // the proxyServiceUrl must be different from the default value, so we can check here 
-        // for valid propterties
-        String proxyServiceURL = plugdescriptionFromProperties.getProxyServiceURL();
-        if (!"/ingrid-group:base-webapp".equals( proxyServiceURL ) && !proxyServiceURL.isEmpty()) {
-            (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
-        } else {
-            log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
-        }
-        
+
         Server server = new Server(port);
         server.setHandler(webAppContext);
         webAppContext.getSessionHandler().getSessionManager().setSessionCookie( "JSESSIONID_" + port );
         server.start();
+    }
+
+    private Properties getProperties() throws IOException {
+        final Properties config = new Properties();
+        config.load(JettyStarter.class.getResourceAsStream("/config.properties"));
+        config.load(JettyStarter.class.getResourceAsStream("/config.override.properties"));
+        return config;
     }
 
     public void setExternalConfig(IConfig config) {

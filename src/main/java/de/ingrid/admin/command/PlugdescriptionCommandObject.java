@@ -27,10 +27,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.ingrid.admin.Config;
 import org.apache.commons.lang.ArrayUtils;
 
 import de.ingrid.admin.IKeys;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.object.IDataType;
 import de.ingrid.utils.PlugDescription;
@@ -38,6 +38,7 @@ import de.ingrid.utils.xml.XMLSerializer;
 
 public class PlugdescriptionCommandObject extends PlugDescription {
 
+    private Config config;
     private String realWorkingDir = null;
     
     private String newPassword = null;
@@ -49,7 +50,8 @@ public class PlugdescriptionCommandObject extends PlugDescription {
 
     }
 
-    public PlugdescriptionCommandObject(final File file) throws IOException {
+    public PlugdescriptionCommandObject(final File file, Config config) throws IOException {
+        this.config = config;
         if (file.exists()) {
             final XMLSerializer serializer = new XMLSerializer();
             serializer.aliasClass(PlugDescription.class.getName(), PlugDescription.class);
@@ -135,7 +137,7 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     public int getOriginalPort() {
-        Integer port = JettyStarter.getInstance().config.getWebappPort();
+        Integer port = config.getWebappPort();
         if (port == null) return 8088;
         return port;
     }

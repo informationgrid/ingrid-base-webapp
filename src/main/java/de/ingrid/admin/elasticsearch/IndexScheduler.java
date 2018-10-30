@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import de.ingrid.admin.Config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class IndexScheduler implements IConfigurable {
     }
 
     @Autowired
-    public IndexScheduler(final IndexRunnable runnable) {
+    public IndexScheduler(final IndexRunnable runnable, Config config) {
         _runnable = runnable;
         _scheduler = new Scheduler();
         if (_runnable.getPlugDescription() != null) {
@@ -97,7 +98,7 @@ public class IndexScheduler implements IConfigurable {
         
         // if we want to index on startup we start a new Thread for this, since the
         // other services still need to be configured and we cannot let this thread sleep
-        if (JettyStarter.getInstance().config.indexOnStartup) {
+        if (config.indexOnStartup) {
             new InitialIndexRun().start();
         }
     }

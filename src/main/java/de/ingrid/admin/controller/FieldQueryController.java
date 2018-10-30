@@ -22,34 +22,27 @@
  */
 package de.ingrid.admin.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import net.weta.components.communication.configuration.XPathService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
-
 import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.FieldQueryValidator;
 import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.query.FieldQuery;
+import net.weta.components.communication.configuration.XPathService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Controller
 @SessionAttributes("plugDescription")
@@ -59,15 +52,18 @@ public class FieldQueryController extends AbstractController {
 
     private final FieldQueryValidator _validator;
 
+    private final Config config;
+
     @Autowired
-    public FieldQueryController(final CommunicationService communicationInterface, final FieldQueryValidator validator) {
+    public FieldQueryController(final CommunicationService communicationInterface, final FieldQueryValidator validator, Config config) {
         _communicationInterface = communicationInterface;
         _validator = validator;
+        this.config = config;
     }
 
     @ModelAttribute("busUrls")
     public final String[] getBusUrls() throws Exception {
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        boolean iBusDisabled = config.disableIBus;
         if (iBusDisabled) return new String[0];
         
         // open the communication file
@@ -93,7 +89,7 @@ public class FieldQueryController extends AbstractController {
     public String getFieldQuery(final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) {
 
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        boolean iBusDisabled = config.disableIBus;
         if (iBusDisabled) return redirect(IUris.EXTRAS);
         
         // catching all field queries together in a list of maps
@@ -115,17 +111,17 @@ public class FieldQueryController extends AbstractController {
                 if (!_validator.validate(errors).hasErrors()) {
                     Config.addFieldQuery(commandObject, fieldQuery, behaviour);
                     // save changes in properties
-                    JettyStarter.getInstance().config.addQueryExtensionsToProperties(fieldQuery);
+                    config.addQueryExtensionsToProperties(fieldQuery);
                 }
             } else {
                 Config.addFieldQuery(commandObject, fieldQuery, behaviour);
                 // save changes in properties
-                JettyStarter.getInstance().config.addQueryExtensionsToProperties(fieldQuery);
+                config.addQueryExtensionsToProperties(fieldQuery);
             }
         } else if ("delete".equals(action)) {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
             deleteFieldQuery(commandObject, field);
-            JettyStarter.getInstance().config.removeQueryExtensionsFromProperties(field);
+            config.removeQueryExtensionsFromProperties(field);
         } else if ("submit".equals(action)) {
             // redirect to the first page of iPlug specific data
             return redirect(IUris.EXTRAS);

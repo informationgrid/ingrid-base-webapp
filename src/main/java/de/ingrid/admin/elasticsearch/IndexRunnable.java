@@ -22,35 +22,25 @@
  */
 package de.ingrid.admin.elasticsearch;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
-import de.ingrid.elasticsearch.ElasticConfig;
-import de.ingrid.elasticsearch.IBusIndexManager;
-import de.ingrid.elasticsearch.IIndexManager;
-import de.ingrid.elasticsearch.IndexInfo;
-import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.*;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
+import org.apache.log4j.Logger;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -69,6 +59,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     @Autowired
     private StatusProvider statusProvider;
+
+    private Config config;
     
     /**
      * 
@@ -77,8 +69,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
      * @param ibusIndexManager is the manager to handle indices via the iBus
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager) {
-        Config config = JettyStarter.getInstance().config;
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config) {
+        // Config config = config;
+        this.config = config;
         _plugDescriptionService = pds;
         try {
             _plugDescription = pds.getPlugDescription();
@@ -101,7 +94,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         List<IndexInfo> indices = new ArrayList<>();
 
         for (IDocumentProducer docProducer : documentProducers) {
-            IndexInfo indexInfo = Utils.getIndexInfo( docProducer, JettyStarter.getInstance().config );
+            IndexInfo indexInfo = Utils.getIndexInfo( docProducer, config );
             indices.add( indexInfo );
         }
         return indices.toArray( new IndexInfo[0] );
@@ -117,8 +110,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 statusProvider.clear();
                 statusProvider.addState( "start_indexing", "Start indexing");
                 LOG.info( "indexing starts" );
-                Config config = JettyStarter.getInstance().config;
-                
+
                 // remove all fields from plug description
                 if (LOG.isInfoEnabled()) {
                     LOG.info( "New Index, remove all field names from PD." );
@@ -260,7 +252,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     private String getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
-        Config _config = JettyStarter.getInstance().config;
+        Config _config = config;
         
         return XContentFactory.jsonBuilder().startObject()
             .field( "plugId", _config.communicationProxyUrl )
@@ -281,7 +273,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     }
 
     private void cleanUp(String newIndex) {
-        if (JettyStarter.getInstance().config.alwaysCreateNewIndex && newIndex != null) {
+        if (config.alwaysCreateNewIndex && newIndex != null) {
             _indexManager.deleteIndex( newIndex );
         }
         statusProvider.addState( "CLEANUP", "Cleaned up data and reverted to old index" );
@@ -339,8 +331,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
     
     
     private void addBasicFields(ElasticDocument document, IndexInfo info) {
-        Config config = JettyStarter.getInstance().config;
-
         document.put( "datatype", config.datatypes.toArray(new String[0]) );
         document.put( PlugDescription.PARTNER, config.partner );
         document.put( PlugDescription.PROVIDER, config.provider );

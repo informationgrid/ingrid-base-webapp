@@ -57,12 +57,15 @@ public class PartnerController extends AbstractController {
 
     private List<Partner> partners;
 
+    private final Config config;
+
 	@Autowired
-    public PartnerController(final CommunicationService communicationInterface, final PlugDescValidator validator)
+    public PartnerController(final CommunicationService communicationInterface, final PlugDescValidator validator, Config config)
 			throws Exception {
 		_communicationInterface = communicationInterface;
         _validator = validator;
-	}
+        this.config = config;
+    }
 
 	@ModelAttribute("partnerList")
 	public List<Partner> getPartners() throws Exception {
@@ -95,7 +98,6 @@ public class PartnerController extends AbstractController {
             @RequestParam(value = "partner", required = false) final String partner,
             @RequestParam(value = "id", required = false) final String id) {
 
-        Config config = JettyStarter.getInstance().config;
         if ("add".equals(action)) {
             if (StringUtils.isEmptyOrWhiteSpace(partner)) {
                 _validator.rejectError(errors, "partners", IErrorKeys.EMPTY);

@@ -22,44 +22,6 @@
  */
 package de.ingrid.admin;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-
-import com.google.common.base.Joiner;
-import com.tngtech.configbuilder.annotation.configuration.LoadingOrder;
-import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
-import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
-import com.tngtech.configbuilder.annotation.typetransformer.CharacterSeparatedStringToStringListTransformer;
-import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformer;
-import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
-import com.tngtech.configbuilder.annotation.valueextractor.CommandLineValue;
-import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
-import com.tngtech.configbuilder.annotation.valueextractor.EnvironmentVariableValue;
-import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
-import com.tngtech.configbuilder.annotation.valueextractor.SystemPropertyValue;
-
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -70,12 +32,22 @@ import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
-import edu.emory.mathcs.backport.java.util.Arrays;
+import joptsimple.internal.Strings;
 import net.weta.components.communication.configuration.XPathService;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
-@PropertiesFiles( {"config", "elasticsearch"} )
-@PropertyLocations(directories = { "conf" }, fromClassLoader = true)
-@LoadingOrder({CommandLineValue.class, SystemPropertyValue.class, PropertyValue.class, EnvironmentVariableValue.class, DefaultValue.class})
+import java.io.*;
+import java.util.*;
+import java.util.regex.Pattern;
+
+@Configuration
 public class Config {
 
     private static Log log = LogFactory.getLog( Config.class );
@@ -84,347 +56,209 @@ public class Config {
     private static String QUERYTYPE_DENY = "deny";
     public static final String QUERYTYPE_MODIFY = "modify";
 
-    public class StringToCommunications extends TypeTransformer<String, List<CommunicationCommandObject>> {
 
-        @Override
-        public List<CommunicationCommandObject> transform(String input) {
-            List<CommunicationCommandObject> list = new ArrayList<>();
-            String[] split = input.split( "##" );
-            for (String comm : split) {
-                String[] communication = comm.split( "," );
-                if (communication.length == 3) {
-                    CommunicationCommandObject commObject = new CommunicationCommandObject();
-                    commObject.setBusProxyServiceUrl( communication[0] );
-                    commObject.setIp( communication[1] );
-                    commObject.setPort( Integer.valueOf( communication[2] ) );
-                    list.add( commObject );
-                }
-            }
-            return list;
-        }
-
-    }
-
-    public class StringToQueryExtension extends TypeTransformer<String, List<FieldQueryCommandObject>> {
-
-        @Override
-        public List<FieldQueryCommandObject> transform(String input) {
-            List<FieldQueryCommandObject> list = new ArrayList<>();
-            if ("".equals( input )) return list;
-            
-            String[] split = input.split( "##" );
-            for (String extensions : split) {
-                String[] extArray = extensions.split( "," );
-                if (extArray.length == 7) {
-                    FieldQueryCommandObject commObject = new FieldQueryCommandObject();
-                    commObject.setBusUrl( extArray[0] );
-                    commObject.setRegex( extArray[1] );
-                    commObject.setOption( extArray[2] );
-                    commObject.setKey( extArray[3] );
-                    commObject.setValue( extArray[4] );
-                    if ("true".equals( extArray[5] )) {
-                        commObject.setRequired();
-                    }
-                    if ("true".equals( extArray[6] )) {
-                        commObject.setProhibited();
-                    }
-                    list.add( commObject );
-                } else {
-                    log.error( "QueryExtension could not be extracted, because of missing values. Expected 7 but got: "
-                            + extArray.length );
-                }
-            }
-            return list;
-        }
-
-    }
-    
-    public class StringToArray extends TypeTransformer<String, String[]> {
-        
-        @Override
-        public String[] transform( String input ) {
-            if (input.isEmpty()) return new String[0];
-            return input.split( "," );
-        }
-    }
-    
-    public class StringToList extends TypeTransformer<String, List<String>> {
-        
-        @SuppressWarnings("unchecked")
-        @Override
-        public List<String> transform( String input ) {
-            List<String> list = new ArrayList<>();
-            if (!"".equals( input )) {
-                list.addAll( Arrays.asList( input.split( "," ) ) );
-            }
-            return list;
-        }
-    }
 
     private static final List<String> IGNORE_LIST = new ArrayList<>();
 
     /**
      * SERVER - CONFIGURATION
      */
-    @SystemPropertyValue("jetty.webapp")
-    @PropertyValue("jetty.webapp")
-    @DefaultValue("webapp")
+    @Value("${jetty.webapp:webapp}")
     public String webappDir;
 
-    @SystemPropertyValue("jetty.port")
-    @PropertyValue("jetty.port")
-    @DefaultValue("8082")
+    @Value("${jetty.port:8082}")
     public Integer webappPort;
-    
-    @PropertyValue("communication.server.timeout")
-    @DefaultValue("10")
+
+    @Value("${communication.server.timeout:10}")
     public int ibusTimeout;
     
-    @PropertyValue("communication.server.maxMsgSize")
-    @DefaultValue("10485760")
+    @Value("${communication.server.maxMsgSize:10485760}")
     public int ibusMaxMsgSize;
     
-    @PropertyValue("communication.server.threadCount")
-    @DefaultValue("100")
+    @Value("${communication.server.threadCount:100}")
     public int ibusThreadCount;
 
     /**
      * COMMUNICATION - SETTINGS
      */
-    @SystemPropertyValue("communication")
-    @PropertyValue("communication.location")
-    @DefaultValue("conf/communication.xml")
+    @Value("${communication.location:conf/communication.xml}")
     public String communicationLocation;
 
-    @PropertyValue("communication.clientName")
-    @DefaultValue("/ingrid-group:base-webapp")
+    @Value("${communication.clientName:/ingrid-group:base-webapp}")
     public String communicationProxyUrl;
 
-    @TypeTransformers(Config.StringToCommunications.class)
-    @PropertyValue("communications.ibus")
-    @DefaultValue("")
-    public List<CommunicationCommandObject> ibusses;
-    
-    @PropertyValue("communications.disableIBus")
-    @DefaultValue("false")
+    //@Value("${communications.ibus:}")
+    //public List<CommunicationCommandObject> ibusses;
+    public List<CommunicationCommandObject> ibusses = new ArrayList<>();
+
+    @Value("${communications.disableIBus:false}")
     public boolean disableIBus;
     
 
     /**
      * PLUGDESCRIPTION
      */
-    @SystemPropertyValue("plugdescription")
-    @DefaultValue("conf/plugdescription.xml")
+    @Value("${plugdescription:conf/plugdescription.xml}")
     private String plugdescriptionLocation;
 
-    @PropertyValue("plugdescription.workingDirectory")
-    @DefaultValue(".")
+    @Value("${plugdescription.workingDirectory:.}")
     public String pdWorkingDir;
 
-    @PropertyValue("plugdescription.IPLUG_ADMIN_PASSWORD")
+    @Value("${plugdescription.IPLUG_ADMIN_PASSWORD}")
     public String pdPassword;
 
-    @SystemPropertyValue("indexing")
-    @PropertyValue("indexing")
-    @DefaultValue("false")
+    @Value("${indexing:false}")
     public boolean indexing;
 
-    @TypeTransformers(StringToList.class)
-    @PropertyValue("plugdescription.dataType")
-    @DefaultValue("")
+    @Value("${plugdescription.dataType:}")
     public List<String> datatypes;
     
     public Map<String, String[]> datatypesOfIndex = null;
 
-    @PropertyValue("plugdescription.organisationPartnerAbbr")
+    @Value("${plugdescription.organisationPartnerAbbr}")
     public String mainPartner;
 
-    @PropertyValue("plugdescription.organisationAbbr")
+    @Value("${plugdescription.organisationAbbr}")
     public String mainProvider;
 
-    @PropertyValue("plugdescription.organisation")
+    @Value("${plugdescription.organisation}")
     public String organisation;
 
-    @PropertyValue("plugdescription.personTitle")
+    @Value("${plugdescription.personTitle}")
     public String personTitle;
 
-    @PropertyValue("plugdescription.personName")
+    @Value("${plugdescription.personName}")
     public String personName;
 
-    @PropertyValue("plugdescription.personSureName")
+    @Value("${plugdescription.personSureName}")
     public String personSurname;
 
-    @PropertyValue("plugdescription.personMail")
+    @Value("${plugdescription.personMail}")
     public String personEmail;
 
-    @PropertyValue("plugdescription.personPhone")
+    @Value("${plugdescription.personPhone}")
     public String personPhone;
 
-    @PropertyValue("plugdescription.dataSourceName")
+    @Value("${plugdescription.dataSourceName}")
     public String datasourceName;
 
-    @PropertyValue("plugdescription.dataSourceDescription")
+    @Value("${plugdescription.dataSourceDescription}")
     public String datasourceDescription;
 
-    @PropertyValue("plugdescription.IPLUG_ADMIN_GUI_URL")
+    @Value("${plugdescription.IPLUG_ADMIN_GUI_URL}")
     public String guiUrl;
 
-    @TypeTransformers(CharacterSeparatedStringToStringListTransformer.class)
-    @PropertyValue("plugdescription.fields")
-    @DefaultValue("")
+    @Value("${plugdescription.fields:}")
     private List<String> fields;
 
-    @TypeTransformers(StringToArray.class)
-    @PropertyValue("plugdescription.partner")
+    @Value("${plugdescription.partner}")
     public String[] partner;
 
-    @TypeTransformers(StringToArray.class)
-    @PropertyValue("plugdescription.provider")
+    @Value("${plugdescription.provider}")
     public String[] provider;
 
-    @TypeTransformers(StringToQueryExtension.class)
-    @PropertyValue("plugdescription.queryExtensions")
-    private List<FieldQueryCommandObject> queryExtensions;
+    //@Value("${plugdescription.queryExtensions}")
+    private List<FieldQueryCommandObject> queryExtensions = new ArrayList<>();
     
-    @PropertyValue("plugdescription.isRecordLoader")
-    @DefaultValue("true")
+    @Value("${plugdescription.isRecordLoader:true}")
     public boolean recordLoader;
     
-    @PropertyValue("plugdescription.forceAddRankingOff")
-    @DefaultValue("false")
+    @Value("${plugdescription.forceAddRankingOff:false}")
     public boolean forceAddRankingOff;
     
-    @PropertyValue("plugdescription.ranking")
-    @DefaultValue("off")
+    @Value("${plugdescription.ranking:off}")
     public List<String> rankings;
 
-    @TypeTransformers(Config.StringToArray.class)
-    @PropertyValue("elastic.remote.hosts")
-    @DefaultValue("127.0.0.1:9300")
+    @Value("${elastic.remote.hosts:127.0.0.1:9300}")
     public String[] esRemoteHosts;
     
-    @PropertyValue("elastic.boost.field")
-    @DefaultValue("boost")
+    @Value("${elastic.boost.field:boost}")
     public String esBoostField;
     
-    @PropertyValue("elastic.boost.modifier")
-    @DefaultValue("log1p")
+    @Value("${elastic.boost.modifier:log1p}")
     public String esBoostModifier;
     
-    @PropertyValue("elastic.boost.factor")
-    @DefaultValue("1")
+    @Value("${elastic.boost.factor:1}")
     public float esBoostFactor;
     
-    @PropertyValue("elastic.boost.mode")
-    @DefaultValue("sum")
+    @Value("${elastic.boost.mode:sum}")
     public String esBoostMode;
     
-    @PropertyValue("cluster.name")
-    @DefaultValue("ingrid")
+    @Value("${cluster.name:ingrid}")
     public String cluster;
 
-    @PropertyValue("index.name")
-    @DefaultValue("test")
+    @Value("${index.name:test}")
     public String index;
 
-    @PropertyValue("index.type")
-    @DefaultValue("base")
+    @Value("${index.type:base}")
     public String indexType;
     
-    @PropertyValue("index.alias")
-    @DefaultValue("")
+    @Value("${index.alias:}")
     public String indexAlias;
     
-    @TypeTransformers(StringToList.class)
-    @PropertyValue("index.searchInTypes")
-    @DefaultValue("")
+    @Value("${index.searchInTypes:}")
     public List<String> indexSearchInTypes;
     
-    @PropertyValue("index.id")
-    @DefaultValue("id")
+    @Value("${index.id:id}")
     public String indexIdFromDoc;
     
-    @PropertyValue("index.autoGenerateId")
-    @DefaultValue("true")
+    @Value("${index.autoGenerateId:true}")
     public boolean indexWithAutoId;
     
-    @PropertyValue("search.type")
-    @DefaultValue("DEFAULT")
+    @Value("${search.type:DEFAULT}")
     public String searchType;
     
-    @PropertyValue("index.field.title")
-    @DefaultValue("title")
+    @Value("${index.field.title:title}")
     public String indexFieldTitle;
     
-    @PropertyValue("index.field.summary")
-    @DefaultValue("summary")
+    @Value("${index.field.summary:summary}")
     public String indexFieldSummary;
     
-    @TypeTransformers(Config.StringToArray.class)
-    @PropertyValue("index.search.defaultFields")
-    @DefaultValue("title,content")
+    @Value("${index.search.defaultFields:title,content}")
     public String[] indexSearchDefaultFields;
     
-    @TypeTransformers(Config.StringToArray.class)
-    @PropertyValue("index.search.additional.detail.fields")
-    @DefaultValue("")
+    @Value("${index.search.additional.detail.fields:}")
     public String[] additionalSearchDetailFields;
 
-    @PropertyValue("index.boost.enable")
-    @DefaultValue("false")
+    @Value("${index.boost.enable:false}")
     public boolean indexEnableBoost;
 
-    @TypeTransformers(Config.StringToArray.class)
-    @PropertyValue("index.fields.exclude")
-    @DefaultValue("")
+    @Value("${index.fields.exclude:}")
     public String[] indexFieldsExcluded;
 
-    @TypeTransformers(Config.StringToArray.class)
-    @PropertyValue("index.fields.include")
-    @DefaultValue("*")
+    @Value("${index.fields.include:*}")
     public String[] indexFieldsIncluded;
 
     // this field is overwritten in iPlugSE, where results
     // shall be grouped by URL instead of the iPlug-ID
-    @PropertyValue("index.search.groupByUrl")
-    @DefaultValue("false")
+    @Value("${index.search.groupByUrl:false}")
     public boolean groupByUrl;
 
     // this field contains all the index names defined in the doc producers
     // if none was defined there, then the global index from this config is used
-    @TypeTransformers(Config.StringToArray.class)
-    @DefaultValue("")
+    @Value("")
     public String[] docProducerIndices;
 
-    @PropertyValue("index.alwaysCreate")
-    @DefaultValue("true")
+    @Value("${index.alwaysCreate:true}")
     public boolean alwaysCreateNewIndex;
 
     // CACHE - PROPERTIES
-    @PropertyValue("plugdescription.CACHED_ELEMENTS")
-    @DefaultValue("1000")
+    @Value("${plugdescription.CACHED_ELEMENTS:1000}")
     private int cacheElements;
-    @PropertyValue("plugdescription.CACHED_IN_DISK_STORE")
-    @DefaultValue("false")
+    @Value("${plugdescription.CACHED_IN_DISK_STORE:false}")
     private boolean cacheDiskStore;
-    @PropertyValue("plugdescription.CACHED_LIFE_TIME")
-    @DefaultValue("10")
+    @Value("${plugdescription.CACHED_LIFE_TIME:10}")
     private int cacheLifeTime;
-    @PropertyValue("plugdescription.CACHE_ACTIVE")
-    @DefaultValue("true")
+    @Value("${plugdescription.CACHE_ACTIVE:true}")
     private boolean cacheActive;
     
-    @SystemPropertyValue("indexOnStartup")
-    @PropertyValue("indexOnStartup")
-    @DefaultValue("false")
+    @Value("${indexOnStartup:false}")
     public boolean indexOnStartup;
     
-    @PropertyValue("heartbeatInterval")
-    @DefaultValue("60")
+    @Value("${heartbeatInterval:60}")
     public int heartbeatInterval;
 
-    @PropertyValue("elastic.communication.ibus")
-    @DefaultValue("false")
+    @Value("${elastic.communication.ibus:false}")
     public boolean esCommunicationThroughIBus;
 
     public String getWebappDir() {
@@ -461,7 +295,7 @@ public class Config {
                     writeCommunicationToProperties();
                 // read plug description and write properties
                 PlugdescriptionCommandObject pd = new PlugdescriptionCommandObject( new File(
-                        "conf/plugdescription.xml" ) );
+                        "conf/plugdescription.xml" ), this);
                 writePlugdescriptionToProperties( pd );
             } catch (IOException e1) {
                 log.error( "Error creating override configuration", e1 );
@@ -484,9 +318,7 @@ public class Config {
         IGNORE_LIST.add( "QUERY_EXTENSION_CONTAINER" );
         IGNORE_LIST.add( "connection" );
 
-        //
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
-        if (!iBusDisabled) {
+        if (!this.disableIBus) {
             writeCommunication(this.communicationLocation, this.ibusses );
         }
     }
@@ -728,8 +560,8 @@ public class Config {
         return result;
     }
 
-    private String convertListToString(@SuppressWarnings("rawtypes") List list) {
-        return Joiner.on( "," ).join( list );
+    private String convertListToString(List<String> list) {
+        return Strings.join(list, ",");
     }
 
     public PlugdescriptionCommandObject getPlugdescriptionFromConfiguration() {

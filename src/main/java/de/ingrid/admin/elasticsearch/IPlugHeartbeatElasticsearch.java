@@ -34,9 +34,11 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
 
     private List<String> docProducerIndices;
 
+    private final Config config;
+
     @Autowired
-    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager) {
-        Config config = JettyStarter.getInstance().config;
+    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config) {
+        this.config = config;
 
         if (config.esCommunicationThroughIBus) {
             this.indexManager = ibusIndexManager;
@@ -86,7 +88,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
 	private String getHearbeatInfo(String id) {
 		try {
 			return XContentFactory.jsonBuilder().startObject()
-					.field( "plugId", JettyStarter.getInstance().config.communicationProxyUrl )
+					.field( "plugId", config.communicationProxyUrl )
 					.field( "indexId", id )
 					.field( "lastHeartbeat", new Date() )
 					.endObject()

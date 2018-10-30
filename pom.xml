@@ -43,18 +43,6 @@
 
   <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
-    <!-- lib to collect all configuration -->
-    <!-- the elasticsearch plugin must be added to the elasticseach node cluster! -->
-    <!--<dependency>
-        <groupId>org.xbib.elasticsearch.plugin</groupId>
-	    <artifactId>elasticsearch-analysis-decompound</artifactId>
-	    <version>1.5.2.0-highlight-fix</version>
-    </dependency>-->
-    <dependency>
-      <groupId>com.tngtech.java</groupId>
-      <artifactId>config-builder</artifactId>
-      <version>1.6.0</version>
-    </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
