@@ -298,11 +298,6 @@ public class Config {
     @DefaultValue("off")
     public List<String> rankings;
 
-    @TypeTransformers(Config.StringToArray.class)
-    @PropertyValue("elastic.remote.hosts")
-    @DefaultValue("127.0.0.1:9300")
-    public String[] esRemoteHosts;
-    
     @PropertyValue("elastic.boost.field")
     @DefaultValue("boost")
     public String esBoostField;
@@ -422,6 +417,10 @@ public class Config {
     @PropertyValue("heartbeatInterval")
     @DefaultValue("60")
     public int heartbeatInterval;
+
+    @PropertyValue("elastic.enabled")
+    @DefaultValue("true")
+    public boolean elasticEnabled;
 
     @PropertyValue("elastic.communication.ibus")
     @DefaultValue("false")
@@ -776,8 +775,9 @@ public class Config {
         pd.setCachedLifeTime(cacheLifeTime );
         pd.setCachedElements( cacheElements );
         pd.setCachedInDiskStore( cacheDiskStore );
-        // all iPlugs with this version of the base webapp will use the central index
-        pd.put("useRemoteElasticsearch", true);
+        // all iPlugs with this version of the base webapp will use the central index unless elasticsearch is disabled
+        // in that case the indexing is also probably disabled, e.g. iPlug Opensearch
+        pd.put("useRemoteElasticsearch", elasticEnabled);
         
 
         if (partner != null) {
