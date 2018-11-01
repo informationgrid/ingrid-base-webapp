@@ -37,8 +37,10 @@ import net.weta.components.communication.configuration.XPathService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -48,17 +50,20 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Configuration
+@PropertySource(value = {"classpath:config.properties", "classpath:config.override.properties"})
 public class Config {
 
     private static Log log = LogFactory.getLog( Config.class );
 
-    private static String QUERYTYPE_ALLOW = "allow";
-    private static String QUERYTYPE_DENY = "deny";
+    public static final String QUERYTYPE_ALLOW = "allow";
+    public static final String QUERYTYPE_DENY = "deny";
     public static final String QUERYTYPE_MODIFY = "modify";
 
 
-
     private static final List<String> IGNORE_LIST = new ArrayList<>();
+
+    @Autowired(required = false)
+    private IConfig externalConfig;
 
     /**
      * SERVER - CONFIGURATION
@@ -87,9 +92,7 @@ public class Config {
     @Value("${communication.clientName:/ingrid-group:base-webapp}")
     public String communicationProxyUrl;
 
-    //@Value("${communications.ibus:}")
-    //public List<CommunicationCommandObject> ibusses;
-    public List<CommunicationCommandObject> ibusses = new ArrayList<>();
+    public List<CommunicationCommandObject> ibusses;
 
     @Value("${communications.disableIBus:false}")
     public boolean disableIBus;
@@ -99,7 +102,7 @@ public class Config {
      * PLUGDESCRIPTION
      */
     @Value("${plugdescription:conf/plugdescription.xml}")
-    private String plugdescriptionLocation;
+    public String plugdescriptionLocation;
 
     @Value("${plugdescription.workingDirectory:.}")
     public String pdWorkingDir;
@@ -157,8 +160,7 @@ public class Config {
     @Value("${plugdescription.provider}")
     public String[] provider;
 
-    //@Value("${plugdescription.queryExtensions}")
-    private List<FieldQueryCommandObject> queryExtensions = new ArrayList<>();
+    private List<FieldQueryCommandObject> queryExtensions;
     
     @Value("${plugdescription.isRecordLoader:true}")
     public boolean recordLoader;
@@ -201,8 +203,10 @@ public class Config {
     
     @Value("${index.id:id}")
     public String indexIdFromDoc;
-    
+
+    /* Use property in ElasticConfig instead */
     @Value("${index.autoGenerateId:true}")
+    @Deprecated()
     public boolean indexWithAutoId;
     
     @Value("${search.type:DEFAULT}")
@@ -260,10 +264,6 @@ public class Config {
 
     @Value("${elastic.communication.ibus:false}")
     public boolean esCommunicationThroughIBus;
-
-    public String getWebappDir() {
-        return this.webappDir;
-    }
 
     public Integer getWebappPort() {
         return this.webappPort;
@@ -327,19 +327,18 @@ public class Config {
         return this.indexing;
     }
 
-    public boolean writeCommunication(String communicationLocation, List<CommunicationCommandObject> ibusses) {
+    public void writeCommunication(String communicationLocation, List<CommunicationCommandObject> ibusses) {
         File communicationFile = new File( communicationLocation );
         if (ibusses == null || ibusses.isEmpty()) {
             // do not remove communication file if no
             if (communicationFile.exists()) {
                 communicationFile.delete();
             }
-            return true;
         }
 
         try {
             final XPathService communication = openCommunication( communicationFile );
-            Integer id = 0;
+            int id = 0;
 
             communication.setAttribute( "/communication/client", "name", this.communicationProxyUrl );
             communication.removeNode( "/communication/client/connections/server", id );
@@ -369,13 +368,11 @@ public class Config {
 
         } catch (Exception e) {
             log.error( "Error writing communication.xml: ", e );
-            return false;
         }
 
-        return true;
     }
 
-    private final XPathService openCommunication(final File communicationFile) throws Exception {
+    private XPathService openCommunication(final File communicationFile) throws Exception {
         // first of all create directories if necessary
         if (communicationFile.getParentFile() != null) {
             if (!communicationFile.getParentFile().exists()) {
@@ -415,14 +412,14 @@ public class Config {
             // ---------------------------
             props.setProperty( "communication.clientName", communicationProxyUrl );
 
-            String communications = "";
+            StringBuilder communications = new StringBuilder();
             for (int i = 0; i < ibusses.size(); i++) {
                 CommunicationCommandObject ibus = ibusses.get( i );
-                communications += ibus.getBusProxyServiceUrl() + "," + ibus.getIp() + "," + ibus.getPort();
+                communications.append(ibus.getBusProxyServiceUrl()).append(",").append(ibus.getIp()).append(",").append(ibus.getPort());
                 if (i != (ibusses.size() - 1))
-                    communications += "##";
+                    communications.append("##");
             }
-            props.setProperty( "communications.ibus", communications );
+            props.setProperty( "communications.ibus", communications.toString());
 
             // ---------------------------
             try (OutputStream os = new FileOutputStream( override.getFile().getAbsolutePath() )) {
@@ -452,30 +449,30 @@ public class Config {
             };
             props.load( is );
 
-            for (Iterator<Object> it = pd.keySet().iterator(); it.hasNext();) {
-                String key = (String) it.next();
-                
+            for (Object o : pd.keySet()) {
+                String key = (String) o;
+
                 // do not write properties from plug description we do not want
-                if (IGNORE_LIST.contains( key )) continue;
-                
-                Object valObj = pd.get( key );
+                if (IGNORE_LIST.contains(key)) continue;
+
+                Object valObj = pd.get(key);
                 if (valObj instanceof String) {
-                    props.setProperty( "plugdescription." + key, (String) valObj );
+                    props.setProperty("plugdescription." + key, (String) valObj);
                 } else if (valObj instanceof List) {
-                    props.setProperty( "plugdescription." + key, convertListToString( (List) valObj ) );
+                    props.setProperty("plugdescription." + key, convertListToString((List) valObj));
                 } else if (valObj instanceof Integer) {
-                    if ("IPLUG_ADMIN_GUI_PORT".equals( key )) {
-                        props.setProperty( "jetty.port", String.valueOf( valObj ) );
+                    if ("IPLUG_ADMIN_GUI_PORT".equals(key)) {
+                        props.setProperty("jetty.port", String.valueOf(valObj));
                     } else {
-                        props.setProperty( "plugdescription." + key, String.valueOf( valObj ) );
+                        props.setProperty("plugdescription." + key, String.valueOf(valObj));
                     }
                 } else if (valObj instanceof File) {
-                    props.setProperty( "plugdescription." + key, ((File) valObj).getPath() );
+                    props.setProperty("plugdescription." + key, ((File) valObj).getPath());
                 } else {
                     if (valObj != null) {
-                        props.setProperty( "plugdescription." + key, valObj.toString() );
+                        props.setProperty("plugdescription." + key, valObj.toString());
                     } else {
-                        log.warn( "value of plugdescription field was NULL: " + key );
+                        log.warn("value of plugdescription field was NULL: " + key);
                     }
                 }
             }
@@ -493,7 +490,6 @@ public class Config {
             
             setDatatypes(props);
 
-            IConfig externalConfig = JettyStarter.getInstance().getExternalConfig();
             if (externalConfig != null) {
                 externalConfig.setPropertiesFromPlugdescription( props, pd );
                 externalConfig.addPlugdescriptionValues( pd );
@@ -542,22 +538,22 @@ public class Config {
     }
 
     private String convertQueryExtensionsToString(List<FieldQueryCommandObject> queryExtensions) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         if (queryExtensions != null) {
             for (FieldQueryCommandObject fq : queryExtensions) {
-                result += fq.getBusUrl() + ",";
-                result += fq.getRegex() + ",";
-                result += fq.getOption() + ",";
-                result += fq.getKey() + ",";
-                result += fq.getValue() + ",";
-                result += fq.getRequired() + ",";
-                result += fq.getProhibited() + "##";
+                result.append(fq.getBusUrl()).append(",");
+                result.append(fq.getRegex()).append(",");
+                result.append(fq.getOption()).append(",");
+                result.append(fq.getKey()).append(",");
+                result.append(fq.getValue()).append(",");
+                result.append(fq.getRequired()).append(",");
+                result.append(fq.getProhibited()).append("##");
             }
-            if (!result.isEmpty()) {
+            if (result.length() > 0) {
                 return result.substring( 0, result.length() - 2 );
             }
         }
-        return result;
+        return result.toString();
     }
 
     private String convertListToString(List<String> list) {
@@ -643,12 +639,16 @@ public class Config {
             boolean date = false;
             boolean notRanked = false;
             for (String ranking : rankings) {
-                if (ranking.equals( "score" )) {
-                    score = true;
-                } else if (ranking.equals( "date" )) {
-                    date = true;
-                } else if (ranking.equals( "off" )) {
-                    notRanked = true;
+                switch (ranking) {
+                    case "score":
+                        score = true;
+                        break;
+                    case "date":
+                        date = true;
+                        break;
+                    case "off":
+                        notRanked = true;
+                        break;
                 }
             }
 
@@ -682,17 +682,22 @@ public class Config {
         // create field query
         final Pattern pattern = Pattern.compile( fieldQuery.getRegex() );
         FieldQuery fq = null;
-        if (behaviour.equals( QUERYTYPE_MODIFY )) {
-            fq = new FieldQuery( fieldQuery.getRequired(), fieldQuery.getProhibited(), fieldQuery.getKey(),
-                    fieldQuery.getValue() );
-        } else if (behaviour.equals( QUERYTYPE_DENY )) {
-            fq = new FieldQuery( fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_deny" );
-            fieldQuery.setKey( "metainfo" );
-            fieldQuery.setValue( "query_deny" );
-        } else if (behaviour.equals( QUERYTYPE_ALLOW )) {
-            fq = new FieldQuery( fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_allow" );
-            fieldQuery.setKey( "metainfo" );
-            fieldQuery.setValue( "query_allow" );
+
+        switch (behaviour) {
+            case QUERYTYPE_MODIFY:
+                fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), fieldQuery.getKey(),
+                        fieldQuery.getValue());
+                break;
+            case QUERYTYPE_DENY:
+                fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_deny");
+                fieldQuery.setKey("metainfo");
+                fieldQuery.setValue("query_deny");
+                break;
+            case QUERYTYPE_ALLOW:
+                fq = new FieldQuery(fieldQuery.getRequired(), fieldQuery.getProhibited(), "metainfo", "query_allow");
+                fieldQuery.setKey("metainfo");
+                fieldQuery.setValue("query_allow");
+                break;
         }
         extension.addFieldQuery( pattern, fq );
     }
@@ -755,5 +760,53 @@ public class Config {
             log.error( "Error when getting config.override.properties", e );
         }
         return new FileSystemResource( "conf/config.override.properties" );
+    }
+
+    @Value("${communications.ibus:}")
+    private void setCommunication(String ibusse) {
+        List<CommunicationCommandObject> list = new ArrayList<>();
+        String[] split = ibusse.split( "##" );
+        for (String comm : split) {
+            String[] communication = comm.split( "," );
+            if (communication.length == 3) {
+                CommunicationCommandObject commObject = new CommunicationCommandObject();
+                commObject.setBusProxyServiceUrl( communication[0] );
+                commObject.setIp( communication[1] );
+                commObject.setPort( Integer.valueOf( communication[2] ) );
+                list.add( commObject );
+            }
+        }
+        ibusses = list;
+    }
+
+    @Value("${plugdescription.queryExtensions:}")
+    private void setFieldQueries(String queries) {
+        List<FieldQueryCommandObject> list = new ArrayList<>();
+        if (!"".equals( queries )) {
+            String[] split = queries.split("##");
+            for (String extensions : split) {
+                String[] extArray = extensions.split(",");
+                if (extArray.length == 7) {
+                    FieldQueryCommandObject commObject = new FieldQueryCommandObject();
+                    commObject.setBusUrl(extArray[0]);
+                    commObject.setRegex(extArray[1]);
+                    commObject.setOption(extArray[2]);
+                    commObject.setKey(extArray[3]);
+                    commObject.setValue(extArray[4]);
+                    if ("true".equals(extArray[5])) {
+                        commObject.setRequired();
+                    }
+                    if ("true".equals(extArray[6])) {
+                        commObject.setProhibited();
+                    }
+                    list.add(commObject);
+                } else {
+                    log.error("QueryExtension could not be extracted, because of missing values. Expected 7 but got: "
+                            + extArray.length);
+                }
+            }
+        }
+
+        queryExtensions = list;
     }
 }

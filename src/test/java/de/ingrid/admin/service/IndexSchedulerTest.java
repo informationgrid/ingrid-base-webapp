@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import de.ingrid.admin.Config;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
@@ -39,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.ingrid.admin.IKeys;
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
@@ -63,8 +63,8 @@ public class IndexSchedulerTest {
 
         private int _counter = 0;
 
-        public DummyRunnable(final long time, PlugDescriptionService pdService) throws Exception {
-            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, null);
+        public DummyRunnable(final long time, PlugDescriptionService pdService, Config config) {
+            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, config);
             _time = time;
         }
 
@@ -107,22 +107,28 @@ public class IndexSchedulerTest {
             TestUtils.delete(file);
         }
         System.out.println(file.exists());
+
         assertTrue(file.mkdirs());
         pd.setWorkinDirectory(file);
+
         // store our location of pd as system property to be fetched by pdService
-        System.setProperty(IKeys.PLUG_DESCRIPTION, new File(file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath());
+        Config config = new Config();
+        config.plugdescriptionLocation = new File(file.getAbsolutePath(), "plugdescription.xml").getAbsolutePath();
+
 
         //IngridIndexSearcher searcher = new IngridIndexSearcher(new QueryParsers(), new LuceneIndexReaderWrapper(null));
-        PlugDescriptionService pdService = new PlugDescriptionService(null);
-        _runnable = new DummyRunnable(1000L, pdService);
+        PlugDescriptionService pdService = new PlugDescriptionService(config);
+        _runnable = new DummyRunnable(1000L, pdService, config);
         _runnable.configure(pd);
 
-        _scheduler = new IndexScheduler(_runnable, null);
+        _scheduler = new IndexScheduler(_runnable, config);
     }
 
     @After
     public void tearDown() throws Exception {
-        _scheduler.deletePattern();
+        if (_scheduler != null) {
+            _scheduler.deletePattern();
+        }
     }
 
     @Test
@@ -172,7 +178,7 @@ public class IndexSchedulerTest {
         assertEquals(pattern, _scheduler.getPattern());
 
         // lets simulate a new start
-        final IndexScheduler scheduler2 = new IndexScheduler(_runnable, null);
+        final IndexScheduler scheduler2 = new IndexScheduler(_runnable, new Config());
         assertEquals(pattern, scheduler2.getPattern());
         scheduler2.deletePattern();
     }

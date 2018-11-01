@@ -22,16 +22,14 @@
  */
 package de.ingrid.admin.elasticsearch;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.admin.service.DummyProducer;
 import de.ingrid.elasticsearch.*;
+import de.ingrid.elasticsearch.search.FacetConverter;
+import de.ingrid.elasticsearch.search.IQueryParsers;
+import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.elasticsearch.search.converter.*;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
@@ -43,21 +41,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileSystemUtils;
 
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.admin.service.DummyProducer;
-import de.ingrid.elasticsearch.search.FacetConverter;
-import de.ingrid.elasticsearch.search.IQueryParsers;
-import de.ingrid.elasticsearch.search.IndexImpl;
-import de.ingrid.elasticsearch.search.converter.DatatypePartnerProviderQueryConverter;
-import de.ingrid.elasticsearch.search.converter.DefaultFieldsQueryConverter;
-import de.ingrid.elasticsearch.search.converter.FieldQueryIGCConverter;
-import de.ingrid.elasticsearch.search.converter.FuzzyQueryConverter;
-import de.ingrid.elasticsearch.search.converter.MatchAllQueryConverter;
-import de.ingrid.elasticsearch.search.converter.QueryConverter;
-import de.ingrid.elasticsearch.search.converter.RangeQueryConverter;
-import de.ingrid.elasticsearch.search.converter.WildcardFieldQueryConverter;
-import de.ingrid.elasticsearch.search.converter.WildcardQueryConverter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 public class ElasticTests {
 
@@ -65,7 +56,8 @@ public class ElasticTests {
     public static QueryConverter qc;
     public static Client client;
     private static List<IDocumentProducer> docProducers;
-    private static ElasticConfig elasticConfig;
+    public static ElasticConfig elasticConfig;
+    protected static Config config;
 
     /**
      * This will set up an elastic search environment with an index and some test data,
@@ -113,15 +105,15 @@ public class ElasticTests {
         IndexManager indexManager = new IndexManager( elastic, elasticConfig );
         try {
             indexManager.deleteIndex( "test" );
-        } catch (IndexNotFoundException ex) {}
+        } catch (Exception ignored) {}
 
         if (init) {
-            JettyStarter.getInstance().config.index = index;
-            JettyStarter.getInstance().config.indexType = "base";
+            config.index = index;
+            config.indexType = "base";
             try {
                 indexManager.deleteIndex( "test_1" );
-            } catch (IndexNotFoundException ex) {}
-            
+            } catch (Exception ignored) {}
+
             indexManager.createIndex( "test_1" );
             setMapping( elastic, "test_1" );
             prepareIndex( elastic, fileData, "test_1" );
@@ -132,7 +124,7 @@ public class ElasticTests {
         docProducers.add( new DummyProducer() );
     }
 
-    private static Properties getConfigProperties() {
+    public static Properties getConfigProperties() {
         Properties p = new Properties();
         try {
             // check for elastic search settings in classpath, which works
@@ -180,7 +172,7 @@ public class ElasticTests {
         client.admin().indices().refresh( refreshRequest ).actionGet();
     }
     
-    private static void setMapping(ElasticsearchNodeFactoryBean elastic, String index) {
+    protected static void setMapping(ElasticsearchNodeFactoryBean elastic, String index) {
         String mappingSource = "";
         try {
             Client client = elastic.getClient();
@@ -211,7 +203,7 @@ public class ElasticTests {
     
     protected IndexImpl getIndexer() throws Exception {
         IndexImpl indexImpl = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService());
-        JettyStarter.getInstance().config.docProducerIndices = new String[] { "test:test" };
+        config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }
     

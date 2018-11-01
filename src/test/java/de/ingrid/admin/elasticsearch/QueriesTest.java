@@ -48,7 +48,7 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 public class QueriesTest {
 
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception {}
+    public static void setUpBeforeClass() {}
 
     @Test
     public void queryConvertFields() throws ParseException {
@@ -64,24 +64,7 @@ public class QueriesTest {
         BoolQueryBuilder result = queryConverter.convert( q );
         assertThat( result, not( is( nullValue() ) ) );
         assertThat( result.toString(), containsString( "\"wildcard\" : {" ) );
-        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : \"http*\"" ) );
+        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
+                "                        \"wildcard\" : \"http*\"" ) );
     }
-    
-    @Test
-    public void complexOrQuery() throws ParseException {
-        String query = "(capabilities_url:http* OR t011_obj_serv_op_connpoint.connect_point:http*) datatype:metadata";
-        IngridQuery q = QueryStringParser.parse( query );
-        QueryConverter queryConverter = new QueryConverter();
-        List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
-        parsers.add( new DatatypePartnerProviderQueryConverter() );
-        parsers.add( new FieldQueryConverter() );
-        parsers.add( new WildcardQueryConverter() );
-        parsers.add( new WildcardFieldQueryConverter() );
-        queryConverter.setQueryParsers( parsers  );
-        BoolQueryBuilder result = queryConverter.convert( q );
-        assertThat( result, not( is( nullValue() ) ) );
-        assertThat( result.toString(), containsString( "\"wildcard\" : {" ) );
-        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : \"http*\"" ) );
-    }
-
 }

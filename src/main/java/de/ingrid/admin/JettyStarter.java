@@ -44,20 +44,18 @@ import java.util.Properties;
 public class JettyStarter {
     private static final Log log = LogFactory.getLog(JettyStarter.class);
 
+    public static Config baseConfig;
+
     public Config config;
 
     private IConfig externalConfig;
 
 
-    private PlugDescriptionService plugDescriptionService;
-
-	private static JettyStarter instance;
-
     @Autowired
     public JettyStarter(Config config, IConfig externalConfig, PlugDescriptionService plugDescriptionService) throws Exception {
+        baseConfig = config;
         this.config = config;
         this.externalConfig = externalConfig;
-        this.plugDescriptionService = plugDescriptionService;
 
         // do some initialization by reading properties and writing configuration files
         config.initialize();
@@ -83,41 +81,29 @@ public class JettyStarter {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-    	instance = new JettyStarter();
-    	//instance.config.getWebappDir();
-    	//instance.start();
-    }
-    
-    public static JettyStarter getInstance() {
-        return instance;
-    }
-    
     public JettyStarter() throws Exception {
-        setExternalConfig(this.externalConfig);
-        configure();
         start();
     }
-    
+
     public JettyStarter(boolean startImmediately) throws Exception {
-        configure();
         if (startImmediately) {
             start();
         }
     }
-    
+
     public JettyStarter( IConfig config ) throws Exception {
         this.setExternalConfig(config);
-        configure();
         start();
     }
-    
-    private void configure() {
-        instance = this;
+
+    public static void main(String[] args) throws Exception {
+    	new JettyStarter();
     }
-    
+
     private void start() throws Exception {
+        // we need to get the properties for server manually since spring beans are not initialized yet
         Properties config = this.getProperties();
+
         String webApp = (String) config.get("jetty.webapp");
         WebAppContext webAppContext = new WebAppContext(webApp, "/");
 
@@ -139,12 +125,8 @@ public class JettyStarter {
         return config;
     }
 
-    public void setExternalConfig(IConfig config) {
+    private void setExternalConfig(IConfig config) {
         externalConfig = config;
     }
-    public IConfig getExternalConfig() {
-        return externalConfig;
-        
-    }
-    
+
 }

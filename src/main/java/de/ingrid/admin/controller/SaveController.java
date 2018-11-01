@@ -47,6 +47,8 @@ public class SaveController extends AbstractController {
 
     private final PlugDescriptionService _plugDescriptionService;
 
+    @Autowired(required = false)
+    private IConfig externalConfig;
 
     private Config config;
 
@@ -94,8 +96,8 @@ public class SaveController extends AbstractController {
         
         // read plug description again from configuration
         plugdescriptionCommandObject = config.getPlugdescriptionFromConfiguration();
-        if (JettyStarter.getInstance().getExternalConfig() != null) {
-            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
+        if (externalConfig != null) {
+            externalConfig.addPlugdescriptionValues( plugdescriptionCommandObject );
         }
 
         config.writePlugdescriptionToProperties( plugdescriptionCommandObject );

@@ -111,7 +111,7 @@ public class IndexController extends AbstractController {
 //        List<IndexStatus> indices = new ArrayList<IndexStatus>();
 //        for (IDocumentProducer producer : docProducer) {
 //            
-//            IndexInfo indexInfo = Utils.getIndexInfo( producer, JettyStarter.getInstance().config );
+//            IndexInfo indexInfo = Utils.getIndexInfo( producer, baseConfig );
 //            String indexAlias = indexInfo.getToAlias();
 //            String index = indexInfo.getToIndex();
 //            String indexType = indexInfo.getToType();

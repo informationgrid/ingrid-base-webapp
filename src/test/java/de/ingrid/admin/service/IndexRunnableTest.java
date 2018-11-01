@@ -23,7 +23,6 @@
 package de.ingrid.admin.service;
 
 import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.StatusProvider;
@@ -40,7 +39,6 @@ import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -61,56 +59,73 @@ import static org.junit.Assert.assertEquals;
 
 public class IndexRunnableTest extends ElasticTests {
 
+    private static IndexManager indexManager;
     private IndexRunnable _indexRunnable;
 
     @Mock
     private PlugDescription _plugDescription;
 
-    private Config config = null;
-    
     @Mock
     PlugDescriptionService pds;
-    
+
     private ArrayList<IDocumentProducer> docProducers;
     
 
     @BeforeClass
     public static void setUp() throws Exception {
-        new JettyStarter( false );
+        config = new Config();
+        config.esCommunicationThroughIBus = false;
+        config.index = "test_1";
+        config.indexType = "base";
+        config.indexIdFromDoc = "id";
+        config.additionalSearchDetailFields = new String[0];
+        config.communicationProxyUrl = "/ingrid-group:unit-tests";
+        config.datatypes = Arrays.asList("default".split(","));
+        config.indexSearchInTypes = Arrays.asList("base".split(","));
         setup();
+
+        indexManager = new IndexManager( elastic, elasticConfig );
+        indexManager.postConstruct();
     }
-    
+
     @Before
-    public void beforeTest() throws Exception {
-        try {
-            elastic.getObject().client().admin().indices().prepareDelete( "test" ).execute().actionGet();
-        } catch (IndexNotFoundException ex) {}
-        
+    public void beforeTest() {
+        /*try {
+            elastic.getClient().admin().indices().prepareDelete( "test_1" ).execute().actionGet();
+        } catch (Exception ex) {}*/
+
         MockitoAnnotations.initMocks(this);
-        this.config = JettyStarter.getInstance().config;
-        config.indexWithAutoId = false;
-        
+
         Mockito.when( _plugDescription.getFields() ).thenReturn( new String[] {} );
+
+        try {
+            indexManager.deleteIndex( "test_1" );
+        } catch (Exception ignored) {}
+        indexManager.createIndex("test_1" );
+        setMapping( elastic, "test_1" );
+
+        elasticConfig.indexWithAutoId = false;
     }
-    
+
     @AfterClass
-    public static void afterClass() throws Exception {
-        elastic.getObject().close();
+    public static void afterClass() {
+        elastic.getClient().close();
     }
-    
+
     private void index(int model) throws Exception {
-        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
-        _indexRunnable = new IndexRunnable(pds, indexManager, null, null );
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, config );
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
         docProducers = new ArrayList<IDocumentProducer>();
         docProducers.add( dummyProducer );
-        _indexRunnable.setDocumentProducers(new ElasticConfig(), docProducers);
+        _indexRunnable.setDocumentProducers(elasticConfig, docProducers);
         _indexRunnable.run();
 
-        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index, config.index) );
+        try {
+            indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index, config.index) );
+        } catch (Exception e) {}
         Thread.sleep(1000);
     }
     
@@ -182,7 +197,7 @@ public class IndexRunnableTest extends ElasticTests {
      */
     @Test
     public void indexWithAutoId() throws Exception {
-        config.indexWithAutoId = true;
+        elasticConfig.indexWithAutoId = true;
         index(0);
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
         //createNodeManager();
@@ -196,8 +211,8 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testFlipIndex() throws Exception {
-        config.indexWithAutoId = true;
-        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
+        elasticConfig.indexWithAutoId = false;
+        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
@@ -216,7 +231,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( new ElasticConfig(), new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService() );
+        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService() );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);

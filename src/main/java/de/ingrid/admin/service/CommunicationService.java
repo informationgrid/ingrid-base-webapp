@@ -50,8 +50,9 @@ public class CommunicationService {
 
     private Config config;
 
+    // JettyStarter is needed since it depends on it for initialization
     @Autowired
-    public CommunicationService(final IPlug iPlug, Config config) {
+    public CommunicationService(final IPlug iPlug, Config config, JettyStarter jettyStarter) {
         _iPlug = iPlug;
         this.config = config;
         boolean iBusDisabled = config.disableIBus;

@@ -1,14 +1,9 @@
 package de.ingrid.admin.elasticsearch;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.util.List;
-
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
+import de.ingrid.elasticsearch.IndexInfo;
+import de.ingrid.elasticsearch.IndexManager;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
@@ -19,10 +14,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.elasticsearch.ElasticConfig;
-import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
-import de.ingrid.elasticsearch.IndexManager;
+import java.io.File;
+import java.util.List;
+import java.util.Properties;
+
+import static de.ingrid.admin.elasticsearch.ElasticTests.getConfigProperties;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class IndexManagerTest {
 
@@ -33,27 +31,50 @@ public class IndexManagerTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        new JettyStarter( false );
-
         File dir = new File( "./target/test-data" );
         if (dir.exists())
             FileSystemUtils.deleteRecursively( dir );
 
         elastic = new ElasticsearchNodeFactoryBean();
+
+        Properties elasticProperties = getConfigProperties();
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.isEnabled = true;
+        IndexInfo[] activeIndices = new IndexInfo[1];
+        IndexInfo indexInfo = new IndexInfo();
+        indexInfo.setToIndex("test_1");
+        indexInfo.setToType("base");
+        activeIndices[0] = indexInfo;
+        elasticConfig.activeIndices = activeIndices;
+        elasticConfig.indexFieldSummary = "content";
+        elasticConfig.additionalSearchDetailFields = new String[0];
+        elasticConfig.indexSearchDefaultFields = new String[] { "title", "content" };
+        elasticConfig.remoteHosts = ((String)elasticProperties.get("elastic.remoteHosts")).split(",");
+        elastic.init(elasticConfig);
         elastic.afterPropertiesSet();
-        client = elastic.getObject().client();
+        client = elastic.getClient();
+
+        IndexManager indexManager = new IndexManager( elastic, elasticConfig );
+        String[] indicesToDelete = new String[] {"test_1", "switch_alias_test0", "switch_alias_test1_1", "switch_alias_test1_2", "switch_alias_test2_1", "switch_alias_test2_2", "switch_alias_test3_1", "switch_alias_test4_1", "switch_alias_test4_2", "switch_alias_test5_1", "switch_alias_test5_2"};
+
+        for (String index : indicesToDelete) {
+            try {
+                indexManager.deleteIndex( index );
+            } catch (Exception ignored) {}
+        }
+
     }
 
     @Before
-    public void prepare() throws Exception {
+    public void prepare() {
         indexManager = new IndexManager( elastic, new ElasticConfig() );
         statusProvider = new StatusProvider();
         // TODO: indexManager.setStatusProvider( statusProvider );
     }
     
     @AfterClass
-    public static void afterClass() throws Exception {
-        elastic.getObject().close();
+    public static void afterClass() {
+        elastic.getClient().close();
     }
 
     @Test
