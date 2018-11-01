@@ -6,11 +6,14 @@
             "store": true
         },
         "title": {
+            "analyzer": "german",
             "type": "text",
             "boost": 1.1,
-            "store": true
+            "store": true,
+            "fielddata": true
         },
         "content": {
+            "analyzer": "german",
             "type": "text",
             "store": true
         },
@@ -22,19 +25,20 @@
             "type": "keyword",
             "store": true
         },
-        "dataSourceName": {
+        "mylist": {
             "type": "text",
-            "index": "not_analyzed",
+            "store": true
+        },
+        "dataSourceName": {
+            "type": "keyword",
             "store": true
         },
         "organisation": {
-            "type": "text",
-            "index": "not_analyzed",
+            "type": "keyword",
             "store": true
         },
         "iPlugId": {
             "type": "keyword",
-            "index": "not_analyzed",
             "store": true
         },
         "boost": {

@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import de.ingrid.admin.Config;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -47,17 +48,19 @@ public class GeneralSearchTest extends ElasticTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        new JettyStarter( false );
-        JettyStarter.getInstance().config.indexFieldSummary = "content";
+        config = new Config();
+        config.indexFieldSummary = "content";
+        // new JettyStarter(false);
+
         setup( "test", "data/webUrls.json" );
         IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
-        indexManager.removeAlias("test");
+        indexManager.removeFromAlias("test", "test_1");
         indexManager.switchAlias( "test", null, "test_1" );
     }    
     
    
     @AfterClass
-    public static void afterClass() throws Exception {
+    public static void afterClass() {
         // elastic.getObject().close();
     }
 

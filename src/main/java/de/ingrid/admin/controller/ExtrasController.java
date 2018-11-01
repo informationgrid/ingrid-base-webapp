@@ -22,9 +22,13 @@
  */
 package de.ingrid.admin.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.object.Extras;
+import de.ingrid.admin.validation.ExtrasValidator;
+import de.ingrid.utils.query.IngridQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -34,14 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.object.Extras;
-import de.ingrid.admin.validation.ExtrasValidator;
-import de.ingrid.utils.query.IngridQuery;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This controller is used to allow configuration of not so common parameters.
@@ -62,9 +60,12 @@ public class ExtrasController extends AbstractController {
     
     private final ExtrasValidator _validator;
 
+    private final Config config;
+
     @Autowired
-    public ExtrasController(final ExtrasValidator validator) {
+    public ExtrasController(final ExtrasValidator validator, Config config) {
         _validator = validator;
+        this.config = config;
     }
 
     @RequestMapping(value = {IUris.EXTRAS}, method = RequestMethod.GET)
@@ -73,8 +74,6 @@ public class ExtrasController extends AbstractController {
         if (_visibleEntries.isEmpty()) {
             return redirect(IUris.IPLUG_WELCOME);
         }
-        
-        Config config = JettyStarter.getInstance().config;
         
         Extras e = new Extras();
         // check if the forced parameter (for ranking) was set before
@@ -97,7 +96,6 @@ public class ExtrasController extends AbstractController {
             return IViews.EXTRAS;
         }
         
-        Config config = JettyStarter.getInstance().config;
         if (commandObject.getShowInUnranked()) {
             if (!config.rankings.contains( IngridQuery.NOT_RANKED )) {
                 config.rankings.add( IngridQuery.NOT_RANKED );

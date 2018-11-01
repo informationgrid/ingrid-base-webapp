@@ -22,13 +22,20 @@
  */
 package de.ingrid.admin.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
+import de.ingrid.admin.Utils;
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.object.IDataType;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.admin.object.Partner;
+import de.ingrid.admin.object.Provider;
+import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.validation.AbstractValidator;
+import de.ingrid.admin.validation.IErrorKeys;
+import de.ingrid.admin.validation.PlugDescValidator;
+import de.ingrid.elasticsearch.IndexInfo;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -41,21 +48,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.Utils;
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.object.IDataType;
-import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.admin.object.Partner;
-import de.ingrid.admin.object.Provider;
-import de.ingrid.admin.service.CommunicationService;
-import de.ingrid.admin.validation.AbstractValidator;
-import de.ingrid.admin.validation.IErrorKeys;
-import de.ingrid.admin.validation.PlugDescValidator;
-import de.ingrid.elasticsearch.IndexInfo;
+import java.util.*;
 
 @Controller
 @SessionAttributes("plugDescription")
@@ -70,18 +63,21 @@ public class GeneralController extends AbstractController {
     private final CommunicationService _communicationService;
     
     private List<Partner> _partners = null;
-    
+
+    private final Config config;
+
     @Autowired(required=false)
     private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
 
     @Autowired
     public GeneralController(final CommunicationService communicationInterface,
-            final CommunicationService communicationService, final PlugDescValidator validator,
-            final IDataType... dataTypes) throws Exception {
+                             final CommunicationService communicationService, final PlugDescValidator validator,
+                             Config config, final IDataType... dataTypes) throws Exception {
         _communicationInterface = communicationInterface;
         _communicationService = communicationService;
         _validator = validator;
         _dataTypes = dataTypes;
+        this.config = config;
     }
 
     @ModelAttribute("partners")
@@ -136,7 +132,6 @@ public class GeneralController extends AbstractController {
         addForcedDatatypes(commandObject);
         
         List<IndexInfo> indices = new ArrayList<IndexInfo>();
-        Config config = JettyStarter.getInstance().config;
         if (config.datatypesOfIndex == null) {
             for (IDocumentProducer producer : docProducer) {
                 IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
@@ -171,7 +166,7 @@ public class GeneralController extends AbstractController {
             @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
         String newPW = (String) errors.getFieldValue("newPassword");
-        String currentPW = JettyStarter.getInstance().config.pdPassword;
+        String currentPW = config.pdPassword;
         // only reject empty password if no password has been configured yet at all!
         if ((currentPW == null || currentPW.isEmpty()) && (newPW.isEmpty())) {
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "newPassword", AbstractValidator.getErrorKey(PlugdescriptionCommandObject.class, "newPassword", IErrorKeys.EMPTY));
@@ -194,7 +189,6 @@ public class GeneralController extends AbstractController {
     }
     
     private void addIncludedDataTypes(final IDataType... types) {
-        Config config = JettyStarter.getInstance().config;
         // for all indices
         // check if index has the parent field and add then the included ones
         for (IDocumentProducer producer : docProducer) {
@@ -227,8 +221,7 @@ public class GeneralController extends AbstractController {
     }
   
     private void setConfiguration(PlugdescriptionCommandObject pd) {
-        Config config = JettyStarter.getInstance().config;
-        
+
         config.mainPartner = pd.getOrganisationPartnerAbbr();
         config.mainProvider = pd.getOrganisationAbbr();
         config.organisation = pd.getOrganisation();
@@ -305,13 +298,12 @@ public class GeneralController extends AbstractController {
     }
 
     private void addForcedDatatypesToConfig() {
-        Config config = JettyStarter.getInstance().config;
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {
                     for (IDocumentProducer producer : docProducer) {
                         IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
-                        Utils.addDatatypeToIndex( indexInfo.getIdentifier(), type.getName() );
+                        Utils.addDatatypeToIndex( indexInfo.getIdentifier(), type.getName(), config);
                     }
                     if (docProducer.size() == 0) {
                         config.datatypes.add( type.getName() );
@@ -322,7 +314,6 @@ public class GeneralController extends AbstractController {
     }
     
     private void addForcedDatatypes(PlugdescriptionCommandObject commandObject) {
-        Config config = JettyStarter.getInstance().config;
         if (_dataTypes != null) {
             for (final IDataType type : _dataTypes) {
                 if (type.getIsForced()) {

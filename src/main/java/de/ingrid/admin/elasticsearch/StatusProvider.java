@@ -33,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -40,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
-import com.google.common.io.Files;
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -205,7 +206,7 @@ public class StatusProvider {
 
         // move the temporary file to the configuration file
         this.lastStatusFile.delete();
-        Files.move(tmpFile, this.lastStatusFile);
+        Files.move(Paths.get(tmpFile.getAbsolutePath()), Paths.get(this.lastStatusFile.getAbsolutePath()));
     }
 
     /**

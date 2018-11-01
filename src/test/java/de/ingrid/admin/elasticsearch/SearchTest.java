@@ -30,6 +30,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -51,8 +52,9 @@ public class SearchTest extends ElasticTests {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        new JettyStarter( false );
-        setup( "test", "data/webUrls2.json" );
+        config = new Config();
+        config.indexFieldSummary = "content";
+        setup( "test_1", "data/webUrls2.json" );
         IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
         indexManager.removeAlias("test");
         indexManager.switchAlias( "test", null, "test_1" );

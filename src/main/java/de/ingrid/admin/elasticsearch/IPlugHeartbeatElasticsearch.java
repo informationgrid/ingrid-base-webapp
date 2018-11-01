@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,9 +36,11 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
 
     private List<String> docProducerIndices;
 
+    private final Config config;
+
     @Autowired
-    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager) {
-        Config config = JettyStarter.getInstance().config;
+    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config) {
+        this.config = config;
 
         if (config.esCommunicationThroughIBus) {
             this.indexManager = ibusIndexManager;
@@ -85,13 +89,13 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
 
 	private String getHearbeatInfo(String id) {
 		try {
-			return XContentFactory.jsonBuilder().startObject()
-					.field( "plugId", JettyStarter.getInstance().config.communicationProxyUrl )
-					.field( "indexId", id )
-					.field( "lastHeartbeat", new Date() )
-					.endObject()
-					.string();
-		} catch (IOException ex) {
+            XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject()
+                    .field("plugId", config.communicationProxyUrl)
+                    .field("indexId", id)
+                    .field("lastHeartbeat", new Date())
+                    .endObject();
+            return Strings.toString(xContentBuilder);
+        } catch (IOException ex) {
 			log.error("Error creating iPlug information", ex);
 			return null;
 		}

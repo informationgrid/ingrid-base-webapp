@@ -25,6 +25,7 @@ package de.ingrid.admin.service;
 import java.io.File;
 import java.util.Objects;
 
+import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,13 +48,17 @@ public class CommunicationService {
 
     private boolean _error = false;
 
+    private Config config;
+
+    // JettyStarter is needed since it depends on it for initialization
     @Autowired
-    public CommunicationService(final IPlug iPlug) {
+    public CommunicationService(final IPlug iPlug, Config config, JettyStarter jettyStarter) {
         _iPlug = iPlug;
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        this.config = config;
+        boolean iBusDisabled = config.disableIBus;
         
         if (!iBusDisabled) {
-            _communicationFile = new File(JettyStarter.getInstance().config.communicationLocation);
+            _communicationFile = new File(config.communicationLocation);
             if (!_communicationFile.exists()) {
                 LOG.warn("communication does not exist. please create one via ui setup.");
             }
@@ -133,12 +138,12 @@ public class CommunicationService {
     }
 
     public boolean hasErrors() {
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        boolean iBusDisabled = config.disableIBus;
         return !iBusDisabled && (_communicationFile.exists() && (_error || !isConnected()));
     }
 
     private BusClient getBusClient() {
-        boolean iBusDisabled = JettyStarter.getInstance().config.disableIBus;
+        boolean iBusDisabled = config.disableIBus;
         if (iBusDisabled) return null;
         
         BusClient busClient = BusClientFactory.getBusClient();

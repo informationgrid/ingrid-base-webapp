@@ -122,9 +122,7 @@ public class Utils {
         return indexInfo;
     }
     
-    public static void addDatatypeToIndex(String index, String type) {
-        Config config = JettyStarter.getInstance().config;
-        
+    public static void addDatatypeToIndex(String index, String type, Config config) {
         if (config.datatypesOfIndex != null) {
             String[] types = config.datatypesOfIndex.get( index );
             if (types != null) {

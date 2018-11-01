@@ -22,6 +22,7 @@
   <properties>
     <spring.version>4.3.20.RELEASE</spring.version>
     <log4j2.version>2.8.2</log4j2.version>
+    <elasticsearch.version>6.4.2</elasticsearch.version>
   </properties>
 
   <!-- ==================== REPOSITORIES ==================== -->
@@ -43,18 +44,6 @@
 
   <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
-    <!-- lib to collect all configuration -->
-    <!-- the elasticsearch plugin must be added to the elasticseach node cluster! -->
-    <!--<dependency>
-        <groupId>org.xbib.elasticsearch.plugin</groupId>
-	    <artifactId>elasticsearch-analysis-decompound</artifactId>
-	    <version>1.5.2.0-highlight-fix</version>
-    </dependency>-->
-    <dependency>
-      <groupId>com.tngtech.java</groupId>
-      <artifactId>config-builder</artifactId>
-      <version>1.6.0</version>
-    </dependency>
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
@@ -158,12 +147,12 @@
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
-      <version>6.2.4</version>
+      <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
       <groupId>org.elasticsearch.client</groupId>
       <artifactId>transport</artifactId>
-      <version>6.2.4</version>
+      <version>${elasticsearch.version}</version>
     </dependency>
 
     <!-- optional dep for elastic search -->

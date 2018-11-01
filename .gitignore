@@ -2,6 +2,7 @@
 /.settings
 /target
 /.classpath
+/.idea
 conf/
 test-data/
 /last_status.xml
