@@ -259,8 +259,7 @@ public class Config {
     @Value("${heartbeatInterval:60}")
     public int heartbeatInterval;
 
-    @PropertyValue("elastic.enabled")
-    @DefaultValue("true")
+    @Value("elastic.enabled:true")
     public boolean elasticEnabled;
 
     public boolean esCommunicationThroughIBus;
