@@ -33,6 +33,7 @@ import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
 import joptsimple.internal.Strings;
+import net.weta.components.communication.configuration.ClientConfiguration;
 import net.weta.components.communication.configuration.XPathService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -82,6 +83,12 @@ public class Config {
     
     @Value("${communication.server.threadCount:100}")
     public int ibusThreadCount;
+
+    @Value("${communication.handleTimeout:120}")
+    private int iBusHandleTimeout;
+
+    @Value("${communication.queueSize:2000}")
+    private int iBusQueueSize;
 
     /**
      * COMMUNICATION - SETTINGS
@@ -263,6 +270,8 @@ public class Config {
     public boolean elasticEnabled;
 
     public boolean esCommunicationThroughIBus;
+
+    public ClientConfiguration communicationClientConfiguration;
 
     public Integer getWebappPort() {
         return this.webappPort;
@@ -765,6 +774,7 @@ public class Config {
     @Value("${communications.ibus:}")
     private void setCommunication(String ibusse) {
         List<CommunicationCommandObject> list = new ArrayList<>();
+        List<ClientConfiguration.ClientConnection> clients = new ArrayList<>();
         String[] split = ibusse.split( "##" );
         for (String comm : split) {
             String[] communication = comm.split( "," );
@@ -774,9 +784,26 @@ public class Config {
                 commObject.setIp( communication[1] );
                 commObject.setPort( Integer.valueOf( communication[2] ) );
                 list.add( commObject );
+
+                ClientConfiguration.ClientConnection clientConnection = new ClientConfiguration().new ClientConnection();
+                clientConnection.setServerName(communication[0]);
+                clientConnection.setServerIp(communication[1]);
+                clientConnection.setServerPort(Integer.parseInt(communication[2]));
+                clientConnection.setMaxMessageSize(ibusMaxMsgSize);
+                clientConnection.setMessageThreadCount(ibusThreadCount);
+                clientConnection.setSocketTimeout(ibusTimeout);
+
+                clients.add(clientConnection);
             }
         }
+
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        clientConfiguration.setHandleTimeout(iBusHandleTimeout);
+        clientConfiguration.setQueueSize(iBusQueueSize);
+        clientConfiguration.setClientConnections(clients);
+
         ibusses = list;
+        this.communicationClientConfiguration = clientConfiguration;
     }
 
     @Value("${plugdescription.queryExtensions:}")
