@@ -269,6 +269,7 @@ public class Config {
     @Value("${elastic.enabled:true}")
     public boolean elasticEnabled;
 
+    @Value("${elastic.communication.ibus:false}")
     public boolean esCommunicationThroughIBus;
 
     public ClientConfiguration communicationClientConfiguration;
