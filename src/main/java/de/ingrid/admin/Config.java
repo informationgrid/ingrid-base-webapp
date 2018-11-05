@@ -125,46 +125,46 @@ public class Config {
     
     public Map<String, String[]> datatypesOfIndex = null;
 
-    @Value("${plugdescription.organisationPartnerAbbr}")
+    @Value("${plugdescription.organisationPartnerAbbr:}")
     public String mainPartner;
 
-    @Value("${plugdescription.organisationAbbr}")
+    @Value("${plugdescription.organisationAbbr:}")
     public String mainProvider;
 
-    @Value("${plugdescription.organisation}")
+    @Value("${plugdescription.organisation:}")
     public String organisation;
 
-    @Value("${plugdescription.personTitle}")
+    @Value("${plugdescription.personTitle:}")
     public String personTitle;
 
-    @Value("${plugdescription.personName}")
+    @Value("${plugdescription.personName:}")
     public String personName;
 
-    @Value("${plugdescription.personSureName}")
+    @Value("${plugdescription.personSureName:}")
     public String personSurname;
 
-    @Value("${plugdescription.personMail}")
+    @Value("${plugdescription.personMail:}")
     public String personEmail;
 
-    @Value("${plugdescription.personPhone}")
+    @Value("${plugdescription.personPhone:}")
     public String personPhone;
 
-    @Value("${plugdescription.dataSourceName}")
+    @Value("${plugdescription.dataSourceName:}")
     public String datasourceName;
 
-    @Value("${plugdescription.dataSourceDescription}")
+    @Value("${plugdescription.dataSourceDescription:}")
     public String datasourceDescription;
 
-    @Value("${plugdescription.IPLUG_ADMIN_GUI_URL}")
+    @Value("${plugdescription.IPLUG_ADMIN_GUI_URL:}")
     public String guiUrl;
 
     @Value("${plugdescription.fields:}")
     private List<String> fields;
 
-    @Value("${plugdescription.partner}")
+    @Value("${plugdescription.partner:}")
     public String[] partner;
 
-    @Value("${plugdescription.provider}")
+    @Value("${plugdescription.provider:}")
     public String[] provider;
 
     private List<FieldQueryCommandObject> queryExtensions;
