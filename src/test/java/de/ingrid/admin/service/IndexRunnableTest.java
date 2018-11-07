@@ -32,6 +32,7 @@ import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.QueryBuilderService;
 import de.ingrid.elasticsearch.search.FacetConverter;
 import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
@@ -113,7 +114,7 @@ public class IndexRunnableTest extends ElasticTests {
     }
 
     private void index(int model) throws Exception {
-        _indexRunnable = new IndexRunnable(pds, indexManager, null, config );
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, new IPlugdescriptionFieldFilter[0]);
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);

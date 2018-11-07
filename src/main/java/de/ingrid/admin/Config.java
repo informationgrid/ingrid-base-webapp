@@ -120,7 +120,7 @@ public class Config {
     @Value("${indexing:false}")
     public boolean indexing;
 
-    @Value("${plugdescription.dataType:}")
+    @Value("#{'${plugdescription.dataType:}'.split(',')}")
     public List<String> datatypes;
     
     public Map<String, String[]> datatypesOfIndex = null;
@@ -158,13 +158,13 @@ public class Config {
     @Value("${plugdescription.IPLUG_ADMIN_GUI_URL:}")
     public String guiUrl;
 
-    @Value("${plugdescription.fields:}")
+    @Value("#{'${plugdescription.fields:}'.split(',')}")
     private List<String> fields;
 
-    @Value("${plugdescription.partner:}")
+    @Value("#{'${plugdescription.partner:}'.split(',')}")
     public String[] partner;
 
-    @Value("${plugdescription.provider:}")
+    @Value("#{'${plugdescription.provider:}'.split(',')}")
     public String[] provider;
 
     private List<FieldQueryCommandObject> queryExtensions;
@@ -175,7 +175,7 @@ public class Config {
     @Value("${plugdescription.forceAddRankingOff:false}")
     public boolean forceAddRankingOff;
     
-    @Value("${plugdescription.ranking:off}")
+    @Value("#{'${plugdescription.ranking:off}'.split(',')}")
     public List<String> rankings;
 
     @Value("${elastic.boost.field:boost}")
@@ -202,7 +202,7 @@ public class Config {
     @Value("${index.alias:}")
     public String indexAlias;
     
-    @Value("${index.searchInTypes:}")
+    @Value("#{'${index.searchInTypes:}'.split(',')}")
     public List<String> indexSearchInTypes;
     
     @Value("${index.id:id}")
@@ -222,19 +222,19 @@ public class Config {
     @Value("${index.field.summary:summary}")
     public String indexFieldSummary;
     
-    @Value("${index.search.defaultFields:title,content}")
+    @Value("#{'${index.search.defaultFields:title,content}'.split(',')}")
     public String[] indexSearchDefaultFields;
     
-    @Value("${index.search.additional.detail.fields:}")
+    @Value("#{'${index.search.additional.detail.fields:}'.split(',')}")
     public String[] additionalSearchDetailFields;
 
     @Value("${index.boost.enable:false}")
     public boolean indexEnableBoost;
 
-    @Value("${index.fields.exclude:}")
+    @Value("#{'${index.fields.exclude:}'.split(',')}")
     public String[] indexFieldsExcluded;
 
-    @Value("${index.fields.include:*}")
+    @Value("#{'${index.fields.include:*}'.split(',')}")
     public String[] indexFieldsIncluded;
 
     // this field is overwritten in iPlugSE, where results

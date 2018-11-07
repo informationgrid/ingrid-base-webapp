@@ -29,6 +29,8 @@ import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.elasticsearch.*;
+import de.ingrid.iplug.IPlugdescriptionFieldFilter;
+import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
@@ -51,6 +53,7 @@ import java.util.concurrent.ConcurrentMap;
 public class IndexRunnable implements Runnable, IConfigurable {
 
     private static final Logger LOG = Logger.getLogger(IndexRunnable.class);
+    private final PlugDescriptionFieldFilters plugDescriptionFieldFilters;
     private List<IDocumentProducer> _documentProducers;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
@@ -70,7 +73,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
      * @param ibusIndexManager is the manager to handle indices via the iBus
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config) {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, IPlugdescriptionFieldFilter[] fieldFilters) {
         // Config config = config;
         this.config = config;
         _plugDescriptionService = pds;
@@ -79,6 +82,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
         } catch (IOException e) {
             LOG.error("Error getting PlugDescription from service", e);
         }
+
+        plugDescriptionFieldFilters = new PlugDescriptionFieldFilters(fieldFilters);
+
         _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
         _indexHelper = new ConcurrentHashMap<>();
     }
@@ -185,6 +191,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         documentCount++;
                     }
 
+                    if (documentCount > 0) {
+                        writeFieldNamesToPlugdescription();
+                    }
+
                     // update central index with iPlug information
                     this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
 
@@ -192,9 +202,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     _indexManager.flush();
 
                     producer.configure(_plugDescription);
-                }
-                if (documentCount > 0) {
-                    writeFieldNamesToPlugdescription();
                 }
 
                 LOG.info("number of produced documents: " + documentCount);
@@ -265,6 +272,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 .field("adminUrl", _config.guiUrl)
                 .field("lastHeartbeat", new Date())
                 .field("lastIndexed", new Date())
+                .field("plugdescription", this._plugDescription)
                 .startObject("indexingState")
                     .field("numProcessed", count)
                     .field("totalDocs", totalCount)
@@ -292,7 +300,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
         if (LOG.isDebugEnabled()) {
             LOG.debug("configure plugdescription and new index dir...");
         }
-        _plugDescription = plugDescription;
+
+        _plugDescription = plugDescriptionFieldFilters.filter(plugDescription);
     }
 
     public PlugDescription getPlugDescription() {
