@@ -327,7 +327,7 @@ public class Config {
         IGNORE_LIST.add( "QUERY_EXTENSION_CONTAINER" );
         IGNORE_LIST.add( "connection" );
 
-        if (!this.disableIBus) {
+        if (!this.disableIBus && this.ibusses != null && this.ibusses.size() > 0) {
             writeCommunication(this.communicationLocation, this.ibusses );
         }
     }
