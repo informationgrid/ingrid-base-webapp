@@ -32,10 +32,8 @@ import de.ingrid.utils.QueryExtensionContainer;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
-import joptsimple.internal.Strings;
 import net.weta.components.communication.configuration.ClientConfiguration;
 import net.weta.components.communication.configuration.XPathService;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -495,7 +493,7 @@ public class Config {
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
             
-            props.setProperty( "index.searchInTypes", StringUtils.join( this.indexSearchInTypes, ',' ) );
+            props.setProperty( "index.searchInTypes", String.join( ",", this.indexSearchInTypes) );
             
             setDatatypes(props);
 
@@ -521,10 +519,10 @@ public class Config {
         if (datatypesOfIndex != null) {
             Set<String> indices = datatypesOfIndex.keySet();
             for (String index : indices) {
-                props.setProperty( "plugdescription.dataType." + index, StringUtils.join( datatypesOfIndex.get( index ), ',' ) );
+                props.setProperty( "plugdescription.dataType." + index, String.join( ",", datatypesOfIndex.get( index )));
             }
             // write all collected datatypes, which are transmitted to the iBus
-            props.setProperty( "plugdescription.dataType", StringUtils.join( datatypes, "," ) );
+            props.setProperty( "plugdescription.dataType", String.join( ",", datatypes) );
         }
     }
 
@@ -566,7 +564,7 @@ public class Config {
     }
 
     private String convertListToString(List<String> list) {
-        return Strings.join(list, ",");
+        return String.join(",", list);
     }
 
     public PlugdescriptionCommandObject getPlugdescriptionFromConfiguration() {
