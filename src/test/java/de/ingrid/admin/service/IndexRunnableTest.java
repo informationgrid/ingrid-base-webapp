@@ -55,6 +55,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -114,7 +115,7 @@ public class IndexRunnableTest extends ElasticTests {
     }
 
     private void index(int model) throws Exception {
-        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, new IPlugdescriptionFieldFilter[0]);
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, Optional.empty());
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);

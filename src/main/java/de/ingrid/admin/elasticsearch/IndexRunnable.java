@@ -53,7 +53,7 @@ import java.util.concurrent.ConcurrentMap;
 public class IndexRunnable implements Runnable, IConfigurable {
 
     private static final Logger LOG = Logger.getLogger(IndexRunnable.class);
-    private final PlugDescriptionFieldFilters plugDescriptionFieldFilters;
+    private PlugDescriptionFieldFilters plugDescriptionFieldFilters;
     private List<IDocumentProducer> _documentProducers;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
@@ -73,7 +73,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
      * @param ibusIndexManager is the manager to handle indices via the iBus
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, IPlugdescriptionFieldFilter[] fieldFilters) {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, Optional<IPlugdescriptionFieldFilter[]> fieldFilters) {
         // Config config = config;
         this.config = config;
         _plugDescriptionService = pds;
@@ -83,7 +83,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
             LOG.error("Error getting PlugDescription from service", e);
         }
 
-        plugDescriptionFieldFilters = new PlugDescriptionFieldFilters(fieldFilters);
+        this.plugDescriptionFieldFilters = fieldFilters
+                .map(PlugDescriptionFieldFilters::new)
+                .orElseGet(() -> new PlugDescriptionFieldFilters(new IPlugdescriptionFieldFilter[0]));
 
         _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
         _indexHelper = new ConcurrentHashMap<>();

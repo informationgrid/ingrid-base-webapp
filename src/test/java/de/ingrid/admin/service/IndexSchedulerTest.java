@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Optional;
 
 import de.ingrid.admin.Config;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
@@ -65,7 +66,7 @@ public class IndexSchedulerTest {
         private int _counter = 0;
 
         public DummyRunnable(final long time, PlugDescriptionService pdService, Config config) {
-            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, config, new IPlugdescriptionFieldFilter[0]);
+            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, config, Optional.empty());
             _time = time;
         }
 
