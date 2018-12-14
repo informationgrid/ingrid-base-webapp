@@ -346,7 +346,21 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
 
     private void addBasicFields(ElasticDocument document, IndexInfo info) {
-        document.put("datatype", config.datatypes.toArray(new String[0]));
+        String[] datatypes = null;
+        try {
+            String datatypesString = (String) config.getOverrideProperties().get( "plugdescription.dataType." + info.getIdentifier()  );
+            if (datatypesString != null) {
+                datatypes = datatypesString.split(",");
+            }
+        } catch (IOException e) {
+            LOG.error("Could not get override properties", e);
+        }
+
+        if (datatypes == null) {
+            datatypes = config.datatypes.toArray(new String[0]);
+        }
+
+        document.put("datatype", datatypes);
         document.put(PlugDescription.PARTNER, config.partner);
         document.put(PlugDescription.PROVIDER, config.provider);
         document.put(PlugDescription.DATA_SOURCE_NAME, config.datasourceName);
