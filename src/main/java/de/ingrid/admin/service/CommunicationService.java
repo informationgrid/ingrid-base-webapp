@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -56,7 +56,7 @@ public class CommunicationService {
         _iPlug = iPlug;
         this.config = config;
         boolean iBusDisabled = config.disableIBus;
-        
+
         if (!iBusDisabled) {
             _communicationFile = new File(config.communicationLocation);
             if (!_communicationFile.exists()) {
@@ -145,7 +145,7 @@ public class CommunicationService {
     private BusClient getBusClient() {
         boolean iBusDisabled = config.disableIBus;
         if (iBusDisabled) return null;
-        
+
         BusClient busClient = BusClientFactory.getBusClient();
         if (busClient == null) {
             try {

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -75,7 +75,7 @@ public class StepFilter implements Filter {
 
         boolean iBusDisabled = config.disableIBus;
         if (iBusDisabled) return;
-        
+
         _needComm.add(IUris.WORKING_DIR);
         _needComm.add(IUris.GENERAL);
         _needComm.add(IUris.PARTNER);

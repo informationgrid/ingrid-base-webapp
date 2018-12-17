@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -130,7 +130,7 @@ public class IndexRunnableTest extends ElasticTests {
         } catch (Exception e) {}
         Thread.sleep(1000);
     }
-    
+
     /**
      * Each document supports its own ID. In case there's an ID twice
      * only the latest document is used. Here we only get 9 of 10 results

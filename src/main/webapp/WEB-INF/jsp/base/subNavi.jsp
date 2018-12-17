@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2018 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -28,17 +28,18 @@
 		<h2>Kommunikation</h2>
 	</div>
 	<ul>
+<% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
 		<li <c:if test="${active == 'communication'}">class="active"</c:if>><a href="../base/communication.html">Kommunikation bearbeiten</a></li>
+<% } %>
 	</ul>
 	<div class="konf">
 		<p class="no">2</p>
 		<h2>Allgemein & Datenmapping</h2>
 	</div>
 	<ul>
-
 		<!-- workingDir -->
+<% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
 		<menutaglib:MenuTag text="Arbeitsverzeichnis wählen" url="../base/workingDir.html" ></menutaglib:MenuTag>
-
 		<!-- general -->
         <menutaglib:MenuTag text="Angaben zu Betreiber und Datenquelle" url="../base/general.html" ></menutaglib:MenuTag>
 		
@@ -50,17 +51,20 @@
 
 		<!-- fieldQuery -->
         <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>
-        
+<% } %>
 		<!-- iplug sub navi  -->		
 		<c:catch>
 		<c:import url="../iplug-pages/iplugSubNavi.jsp"></c:import>
 		</c:catch>
 		
 		<!-- save -->
+<% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
         <menutaglib:MenuTag text="Speichern" url="../base/save.html" ></menutaglib:MenuTag>
-		
+<% } %>
+
 	</ul>
 	
+<% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
 	<% if (System.getProperty("indexing") != null) { %>
 	<div class="konf">
 		<p class="no">3</p>
@@ -99,4 +103,5 @@
         <menutaglib:MenuTag text="Caching Einstellungen" url="../base/cache.html" ></menutaglib:MenuTag>
 
 	</ul>
+<% } %>
 </div>
