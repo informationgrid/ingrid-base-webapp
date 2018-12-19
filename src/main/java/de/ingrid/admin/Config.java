@@ -26,6 +26,7 @@ import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.controller.CommunicationConfigurationController;
+import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.QueryExtensionContainer;
@@ -63,6 +64,13 @@ public class Config {
 
     @Autowired(required = false)
     private IConfig externalConfig;
+
+    @Autowired
+    private ElasticConfig elasticConfig;
+
+
+    @Value("${iplug.uuid:}")
+    public String uuid;
 
     /**
      * SERVER - CONFIGURATION
@@ -328,6 +336,12 @@ public class Config {
         if (!this.disableIBus && this.ibusses != null && this.ibusses.size() > 0) {
             writeCommunication(this.communicationLocation, this.ibusses );
         }
+
+        if (uuid == null || uuid.isEmpty()) {
+            uuid = UUID.randomUUID().toString();
+            elasticConfig.uuid = uuid;
+            writePlugdescriptionToProperties(new PlugdescriptionCommandObject());
+        }
     }
 
     public boolean getIndexing() {
@@ -494,6 +508,8 @@ public class Config {
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
             
             props.setProperty( "index.searchInTypes", String.join( ",", this.indexSearchInTypes) );
+
+            props.setProperty( "iplug.uuid", uuid );
             
             setDatatypes(props);
 

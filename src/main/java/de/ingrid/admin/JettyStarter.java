@@ -24,6 +24,7 @@ package de.ingrid.admin;
 
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.elasticsearch.ElasticConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
@@ -95,6 +96,7 @@ public class JettyStarter {
         // manually create necessary beans for configuration we need during startup
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(Config.class);
+        ctx.register(ElasticConfig.class);
         ctx.register(externalConfigClass);
         ctx.refresh();
         IConfig externalConfig = (IConfig) ctx.getBean(externalConfigClass);
