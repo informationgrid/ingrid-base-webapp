@@ -65,7 +65,7 @@ public class Config {
     @Autowired(required = false)
     private IConfig externalConfig;
 
-    @Autowired
+    @Autowired(required = false)
     private ElasticConfig elasticConfig;
 
 
@@ -339,8 +339,12 @@ public class Config {
 
         if (uuid == null || uuid.isEmpty()) {
             uuid = UUID.randomUUID().toString();
-            elasticConfig.uuid = uuid;
             writePlugdescriptionToProperties(new PlugdescriptionCommandObject());
+
+            // also update other configuration object (TODO: this needs refactoring so that we only have one or distinct configurations)
+            if (elasticConfig != null) {
+                elasticConfig.uuid = uuid;
+            }
         }
     }
 
