@@ -83,7 +83,7 @@ public class IndexRunnableTest extends ElasticTests {
         config.additionalSearchDetailFields = new String[0];
         config.communicationProxyUrl = "/ingrid-group:unit-tests";
         config.datatypes = Arrays.asList("default".split(","));
-        config.indexSearchInTypes = Arrays.asList("base".split(","));
+        //config.indexSearchInTypes = Arrays.asList("base".split(","));
         setup();
 
         indexManager = new IndexManager( elastic, elasticConfig );

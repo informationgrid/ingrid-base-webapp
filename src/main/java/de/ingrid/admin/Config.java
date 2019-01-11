@@ -208,9 +208,6 @@ public class Config {
     @Value("${index.alias:}")
     public String indexAlias;
     
-    @Value("#{'${index.searchInTypes:}'.split(',')}")
-    public List<String> indexSearchInTypes;
-    
     @Value("${index.id:id}")
     public String indexIdFromDoc;
 
@@ -511,8 +508,6 @@ public class Config {
 
             props.setProperty( "plugdescription.queryExtensions", convertQueryExtensionsToString( this.queryExtensions ) );
             
-            props.setProperty( "index.searchInTypes", String.join( ",", this.indexSearchInTypes) );
-
             props.setProperty( "iplug.uuid", uuid );
             
             setDatatypes(props);
