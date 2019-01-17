@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -70,14 +70,35 @@ public class IndexManager implements IConfigurable {
     private Config _config;
 
     private Properties _props = new Properties();
-    
+
     @Autowired
     private StatusProvider statusProvider;
 
     @Autowired
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
         _client = elastic.getClient();
-        _bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
+        _bulkProcessor = BulkProcessor.builder(
+                _client,
+                new BulkProcessor.Listener() {
+
+                    @Override
+                    public void beforeBulk(long executionId, BulkRequest request) {}
+
+                    @Override
+                    public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                        if (response.hasFailures()) {
+                            LOG.error(response.buildFailureMessage());
+                        }
+                    }
+
+                    @Override
+                    public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                        if (failure != null) {
+                            LOG.error("Error during bulk-indexing", failure);
+                        }
+                    }
+                })
+                .build();
         _config = JettyStarter.getInstance().config;
     }
 
@@ -158,7 +179,7 @@ public class IndexManager implements IConfigurable {
         _bulkProcessor.flush();
         _bulkProcessor.close();
     }
-    
+
     public void switchAlias(String aliasName, String oldIndex, String newIndex) {
         // check if alias actually exists
         // boolean aliasExists = _client.admin().indices().aliasesExist( new GetAliasesRequest( aliasName ) ).actionGet().exists();
@@ -180,11 +201,11 @@ public class IndexManager implements IConfigurable {
             indexNameFromAliasName = getIndexNameFromAliasName(aliasName, index);
         }
     }
-    
+
     public void removeAlias(String aliasName) {
         removeFromAlias( aliasName, null );
     }
-  
+
     public boolean typeExists(String indexName, String type) {
         TypesExistsRequest typeRequest = new TypesExistsRequest( new String[] { indexName }, type );
         try {
@@ -211,7 +232,7 @@ public class IndexManager implements IConfigurable {
         }
         return false;
     }
-    
+
     private void setMapping(CreateIndexRequestBuilder prepareCreate) {
         InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-mapping.json");
         if (mappingStream != null) {
@@ -224,7 +245,7 @@ public class IndexManager implements IConfigurable {
             }
         }
     }
-    
+
     private void setSettings(CreateIndexRequestBuilder prepareCreate) {
         InputStream mappingStream = getClass().getClassLoader().getResourceAsStream("default-settings.json");
         if (mappingStream != null) {
@@ -237,7 +258,7 @@ public class IndexManager implements IConfigurable {
             }
         }
     }
-    
+
     public boolean indexExists(String name) {
         return _client.admin().indices().prepareExists( name ).execute().actionGet().isExists();
     }
@@ -249,9 +270,9 @@ public class IndexManager implements IConfigurable {
      * @return the found index name
      */
     public String getIndexNameFromAliasName(String indexAlias, String partialName) {
-        
+
         ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = _client.admin().indices().getAliases(new GetAliasesRequest(indexAlias)).actionGet().getAliases();
-        
+
         if (indexToAliasesMap != null && !indexToAliasesMap.isEmpty()) {
             Iterator<ObjectCursor<String>> iterator = indexToAliasesMap.keys().iterator();
             String result = null;
@@ -263,11 +284,11 @@ public class IndexManager implements IConfigurable {
                     count++;
                 }
             }
-            
+
             if (count > 1) {
                 this.statusProvider.addState( "MULTIPLE_INDICES", "The index name could not be determined correctly, since the alias contains " + count + " indices with the same prefix '" + partialName + "'", Classification.ERROR );
             }
-            
+
             return result;
         } else if (_client.admin().indices().prepareExists(indexAlias).execute().actionGet().isExists()) {
             // alias seems to be the index itself
@@ -332,7 +353,7 @@ public class IndexManager implements IConfigurable {
             e.printStackTrace();
         }
     }
-    
+
     public void setStatusProvider(StatusProvider statusProvider) {
         this.statusProvider = statusProvider;
     }
