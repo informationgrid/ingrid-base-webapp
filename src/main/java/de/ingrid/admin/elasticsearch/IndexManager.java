@@ -69,7 +69,28 @@ public class IndexManager implements IConfigurable {
     public IndexManager(ElasticsearchNodeFactoryBean elastic) throws Exception {
         _elastic = elastic;
         _client = elastic.getObject().client();
-        _bulkProcessor = BulkProcessor.builder( _client, getBulkProcessorListener() ).build();
+        _bulkProcessor = BulkProcessor.builder(
+                _client,
+                new BulkProcessor.Listener() {
+
+                    @Override
+                    public void beforeBulk(long executionId, BulkRequest request) {}
+
+                    @Override
+                    public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                        if (response.hasFailures()) {
+                            LOG.error(response.buildFailureMessage());
+                        }
+                    }
+
+                    @Override
+                    public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                        if (failure != null) {
+                            LOG.error("Error during bulk-indexing", failure);
+                        }
+                    }
+                })
+                .build();
         _config = JettyStarter.getInstance().config;
     }
 
@@ -188,7 +209,7 @@ public class IndexManager implements IConfigurable {
         }
         return false;
     }
-    
+
     public boolean indexExists(String name) {
         return _client.admin().indices().prepareExists( name ).execute().actionGet().isExists();
     }
