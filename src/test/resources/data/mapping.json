@@ -1,7 +1,15 @@
 {
     "properties": {
+        "partner": {
+            "type": "keyword",
+            "store": true
+        },
+        "provider": {
+            "type": "keyword",
+            "store": true
+        },
         "fetched": {
-            "format": "dateOptionalTime",
+            "format": "date",
             "type": "date",
             "store": true
         },

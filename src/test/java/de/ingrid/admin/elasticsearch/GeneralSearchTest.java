@@ -49,11 +49,19 @@ public class GeneralSearchTest extends ElasticTests {
     @BeforeClass
     public static void setUp() throws Exception {
         config = new Config();
-        config.indexFieldSummary = "content";
+//        config.indexFieldTitle = "title";
+//        config.indexFieldSummary = "content";
+//        config.additionalSearchDetailFields = new String[] {"url", "title", "partner", "datatype", "content", "fetched", "iPlugId"};
         // new JettyStarter(false);
 
+
         setup( "test", "data/webUrls.json" );
-        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
+
+        elasticConfig.indexFieldTitle = "title";
+        elasticConfig.indexFieldSummary = "content";
+        elasticConfig.additionalSearchDetailFields = new String[] {"url", "title", "partner", "datatype", "content", "fetched", "iPlugId"};
+
+        IndexManager indexManager = new IndexManager( elastic, elasticConfig );
         indexManager.removeFromAlias("test", "test_1");
         indexManager.switchAlias( "test", null, "test_1" );
     }    
@@ -390,8 +398,8 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
         assertThat( detail, not( is( nullValue() ) ) );
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat( (String)detail.getArray( IndexImpl.DETAIL_URL )[0], is( "http://www.wemove.com" ) );
-        assertThat( (String)detail.getArray("fetched")[0], is( "2014-06-03" ) );
+        assertThat( (String)detail.get( "url" ), is( "http://www.wemove.com" ) );
+        assertThat( (String)detail.get("fetched"), is( "2014-06-03" ) );
         assertThat( detail.getTitle(), is( "wemove" ) );
         assertThat( detail.getSummary(), is( "Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
@@ -417,7 +425,7 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat( (String)detail.getArray( IndexImpl.DETAIL_URL )[0], is( "http://www.wemove.com" ) );
+        assertThat( (String)detail.getArray( "url" )[0], is( "http://www.wemove.com" ) );
         assertThat( (String)detail.getArray( "fetched" )[0], is( "2014-06-03" ) );
     }
     
