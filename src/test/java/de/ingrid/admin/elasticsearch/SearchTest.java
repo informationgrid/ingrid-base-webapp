@@ -52,8 +52,6 @@ public class SearchTest extends ElasticTests {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        config = new Config();
-        config.indexFieldSummary = "content";
         setup( "test_1", "data/webUrls2.json" );
         IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
         indexManager.removeAlias("test");

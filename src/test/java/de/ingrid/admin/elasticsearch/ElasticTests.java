@@ -108,8 +108,8 @@ public class ElasticTests {
         } catch (Exception ignored) {}
 
         if (init) {
-            config.index = index;
-            config.indexType = "base";
+//            config.index = index;
+//            config.indexType = "base";
             try {
                 indexManager.deleteIndex( "test_1" );
             } catch (Exception ignored) {}
@@ -203,7 +203,7 @@ public class ElasticTests {
     
     protected IndexImpl getIndexer() throws Exception {
         IndexImpl indexImpl = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService());
-        config.docProducerIndices = new String[] { "test:test" };
+//        config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }
     

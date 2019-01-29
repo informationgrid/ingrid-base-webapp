@@ -1,15 +1,11 @@
 package de.ingrid.admin.elasticsearch;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IIndexManager;
+import de.ingrid.elasticsearch.IndexManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.Strings;
@@ -18,12 +14,9 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.elasticsearch.IBusIndexManager;
-import de.ingrid.elasticsearch.IIndexManager;
-import de.ingrid.elasticsearch.IndexManager;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class IPlugHeartbeatElasticsearch extends TimerTask {
@@ -39,10 +32,10 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
     private final Config config;
 
     @Autowired
-    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config) {
+    public IPlugHeartbeatElasticsearch(IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, ElasticConfig elasticConfig) {
         this.config = config;
 
-        if (config.esCommunicationThroughIBus) {
+        if (elasticConfig.esCommunicationThroughIBus) {
             this.indexManager = ibusIndexManager;
         } else {
             this.indexManager = indexManager;

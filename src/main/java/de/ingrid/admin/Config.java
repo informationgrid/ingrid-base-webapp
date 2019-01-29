@@ -184,61 +184,21 @@ public class Config {
     @Value("#{'${plugdescription.ranking:off}'.split(',')}")
     public List<String> rankings;
 
-    @Value("${elastic.boost.field:boost}")
-    public String esBoostField;
-    
-    @Value("${elastic.boost.modifier:log1p}")
-    public String esBoostModifier;
-    
-    @Value("${elastic.boost.factor:1}")
-    public float esBoostFactor;
-    
-    @Value("${elastic.boost.mode:sum}")
-    public String esBoostMode;
-    
-    @Value("${cluster.name:ingrid}")
-    public String cluster;
-
+    // used in Utils.java
     @Value("${index.name:test}")
     public String index;
 
+    // used in Utils.java
     @Value("${index.type:base}")
     public String indexType;
-    
+
+    // used in Utils.java
     @Value("${index.alias:}")
     public String indexAlias;
-    
+
+    // used in Utils.java
     @Value("${index.id:id}")
     public String indexIdFromDoc;
-
-    /* Use property in ElasticConfig instead */
-    @Value("${index.autoGenerateId:true}")
-    @Deprecated()
-    public boolean indexWithAutoId;
-    
-    @Value("${search.type:DEFAULT}")
-    public String searchType;
-    
-    @Value("${index.field.title:title}")
-    public String indexFieldTitle;
-    
-    @Value("${index.field.summary:summary}")
-    public String indexFieldSummary;
-    
-    @Value("#{'${index.search.defaultFields:title,content}'.split(',')}")
-    public String[] indexSearchDefaultFields;
-    
-    @Value("#{'${index.search.additional.detail.fields:}'.split(',')}")
-    public String[] additionalSearchDetailFields;
-
-    @Value("${index.boost.enable:false}")
-    public boolean indexEnableBoost;
-
-    @Value("#{'${index.fields.exclude:}'.split(',')}")
-    public String[] indexFieldsExcluded;
-
-    @Value("#{'${index.fields.include:*}'.split(',')}")
-    public String[] indexFieldsIncluded;
 
     // this field is overwritten in iPlugSE, where results
     // shall be grouped by URL instead of the iPlug-ID
@@ -268,12 +228,6 @@ public class Config {
     
     @Value("${heartbeatInterval:60}")
     public int heartbeatInterval;
-
-    @Value("${elastic.enabled:true}")
-    public boolean elasticEnabled;
-
-    @Value("${elastic.communication.ibus:false}")
-    public boolean esCommunicationThroughIBus;
 
     public ClientConfiguration communicationClientConfiguration;
 
@@ -628,7 +582,7 @@ public class Config {
         pd.setCachedInDiskStore( cacheDiskStore );
         // all iPlugs with this version of the base webapp will use the central index unless elasticsearch is disabled
         // in that case the indexing is also probably disabled, e.g. iPlug Opensearch
-        pd.put("useRemoteElasticsearch", elasticEnabled);
+        pd.put("useRemoteElasticsearch", elasticConfig.isEnabled);
         
 
         if (partner != null) {

@@ -65,7 +65,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
     @Autowired
     private StatusProvider statusProvider;
 
-    private Config config;
+    private final Config config;
+
+    private final ElasticConfig elasticConfig;
 
     /**
      * @param pds              is the service to handle PlugDescriptions
@@ -73,9 +75,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
      * @param ibusIndexManager is the manager to handle indices via the iBus
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, Optional<IPlugdescriptionFieldFilter[]> fieldFilters) {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, ElasticConfig elasticConfig, Optional<IPlugdescriptionFieldFilter[]> fieldFilters) {
         // Config config = config;
         this.config = config;
+        this.elasticConfig = elasticConfig;
+
         _plugDescriptionService = pds;
         try {
             _plugDescription = pds.getPlugDescription();
@@ -87,16 +91,16 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 .map(PlugDescriptionFieldFilters::new)
                 .orElseGet(() -> new PlugDescriptionFieldFilters(new IPlugdescriptionFieldFilter[0]));
 
-        _indexManager = config.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
+        _indexManager = elasticConfig.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
         _indexHelper = new ConcurrentHashMap<>();
     }
 
     @Autowired(required = false)
-    public void setDocumentProducers(ElasticConfig configElastic, List<IDocumentProducer> documentProducers) {
+    public void setDocumentProducers(List<IDocumentProducer> documentProducers) {
         _documentProducers = documentProducers;
         _produceable = true;
 
-        configElastic.activeIndices = getIndexNamesFromProducers(documentProducers);
+        elasticConfig.activeIndices = getIndexNamesFromProducers(documentProducers);
     }
 
     private IndexInfo[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {

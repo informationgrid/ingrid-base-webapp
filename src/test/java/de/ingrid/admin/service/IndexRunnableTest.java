@@ -32,7 +32,6 @@ import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.QueryBuilderService;
 import de.ingrid.elasticsearch.search.FacetConverter;
 import de.ingrid.elasticsearch.search.IndexImpl;
-import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
@@ -76,14 +75,12 @@ public class IndexRunnableTest extends ElasticTests {
     @BeforeClass
     public static void setUp() throws Exception {
         config = new Config();
-        config.esCommunicationThroughIBus = false;
+        config.uuid = "1";
         config.index = "test_1";
         config.indexType = "base";
         config.indexIdFromDoc = "id";
-        config.additionalSearchDetailFields = new String[0];
         config.communicationProxyUrl = "/ingrid-group:unit-tests";
         config.datatypes = Arrays.asList("default".split(","));
-        //config.indexSearchInTypes = Arrays.asList("base".split(","));
         setup();
 
         indexManager = new IndexManager( elastic, elasticConfig );
@@ -99,6 +96,7 @@ public class IndexRunnableTest extends ElasticTests {
         MockitoAnnotations.initMocks(this);
 
         Mockito.when( _plugDescription.getFields() ).thenReturn( new String[] {} );
+        Mockito.when( _plugDescription.clone() ).thenReturn( _plugDescription );
 
         try {
             indexManager.deleteIndex( "test_1" );
@@ -115,12 +113,12 @@ public class IndexRunnableTest extends ElasticTests {
     }
 
     private void index(int model) throws Exception {
-        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, Optional.empty());
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, elasticConfig, Optional.empty());
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
-        docProducers = new ArrayList<IDocumentProducer>();
+        docProducers = new ArrayList<>();
         docProducers.add( dummyProducer );
         _indexRunnable.setDocumentProducers(elasticConfig, docProducers);
         _indexRunnable.run();
