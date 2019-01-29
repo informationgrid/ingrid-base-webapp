@@ -120,7 +120,7 @@ public class IndexRunnableTest extends ElasticTests {
         dummyProducer.configure(_plugDescription);
         docProducers = new ArrayList<>();
         docProducers.add( dummyProducer );
-        _indexRunnable.setDocumentProducers(elasticConfig, docProducers);
+        _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
         try {
