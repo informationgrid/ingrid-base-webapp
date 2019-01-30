@@ -582,7 +582,7 @@ public class Config {
         pd.setCachedInDiskStore( cacheDiskStore );
         // all iPlugs with this version of the base webapp will use the central index unless elasticsearch is disabled
         // in that case the indexing is also probably disabled, e.g. iPlug Opensearch
-        pd.put("useRemoteElasticsearch", elasticConfig.isEnabled);
+        pd.put("useRemoteElasticsearch", elasticConfig == null ? false : elasticConfig.isEnabled);
         
 
         if (partner != null) {
