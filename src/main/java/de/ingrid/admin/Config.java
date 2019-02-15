@@ -126,7 +126,7 @@ public class Config {
     @Value("${indexing:false}")
     public boolean indexing;
 
-    @Value("#{'${plugdescription.dataType:}'.split(',')}")
+    @Value("${plugdescription.dataType:}")
     public List<String> datatypes;
     
     public Map<String, String[]> datatypesOfIndex = null;
@@ -164,13 +164,13 @@ public class Config {
     @Value("${plugdescription.IPLUG_ADMIN_GUI_URL:}")
     public String guiUrl;
 
-    @Value("#{'${plugdescription.fields:}'.split(',')}")
+    @Value("${plugdescription.fields:}")
     private List<String> fields;
 
-    @Value("#{'${plugdescription.partner:}'.split(',')}")
+    @Value("${plugdescription.partner:}")
     public String[] partner;
 
-    @Value("#{'${plugdescription.provider:}'.split(',')}")
+    @Value("${plugdescription.provider:}")
     public String[] provider;
 
     private List<FieldQueryCommandObject> queryExtensions;
@@ -181,7 +181,7 @@ public class Config {
     @Value("${plugdescription.forceAddRankingOff:false}")
     public boolean forceAddRankingOff;
     
-    @Value("#{'${plugdescription.ranking:off}'.split(',')}")
+    @Value("${plugdescription.ranking:off}")
     public List<String> rankings;
 
     // used in Utils.java
