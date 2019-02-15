@@ -126,7 +126,8 @@ public class Config {
     @Value("${indexing:false}")
     public boolean indexing;
 
-    @Value("${plugdescription.dataType:}")
+    // List and Array behave differently! We have to use split to create a real List object!
+    @Value("#{'${plugdescription.dataType:}'.split(',')}")
     public List<String> datatypes;
     
     public Map<String, String[]> datatypesOfIndex = null;
@@ -164,7 +165,7 @@ public class Config {
     @Value("${plugdescription.IPLUG_ADMIN_GUI_URL:}")
     public String guiUrl;
 
-    @Value("${plugdescription.fields:}")
+    @Value("#{'${plugdescription.fields:}'.split(',')}")
     private List<String> fields;
 
     @Value("${plugdescription.partner:}")
@@ -180,8 +181,8 @@ public class Config {
     
     @Value("${plugdescription.forceAddRankingOff:false}")
     public boolean forceAddRankingOff;
-    
-    @Value("${plugdescription.ranking:off}")
+
+    @Value("#{'${plugdescription.ranking:off}'.split(',')}")
     public List<String> rankings;
 
     // used in Utils.java
