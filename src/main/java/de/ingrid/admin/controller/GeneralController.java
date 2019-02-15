@@ -223,7 +223,9 @@ public class GeneralController extends AbstractController {
     private void setConfiguration(PlugdescriptionCommandObject pd) {
 
         config.mainPartner = pd.getOrganisationPartnerAbbr();
+        config.partner = pd.getPartners();
         config.mainProvider = pd.getOrganisationAbbr();
+        config.provider = pd.getProviders();
         config.organisation = pd.getOrganisation();
         config.personTitle = pd.getPersonTitle();
         config.personName = pd.getPersonName();
