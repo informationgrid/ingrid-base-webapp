@@ -70,7 +70,7 @@ public class GeneralController extends AbstractController {
     private final CommunicationService _communicationService;
     
     private List<Partner> _partners = null;
-    
+
     @Autowired(required=false)
     private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
 
@@ -132,7 +132,7 @@ public class GeneralController extends AbstractController {
         if (!commandObject.containsKey("originalPort")) {
             commandObject.putInt("originalPort", commandObject.getIplugAdminGuiPort());
         }
-        
+
         if (partners == null || partners.size() == 0) {
             modelMap.addAttribute("noManagement", true);
         }
@@ -232,9 +232,11 @@ public class GeneralController extends AbstractController {
   
     private void setConfiguration(PlugdescriptionCommandObject pd) {
         Config config = JettyStarter.getInstance().config;
-        
+
         config.mainPartner = pd.getOrganisationPartnerAbbr();
+        config.partner = pd.getPartners();
         config.mainProvider = pd.getOrganisationAbbr();
+        config.provider = pd.getProviders();
         config.organisation = pd.getOrganisation();
         config.personTitle = pd.getPersonTitle();
         config.personName = pd.getPersonName();
