@@ -151,9 +151,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
                         newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex);
                         if (config.alwaysCreateNewIndex) {
-                            String source = _indexManager.getDefaultMapping();
-                            if (source != null) {
-                                _indexManager.createIndex(newIndex, info.getToType(), source);
+                            String mapping = _indexManager.getDefaultMapping();
+                            String settings = _indexManager.getDefaultSettings();
+                            if (mapping != null) {
+                                _indexManager.createIndex(newIndex, info.getToType(), mapping, settings);
                             } else {
                                 this.statusProvider.addState("MAPPING_ERROR", "Could not get default mapping to create index", Classification.WARN);
                                 _indexManager.createIndex(newIndex);
