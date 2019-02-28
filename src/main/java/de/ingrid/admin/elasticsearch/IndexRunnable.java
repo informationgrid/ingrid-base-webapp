@@ -92,6 +92,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 .orElseGet(() -> new PlugDescriptionFieldFilters(new IPlugdescriptionFieldFilter[0]));
 
         _indexManager = elasticConfig.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
+
+        LOG.info("Communication to Elasticsearch is " + (elasticConfig.esCommunicationThroughIBus ? "through iBus" : "direct"));
+
         _indexHelper = new ConcurrentHashMap<>();
     }
 
