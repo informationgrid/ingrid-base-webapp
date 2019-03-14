@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -381,7 +382,8 @@ public class GeneralSearchTest extends ElasticTests {
         IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt Firma" );
         IngridHits search = index.search( q, 0, 10 );
-        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
+        String[] extraFields = new String[] { JettyStarter.getInstance().config.indexFieldTitle, JettyStarter.getInstance().config.indexFieldSummary, "url", "fetched" };
+        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
         // assertThat( detail.getHitId(), is( "1" ) );
         assertThat( (String)detail.getArray( IndexImpl.DETAIL_URL )[0], is( "http://www.wemove.com" ) );
@@ -396,7 +398,8 @@ public class GeneralSearchTest extends ElasticTests {
         IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Preis" );
         IngridHits search = index.search( q, 0, 10 );
-        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
+        String[] extraFields = new String[] { JettyStarter.getInstance().config.indexFieldTitle, JettyStarter.getInstance().config.indexFieldSummary, "url", "fetched" };
+        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
         assertThat( detail.getSummary(), is( "Die beste IT-Firma auf der Welt! <em>Preishit</em>" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
@@ -407,7 +410,7 @@ public class GeneralSearchTest extends ElasticTests {
         IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt Firma" );
         IngridHits search = index.search( q, 0, 10 );
-        String[] extraFields = new String[] { "url", "fetched" };
+        String[] extraFields = new String[] { JettyStarter.getInstance().config.indexFieldTitle, JettyStarter.getInstance().config.indexFieldSummary, "url", "fetched" };
         IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
         // assertThat( detail.getHitId(), is( "1" ) );

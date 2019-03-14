@@ -36,9 +36,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import de.ingrid.admin.Config;
 import de.ingrid.admin.IKeys;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.service.PlugDescriptionService;
@@ -64,6 +66,8 @@ public class AdminToolsController extends AbstractController {
 
     private final CacheService _cacheService;
 
+    private Config config;
+
     // private final PlugDescriptionService _plugDescriptionService;
 
     @Autowired
@@ -72,6 +76,7 @@ public class AdminToolsController extends AbstractController {
         _communication = communication;
         _plug = plug;
         _cacheService = cacheService;
+        this.config = JettyStarter.getInstance().config;
         // _plugDescriptionService = plugDescriptionService;
     }
 
@@ -123,7 +128,7 @@ public class AdminToolsController extends AbstractController {
             modelMap.addAttribute( "totalHitCount", results.length() );
 
             final IngridHit[] hits = results.getHits();
-            final IngridHitDetail[] details = _plug.getDetails( hits, query, new String[] { "t02_address.firstname", "t02_address.lastname"} );
+            final IngridHitDetail[] details = _plug.getDetails( hits, query, new String[] { config.indexFieldTitle, config.indexFieldSummary, "t02_address.firstname", "t02_address.lastname" } );
 
             // convert details to map
             // this is necessary because it's not possible to access the

@@ -25,6 +25,7 @@ package de.ingrid.admin.elasticsearch;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -83,8 +84,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     private Config config;
 
-    private String[] detailFields;
-
     private IndexManager indexManager;
 
     @Autowired
@@ -92,7 +91,6 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         this.config = JettyStarter.getInstance().config;
         this.indexManager = indexManager;
         this.searchType = ElasticSearchUtils.getSearchTypeFromString( config.searchType );
-        this.detailFields = (String[]) ArrayUtils.addAll( new String[] { config.indexFieldTitle, config.indexFieldSummary }, config.additionalSearchDetailFields );
 
         try {
             this.queryConverter = qc;
@@ -292,15 +290,17 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         String documentId = hit.getDocumentId();
         String fromIndex = hit.getString( ELASTIC_SEARCH_INDEX );
         String fromType = hit.getString( ELASTIC_SEARCH_INDEX_TYPE );
-        String[] allFields = (String[]) ArrayUtils.addAll( detailFields, requestedFields );
 
         // We have to search here again, to get a highlighted summary of the result!
         QueryBuilder query = QueryBuilders.boolQuery().must( QueryBuilders.matchQuery( IngridDocument.DOCUMENT_UID, documentId ) ).must( queryConverter.convert( ingridQuery ) );
 
         // search prepare
         SearchRequestBuilder srb = indexManager.getClient().prepareSearch( fromIndex ).setTypes( fromType ).setSearchType( searchType ).setQuery( query ) // Query
-                .setFrom( 0 ).setSize( 1 ).addHighlightedField( config.indexFieldSummary ).addFields( allFields ).setExplain( false );
+                .setFrom( 0 ).setSize( 1 ).addFields( requestedFields ).setExplain( false );
 
+        if(Arrays.stream(requestedFields).anyMatch(config.indexFieldSummary::equals)) {
+            srb = srb.addHighlightedField( config.indexFieldSummary );
+        }
         SearchResponse searchResponse = srb.execute().actionGet();
 
         SearchHits dHits = searchResponse.getHits();
@@ -326,21 +326,23 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         detail.setDocumentId( documentId );
         if (requestedFields != null) {
             for (String field : requestedFields) {
-                if (dHit.field( field ) != null) {
-                    if (dHit.field( field ).getValues() instanceof List){
-                        if(dHit.field( field ).getValues().size() > 1){
-                            detail.put( field, dHit.field( field ).getValues());
-                        }else{
-                            if (dHit.field( field ).getValue() instanceof String) {
-                                detail.put( field, new String[] { dHit.field( field ).getValue() } );
-                            } else {
-                                detail.put( field, dHit.field( field ).getValue() );
+                if(detail.get(field) == null) {
+                    if (dHit.field( field ) != null) {
+                        if (dHit.field( field ).getValues() instanceof List){
+                            if(dHit.field( field ).getValues().size() > 1){
+                                detail.put( field, dHit.field( field ).getValues());
+                            }else{
+                                if (dHit.field( field ).getValue() instanceof String) {
+                                    detail.put( field, new String[] { dHit.field( field ).getValue() } );
+                                } else {
+                                    detail.put( field, dHit.field( field ).getValue() );
+                                }
                             }
+                        } else if (dHit.field( field ).getValue() instanceof String) {
+                            detail.put( field, new String[] { dHit.field( field ).getValue() } );
+                        } else {
+                            detail.put( field, dHit.field( field ).getValue() );
                         }
-                    } else if (dHit.field( field ).getValue() instanceof String) {
-                        detail.put( field, new String[] { dHit.field( field ).getValue() } );
-                    } else {
-                        detail.put( field, dHit.field( field ).getValue() );
                     }
                 }
             }
@@ -369,6 +371,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
     @Override
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery ingridQuery, String[] requestedFields) {
+        long detailsTime = System.currentTimeMillis();
         for (int i = 0; i < requestedFields.length; i++) {
             requestedFields[i] = requestedFields[i].toLowerCase();
         }
@@ -376,6 +379,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         for (IngridHit hit : hits) {
             details.add( getDetail( hit, ingridQuery, requestedFields ) );
         }
+        log.debug("TIMING: Get details for query: " + ingridQuery.toString());
         return details.toArray( new IngridHitDetail[0] );
     }
 
