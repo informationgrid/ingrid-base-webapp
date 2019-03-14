@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
@@ -37,6 +36,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.search.ShardSearchFailure;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -304,8 +304,20 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
         SearchResponse searchResponse = srb.execute().actionGet();
 
         SearchHits dHits = searchResponse.getHits();
-        SearchHit dHit = dHits.getAt( 0 );
+        return createDetail(hit, dHits.getAt( 0 ), requestedFields);
+    }
 
+    private void addPlugDescriptionInformations(IngridHitDetail detail, String[] fields) {
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i].equals( PlugDescription.PARTNER )) {
+                detail.setArray( PlugDescription.PARTNER, config.partner );
+            } else if (fields[i].equals( PlugDescription.PROVIDER )) {
+                detail.setArray( PlugDescription.PROVIDER, config.provider );
+            }
+        }
+    }
+
+    private IngridHitDetail createDetail(IngridHit hit, SearchHit dHit, String[] requestedFields) {
         String title = "untitled";
         if (dHit.field( config.indexFieldTitle ) != null) {
             title = (String) dHit.field( config.indexFieldTitle ).getValue();
@@ -323,7 +335,7 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
 
         addPlugDescriptionInformations( detail, requestedFields );
 
-        detail.setDocumentId( documentId );
+        detail.setDocumentId( hit.getDocumentId() );
         if (requestedFields != null) {
             for (String field : requestedFields) {
                 if(detail.get(field) == null) {
@@ -355,31 +367,45 @@ public class IndexImpl implements ISearcher, IDetailer, IRecordLoader {
                 detail.put( extraDetail, field.getValue() );
             }
         }
-
         return detail;
-    }
-
-    private void addPlugDescriptionInformations(IngridHitDetail detail, String[] fields) {
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].equals( PlugDescription.PARTNER )) {
-                detail.setArray( PlugDescription.PARTNER, config.partner );
-            } else if (fields[i].equals( PlugDescription.PROVIDER )) {
-                detail.setArray( PlugDescription.PROVIDER, config.provider );
-            }
-        }
     }
 
     @Override
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery ingridQuery, String[] requestedFields) {
-        long detailsTime = System.currentTimeMillis();
+        String fromIndex = null;
+        String fromType = null;
+        List<IngridHitDetail> details = new ArrayList<IngridHitDetail>();
         for (int i = 0; i < requestedFields.length; i++) {
             requestedFields[i] = requestedFields[i].toLowerCase();
         }
-        List<IngridHitDetail> details = new ArrayList<IngridHitDetail>();
+        BoolQueryBuilder query = QueryBuilders
+                .boolQuery()
+                .must( queryConverter.convert( ingridQuery ) );
+
         for (IngridHit hit : hits) {
-            details.add( getDetail( hit, ingridQuery, requestedFields ) );
+            String documentId = hit.getDocumentId();
+            fromIndex = hit.getString( ELASTIC_SEARCH_INDEX );
+            fromType = hit.getString( ELASTIC_SEARCH_INDEX_TYPE );
+            query.should(QueryBuilders.matchQuery(IngridDocument.DOCUMENT_UID, documentId));
         }
-        log.debug("TIMING: Get details for query: " + ingridQuery.toString());
+        if (fromIndex != null && fromType != null) {
+            // search prepare
+            SearchRequestBuilder srb = indexManager.getClient().prepareSearch( fromIndex ).setTypes( fromType ).setSearchType( searchType ).setQuery( query ) // Query
+                    .setFrom( 0 ).setSize( hits.length ).addFields( requestedFields ).setExplain( false );
+
+            if(Arrays.stream(requestedFields).anyMatch(config.indexFieldSummary::equals)) {
+                srb = srb.addHighlightedField( config.indexFieldSummary );
+            }
+            SearchResponse searchResponse = srb.execute().actionGet();
+
+            SearchHits dHits = searchResponse.getHits();
+            for (int i = 0; i < hits.length; i++) {
+                IngridHit hit = hits[i];
+                SearchHit dHit = dHits.getAt(i);
+                details.add( createDetail(hit, dHit, requestedFields) );
+
+            }
+        }
         return details.toArray( new IngridHitDetail[0] );
     }
 
