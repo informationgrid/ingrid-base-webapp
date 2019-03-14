@@ -45,7 +45,7 @@ public class Utils {
 
     @SuppressWarnings("unchecked")
     public static List<Partner> getPartners(final IBus bus) throws Exception {
-        final List<Partner> list = new ArrayList<Partner>();
+        final List<Partner> list = new ArrayList<>();
         if (bus != null) {
             // get partners from bus
             final IngridQuery ingridQuery = new IngridQuery();
@@ -56,11 +56,13 @@ public class Utils {
             final IngridHits hits = bus.search(ingridQuery, 1000, 0, 0, 120000);
             if (hits.length() > 0) {
                 final List<Object> partners = hits.getHits()[0].getArrayList("partner");
-                for (final Object object : partners) {
-                    final Map<String, Object> map = (Map<String, Object>) object;
-                    final String partnerName = (String) map.get("name");
-                    final String partnerId = (String) map.get("partnerid");
-                    list.add(new Partner(partnerId, partnerName));
+                if (partners != null) {
+                    for (final Object object : partners) {
+                        final Map<String, Object> map = (Map<String, Object>) object;
+                        final String partnerName = (String) map.get("name");
+                        final String partnerId = (String) map.get("partnerid");
+                        list.add(new Partner(partnerId, partnerName));
+                    }
                 }
             }
         } else {
@@ -79,7 +81,7 @@ public class Utils {
 
     @SuppressWarnings("unchecked")
     public static List<Provider> getProviders(final IBus bus) throws Exception {
-        final List<Provider> list = new ArrayList<Provider>();
+        final List<Provider> list = new ArrayList<>();
         if (bus != null) {
             final IngridQuery ingridQuery = new IngridQuery();
             ingridQuery.addField(new FieldQuery(false, false, "datatype", "management"));
