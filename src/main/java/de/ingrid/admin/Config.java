@@ -120,7 +120,7 @@ public class Config {
     @Value("${plugdescription.workingDirectory:.}")
     public String pdWorkingDir;
 
-    @Value("${plugdescription.IPLUG_ADMIN_PASSWORD}")
+    @Value("${plugdescription.IPLUG_ADMIN_PASSWORD:}")
     public String pdPassword;
 
     @Value("${indexing:false}")
@@ -561,7 +561,9 @@ public class Config {
             }
         }
 
-        pd.setIplugAdminPassword( pdPassword );
+        if (!pdPassword.trim().isEmpty()) {
+            pd.setIplugAdminPassword( pdPassword );
+        }
 
         pd.setOrganisationPartnerAbbr( mainPartner );
         pd.setOrganisationAbbr( mainProvider );
