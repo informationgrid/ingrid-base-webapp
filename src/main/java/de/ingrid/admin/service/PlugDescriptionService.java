@@ -26,10 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.IKeys;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.PlugdescriptionSerializer;
@@ -41,10 +42,15 @@ public class PlugDescriptionService {
 
 	private final File _plugDescriptionFile;
 
+	private final Config config;
+
 	private PlugDescription _plugDescription;
 
-    public PlugDescriptionService() throws IOException {
-		_plugDescriptionFile = new File(System.getProperty(IKeys.PLUG_DESCRIPTION));
+	@Autowired
+    public PlugDescriptionService(Config config) throws IOException {
+		this.config = config;
+		//_plugDescriptionFile = new File(System.getProperty(IKeys.PLUG_DESCRIPTION));
+		_plugDescriptionFile = new File(config.getPlugdescription());
 		if (existsPlugDescription()) {
 			_plugDescription = loadPlugDescription();
 		} else {
@@ -60,7 +66,7 @@ public class PlugDescriptionService {
 	}
 
     public PlugdescriptionCommandObject getCommandObect() throws IOException {
-        return new PlugdescriptionCommandObject(_plugDescriptionFile);
+        return new PlugdescriptionCommandObject(_plugDescriptionFile, config);
     }
 
 	public void savePlugDescription(final PlugDescription plugDescription)

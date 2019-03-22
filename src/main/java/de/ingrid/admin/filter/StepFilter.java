@@ -36,27 +36,45 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.JettyStarter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+@Service("StepFilter")
 public class StepFilter implements Filter {
 
     private File _plugDescription;
 
     private File _communication;
 
-    private final List<String> _needComm = new ArrayList<String>();
+    private final List<String> _needComm = new ArrayList<>();
 
-    private final List<String> _needPlug = new ArrayList<String>();
+    private final List<String> _needPlug = new ArrayList<>();
 
     protected final Logger LOG = Logger.getLogger(StepFilter.class);
 
+    private final Config config;
+
+    @Autowired
+    public StepFilter(Config config) throws ServletException {
+        this.config = config;
+        this.init(null);
+    }
+
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
-        _plugDescription = new File(JettyStarter.getInstance().config.getPlugdescription());
-        _communication = new File(JettyStarter.getInstance().config.communicationLocation);
+
+        _plugDescription = new File(config.getPlugdescription());
+        _communication = new File(config.communicationLocation);
+
+        boolean iBusDisabled = config.disableIBus;
+        if (iBusDisabled) return;
 
         _needComm.add(IUris.WORKING_DIR);
         _needComm.add(IUris.GENERAL);

@@ -22,7 +22,7 @@
  */
 package de.ingrid.admin.object;
 
-import de.ingrid.admin.elasticsearch.IndexInfo;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 

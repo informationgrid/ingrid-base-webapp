@@ -28,13 +28,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.count.CountRequest;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -46,20 +39,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.Utils;
-import de.ingrid.admin.elasticsearch.IndexInfo;
-import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.admin.elasticsearch.StatusProvider;
 import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IIndexManager;
+import de.ingrid.elasticsearch.IndexManager;
 
 @Controller
 public class IndexController extends AbstractController {
 
+    @SuppressWarnings("unused")
     private static final Log LOG = LogFactory.getLog(IndexController.class);
-    private IndexManager indexManager;
+    private IIndexManager indexManager;
     
     @Autowired(required=false)
     private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
@@ -71,8 +65,14 @@ public class IndexController extends AbstractController {
     private IndexScheduler scheduler;
 
     @Autowired
-    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager) throws Exception {
-        this.indexManager = indexManager;
+    public IndexController(final IndexRunnable indexRunnable, IndexManager indexManager, IBusIndexManager ibusIndexManager, ElasticConfig elasticConfig) throws Exception {
+        if (elasticConfig.esCommunicationThroughIBus) {
+            this.indexManager = ibusIndexManager;
+            
+        } else {
+            this.indexManager = indexManager;
+            
+        }
     }
 
     @ModelAttribute("state")
@@ -105,31 +105,32 @@ public class IndexController extends AbstractController {
     @RequestMapping(value = IUris.INDEX_STATUS, method = RequestMethod.GET)
     public String getIndexStatus(final ModelMap modelMap) throws Exception {
         // get cluster health information
-        ClusterHealthResponse clusterHealthResponse = indexManager.getClient().admin().cluster().health( new ClusterHealthRequest() ).get();
-
+        //ClusterHealthResponse clusterHealthResponse = indexManager.getClient().admin().cluster().health( new ClusterHealthRequest() ).get();
+// TODO: implement
         // get all indices
-        List<IndexStatus> indices = new ArrayList<IndexStatus>();
-        for (IDocumentProducer producer : docProducer) {
-            
-            IndexInfo indexInfo = Utils.getIndexInfo( producer, JettyStarter.getInstance().config );
-            String index = indexInfo.getToIndex();
-            String indexType = indexInfo.getToType();
-            
-            String currentIndex = indexManager.getIndexNameFromAliasName(index);
-            if (currentIndex == null) continue;
-    
-            // get mapping
-            GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
-            ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
-            
-            long count = indexManager.getClient().count( new CountRequest( currentIndex ).types( indexType ) ).get().getCount();
-
-            Object mappingAsString = mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "\"No mapping exists!\"";
-            IndexStatus indexStatus = new IndexStatus( currentIndex, indexType, count, mappingAsString );
-            indices.add( indexStatus );
-        }
-        modelMap.addAttribute( "clusterState", clusterHealthResponse );
-        modelMap.addAttribute( "indices", indices );
+//        List<IndexStatus> indices = new ArrayList<IndexStatus>();
+//        for (IDocumentProducer producer : docProducer) {
+//            
+//            IndexInfo indexInfo = Utils.getIndexInfo( producer, baseConfig );
+//            String indexAlias = indexInfo.getToAlias();
+//            String index = indexInfo.getToIndex();
+//            String indexType = indexInfo.getToType();
+//            
+//            String currentIndex = indexManager.getIndexNameFromAliasName(indexAlias, index);
+//            if (currentIndex == null) continue;
+//    
+//            // get mapping
+//            GetMappingsResponse mappingResponse = indexManager.getClient().admin().indices().getMappings( new GetMappingsRequest() ).get();
+//            ImmutableOpenMap<String, MappingMetaData> mapping = mappingResponse.getMappings().get( currentIndex );
+//            
+//            long count = indexManager.getClient().prepareSearch( currentIndex ).setTypes( indexType ).setSource(new SearchSourceBuilder().size(0)).get().getHits().totalHits;
+//
+//            Object mappingAsString = mapping.get( indexType ) != null ? mapping.get( indexType ).source() : "\"No mapping exists!\"";
+//            IndexStatus indexStatus = new IndexStatus( currentIndex, indexType, count, mappingAsString );
+//            indices.add( indexStatus );
+//        }
+//        modelMap.addAttribute( "clusterState", clusterHealthResponse );
+//        modelMap.addAttribute( "indices", indices );
         return IViews.INDEX_STATUS;
     }
 

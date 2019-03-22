@@ -61,7 +61,7 @@
 <% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
         <menutaglib:MenuTag text="Speichern" url="../base/save.html" ></menutaglib:MenuTag>
 <% } %>
-		
+
 	</ul>
 	
 <% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
@@ -78,8 +78,8 @@
 		<!-- indexing -->
         <menutaglib:MenuTag text="Indexieren" url="../base/indexing.html" ></menutaglib:MenuTag>
 	
-		<!-- index status -->
-        <menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>
+		<!-- index status: not used for central index at the moment -->
+        <%--<menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>--%>
         
 	</ul>
 	<% } %>

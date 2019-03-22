@@ -22,28 +22,10 @@
  */
 package de.ingrid.admin.controller;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import de.ingrid.admin.Config;
-import de.ingrid.admin.IKeys;
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.*;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
-import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
@@ -54,6 +36,19 @@ import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.idf.IdfTool;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class AdminToolsController extends AbstractController {
@@ -66,18 +61,17 @@ public class AdminToolsController extends AbstractController {
 
     private final CacheService _cacheService;
 
-    private Config config;
+    @Autowired
+    private ElasticConfig config;
 
     // private final PlugDescriptionService _plugDescriptionService;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug, final CacheService cacheService,
-            final PlugDescriptionService plugDescriptionService) throws Exception {
+    public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug, final CacheService cacheService) {
         _communication = communication;
         _plug = plug;
         _cacheService = cacheService;
-        this.config = JettyStarter.getInstance().config;
-        // _plugDescriptionService = plugDescriptionService;
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.GET)
@@ -87,7 +81,7 @@ public class AdminToolsController extends AbstractController {
     }
 
     @RequestMapping(value = IUris.COMM_SETUP, method = RequestMethod.POST)
-    public String postCommSetup(@RequestParam("action") final String action) throws Exception {
+    public String postCommSetup(@RequestParam("action") final String action) {
         if ("shutdown".equals( action )) {
             _communication.shutdown();
         } else if ("restart".equals( action )) {
@@ -133,7 +127,7 @@ public class AdminToolsController extends AbstractController {
             // convert details to map
             // this is necessary because it's not possible to access the
             // document-id by ${hit.documentId}
-            final Map<String, IngridHitDetail> detailsMap = new HashMap<String, IngridHitDetail>();
+            final Map<String, IngridHitDetail> detailsMap = new HashMap<>();
             if (details != null) {
                 for (final IngridHitDetail detail : details) {
                     if(detail != null){
@@ -142,13 +136,13 @@ public class AdminToolsController extends AbstractController {
                             if (detail.getString("title").isEmpty()) {
                                 detail.put( "title", detail.getArray( "t02_address.lastname")[0] + ", " + detail.getArray( "t02_address.firstname" )[0] );
                             }
-                        } catch (Exception ex) {}
+                        } catch (Exception ignored) {}
                         detailsMap.put( detail.getDocumentId(), detail );
                     }
                 }
             }
 
-            modelMap.addAttribute( "hitCount", details.length );
+            modelMap.addAttribute( "hitCount", details != null ? details.length : 0);
             modelMap.addAttribute( "hits", detailsMap );
             modelMap.addAttribute( "details", _plug instanceof IRecordLoader );
         }
@@ -168,16 +162,23 @@ public class AdminToolsController extends AbstractController {
         final IRecordLoader loader = (IRecordLoader) _plug;
         final Record record = loader.getRecord( hit );
 
-        final Map<String, String> values = new HashMap<String, String>();
+        final Map<String, String> values = new HashMap<>();
         values.put( "title", "Kein Titel" );
         values.put( "summary", "Keine Beschreibung" );
-        values.put( "data", StringEscapeUtils.escapeXml( IdfTool.getIdfDataFromRecord( record ) ) );
-        final Column[] columns = record.getColumns();
-        if (columns != null) {
-            for (final Column col : columns) {
-                values.put( col.getTargetName(), record.getValueAsString( col ) );
+
+        if (record != null) {
+            values.put("data", StringEscapeUtils.escapeXml(IdfTool.getIdfDataFromRecord(record)));
+
+            final Column[] columns = record.getColumns();
+            if (columns != null) {
+                for (final Column col : columns) {
+                    values.put(col.getTargetName(), record.getValueAsString(col));
+                }
             }
+        } else {
+            LOG.warn("No record found for ID: " + id);
         }
+
         modelMap.addAttribute( "values", values );
 
         return IViews.SEARCH_DETAILS;

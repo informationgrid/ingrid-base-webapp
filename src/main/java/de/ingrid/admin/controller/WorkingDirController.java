@@ -24,6 +24,7 @@ package de.ingrid.admin.controller;
 
 import java.io.File;
 
+import de.ingrid.admin.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -34,10 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.WorkingDirEditor;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.validation.PlugDescValidator;
 
@@ -47,9 +44,12 @@ public class WorkingDirController extends AbstractController {
 
     private final PlugDescValidator _validator;
 
+    private final Config config;
+
     @Autowired
-    public WorkingDirController(final PlugDescValidator validator) {
+    public WorkingDirController(final PlugDescValidator validator, Config config) {
         _validator = validator;
+        this.config = config;
     }
 
     @InitBinder
@@ -59,7 +59,7 @@ public class WorkingDirController extends AbstractController {
 
     @RequestMapping(value = IUris.WORKING_DIR, method = RequestMethod.GET)
     public String getWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription) {
-        plugDescription.setRealWorkingDir( JettyStarter.getInstance().config.pdWorkingDir );
+        plugDescription.setRealWorkingDir( config.pdWorkingDir );
         return IViews.WORKING_DIR;
     }
 
@@ -69,7 +69,7 @@ public class WorkingDirController extends AbstractController {
             return IViews.WORKING_DIR;
         }
         plugDescription.getWorkinDirectory().mkdirs();
-        JettyStarter.getInstance().config.pdWorkingDir = plugDescription.getRealWorkingDir();
+        config.pdWorkingDir = plugDescription.getRealWorkingDir();
         return redirect(IUris.GENERAL);
     }
 }
