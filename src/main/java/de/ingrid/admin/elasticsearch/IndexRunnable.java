@@ -49,6 +49,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static de.ingrid.utils.PlugDescription.QUERY_EXTENSION_CONTAINER;
+
 @Service
 public class IndexRunnable implements Runnable, IConfigurable {
 
@@ -318,6 +320,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
 
         _plugDescription = plugDescriptionFieldFilters.filter(plugDescription);
+        _plugDescription.remove(QUERY_EXTENSION_CONTAINER);
     }
 
     public PlugDescription getPlugDescription() {
