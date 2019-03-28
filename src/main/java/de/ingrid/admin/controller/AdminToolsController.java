@@ -25,7 +25,6 @@ package de.ingrid.admin.controller;
 import de.ingrid.admin.*;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
-import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.utils.IRecordLoader;
 import de.ingrid.utils.IngridHit;
@@ -62,11 +61,10 @@ public class AdminToolsController extends AbstractController {
     private final CacheService _cacheService;
 
     @Autowired
-    private ElasticConfig config;
+    private Config config;
 
     // private final PlugDescriptionService _plugDescriptionService;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     public AdminToolsController(final CommunicationService communication, final HeartBeatPlug plug, final CacheService cacheService) {
         _communication = communication;

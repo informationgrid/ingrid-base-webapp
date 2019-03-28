@@ -201,6 +201,12 @@ public class Config {
     @Value("${index.id:id}")
     public String indexIdFromDoc;
 
+    @Value("${index.field.title:title}")
+    public String indexFieldTitle;
+
+    @Value("${index.field.summary:summary}")
+    public String indexFieldSummary;
+
     // this field is overwritten in iPlugSE, where results
     // shall be grouped by URL instead of the iPlug-ID
     @Value("${index.search.groupByUrl:false}")
