@@ -58,6 +58,7 @@ public class ElasticTests {
     private static List<IDocumentProducer> docProducers;
     public static ElasticConfig elasticConfig;
     protected static Config config;
+    protected static IndexManager indexManager;
 
     /**
      * This will set up an elastic search environment with an index and some test data,
@@ -102,7 +103,7 @@ public class ElasticTests {
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
         
-        IndexManager indexManager = new IndexManager( elastic, elasticConfig );
+        indexManager = new IndexManager( elastic, elasticConfig );
         try {
             indexManager.deleteIndex( "test" );
         } catch (Exception ignored) {}
@@ -202,7 +203,7 @@ public class ElasticTests {
     }
     
     protected IndexImpl getIndexer() throws Exception {
-        IndexImpl indexImpl = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService());
+        IndexImpl indexImpl = new IndexImpl( elasticConfig, indexManager, qc, new FacetConverter(qc), new QueryBuilderService());
 //        config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }

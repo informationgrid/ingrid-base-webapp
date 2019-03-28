@@ -166,7 +166,7 @@ public class SearchTest extends ElasticTests {
     @Test
     public void getDoc() throws Exception {
         IndexImpl index = getIndexer();
-        ElasticDocument response = index.getDocById( "4" );
+        ElasticDocument response = indexManager.getDocById( "4" );
         assertThat( response, not( is( nullValue() ) ) );
         assertThat( (String)response.get( "url" ), is( "http://www.golemXXX.de" ) );
     }
