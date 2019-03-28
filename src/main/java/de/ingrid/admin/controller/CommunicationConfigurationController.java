@@ -30,6 +30,7 @@ import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.admin.validation.CommunicationValidator;
 import de.ingrid.admin.validation.IErrorKeys;
+import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.utils.PlugDescription;
 import net.weta.components.communication.configuration.XPathService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,9 @@ public class CommunicationConfigurationController extends AbstractController {
     private PlugDescriptionService _plugDescriptionService;
 
     private final Config config;
+
+    @Autowired
+    private ElasticConfig elasticConfig;
 
     @Autowired
     public CommunicationConfigurationController(final CommunicationService communicationService,
@@ -115,17 +119,12 @@ public class CommunicationConfigurationController extends AbstractController {
             commandObject.setPort(Integer.parseInt(communication.parseAttribute(
                     "/communication/client/connections/server/socket", "port")));
         }
-//        String proxyServiceUrl = commandObject.getProxyServiceUrl();
-//        final String userName = System.getProperty("user.name");
-//        proxyServiceUrl = proxyServiceUrl.endsWith("_" + userName) ? proxyServiceUrl : proxyServiceUrl + "_" + userName;
-//        commandObject.setProxyServiceUrl(proxyServiceUrl);
 
-        // return command object
         return commandObject;
     }
 
     @ModelAttribute("busses")
-    public List<CommunicationCommandObject> existingBusses() throws Exception {
+    public List<CommunicationCommandObject> existingBusses() {
         List<CommunicationCommandObject> ibusses = config.ibusses;
         for (int i = 0; i < ibusses.size(); i++) {
             if (_communicationService.isConnected(i)) {
@@ -169,7 +168,7 @@ public class CommunicationConfigurationController extends AbstractController {
                 if (_validator.validateProxyUrl(errors, _defaultProxyServiceUrl).hasErrors()) {
                     return IViews.COMMUNICATION;
                 }
-                setProxyUrl(communication, commandObject.getProxyServiceUrl());
+                setProxyUrl(commandObject.getProxyServiceUrl());
 
                 if (!communicationFile.exists() || getBusCount(communication) == 0) {
                     tryToAdd = true;
@@ -179,7 +178,7 @@ public class CommunicationConfigurationController extends AbstractController {
             if ("add".equals(action) || tryToAdd) {
                 // set proxy url
                 if (!_validator.validateProxyUrl(errors, _defaultProxyServiceUrl).hasErrors()) {
-                    setProxyUrl(communication, commandObject.getProxyServiceUrl());
+                    setProxyUrl(commandObject.getProxyServiceUrl());
                 }
                 // add new bus
                 if (_validator.validateBus(errors).hasErrors()) {
@@ -237,7 +236,7 @@ public class CommunicationConfigurationController extends AbstractController {
         return redirect( IViews.COMMUNICATION + ".html" );
     }
 
-    private final XPathService openCommunication(final File communicationFile) throws Exception {
+    private XPathService openCommunication(final File communicationFile) throws Exception {
         // first of all create directories if necessary
         if (communicationFile.getParentFile() != null) {
             if (!communicationFile.getParentFile().exists()) {
@@ -258,9 +257,11 @@ public class CommunicationConfigurationController extends AbstractController {
         return communication;
     }
 
-    private void setProxyUrl(final XPathService communication, final String proxyUrl) throws Exception {
-        //communication.setAttribute("/communication/client", "name", proxyUrl);
+    private void setProxyUrl(final String proxyUrl) {
+
+        // TODO: here are two configuration objects which have to be unified or correctly separated
         config.communicationProxyUrl = proxyUrl;
+        elasticConfig.communicationProxyUrl = proxyUrl;
     }
 
 
