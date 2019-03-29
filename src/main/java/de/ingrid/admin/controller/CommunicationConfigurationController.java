@@ -65,7 +65,7 @@ public class CommunicationConfigurationController extends AbstractController {
 
     private final Config config;
 
-    @Autowired
+    @Autowired(required = false)
     private ElasticConfig elasticConfig;
 
     @Autowired
@@ -261,7 +261,7 @@ public class CommunicationConfigurationController extends AbstractController {
 
         // TODO: here are two configuration objects which have to be unified or correctly separated
         config.communicationProxyUrl = proxyUrl;
-        elasticConfig.communicationProxyUrl = proxyUrl;
+        if (elasticConfig != null) elasticConfig.communicationProxyUrl = proxyUrl;
     }
 
 
