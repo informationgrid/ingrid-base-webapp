@@ -50,7 +50,7 @@
         <menutaglib:MenuTag text="Hinzufügen von weiteren Anbietern" url="../base/provider.html" ></menutaglib:MenuTag>
 
 		<!-- fieldQuery -->
-        <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>
+<%--        <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>--%>
 <% } %>
 		<!-- iplug sub navi  -->		
 		<c:catch>

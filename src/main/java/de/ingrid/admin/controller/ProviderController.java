@@ -110,7 +110,7 @@ public class ProviderController extends AbstractController {
             }
         } else if ("submit".equals(action)) {
             if (noProviderAvailable || !_validator.validateProviders(errors, !_communicationService.hasErrors()).hasErrors()) {
-                return redirect(IUris.FIELD_QUERY);
+                return redirect(IUris.EXTRAS);
             }
         }
 
