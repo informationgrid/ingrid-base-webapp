@@ -30,12 +30,12 @@ import de.ingrid.elasticsearch.search.FacetConverter;
 import de.ingrid.elasticsearch.search.IQueryParsers;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.elasticsearch.search.converter.*;
+import de.ingrid.utils.xml.XMLSerializer;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.node.Node;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -43,7 +43,6 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -174,27 +173,21 @@ public class ElasticTests {
     }
     
     protected static void setMapping(ElasticsearchNodeFactoryBean elastic, String index) {
-        String mappingSource = "";
         try {
             Client client = elastic.getClient();
-            ClassPathResource resource = new ClassPathResource( "data/mapping.json" );
+            ClassPathResource resourceMapping = new ClassPathResource( "data/mapping.json" );
+            ClassPathResource resourceSettings = new ClassPathResource( "data/settings.json" );
+            String mapping = XMLSerializer.getContents(resourceMapping.getInputStream());
+            String settings = XMLSerializer.getContents(resourceSettings.getInputStream());
 
-            List<String> urlsData = Files.readAllLines( Paths.get( resource.getURI() ), Charset.defaultCharset() );
-            for (String line : urlsData) {
-                mappingSource += line;
-            }
-            
             if (client.admin().indices().prepareExists(index).execute().actionGet().isExists()) {
                 client.admin().indices().prepareDelete(index).execute().actionGet();
             }
-            client.admin().indices().prepareCreate(index).execute().actionGet();
-            
-            client.admin().indices().preparePutMapping().setIndices( index )
-                    .setType("base")
-                    .setSource( mappingSource, XContentType.JSON )
-                    .execute()
-                    .actionGet();
-            
+
+            client.admin().indices().prepareCreate(index)
+                    .addMapping("base", mapping, XContentType.JSON)
+                    .setSettings(settings, XContentType.JSON)
+                    .execute().actionGet();
             
         } catch (Exception e) {
             e.printStackTrace();

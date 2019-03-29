@@ -14,14 +14,16 @@
             "store": true
         },
         "title": {
-            "analyzer": "german",
+            "analyzer": "decomp",
+            "search_analyzer": "no_decomp",
             "type": "text",
             "boost": 1.1,
             "store": true,
             "fielddata": true
         },
         "content": {
-            "analyzer": "german",
+            "analyzer": "decomp",
+            "search_analyzer": "no_decomp",
             "type": "text",
             "store": true
         },

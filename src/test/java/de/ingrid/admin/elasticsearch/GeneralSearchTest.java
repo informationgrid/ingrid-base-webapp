@@ -165,11 +165,11 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 0 ) );
         
-        q = QueryStringParser.parse( "au?" );
+        q = QueryStringParser.parse( "wel?" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 3 ) );
-        Utils.checkHitsForIDs( search.getHits(), 1, 4, 10 );
+        Utils.checkHitsForIDs( search.getHits(), 1, 4, 11 );
     }
     
     @Test
@@ -187,11 +187,11 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
         
-        q = QueryStringParser.parse( "au*" );
+        q = QueryStringParser.parse( "st*" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.getHits().length, is( 6 ) );
-        Utils.checkHitsForIDs( search.getHits(), 1, 4, 7, 9, 10, 11 );
+        assertThat( search.getHits().length, is( 2 ) );
+        Utils.checkHitsForIDs( search.getHits(), 2, 8 );
     }
     
     @Test
@@ -412,7 +412,8 @@ public class GeneralSearchTest extends ElasticTests {
         String[] extraFields = new String[] { elasticConfig.indexFieldTitle, elasticConfig.indexFieldSummary, "url", "fetched" };
         IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
-        assertThat( detail.getSummary(), is( "Die beste IT-Firma auf der Welt! <em>Preishit</em>" ) );
+//        assertThat( detail.getSummary(), is( "Die beste IT-Firma auf der Welt! <em>Preishit</em>" ) );
+        assertThat( detail.getSummary(), is( "<em>Preishit</em>" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
     }
     
