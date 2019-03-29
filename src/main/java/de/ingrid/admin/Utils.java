@@ -107,7 +107,6 @@ public class Utils {
         IndexInfo indexInfo = producer.getIndexInfo();
         if (indexInfo == null) {
             indexInfo = new IndexInfo();
-            indexInfo.setComponentIdentifier( config.communicationProxyUrl );
             indexInfo.setToIndex( config.index );
             if (config.indexAlias != null && config.indexAlias.length() > 0) {
                 indexInfo.setToAlias( config.indexAlias );
@@ -116,11 +115,8 @@ public class Utils {
             }
             indexInfo.setToType( config.indexType );
             indexInfo.setDocIdField( config.indexIdFromDoc );
-        } else {
-            if (indexInfo.getComponentIdentifier() == null) {
-                indexInfo.setComponentIdentifier( config.communicationProxyUrl );
-            }
         }
+
         return indexInfo;
     }
     
