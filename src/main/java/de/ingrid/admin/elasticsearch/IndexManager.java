@@ -147,7 +147,7 @@ public class IndexManager implements IConfigurable {
         
         if (updateOldIndex) {
             String oldIndex = getIndexNameFromAliasName(indexinfo.getToAlias(), null);
-            if (!oldIndex.equals( indexinfo.getRealIndexName() )) {
+            if ((oldIndex != null) && !oldIndex.equals( indexinfo.getRealIndexName() ) && (!indexinfo.getToIndex().equals( indexinfo.getRealIndexName() ))) {
                 IndexInfo otherIndexInfo = indexinfo.clone();
                 otherIndexInfo.setRealIndexName( oldIndex );
                 delete( otherIndexInfo, id, false );
