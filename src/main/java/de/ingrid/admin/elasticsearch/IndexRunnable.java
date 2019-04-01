@@ -151,7 +151,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     if (!indexNames.containsKey(info.getToIndex())) {
                         // TODO: what if there are more indices in an alias???
                         oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
-                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex) + "@" + config.uuid;
+                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex);
                         if (config.alwaysCreateNewIndex) {
                             String mapping = _indexManager.getDefaultMapping();
                             String settings = _indexManager.getDefaultSettings();
