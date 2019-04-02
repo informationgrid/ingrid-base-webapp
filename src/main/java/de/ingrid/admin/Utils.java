@@ -107,10 +107,7 @@ public class Utils {
         IndexInfo indexInfo = producer.getIndexInfo();
         if (indexInfo == null) {
             indexInfo = new IndexInfo();
-
-            // make index name unique so that multiple iPlugs of same type
-            // can index to different indices
-            indexInfo.setToIndex( config.index + "@" + config.uuid );
+            indexInfo.setToIndex( config.index );
             if (config.indexAlias != null && config.indexAlias.length() > 0) {
                 indexInfo.setToAlias( config.indexAlias );
             } else {
@@ -118,10 +115,6 @@ public class Utils {
             }
             indexInfo.setToType( config.indexType );
             indexInfo.setDocIdField( config.indexIdFromDoc );
-        } else if (!indexInfo.getToIndex().contains(config.uuid)) {
-            // make index name unique so that multiple iPlugs of same type
-            // can index to different indices
-            indexInfo.setToIndex(indexInfo.getToIndex() + "@" + config.uuid);
         }
 
         return indexInfo;
