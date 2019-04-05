@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -30,12 +30,16 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.ingrid.admin.JettyStarter;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHits;
@@ -48,16 +52,15 @@ public class SearchTest extends ElasticTests {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        new JettyStarter( false );
-        setup( "test", "data/webUrls2.json" );
-        IndexManager indexManager = new IndexManager( elastic );
+        setup( "test_1", "data/webUrls2.json" );
+        IndexManager indexManager = new IndexManager( elastic, new ElasticConfig() );
         indexManager.removeAlias("test");
-        indexManager.switchAlias( "test", "test_1" );
+        indexManager.switchAlias( "test", null, "test_1" );
     }
     
     @AfterClass
-    public static void afterClass() throws Exception {
-        elastic.getObject().close();
+    public static void afterClass() {
+        elastic.getClient().close();
     }
 
     @Test
@@ -163,7 +166,7 @@ public class SearchTest extends ElasticTests {
     @Test
     public void getDoc() throws Exception {
         IndexImpl index = getIndexer();
-        ElasticDocument response = index.getDocById( "4" );
+        ElasticDocument response = indexManager.getDocById( "4" );
         assertThat( response, not( is( nullValue() ) ) );
         assertThat( (String)response.get( "url" ), is( "http://www.golemXXX.de" ) );
     }

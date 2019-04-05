@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,12 +22,17 @@
  */
 package de.ingrid.admin.controller;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
+import de.ingrid.admin.command.CommunicationCommandObject;
+import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.admin.validation.CommunicationValidator;
+import de.ingrid.admin.validation.IErrorKeys;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.utils.PlugDescription;
 import net.weta.components.communication.configuration.XPathService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -37,16 +42,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.command.CommunicationCommandObject;
-import de.ingrid.admin.service.CommunicationService;
-import de.ingrid.admin.service.PlugDescriptionService;
-import de.ingrid.admin.validation.CommunicationValidator;
-import de.ingrid.admin.validation.IErrorKeys;
-import de.ingrid.utils.PlugDescription;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 
 @Controller
 public class CommunicationConfigurationController extends AbstractController {
@@ -65,13 +63,19 @@ public class CommunicationConfigurationController extends AbstractController {
 
     private PlugDescriptionService _plugDescriptionService;
 
+    private final Config config;
+
+    @Autowired(required = false)
+    private ElasticConfig elasticConfig;
+
     @Autowired
     public CommunicationConfigurationController(final CommunicationService communicationService,
-            final PlugDescriptionService pdService,
-            final CommunicationValidator validator) {
+                                                final PlugDescriptionService pdService,
+                                                final CommunicationValidator validator, Config config) {
         _communicationService = communicationService;
         _plugDescriptionService = pdService;
         _validator = validator;
+        this.config = config;
     }
 
     @ModelAttribute("communication")
@@ -84,6 +88,8 @@ public class CommunicationConfigurationController extends AbstractController {
 
         // open communication file
         final File communicationFile = _communicationService.getCommunicationFile();
+        
+        if (communicationFile == null) return null;
 
         // bus count
         Integer count = 0;
@@ -94,7 +100,7 @@ public class CommunicationConfigurationController extends AbstractController {
             commandObject.setProxyServiceUrl(communication.parseAttribute("/communication/client", "name"));
             count = getBusCount(communication);
         } else {
-            commandObject.setProxyServiceUrl( JettyStarter.getInstance().config.communicationProxyUrl );
+            commandObject.setProxyServiceUrl( config.communicationProxyUrl );
         }
 
         if (count < 1) {
@@ -113,18 +119,13 @@ public class CommunicationConfigurationController extends AbstractController {
             commandObject.setPort(Integer.parseInt(communication.parseAttribute(
                     "/communication/client/connections/server/socket", "port")));
         }
-//        String proxyServiceUrl = commandObject.getProxyServiceUrl();
-//        final String userName = System.getProperty("user.name");
-//        proxyServiceUrl = proxyServiceUrl.endsWith("_" + userName) ? proxyServiceUrl : proxyServiceUrl + "_" + userName;
-//        commandObject.setProxyServiceUrl(proxyServiceUrl);
 
-        // return command object
         return commandObject;
     }
 
     @ModelAttribute("busses")
-    public List<CommunicationCommandObject> existingBusses() throws Exception {
-        List<CommunicationCommandObject> ibusses = JettyStarter.getInstance().config.ibusses;
+    public List<CommunicationCommandObject> existingBusses() {
+        List<CommunicationCommandObject> ibusses = config.ibusses;
         for (int i = 0; i < ibusses.size(); i++) {
             if (_communicationService.isConnected(i)) {
                 ibusses.get( i ).setIsConnected( true );
@@ -142,6 +143,11 @@ public class CommunicationConfigurationController extends AbstractController {
 
     @RequestMapping(value = IUris.COMMUNICATION, method = RequestMethod.GET)
     public String getCommunication() {
+        boolean iBusDisabled = config.disableIBus;
+        
+        if (iBusDisabled) {
+            return redirect(IUris.WORKING_DIR);
+        }
         return IViews.COMMUNICATION;
     }
 
@@ -162,18 +168,17 @@ public class CommunicationConfigurationController extends AbstractController {
                 if (_validator.validateProxyUrl(errors, _defaultProxyServiceUrl).hasErrors()) {
                     return IViews.COMMUNICATION;
                 }
-                setProxyUrl(communication, commandObject.getProxyServiceUrl());
+                setProxyUrl(commandObject.getProxyServiceUrl());
 
                 if (!communicationFile.exists() || getBusCount(communication) == 0) {
                     tryToAdd = true;
                 }
             }
-            Config config = JettyStarter.getInstance().config;
 
             if ("add".equals(action) || tryToAdd) {
                 // set proxy url
                 if (!_validator.validateProxyUrl(errors, _defaultProxyServiceUrl).hasErrors()) {
-                    setProxyUrl(communication, commandObject.getProxyServiceUrl());
+                    setProxyUrl(commandObject.getProxyServiceUrl());
                 }
                 // add new bus
                 if (_validator.validateBus(errors).hasErrors()) {
@@ -231,7 +236,7 @@ public class CommunicationConfigurationController extends AbstractController {
         return redirect( IViews.COMMUNICATION + ".html" );
     }
 
-    private final XPathService openCommunication(final File communicationFile) throws Exception {
+    private XPathService openCommunication(final File communicationFile) throws Exception {
         // first of all create directories if necessary
         if (communicationFile.getParentFile() != null) {
             if (!communicationFile.getParentFile().exists()) {
@@ -252,9 +257,11 @@ public class CommunicationConfigurationController extends AbstractController {
         return communication;
     }
 
-    private void setProxyUrl(final XPathService communication, final String proxyUrl) throws Exception {
-        //communication.setAttribute("/communication/client", "name", proxyUrl);
-        JettyStarter.getInstance().config.communicationProxyUrl = proxyUrl;
+    private void setProxyUrl(final String proxyUrl) {
+
+        // TODO: here are two configuration objects which have to be unified or correctly separated
+        config.communicationProxyUrl = proxyUrl;
+        if (elasticConfig != null) elasticConfig.communicationProxyUrl = proxyUrl;
     }
 
 

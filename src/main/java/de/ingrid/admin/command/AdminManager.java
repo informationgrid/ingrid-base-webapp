@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,10 +22,7 @@
  */
 package de.ingrid.admin.command;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -44,13 +41,8 @@ public class AdminManager {
             Properties props = new Properties();
             props.load( is );
             String oldPassword = props.getProperty( "plugdescription.IPLUG_ADMIN_PASSWORD" );
-            is.close();
-            
-            props.setProperty( "plugdescription.IPLUG_ADMIN_PASSWORD", BCrypt.hashpw(oldPassword, BCrypt.gensalt()) );
-            
-            OutputStream os = new FileOutputStream( "conf/config.override.properties" );
-            props.store( os, "Override configuration written by the application" );
-            os.close();
+
+            writeEncryptedPasswordToProperties(oldPassword, props);
         } catch (Exception e) {
             LOG.error( "Could not migrate password", e );
         }
@@ -60,18 +52,22 @@ public class AdminManager {
      * Read the override configuration and write a new bcrypt-hash password.
      */
     private static void resetPassword(String newPassword) {
-        try {
-            InputStream is = new FileInputStream( "conf/config.override.properties" );
-            Properties props = new Properties();
-            props.load( is );
-            props.setProperty( "plugdescription.IPLUG_ADMIN_PASSWORD", BCrypt.hashpw(newPassword, BCrypt.gensalt()) );
-            
-            OutputStream os = new FileOutputStream( "conf/config.override.properties" );
-            props.store( os, "Override configuration written by the application" );
-            os.close();
-        } catch (Exception e) {
-            LOG.error( "Could not reset password", e );
-        }
+            try (InputStream is = new FileInputStream("conf/config.override.properties")) {
+                Properties props = new Properties();
+                props.load(is);
+
+                writeEncryptedPasswordToProperties(newPassword, props);
+            } catch (Exception e) {
+                LOG.error( "Could not reset password", e );
+            }
+    }
+
+    private static void writeEncryptedPasswordToProperties(String newPassword, Properties props) throws IOException {
+        props.setProperty( "plugdescription.IPLUG_ADMIN_PASSWORD", BCrypt.hashpw(newPassword, BCrypt.gensalt()) );
+
+        OutputStream os = new FileOutputStream( "conf/config.override.properties" );
+        props.store( os, "Override configuration written by the application" );
+        os.close();
     }
 
     public static void main(String[] args) {

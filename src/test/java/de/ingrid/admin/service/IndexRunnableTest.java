@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,11 +22,21 @@
  */
 package de.ingrid.admin.service;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import de.ingrid.admin.Config;
+import de.ingrid.admin.elasticsearch.ElasticTests;
+import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.admin.elasticsearch.StatusProvider;
+import de.ingrid.admin.object.IDocumentProducer;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.QueryBuilderService;
+import de.ingrid.elasticsearch.search.FacetConverter;
+import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.PlugDescription;
+import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.queryparser.QueryStringParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
@@ -34,7 +44,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,78 +52,81 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.admin.elasticsearch.ElasticTests;
-import de.ingrid.admin.elasticsearch.FacetConverter;
-import de.ingrid.admin.elasticsearch.IndexImpl;
-import de.ingrid.admin.elasticsearch.IndexManager;
-import de.ingrid.admin.elasticsearch.IndexRunnable;
-import de.ingrid.admin.elasticsearch.StatusProvider;
-import de.ingrid.admin.object.IDocumentProducer;
-import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.IngridHits;
-import de.ingrid.utils.PlugDescription;
-import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.queryparser.QueryStringParser;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
 
 public class IndexRunnableTest extends ElasticTests {
 
+    private static IndexManager indexManager;
     private IndexRunnable _indexRunnable;
 
     @Mock
     private PlugDescription _plugDescription;
 
-    private Config config = null;
-
-    @BeforeClass
-    public static void setUp() throws Exception {
-        new JettyStarter( false );
-        setup();
-    }
-    
     @Mock
     PlugDescriptionService pds;
 
     private ArrayList<IDocumentProducer> docProducers;
     
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        config = new Config();
+        config.uuid = "1";
+        config.index = "test_1";
+        config.indexType = "base";
+        config.indexIdFromDoc = "id";
+        config.communicationProxyUrl = "/ingrid-group:unit-tests";
+        config.datatypes = Arrays.asList("default".split(","));
+        setup();
+
+        indexManager = new IndexManager( elastic, elasticConfig );
+        indexManager.postConstruct();
+    }
+
     @Before
     public void beforeTest() {
+        /*try {
+            elastic.getClient().admin().indices().prepareDelete( "test_1" ).execute().actionGet();
+        } catch (Exception ex) {}*/
+
         MockitoAnnotations.initMocks(this);
-        this.config = JettyStarter.getInstance().config;
-        config.indexWithAutoId = false;
-        
+
         Mockito.when( _plugDescription.getFields() ).thenReturn( new String[] {} );
+        Mockito.when( _plugDescription.clone() ).thenReturn( _plugDescription );
+
+        try {
+            indexManager.deleteIndex( "test_1" );
+        } catch (Exception ignored) {}
+        indexManager.createIndex("test_1" );
+        setMapping( elastic, "test_1" );
+
+        elasticConfig.indexWithAutoId = false;
     }
-    
+
+    @AfterClass
+    public static void afterClass() {
+        elastic.getClient().close();
+    }
+
     private void index(int model) throws Exception {
-        IndexManager indexManager = new IndexManager( elastic );
-        _indexRunnable = new IndexRunnable(pds, indexManager );
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, elasticConfig, Optional.empty());
         _indexRunnable.configure(_plugDescription);
         _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
-        docProducers = new ArrayList<IDocumentProducer>();
+        docProducers = new ArrayList<>();
         docProducers.add( dummyProducer );
         _indexRunnable.setDocumentProducers(docProducers);
         _indexRunnable.run();
 
-        indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index) );
+        try {
+            indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index, config.index) );
+        } catch (Exception e) {}
         Thread.sleep(1000);
-    }
-    
-    private void deleteIndex(String index) {
-        client.prepareDeleteByQuery(index).
-            setQuery(QueryBuilders.matchAllQuery()).
-            //setTypes(indexType).
-            execute().actionGet();
-        refreshIndex( index, client );
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        deleteIndex( config.index );
-        //elastic.getObject().close();
     }
 
     /**
@@ -145,12 +158,12 @@ public class IndexRunnableTest extends ElasticTests {
         
         SearchRequestBuilder srb = client.prepareSearch( config.index )
                 .setTypes( config.indexType )
-                .addFields( "url", "mylist" )
+                .storedFields( "url", "mylist" )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
         SearchHits hitsRes = searchResponse.getHits();
-        SearchHit[] hits = hitsRes.hits();
+        SearchHit[] hits = hitsRes.getHits();
         assertEquals( 5, hitsRes.getTotalHits() );
         assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
         assertEquals( 1, hits[ 0 ].field( "mylist" ).getValues().size() );
@@ -164,12 +177,12 @@ public class IndexRunnableTest extends ElasticTests {
         
         SearchRequestBuilder srb = client.prepareSearch( config.index )
                 .setTypes( config.indexType )
-                .addFields( "url", "mylist" )
+                .storedFields( "url", "mylist" )
                 .setQuery( query );
         SearchResponse searchResponse = srb.execute().actionGet();
         
         SearchHits hitsRes = searchResponse.getHits();
-        SearchHit[] hits = hitsRes.hits();
+        SearchHit[] hits = hitsRes.getHits();
         assertEquals( 1, hitsRes.getTotalHits() );
         assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
         assertEquals( 2, hits[ 0 ].field( "mylist" ).getValues().size() );
@@ -184,7 +197,7 @@ public class IndexRunnableTest extends ElasticTests {
      */
     @Test
     public void indexWithAutoId() throws Exception {
-        config.indexWithAutoId = true;
+        elasticConfig.indexWithAutoId = true;
         index(0);
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
         //createNodeManager();
@@ -198,8 +211,8 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testFlipIndex() throws Exception {
-        config.indexWithAutoId = true;
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        elasticConfig.indexWithAutoId = false;
+        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
     	
@@ -218,7 +231,7 @@ public class IndexRunnableTest extends ElasticTests {
     
     @Test
     public void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( new IndexManager( elastic ), qc, new FacetConverter(qc) );
+        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService() );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);

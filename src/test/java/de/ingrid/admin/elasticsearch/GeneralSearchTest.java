@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-iplug-se-iplug
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,40 +22,49 @@
  */
 package de.ingrid.admin.elasticsearch;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
+import de.ingrid.admin.Config;
+import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.utils.IngridHitDetail;
+import de.ingrid.utils.IngridHits;
+import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.queryparser.QueryStringParser;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.ingrid.admin.JettyStarter;
-import de.ingrid.utils.IngridHitDetail;
-import de.ingrid.utils.IngridHits;
-import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.queryparser.QueryStringParser;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class GeneralSearchTest extends ElasticTests {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        new JettyStarter( false );
-        JettyStarter.getInstance().config.indexFieldSummary = "content";
+        config = new Config();
+//        config.indexFieldTitle = "title";
+//        config.indexFieldSummary = "content";
+//        config.additionalSearchDetailFields = new String[] {"url", "title", "partner", "datatype", "content", "fetched", "iPlugId"};
+        // new JettyStarter(false);
+
+
         setup( "test", "data/webUrls.json" );
-        IndexManager indexManager = new IndexManager( elastic );
-        indexManager.removeAlias("test");
-        indexManager.switchAlias( "test", "test_1" );
+
+        elasticConfig.indexFieldTitle = "title";
+        elasticConfig.indexFieldSummary = "content";
+        elasticConfig.additionalSearchDetailFields = new String[] {"url", "title", "partner", "datatype", "content", "fetched", "iPlugId"};
+
+        IndexManager indexManager = new IndexManager( elastic, elasticConfig );
+        indexManager.removeFromAlias("test", "test_1");
+        indexManager.switchAlias( "test", null, "test_1" );
     }    
     
    
     @AfterClass
-    public static void afterClass() throws Exception {
-        elastic.getObject().close();
+    public static void afterClass() {
+        // elastic.getObject().close();
     }
 
     @Test
@@ -156,11 +165,11 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 0 ) );
         
-        q = QueryStringParser.parse( "au?" );
+        q = QueryStringParser.parse( "wel?" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 3 ) );
-        Utils.checkHitsForIDs( search.getHits(), 1, 4, 10 );
+        Utils.checkHitsForIDs( search.getHits(), 1, 4, 11 );
     }
     
     @Test
@@ -178,11 +187,11 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
         
-        q = QueryStringParser.parse( "au*" );
+        q = QueryStringParser.parse( "st*" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.getHits().length, is( 6 ) );
-        Utils.checkHitsForIDs( search.getHits(), 1, 4, 7, 9, 10, 11 );
+        assertThat( search.getHits().length, is( 2 ) );
+        Utils.checkHitsForIDs( search.getHits(), 2, 8 );
     }
     
     @Test
@@ -260,7 +269,7 @@ public class GeneralSearchTest extends ElasticTests {
         IngridQuery q = QueryStringParser.parse( "content:urlaub content:welt" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 1l ) );
+        assertThat( search.length(), is(1L) );
         Utils.checkHitsForIDs( search.getHits(), 11 );
     }
     
@@ -270,7 +279,7 @@ public class GeneralSearchTest extends ElasticTests {
         IngridQuery q = QueryStringParser.parse( "content:urlaub OR content:welt" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 3l ) );
+        assertThat( search.length(), is(3L) );
         Utils.checkHitsForIDs( search.getHits(), 1, 4, 11 );
     }
     
@@ -280,7 +289,7 @@ public class GeneralSearchTest extends ElasticTests {
         IngridQuery q = QueryStringParser.parse( "partner:bund datatype:pdf" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 1l ) );
+        assertThat( search.length(), is(1L) );
         Utils.checkHitsForIDs( search.getHits(), 1 );
     }
     
@@ -290,7 +299,7 @@ public class GeneralSearchTest extends ElasticTests {
         IngridQuery q = QueryStringParser.parse( "datatype:xml OR datatype:pdf" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 5l ) );
+        assertThat( search.length(), is(5L) );
         Utils.checkHitsForIDs( search.getHits(), 1, 7, 8, 10, 11 );
     }
     
@@ -300,25 +309,25 @@ public class GeneralSearchTest extends ElasticTests {
         IngridQuery q = QueryStringParser.parse( "(datatype:xml OR datatype:pdf) partner:bw" );
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 2l ) );
+        assertThat( search.length(), is(2L) );
         Utils.checkHitsForIDs( search.getHits(), 10, 11 );
 
         q = QueryStringParser.parse( "(datatype:xml OR datatype:pdf) OR partner:bw" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 6l ) );
+        assertThat( search.length(), is(6L) );
         Utils.checkHitsForIDs( search.getHits(), 10, 11 );
         
         q = QueryStringParser.parse( "(datatype:xml AND partner:bund) OR partner:bw" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 4l ) );
+        assertThat( search.length(), is(4L) );
         Utils.checkHitsForIDs( search.getHits(), 3, 7, 10, 11 );
         
         q = QueryStringParser.parse( "(datatype:xml AND partner:bund) OR partner:bw Nachrichten" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( 1l ) );
+        assertThat( search.length(), is(1L) );
         Utils.checkHitsForIDs( search.getHits(), 3);
     }
     
@@ -354,19 +363,19 @@ public class GeneralSearchTest extends ElasticTests {
         IngridQuery q = QueryStringParser.parse( "" );
         IngridHits search = index.search( q, 0, 5 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( Long.valueOf( Utils.MAX_RESULTS ) ) );
+        assertThat( search.length(), is(Utils.MAX_RESULTS) );
         assertThat( search.getHits().length, is( 5 ) );
         //Utils.checkHitsForIDs( search.getHits(), 3, 8, 10, 1, 6 );
 
         search = index.search( q, 5, 5 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( Long.valueOf( Utils.MAX_RESULTS ) ) );
+        assertThat( search.length(), is(Utils.MAX_RESULTS) );
         assertThat( search.getHits().length, is( 5 ) );
         //Utils.checkHitsForIDs( search.getHits(), 2, 7, 4, 9, 11 );
         
         search = index.search( q, 10, 5 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.length(), is( Long.valueOf( Utils.MAX_RESULTS ) ) );
+        assertThat( search.length(), is(Utils.MAX_RESULTS) );
         assertThat( search.getHits().length, is( 1 ) );
         //Utils.checkHitsForIDs( search.getHits(), 5 );
     }
@@ -381,11 +390,12 @@ public class GeneralSearchTest extends ElasticTests {
         IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt Firma" );
         IngridHits search = index.search( q, 0, 10 );
-        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
+        String[] extraFields = new String[] { elasticConfig.indexFieldTitle, elasticConfig.indexFieldSummary, "url", "fetched" };
+        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat( (String)detail.getArray( IndexImpl.DETAIL_URL )[0], is( "http://www.wemove.com" ) );
-        assertThat( (String)detail.getArray("fetched")[0], is( "2014-06-03" ) );
+        assertThat(detail.get( "url" ), is( "http://www.wemove.com" ) );
+        assertThat(detail.get("fetched"), is( "2014-06-03" ) );
         assertThat( detail.getTitle(), is( "wemove" ) );
         assertThat( detail.getSummary(), is( "Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
@@ -396,9 +406,14 @@ public class GeneralSearchTest extends ElasticTests {
         IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Preis" );
         IngridHits search = index.search( q, 0, 10 );
-        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, new String[] { "url", "fetched" } );
+
+        assertThat( search.getHits().length, is( greaterThan(0) ) );
+
+        String[] extraFields = new String[] { elasticConfig.indexFieldTitle, elasticConfig.indexFieldSummary, "url", "fetched" };
+        IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
-        assertThat( detail.getSummary(), is( "Die beste IT-Firma auf der Welt! <em>Preishit</em>" ) );
+//        assertThat( detail.getSummary(), is( "Die beste IT-Firma auf der Welt! <em>Preishit</em>" ) );
+        assertThat( detail.getSummary(), is( "<em>Preishit</em>" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
     }
     
@@ -407,12 +422,14 @@ public class GeneralSearchTest extends ElasticTests {
         IndexImpl index = getIndexer();
         IngridQuery q = QueryStringParser.parse( "Welt Firma" );
         IngridHits search = index.search( q, 0, 10 );
-        String[] extraFields = new String[] { "url", "fetched" };
+        String[] extraFields = new String[] { elasticConfig.indexFieldTitle, elasticConfig.indexFieldSummary, "url", "fetched" };
         IngridHitDetail detail = index.getDetail( search.getHits()[0], q, extraFields );
         assertThat( detail, not( is( nullValue() ) ) );
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat( (String)detail.getArray( IndexImpl.DETAIL_URL )[0], is( "http://www.wemove.com" ) );
-        assertThat( (String)detail.getArray( "fetched" )[0], is( "2014-06-03" ) );
+//       TODO: why is it not an array anymore? -> assertThat(detail.getArray( "url" )[0], is( "http://www.wemove.com" ) );
+        assertThat(detail.get( "url" ), is( "http://www.wemove.com" ) );
+//        TODO: same here -> assertThat(detail.getArray( "fetched" )[0], is( "2014-06-03" ) );
+        assertThat(detail.get( "fetched" ), is( "2014-06-03" ) );
     }
     
 

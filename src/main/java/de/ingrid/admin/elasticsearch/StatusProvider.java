@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-interface-csw
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -33,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -40,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
-import com.google.common.io.Files;
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -205,7 +206,7 @@ public class StatusProvider {
 
         // move the temporary file to the configuration file
         this.lastStatusFile.delete();
-        Files.move(tmpFile, this.lastStatusFile);
+        Files.move(Paths.get(tmpFile.getAbsolutePath()), Paths.get(this.lastStatusFile.getAbsolutePath()));
     }
 
     /**

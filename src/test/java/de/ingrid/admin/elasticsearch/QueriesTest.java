@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -35,11 +35,12 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.ingrid.admin.elasticsearch.converter.DatatypePartnerProviderQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.FieldQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.QueryConverter;
-import de.ingrid.admin.elasticsearch.converter.WildcardFieldQueryConverter;
-import de.ingrid.admin.elasticsearch.converter.WildcardQueryConverter;
+import de.ingrid.elasticsearch.search.IQueryParsers;
+import de.ingrid.elasticsearch.search.converter.DatatypePartnerProviderQueryConverter;
+import de.ingrid.elasticsearch.search.converter.FieldQueryConverter;
+import de.ingrid.elasticsearch.search.converter.QueryConverter;
+import de.ingrid.elasticsearch.search.converter.WildcardFieldQueryConverter;
+import de.ingrid.elasticsearch.search.converter.WildcardQueryConverter;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.ParseException;
 import de.ingrid.utils.queryparser.QueryStringParser;
@@ -47,7 +48,7 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 public class QueriesTest {
 
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception {}
+    public static void setUpBeforeClass() {}
 
     @Test
     public void queryConvertFields() throws ParseException {
@@ -62,25 +63,8 @@ public class QueriesTest {
         queryConverter.setQueryParsers( parsers  );
         BoolQueryBuilder result = queryConverter.convert( q );
         assertThat( result, not( is( nullValue() ) ) );
-        assertThat( result.toString(), containsString( "\"wildcard\" : \"http*\"" ) );
-        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {" ) );
+        assertThat( result.toString(), containsString( "\"wildcard\" : {" ) );
+        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
+                "                        \"wildcard\" : \"http*\"" ) );
     }
-    
-    @Test
-    public void complexOrQuery() throws ParseException {
-        String query = "(capabilities_url:http* OR t011_obj_serv_op_connpoint.connect_point:http*) datatype:metadata";
-        IngridQuery q = QueryStringParser.parse( query );
-        QueryConverter queryConverter = new QueryConverter();
-        List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
-        parsers.add( new DatatypePartnerProviderQueryConverter() );
-        parsers.add( new FieldQueryConverter() );
-        parsers.add( new WildcardQueryConverter() );
-        parsers.add( new WildcardFieldQueryConverter() );
-        queryConverter.setQueryParsers( parsers  );
-        BoolQueryBuilder result = queryConverter.convert( q );
-        assertThat( result, not( is( nullValue() ) ) );
-        assertThat( result.toString(), containsString( "\"wildcard\" : \"http*\"" ) );
-        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {" ) );
-    }
-
 }

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,6 +24,7 @@ package de.ingrid.admin.service;
 
 import java.io.IOException;
 
+import de.ingrid.admin.Config;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
@@ -57,11 +58,14 @@ public class CacheService {
     public CacheService() {
     }
 
+    private Config config;
+
     @Autowired
-    public CacheService(final PlugDescriptionService plugDescriptionService) throws IOException {
+    public CacheService(final PlugDescriptionService plugDescriptionService, Config config) throws IOException {
         _plugDescriptionService = plugDescriptionService;
         loadFromPlugDescription();
         updateIngridCache();
+        this.config = config;
     }
 
     public void loadFromPlugDescription() throws IOException {
@@ -105,7 +109,7 @@ public class CacheService {
             plugDescription.setCachedLifeTime(_lifeTime);
             plugDescription.setCachedElements(_elements);
             plugDescription.setCachedInDiskStore(_diskStore);
-            JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugDescription );
+            config.writePlugdescriptionToProperties( plugDescription );
             _plugDescriptionService.savePlugDescription(plugDescription);
         } else {
             LOG.warn("try to use function without necessary plug description service");

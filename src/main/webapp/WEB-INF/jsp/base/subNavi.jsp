@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2019 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -50,7 +50,7 @@
         <menutaglib:MenuTag text="Hinzufügen von weiteren Anbietern" url="../base/provider.html" ></menutaglib:MenuTag>
 
 		<!-- fieldQuery -->
-        <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>
+<%--        <menutaglib:MenuTag text="Verfügbarkeit der Ergebnisse" url="../base/fieldQuery.html" ></menutaglib:MenuTag>--%>
 <% } %>
 		<!-- iplug sub navi  -->		
 		<c:catch>
@@ -61,7 +61,7 @@
 <% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
         <menutaglib:MenuTag text="Speichern" url="../base/save.html" ></menutaglib:MenuTag>
 <% } %>
-		
+
 	</ul>
 	
 <% if (request.getUserPrincipal() == null || request.isUserInRole( "admin" )) { %>
@@ -78,8 +78,8 @@
 		<!-- indexing -->
         <menutaglib:MenuTag text="Indexieren" url="../base/indexing.html" ></menutaglib:MenuTag>
 	
-		<!-- index status -->
-        <menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>
+		<!-- index status: not used for central index at the moment -->
+        <%--<menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>--%>
         
 	</ul>
 	<% } %>

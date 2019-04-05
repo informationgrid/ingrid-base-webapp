@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,34 +22,27 @@
  */
 package de.ingrid.admin.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import net.weta.components.communication.configuration.XPathService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
-
 import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.FieldQueryCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.validation.FieldQueryValidator;
 import de.ingrid.utils.QueryExtension;
 import de.ingrid.utils.query.FieldQuery;
+import net.weta.components.communication.configuration.XPathService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Controller
 @SessionAttributes("plugDescription")
@@ -59,14 +52,20 @@ public class FieldQueryController extends AbstractController {
 
     private final FieldQueryValidator _validator;
 
+    private final Config config;
+
     @Autowired
-    public FieldQueryController(final CommunicationService communicationInterface, final FieldQueryValidator validator) {
+    public FieldQueryController(final CommunicationService communicationInterface, final FieldQueryValidator validator, Config config) {
         _communicationInterface = communicationInterface;
         _validator = validator;
+        this.config = config;
     }
 
     @ModelAttribute("busUrls")
     public final String[] getBusUrls() throws Exception {
+        boolean iBusDisabled = config.disableIBus;
+        if (iBusDisabled) return new String[0];
+        
         // open the communication file
         final XPathService pathService = new XPathService();
         pathService.registerDocument(_communicationInterface.getCommunicationFile());
@@ -88,8 +87,11 @@ public class FieldQueryController extends AbstractController {
 
     @RequestMapping(value = IUris.FIELD_QUERY, method = RequestMethod.GET)
     public String getFieldQuery(final ModelMap modelMap,
-            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) throws Exception {
+            @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) {
 
+        boolean iBusDisabled = config.disableIBus;
+        if (iBusDisabled) return redirect(IUris.EXTRAS);
+        
         // catching all field queries together in a list of maps
         final List<FieldQueryCommandObject> fields = getFields(commandObject.getQueryExtensions());
         modelMap.addAttribute("fields", fields);
@@ -102,25 +104,24 @@ public class FieldQueryController extends AbstractController {
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject,
             @ModelAttribute("fieldQuery") final FieldQueryCommandObject fieldQuery, final Errors errors,
             @RequestParam("action") final String action, @RequestParam(value = "id", required = false) final Integer id,
-            @RequestParam("behaviour") final String behaviour)
-            throws Exception {
+            @RequestParam("behaviour") final String behaviour) {
         if ("add".equals(action)) {
             System.out.println("behaviour: " + behaviour);
             if (behaviour.equals(Config.QUERYTYPE_MODIFY)) {
                 if (!_validator.validate(errors).hasErrors()) {
                     Config.addFieldQuery(commandObject, fieldQuery, behaviour);
                     // save changes in properties
-                    JettyStarter.getInstance().config.addQueryExtensionsToProperties(fieldQuery);
+                    config.addQueryExtensionsToProperties(fieldQuery);
                 }
             } else {
                 Config.addFieldQuery(commandObject, fieldQuery, behaviour);
                 // save changes in properties
-                JettyStarter.getInstance().config.addQueryExtensionsToProperties(fieldQuery);
+                config.addQueryExtensionsToProperties(fieldQuery);
             }
         } else if ("delete".equals(action)) {
             final FieldQueryCommandObject field = getFields(commandObject.getQueryExtensions()).get(id);
             deleteFieldQuery(commandObject, field);
-            JettyStarter.getInstance().config.removeQueryExtensionsFromProperties(field);
+            config.removeQueryExtensionsFromProperties(field);
         } else if ("submit".equals(action)) {
             // redirect to the first page of iPlug specific data
             return redirect(IUris.EXTRAS);
@@ -130,7 +131,7 @@ public class FieldQueryController extends AbstractController {
 	}
 
     private List<FieldQueryCommandObject> getFields(final Map<String, QueryExtension> extensions) {
-        final List<FieldQueryCommandObject> fields = new ArrayList<FieldQueryCommandObject>();
+        final List<FieldQueryCommandObject> fields = new ArrayList<>();
         if (extensions != null) {
             int pos = -1;
             for (final String key : extensions.keySet()) {
@@ -185,12 +186,14 @@ public class FieldQueryController extends AbstractController {
             }
         }
         // find correct field query
-        for (final FieldQuery fq : fieldQueries) {
-            if (fieldQuery.getKey().equals(fq.getFieldName()) && fieldQuery.getValue().equals(fq.getFieldValue())
-                    && fieldQuery.getProhibited() == fq.isProhibited() && fieldQuery.getRequired() == fq.isRequred()) {
-                // delete it
-                fieldQueries.remove(fq);
-                break;
+        if (fieldQueries != null) {
+            for (final FieldQuery fq : fieldQueries) {
+                if (fieldQuery.getKey().equals(fq.getFieldName()) && fieldQuery.getValue().equals(fq.getFieldValue())
+                        && fieldQuery.getProhibited() == fq.isProhibited() && fieldQuery.getRequired() == fq.isRequred()) {
+                    // delete it
+                    fieldQueries.remove(fq);
+                    break;
+                }
             }
         }
     }

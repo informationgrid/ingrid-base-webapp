@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,6 +22,7 @@
  */
 package de.ingrid.admin.controller;
 
+import de.ingrid.admin.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,10 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import de.ingrid.admin.IKeys;
-import de.ingrid.admin.IUris;
-import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.Command;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.service.PlugDescriptionService;
@@ -50,12 +47,18 @@ public class SaveController extends AbstractController {
 
     private final PlugDescriptionService _plugDescriptionService;
 
+    @Autowired(required = false)
+    private IConfig externalConfig;
+
+    private Config config;
+
     @Autowired
-    public SaveController(final HeartBeatPlug plug, final PlugDescriptionService plugDescriptionService,
-            final IConfigurable... configurables) {
+    public SaveController(final HeartBeatPlug plug, final PlugDescriptionService plugDescriptionService, Config config,
+                          final IConfigurable... configurables) {
         _plug = plug;
         _plugDescriptionService = plugDescriptionService;
         _configurables = configurables;
+        this.config = config;
     }
 
     @RequestMapping(value = IUris.SAVE, method = RequestMethod.GET)
@@ -92,12 +95,12 @@ public class SaveController extends AbstractController {
         }
         
         // read plug description again from configuration
-        plugdescriptionCommandObject = JettyStarter.getInstance().config.getPlugdescriptionFromConfiguration();
-        if (JettyStarter.getInstance().getExternalConfig() != null) {
-            JettyStarter.getInstance().getExternalConfig().addPlugdescriptionValues( plugdescriptionCommandObject );
+        plugdescriptionCommandObject = config.getPlugdescriptionFromConfiguration();
+        if (externalConfig != null) {
+            externalConfig.addPlugdescriptionValues( plugdescriptionCommandObject );
         }
 
-        JettyStarter.getInstance().config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
+        config.writePlugdescriptionToProperties( plugdescriptionCommandObject );
 
         // TODO: try to work without filebased plug description
         // save plug description

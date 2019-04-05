@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -37,6 +37,8 @@ public class Filter implements Externalizable {
 	private Comparable<? extends Serializable> _expression;
 
 	private FilterType _filterType = FilterType.GREATER_THAN;
+
+	public Filter() {}
 
 	public Filter(final Comparable<? extends Serializable> expression,
 			final FilterType filterType) {

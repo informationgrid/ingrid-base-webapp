@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,114 +22,135 @@
  */
 package de.ingrid.admin;
 
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.elasticsearch.ElasticConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Service;
 
-import com.tngtech.configbuilder.ConfigBuilder;
-
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.service.PlugDescriptionService;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * This class starts a Jetty server where the webapp will be executed.
  * @author André Wallat
  *
  */
+@Service
 public class JettyStarter {
     private static final Log log = LogFactory.getLog(JettyStarter.class);
-    
-	public Config config;
-	
-	private IConfig externalConfig = null;
 
-	private static JettyStarter instance;
+    public static Config baseConfig;
 
-    public static void main(String[] args) throws Exception {
-    	instance = new JettyStarter();
-    	//instance.config.getWebappDir();
-    	//instance.start();
-    }
-    
-    public static JettyStarter getInstance() {
-        return instance;
-    }
-    
-    public JettyStarter() throws Exception {
-        configure();
-        start();
-    }
-    
-    public JettyStarter(boolean startImmediately) throws Exception {
-        instance = this;
-        configure();
-        if (startImmediately) {
-            start();
-        }
-    }
-    
-    public JettyStarter( IConfig config ) throws Exception {
-        this.externalConfig = config;
-        configure();
-        start();
-    }
-    
-    private void configure() {
-        instance = this;
-        try {
-            // load configurations
-            config = new ConfigBuilder<Config>(Config.class).build();
-            
-            //config = new ConfigBuilder<Config>(Config.class).withCommandLineArgs(args).build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private void start() throws Exception {
-        WebAppContext webAppContext = new WebAppContext( config.getWebappDir(), "/");
+    public Config config;
 
-        int port = config.getWebappPort();
-        log.info("==================================================");
-        log.info("Start server using directory \"" + config.getWebappDir() + "\" at port: " + port);
-        log.info("==================================================");
-        
-        // do some initialization by reading properties and writing configuration files
-        config.initialize();
-        if (externalConfig != null) {
-            externalConfig.initialize();
-        } else {
-            log.info("No external configuration found.");
-        }
-        
+    private IConfig externalConfig;
+
+
+    @Autowired
+    public JettyStarter(Config config, IConfig externalConfig, PlugDescriptionService plugDescriptionService) throws Exception {
+        baseConfig = config;
+        this.config = config;
+        this.externalConfig = externalConfig;
+
         // add external configurations to the plugdescription
         PlugdescriptionCommandObject plugdescriptionFromProperties = config.getPlugdescriptionFromConfiguration();
         if (externalConfig != null) {
             externalConfig.addPlugdescriptionValues( plugdescriptionFromProperties );
         }
+
         // if a configuration was never written for the plugdescription then do not write one!
-        // the proxyServiceUrl must be different from the default value, so we can check here 
+        // the proxyServiceUrl must be different from the default value, so we can check here
         // for valid propterties
         String proxyServiceURL = plugdescriptionFromProperties.getProxyServiceURL();
         if (!"/ingrid-group:base-webapp".equals( proxyServiceURL ) && !proxyServiceURL.isEmpty()) {
-            (new PlugDescriptionService()).savePlugDescription( plugdescriptionFromProperties );
+            plugDescriptionService.savePlugDescription( plugdescriptionFromProperties );
         } else {
             log.warn( "Plug Description not written, because the client name has not been changed! ('/ingrid-group:base-webapp')" );
         }
-        
+    }
+
+    // Use JettyStart(IConfig) instead to correctly configure iPlug
+    @Deprecated
+    public JettyStarter() throws Exception {
+        start();
+    }
+
+    public JettyStarter(boolean startImmediately) throws Exception {
+        if (startImmediately) {
+            start();
+        }
+    }
+
+    public JettyStarter( IConfig config ) throws Exception {
+        this.setExternalConfig(config);
+        start();
+    }
+
+    public JettyStarter(Class externalConfigClass) throws Exception {
+        // manually create necessary beans for configuration we need during startup
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(Config.class);
+        ctx.register(ElasticConfig.class);
+        ctx.register(externalConfigClass);
+        ctx.refresh();
+        IConfig externalConfig = (IConfig) ctx.getBean(externalConfigClass);
+
+        // set configurations to be used in start-method
+        this.setExternalConfig(externalConfig);
+        JettyStarter.baseConfig = ctx.getBean(Config.class);
+
+        // this manual context is not used anymore so close it
+        // during server start a new spring context is started
+        ctx.close();
+
+        start();
+    }
+
+    public static void main(String[] args) throws Exception {
+    	new JettyStarter();
+    }
+
+    private void start() throws Exception {
+        // we need to get the properties for server manually since spring beans are not initialized yet
+        Properties config = this.getProperties();
+
+        String webApp = (String) config.get("jetty.webapp");
+        WebAppContext webAppContext = new WebAppContext(webApp, "/");
+
+        int port = Integer.valueOf((String) config.get("jetty.port"));
+        log.info("==================================================");
+        log.info("Start server using directory \"" + webApp + "\" at port: " + port);
+        log.info("==================================================");
+
+        // do some initialization by reading properties and writing configuration files
+        baseConfig.initialize();
+        if (externalConfig != null) {
+            externalConfig.initialize();
+        } else {
+            log.info("No external configuration found.");
+        }
+
         Server server = new Server(port);
         server.setHandler(webAppContext);
         webAppContext.getSessionHandler().getSessionManager().setSessionCookie( "JSESSIONID_" + port );
         server.start();
     }
 
-    public void setExternalConfig(IConfig config) {
+    private Properties getProperties() throws IOException {
+        final Properties config = new Properties();
+        config.load(JettyStarter.class.getResourceAsStream("/config.properties"));
+        config.load(JettyStarter.class.getResourceAsStream("/config.override.properties"));
+        return config;
+    }
+
+    private void setExternalConfig(IConfig config) {
         externalConfig = config;
     }
-    public IConfig getExternalConfig() {
-        return externalConfig;
-        
-    }
-    
+
 }

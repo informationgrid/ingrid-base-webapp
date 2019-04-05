@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,6 +22,9 @@
  */
 package de.ingrid.admin.tags;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 
 import javax.servlet.jsp.JspTagException;
@@ -33,7 +36,8 @@ public class MenuTag  extends TagSupport {
      * 
      */
     private static final long serialVersionUID = 1L;
-    
+
+    private static Log log = LogFactory.getLog(MenuTag.class);
     
     private String text;
     private String url;
@@ -61,7 +65,7 @@ public class MenuTag  extends TagSupport {
             }
             
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error during parsing", e);
         }
       return SKIP_BODY;
     }

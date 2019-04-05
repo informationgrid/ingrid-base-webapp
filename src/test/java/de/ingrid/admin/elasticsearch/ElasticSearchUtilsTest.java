@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -30,6 +30,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.ingrid.elasticsearch.IndexManager;
+
 public class ElasticSearchUtilsTest {
 
     @BeforeClass
@@ -37,25 +39,25 @@ public class ElasticSearchUtilsTest {
 
     @Test
     public void test() {
-        String newName = ElasticSearchUtils.getNextIndexName( "abc" );
-        assertThat( newName, startsWith( "abc_" ) );
+        String newName = IndexManager.getNextIndexName( "abc", "" );
+        assertThat( newName, startsWith( "abc@_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         
-        newName = ElasticSearchUtils.getNextIndexName( "abc_201504141213084" );
+        newName = IndexManager.getNextIndexName( "abc_201504141213084", "" );
         assertThat( newName, startsWith( "abc_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
-        assertThat( newName, not( startsWith( "abc_201504141213084" ) ) );
+        assertThat( newName, not( startsWith( "abc@_201504141213084" ) ) );
         
-        newName = ElasticSearchUtils.getNextIndexName( "abc_def" );
-        assertThat( newName, startsWith( "abc_def_" ) );
+        newName = IndexManager.getNextIndexName( "abc_def", "" );
+        assertThat( newName, startsWith( "abc_def@_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
 
-        newName = ElasticSearchUtils.getNextIndexName( "abc_def_143" );
+        newName = IndexManager.getNextIndexName( "abc_def_143", "" );
         assertThat( newName, startsWith( "abc_def_" ) );
-        assertThat( newName, startsWith( "abc_def_143" ) );
+        assertThat( newName, startsWith( "abc_def_143@" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         
-        newName = ElasticSearchUtils.getNextIndexName( "abc_def_201504141213084" );
+        newName = IndexManager.getNextIndexName( "abc_def_201504141213084", "" );
         assertThat( newName, startsWith( "abc_def_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         assertThat( newName, not( startsWith( "abc_def_201504141213084" ) ) );

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import de.ingrid.admin.Config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,7 @@ public class IndexScheduler implements IConfigurable {
                 try {
                     _runnable.run();
                 } catch (final Throwable t) {
-                    LOG.error(t);
+                    LOG.error("Error during indexing", t);
                 } finally {
                     LOG.info("unlocking index scheduler");
                     _isRunning = false;
@@ -88,7 +89,7 @@ public class IndexScheduler implements IConfigurable {
     }
 
     @Autowired
-    public IndexScheduler(final IndexRunnable runnable) {
+    public IndexScheduler(final IndexRunnable runnable, Config config) {
         _runnable = runnable;
         _scheduler = new Scheduler();
         if (_runnable.getPlugDescription() != null) {
@@ -97,7 +98,7 @@ public class IndexScheduler implements IConfigurable {
         
         // if we want to index on startup we start a new Thread for this, since the
         // other services still need to be configured and we cannot let this thread sleep
-        if (JettyStarter.getInstance().config.indexOnStartup) {
+        if (config.indexOnStartup) {
             LOG.info("Initial indexing on startup ...");
             new InitialIndexRun().start();
         }
@@ -185,10 +186,8 @@ public class IndexScheduler implements IConfigurable {
 
     private void loadPatternFile() {
         LOG.debug("try to load pattern from file");
-        try {
-            final ObjectInputStream reader = new ObjectInputStream(new FileInputStream(_patternFile));
+        try (ObjectInputStream reader = new ObjectInputStream(new FileInputStream(_patternFile))) {
             _pattern = (String) reader.readObject();
-            reader.close();
         } catch (final Exception e) {
             LOG.error(e);
         }
@@ -197,11 +196,8 @@ public class IndexScheduler implements IConfigurable {
     private void savePatternFile() {
         deletePatternFile();
         LOG.debug("saving pattern to file");
-        try {
-
-            final ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile));
+        try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(_patternFile))) {
             writer.writeObject(_pattern);
-            writer.close();
         } catch (final Exception e) {
             LOG.error(e);
         }
@@ -229,7 +225,10 @@ public class IndexScheduler implements IConfigurable {
         public void run() {
             try {
                 Thread.sleep( delay );
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
             triggerManually();
         }
     }

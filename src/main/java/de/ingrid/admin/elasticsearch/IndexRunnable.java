@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,51 +22,81 @@
  */
 package de.ingrid.admin.elasticsearch;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.elasticsearch.*;
+import de.ingrid.iplug.IPlugdescriptionFieldFilter;
+import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
+import org.apache.log4j.Logger;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static de.ingrid.utils.PlugDescription.QUERY_EXTENSION_CONTAINER;
+
 @Service
 public class IndexRunnable implements Runnable, IConfigurable {
 
-    private static final Logger LOG = Logger.getLogger( IndexRunnable.class );
+    private static final Logger LOG = Logger.getLogger(IndexRunnable.class);
+    private PlugDescriptionFieldFilters plugDescriptionFieldFilters;
     private List<IDocumentProducer> _documentProducers;
     private boolean _produceable = false;
     private PlugDescription _plugDescription;
     private final PlugDescriptionService _plugDescriptionService;
-    private final IndexManager _indexManager;
+    private final IIndexManager _indexManager;
 
     private final ConcurrentMap<String, Object> _indexHelper;
 
     @Autowired
     private StatusProvider statusProvider;
 
+    private final Config config;
+
+    private final ElasticConfig elasticConfig;
+
+    /**
+     * @param pds              is the service to handle PlugDescriptions
+     * @param indexManager     is the manager to handle indices directly
+     * @param ibusIndexManager is the manager to handle indices via the iBus
+     */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager) throws Exception {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, ElasticConfig elasticConfig, Optional<IPlugdescriptionFieldFilter[]> fieldFilters) {
+        // Config config = config;
+        this.config = config;
+        this.elasticConfig = elasticConfig;
+
         _plugDescriptionService = pds;
-        _indexManager = indexManager;
+        try {
+            _plugDescription = pds.getPlugDescription();
+        } catch (IOException e) {
+            LOG.error("Error getting PlugDescription from service", e);
+        }
+
+        this.plugDescriptionFieldFilters = fieldFilters
+                .map(PlugDescriptionFieldFilters::new)
+                .orElseGet(() -> new PlugDescriptionFieldFilters(new IPlugdescriptionFieldFilter[0]));
+
+        _indexManager = elasticConfig.esCommunicationThroughIBus ? ibusIndexManager : indexManager;
+
+        LOG.info("Communication to Elasticsearch is " + (elasticConfig.esCommunicationThroughIBus ? "through iBus" : "direct"));
+
         _indexHelper = new ConcurrentHashMap<>();
     }
 
@@ -75,37 +105,17 @@ public class IndexRunnable implements Runnable, IConfigurable {
         _documentProducers = documentProducers;
         _produceable = true;
 
-        JettyStarter.getInstance().config.docProducerIndices = getIndexNamesFromProducers( documentProducers );
+        elasticConfig.activeIndices = getIndexNamesFromProducers(documentProducers);
     }
 
-    private String[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
-        List<String> indices = new ArrayList<>();
+    private IndexInfo[] getIndexNamesFromProducers(List<IDocumentProducer> documentProducers) {
+        List<IndexInfo> indices = new ArrayList<>();
 
         for (IDocumentProducer docProducer : documentProducers) {
-            IndexInfo indexInfo = docProducer.getIndexInfo();
-            String currentIndex;
-            String indexAlias;
-            if (indexInfo == null) {
-                indexAlias = JettyStarter.getInstance().config.index;
-            } else {
-                indexAlias = indexInfo.getToIndex();
-            }
-
-            if (!indices.contains( indexAlias )) {
-                currentIndex = _indexManager.getIndexNameFromAliasName( indexAlias );
-                if (currentIndex == null) {
-                    String nextIndexName = ElasticSearchUtils.getNextIndexName( indexAlias );
-                    boolean wasCreated = _indexManager.createIndex( nextIndexName );
-                    if (wasCreated) {
-                        _indexManager.switchAlias( indexAlias, nextIndexName );
-                        indices.add( indexAlias );
-                    }
-                } else {
-                    indices.add( indexAlias );
-                }
-            }
+            IndexInfo indexInfo = Utils.getIndexInfo(docProducer, config);
+            indices.add(indexInfo);
         }
-        return indices.toArray( new String[0] );
+        return indices.toArray(new IndexInfo[0]);
     }
 
     @Override
@@ -116,39 +126,47 @@ public class IndexRunnable implements Runnable, IConfigurable {
             String newIndex = null;
             try {
                 statusProvider.clear();
-                statusProvider.addState( "start_indexing", "Start indexing");
-                LOG.info( "indexing starts" );
-                Config config = JettyStarter.getInstance().config;
-                
+                statusProvider.addState("start_indexing", "Start indexing");
+                LOG.info("indexing starts");
+
                 // remove all fields from plug description
                 if (LOG.isInfoEnabled()) {
-                    LOG.info( "New Index, remove all field names from PD." );
+                    LOG.info("New Index, remove all field names from PD.");
                 }
-                _plugDescription.remove( PlugDescription.FIELDS );
-                
+                _plugDescription.remove(PlugDescription.FIELDS);
+
                 int documentCount = 0;
                 String oldIndex = null;
                 Map<String, String[]> indexNames = new HashMap<>();
 
+                // check if pluginfo index exists or create it
+                this._indexManager.checkAndCreateInformationIndex();
+
                 for (IDocumentProducer producer : _documentProducers) {
-                    IndexInfo info = Utils.getIndexInfo( producer, config );
+                    IndexInfo info = Utils.getIndexInfo(producer, config);
                     // get the current index from the alias name
                     // if it's the first time then use the name given by the
                     // configuration
                     // only create new index if we did not already ... this depends on the producer settings
-                    if (!indexNames.containsKey( info.getToIndex() )) {
-                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToIndex());
-                        newIndex = ElasticSearchUtils.getNextIndexName( oldIndex == null ? info.getToIndex() : oldIndex );
+                    if (!indexNames.containsKey(info.getToIndex())) {
+                        // TODO: what if there are more indices in an alias???
+                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
+                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex, config.uuid);
                         if (config.alwaysCreateNewIndex) {
-                            _indexManager.createIndex( newIndex );
+                            String mapping = _indexManager.getDefaultMapping();
+                            String settings = _indexManager.getDefaultSettings();
+                            if (mapping != null) {
+                                _indexManager.createIndex(newIndex, info.getToType(), mapping, settings);
+                            } else {
+                                this.statusProvider.addState("MAPPING_ERROR", "Could not get default mapping to create index", Classification.WARN);
+                                _indexManager.createIndex(newIndex);
+                            }
                         }
-                        indexNames.put( info.getToIndex(), new String[] { oldIndex, newIndex } );
+                        indexNames.put(info.getToIndex(), new String[]{oldIndex, newIndex, info.getToAlias()});
                     }
-                    if (config.alwaysCreateNewIndex) {
-                        info.setRealIndexName( newIndex );
-                    } else {
-                        info.setRealIndexName( oldIndex );
-                    }
+
+                    // set name of new (or old) index
+                    info.setRealIndexName(config.alwaysCreateNewIndex ? newIndex : oldIndex);
 
                     String stateKey = String.format("producer_%s_%s",
                             info.getToIndex(),
@@ -162,89 +180,133 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     Integer totalCount = producer.getDocumentCount();
                     String indexPostfixString = totalCount == null ? "" : " / " + totalCount;
                     String indexTag = "indexing_" + info.getToIndex() + "_" + info.getToType();
+                    String plugIdInfo = _indexManager.getIndexTypeIdentifier(info);
+
                     while (producer.hasNext()) {
+
                         final ElasticDocument document = producer.next();
                         if (document == null) {
-                            LOG.warn( "DocumentProducer " + producer + " returned null Document, we skip this record (not added to index)!" );
+                            LOG.warn("DocumentProducer " + producer + " returned null Document, we skip this record (not added to index)!");
                             this.statusProvider.addState(indexTag + "_skipped", "Skipped documents: " + (++skip), Classification.WARN);
                             continue;
                         }
-    
-                        _indexManager.addBasicFields( document, info );
-    
-                        this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
-                        
-                        _indexManager.update( info, document, false );
 
-                        collectIndexFields( document );
+                        // add partner, provider and datatypes
+                        addBasicFields(document, info);
+
+                        this.statusProvider.addState(indexTag, "Indexing document: " + (count++) + indexPostfixString);
+
+                        // add document to index
+                        _indexManager.update(info, document, false);
+
+                        // send info every 100 docs
+                        if (count % 100 == 2) {
+                            this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, oldIndex, true, count - 1, totalCount));
+                        }
+
+                        collectIndexFields(document);
 
                         documentCount++;
                     }
 
+                    if (documentCount > 0) {
+                        writeFieldNamesToPlugdescription();
+                    }
+
+                    // update central index with iPlug information
+                    this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
+
                     // update index now!
                     _indexManager.flush();
 
-                    producer.configure( _plugDescription );
-                }
-                if (documentCount > 0) {
-                    writeFieldNamesToPlugdescription();
+                    producer.configure(_plugDescription);
                 }
 
-                LOG.info( "number of produced documents: " + documentCount );
+                LOG.info("number of produced documents: " + documentCount);
 
-                LOG.info( "indexing ends" );
+                LOG.info("indexing ends");
 
                 if (config.alwaysCreateNewIndex) {
-                    // switch aliases of all document producers to the new indices
-                    for (String index : indexNames.keySet()) {
-                        String[] indexMore = indexNames.get( index );
-                        _indexManager.switchAlias( index, indexMore[1]);
-                        if (oldIndex != null) {
-                            _indexManager.deleteIndex( indexMore[0] );
-                        }
-                        this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1]);
-                    }
-                    LOG.info( "switched alias to new index and deleted old one" );
-                } else {
-                    // TODO: remove documents which have not been updated (hence removed!)
+                    switchIndexAlias(oldIndex, indexNames);
                 }
-                
+                /* else {
+                    // TODO: remove documents which have not been updated (hence removed!)
+                }*/
+
                 this.statusProvider.addState("stop_indexing", "Indexing finished.");
 
                 // update new fields into override property
                 PlugdescriptionCommandObject pdObject = new PlugdescriptionCommandObject();
-                pdObject.putAll( _plugDescription );
-                config.writePlugdescriptionToProperties( pdObject );
+                pdObject.putAll(_plugDescription);
+                config.writePlugdescriptionToProperties(pdObject);
 
-                _plugDescriptionService.savePlugDescription( _plugDescription );
+                _plugDescriptionService.savePlugDescription(_plugDescription);
 
             } catch (final Exception e) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + e.getMessage(), Classification.ERROR);
-                LOG.error( "Exception occurred during indexing: ", e );
+                LOG.error("Exception occurred during indexing: ", e);
                 cleanUp(newIndex);
             } catch (Throwable t) {
                 this.statusProvider.addState("error_indexing", "An exception occurred: " + t.getMessage() + ". Try increasing the HEAP-size or let it manage automatically.", Classification.ERROR);
-                LOG.error( "Error during indexing", t );
-                LOG.info( "Try increasing the HEAP-size or let it manage automatically." );
+                LOG.error("Error during indexing", t);
+                LOG.info("Try increasing the HEAP-size or let it manage automatically.");
                 cleanUp(newIndex);
             } finally {
                 try {
                     this.statusProvider.write();
                 } catch (IOException e) {
-                    LOG.error( "Could not write status provider file", e );
+                    LOG.error("Could not write status provider file", e);
                 }
             }
         } else {
-            LOG.warn( "configuration fails. disable index creation." );
+            LOG.warn("configuration fails. disable index creation.");
         }
 
     }
 
-    private void cleanUp(String newIndex) {
-        if (JettyStarter.getInstance().config.alwaysCreateNewIndex && newIndex != null) {
-            _indexManager.deleteIndex( newIndex );
+    private void switchIndexAlias(String oldIndex, Map<String, String[]> indexNames) {
+        // switch aliases of all document producers to the new indices
+        for (String index : indexNames.keySet()) {
+            String[] indexMore = indexNames.get(index);
+            _indexManager.switchAlias(indexMore[2], indexMore[0], indexMore[1]);
+            if (oldIndex != null) {
+                _indexManager.deleteIndex(indexMore[0]);
+            }
+            this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1] + " under the alias: " + indexMore[2]);
         }
-        statusProvider.addState( "CLEANUP", "Cleaned up data and reverted to old index" );
+        LOG.info("switched alias to new index and deleted old one");
+    }
+
+    private String getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
+        Config _config = config;
+
+        // @formatter:off
+        XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject()
+                .field("plugId", _config.communicationProxyUrl)
+                .field("indexId", infoId)
+                .field("iPlugName", _config.datasourceName)
+                .field("linkedIndex", indexName)
+                .field("linkedType", info.getToType())
+                .field("adminUrl", _config.guiUrl)
+                .field("lastHeartbeat", new Date())
+                .field("lastIndexed", new Date())
+                .field("plugdescription", this._plugDescription)
+                .startObject("indexingState")
+                    .field("numProcessed", count)
+                    .field("totalDocs", totalCount)
+                    .field("running", running)
+                    .endObject()
+                .endObject();
+        // @formatter:on
+
+        return Strings.toString(xContentBuilder);
+    }
+
+    private void cleanUp(String newIndex) {
+        if (config.alwaysCreateNewIndex && newIndex != null) {
+            _indexManager.deleteIndex(newIndex);
+        }
+        statusProvider.addState("CLEANUP", "Cleaned up data and reverted to old index");
     }
 
     public boolean isProduceable() {
@@ -254,9 +316,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
     @Override
     public void configure(final PlugDescription plugDescription) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug( "configure plugdescription and new index dir..." );
+            LOG.debug("configure plugdescription and new index dir...");
         }
-        _plugDescription = plugDescription;
+
+        _plugDescription = plugDescriptionFieldFilters.filter(plugDescription);
+        _plugDescription.remove(QUERY_EXTENSION_CONTAINER);
     }
 
     public PlugDescription getPlugDescription() {
@@ -267,33 +331,57 @@ public class IndexRunnable implements Runnable, IConfigurable {
         for (Entry<String, Object> entry : ed.entrySet()) {
             String key = entry.getKey();
             if (key == null) {
-                LOG.warn( "A key of an ElasticDocument was null, when collecting fields for PlugDescription" );
+                LOG.warn("A key of an ElasticDocument was null, when collecting fields for PlugDescription");
             } else {
                 _indexHelper.putIfAbsent(key, "");
             }
         }
     }
 
-    private void writeFieldNamesToPlugdescription() throws IOException {
+    private void writeFieldNamesToPlugdescription() {
         // first add "metainfo" field, so plug won't be filtered when field is
         // part of query !
         if (LOG.isInfoEnabled()) {
-            LOG.info( "Add meta fields to PD." );
+            LOG.info("Add meta fields to PD.");
         }
-        PlugDescriptionUtil.addFieldToPlugDescription( _plugDescription, QueryUtil.FIELDNAME_METAINFO );
-        PlugDescriptionUtil.addFieldToPlugDescription( _plugDescription, QueryUtil.FIELDNAME_INCL_META );
+        PlugDescriptionUtil.addFieldToPlugDescription(_plugDescription, QueryUtil.FIELDNAME_METAINFO);
+        PlugDescriptionUtil.addFieldToPlugDescription(_plugDescription, QueryUtil.FIELDNAME_INCL_META);
 
         // then add fields from index
         if (LOG.isInfoEnabled()) {
-            LOG.info( "Add fields from new index to PD." );
+            LOG.info("Add fields from new index to PD.");
         }
         for (String property : _indexHelper.keySet()) {
-            _plugDescription.addField( property );
-            LOG.debug( String.format( "added index field %s to plugdescription.", property ) );
+            _plugDescription.addField(property);
+            LOG.debug(String.format("added index field %s to plugdescription.", property));
         }
     }
 
     public void setStatusProvider(StatusProvider statusProvider) {
         this.statusProvider = statusProvider;
+    }
+
+
+    private void addBasicFields(ElasticDocument document, IndexInfo info) {
+        String[] datatypes = null;
+        try {
+            String datatypesString = (String) config.getOverrideProperties().get( "plugdescription.dataType." + info.getIdentifier()  );
+            if (datatypesString != null) {
+                datatypes = datatypesString.split(",");
+            }
+        } catch (IOException e) {
+            LOG.error("Could not get override properties", e);
+        }
+
+        if (datatypes == null) {
+            datatypes = config.datatypes.toArray(new String[0]);
+        }
+
+        document.put("datatype", datatypes);
+        document.put(PlugDescription.PARTNER, config.partner);
+        document.put(PlugDescription.PROVIDER, config.provider);
+        document.put(PlugDescription.DATA_SOURCE_NAME, config.datasourceName);
+        document.put(PlugDescription.ORGANISATION, config.organisation);
+        document.put("iPlugId", config.communicationProxyUrl);
     }
 }

@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2019 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -57,12 +57,12 @@
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Weitere Einstellungen</h1>
 		<div class="controls">
-			<a href="#" onclick="document.location='../base/fieldQuery.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/provider.html';">Zurück</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('extrasConfig').submit();">Weiter</a>
 		</div>
 		<div class="controls cBottom">
-			<a href="#" onclick="document.location='../base/fieldQuery.html';">Zurück</a>
+			<a href="#" onclick="document.location='../base/provider.html';">Zurück</a>
 			<a href="#" onclick="document.location='../base/welcome.html';">Abbrechen</a>
 			<a href="#" onclick="document.getElementById('extrasConfig').submit();">Weiter</a>
 		</div>

@@ -1,23 +1,55 @@
 {
     "properties": {
+        "partner": {
+            "type": "keyword",
+            "store": true
+        },
+        "provider": {
+            "type": "keyword",
+            "store": true
+        },
         "fetched": {
-            "format": "dateOptionalTime",
-            "type": "date"
+            "format": "date",
+            "type": "date",
+            "store": true
         },
         "title": {
-            "index_analyzer": "decomp",
+            "analyzer": "decomp",
             "search_analyzer": "no_decomp",
-            "type": "string",
-            "boost": 1.1
+            "type": "text",
+            "boost": 1.1,
+            "store": true,
+            "fielddata": true
         },
         "content": {
-            "index_analyzer": "decomp",
+            "analyzer": "decomp",
             "search_analyzer": "no_decomp",
-            "type": "string"
+            "type": "text",
+            "store": true
+        },
+        "datatype": {
+            "type": "keyword",
+            "store": true
         },
         "url": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword",
+            "store": true
+        },
+        "mylist": {
+            "type": "text",
+            "store": true
+        },
+        "dataSourceName": {
+            "type": "keyword",
+            "store": true
+        },
+        "organisation": {
+            "type": "keyword",
+            "store": true
+        },
+        "iPlugId": {
+            "type": "keyword",
+            "store": true
         },
         "boost": {
             "type": "float",

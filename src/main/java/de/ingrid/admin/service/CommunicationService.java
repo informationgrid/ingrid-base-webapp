@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -23,7 +23,9 @@
 package de.ingrid.admin.service;
 
 import java.io.File;
+import java.util.Objects;
 
+import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,18 +44,26 @@ public class CommunicationService {
 
     private final IPlug _iPlug;
 
-    private final File _communicationFile;
+    private File _communicationFile = null;
 
     private boolean _error = false;
 
+    private Config config;
+
+    // JettyStarter is needed since it depends on it for initialization
     @Autowired
-    public CommunicationService(final IPlug iPlug) {
+    public CommunicationService(final IPlug iPlug, Config config, JettyStarter jettyStarter) {
         _iPlug = iPlug;
-        _communicationFile = new File(JettyStarter.getInstance().config.communicationLocation);
-        if (!_communicationFile.exists()) {
-            LOG.warn("communication does not exist. please create one via ui setup.");
+        this.config = config;
+        boolean iBusDisabled = config.disableIBus;
+
+        if (!iBusDisabled) {
+            _communicationFile = new File(config.communicationLocation);
+            if (!_communicationFile.exists()) {
+                LOG.warn("communication does not exist. please create one via ui setup.");
+            }
+            getBusClient();
         }
-        getBusClient();
     }
 
     public String getPeerName() {
@@ -63,17 +73,17 @@ public class CommunicationService {
 
     public boolean isConnected() {
         final BusClient busClient = getBusClient();
-        return busClient == null ? false : busClient.allConnected();
+        return busClient != null && busClient.allConnected();
     }
     
     /**
      * Check if the nth connection is established.
-     * @param pos
-     * @return
+     * @param pos is the connection number
+     * @return true, if the nth connection is still connected
      */
     public boolean isConnected(int pos) {
         final BusClient busClient = getBusClient();
-        return busClient == null ? false : busClient.isConnected( pos );
+        return busClient != null && busClient.isConnected(pos);
     }
 
     private void reconfigure() {
@@ -84,7 +94,7 @@ public class CommunicationService {
 
     public void start() {
         try {
-            getBusClient().start();
+            Objects.requireNonNull(getBusClient()).start();
             _error = false;
         } catch (final Exception e) {
             LOG.warn("some of the busses are not available");
@@ -93,9 +103,9 @@ public class CommunicationService {
         reconfigure();
     }
 
-    public void shutdown() throws Exception {
+    public void shutdown() {
         try {
-            getBusClient().shutdown();
+            Objects.requireNonNull(getBusClient()).shutdown();
             _error = false;
         } catch (final Exception e) {
             LOG.warn("some of the busses are not available");
@@ -109,7 +119,7 @@ public class CommunicationService {
             if (_iPlug instanceof HeartBeatPlug) {
                 ((HeartBeatPlug) _iPlug).stopHeartBeats();
             }
-            getBusClient().restart();
+            Objects.requireNonNull(getBusClient()).restart();
             _error = false;
         } catch (final Exception e) {
             LOG.warn("some of the busses are not available");
@@ -128,10 +138,14 @@ public class CommunicationService {
     }
 
     public boolean hasErrors() {
-        return _communicationFile.exists() ? _error || !isConnected() : false;
+        boolean iBusDisabled = config.disableIBus;
+        return !iBusDisabled && (_communicationFile.exists() && (_error || !isConnected()));
     }
 
     private BusClient getBusClient() {
+        boolean iBusDisabled = config.disableIBus;
+        if (iBusDisabled) return null;
+
         BusClient busClient = BusClientFactory.getBusClient();
         if (busClient == null) {
             try {
