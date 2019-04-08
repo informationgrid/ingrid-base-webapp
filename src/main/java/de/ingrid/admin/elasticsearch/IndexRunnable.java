@@ -152,7 +152,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         // filter by iPlug UUID to correctly identify index
                         oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), config.uuid);
                         String strippedComponentName = config.communicationProxyUrl.replaceAll("[^a-zA-Z-]","");
-                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex, strippedComponentName + config.uuid);
+                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex, config.uuid, strippedComponentName);
                         if (config.alwaysCreateNewIndex) {
                             String mapping = _indexManager.getDefaultMapping();
                             String settings = _indexManager.getDefaultSettings();
