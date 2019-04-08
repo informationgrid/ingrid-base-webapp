@@ -150,7 +150,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     // only create new index if we did not already ... this depends on the producer settings
                     if (!indexNames.containsKey(info.getToIndex())) {
                         // TODO: what if there are more indices in an alias???
-                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
+                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), config.uuid);
                         newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex, config.uuid);
                         if (config.alwaysCreateNewIndex) {
                             String mapping = _indexManager.getDefaultMapping();
