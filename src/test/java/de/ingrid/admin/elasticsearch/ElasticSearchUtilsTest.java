@@ -42,9 +42,13 @@ public class ElasticSearchUtilsTest {
         String newName = IndexManager.getNextIndexName( "abc", "" );
         assertThat( newName, startsWith( "abc@_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
+
+        newName = IndexManager.getNextIndexName( "abc", "xyz" );
+        assertThat( newName, startsWith( "abc@xyz_" ) );
+        assertThat( newName.length(), greaterThan( 15 ) );
         
         newName = IndexManager.getNextIndexName( "abc_201504141213084", "" );
-        assertThat( newName, startsWith( "abc_" ) );
+        assertThat( newName, startsWith( "abc@_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         assertThat( newName, not( startsWith( "abc@_201504141213084" ) ) );
         
@@ -58,7 +62,7 @@ public class ElasticSearchUtilsTest {
         assertThat( newName.length(), greaterThan( 15 ) );
         
         newName = IndexManager.getNextIndexName( "abc_def_201504141213084", "" );
-        assertThat( newName, startsWith( "abc_def_" ) );
+        assertThat( newName, startsWith( "abc_def@_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         assertThat( newName, not( startsWith( "abc_def_201504141213084" ) ) );
     }
