@@ -45,9 +45,6 @@ echo "Release Version is: $RELEASE_VERSION"
 echo "Next Development Version is: $newSnapshotVersion"
 echo "Maven Options: $MAVEN_OPTIONS"
 
-# make sure we do not commit any unwanted local changes
-git stash
-
 # update license header and commit changes if any
 mvn license:update-file-header
 if ! git diff-index --quiet HEAD --; then
@@ -61,11 +58,10 @@ git pull
 git checkout develop
 
 # release start
-mvn jgitflow:release-start -DallowUntracked -DRELEASE_VERSION=$1 -DdevelopmentVersion=$newSnapshotVersion $MAVEN_OPTIONS
+mvn jgitflow:release-start -DallowUntracked -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$newSnapshotVersion $MAVEN_OPTIONS
 
 # finish release
 mvn jgitflow:release-finish -DallowUntracked $MAVEN_OPTIONS
-git stash pop
 
 # remove copy of script file
 rm -- "$0"
