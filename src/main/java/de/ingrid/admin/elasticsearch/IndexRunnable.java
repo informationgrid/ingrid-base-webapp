@@ -149,9 +149,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     // configuration
                     // only create new index if we did not already ... this depends on the producer settings
                     if (!indexNames.containsKey(info.getToIndex())) {
-                        // TODO: what if there are more indices in an alias???
-                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), info.getToIndex());
-                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex, config.uuid);
+                        // filter by iPlug UUID to correctly identify index
+                        oldIndex = _indexManager.getIndexNameFromAliasName(info.getToAlias(), config.uuid);
+                        String strippedComponentName = config.communicationProxyUrl.replaceAll("[^a-zA-Z-]","");
+                        newIndex = IndexManager.getNextIndexName(oldIndex == null ? info.getToIndex() : oldIndex, config.uuid, strippedComponentName);
                         if (config.alwaysCreateNewIndex) {
                             String mapping = _indexManager.getDefaultMapping();
                             String settings = _indexManager.getDefaultSettings();

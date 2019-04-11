@@ -39,26 +39,52 @@ public class ElasticSearchUtilsTest {
 
     @Test
     public void test() {
-        String newName = IndexManager.getNextIndexName( "abc", "" );
-        assertThat( newName, startsWith( "abc@_" ) );
+        String newName = IndexManager.getNextIndexName( "abc", "", "" );
+        assertThat( newName, startsWith( "abc_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
-        
-        newName = IndexManager.getNextIndexName( "abc_201504141213084", "" );
+
+        newName = IndexManager.getNextIndexName( "abc_201504141213084", "", "" );
         assertThat( newName, startsWith( "abc_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         assertThat( newName, not( startsWith( "abc@_201504141213084" ) ) );
         
-        newName = IndexManager.getNextIndexName( "abc_def", "" );
-        assertThat( newName, startsWith( "abc_def@_" ) );
+        newName = IndexManager.getNextIndexName( "abc_def", "", "" );
+        assertThat( newName, startsWith( "abc_def_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
 
-        newName = IndexManager.getNextIndexName( "abc_def_143", "" );
+        newName = IndexManager.getNextIndexName( "abc_def_143", "", "" );
         assertThat( newName, startsWith( "abc_def_" ) );
-        assertThat( newName, startsWith( "abc_def_143@" ) );
+        assertThat( newName, startsWith( "abc_def_143" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         
-        newName = IndexManager.getNextIndexName( "abc_def_201504141213084", "" );
+        newName = IndexManager.getNextIndexName( "abc_def_201504141213084", "", "" );
         assertThat( newName, startsWith( "abc_def_" ) );
+        assertThat( newName.length(), greaterThan( 15 ) );
+        assertThat( newName, not( startsWith( "abc_def_201504141213084" ) ) );
+    }
+
+    @Test
+    public void testWithUuid() {
+        String newName = IndexManager.getNextIndexName("abc", "xyz", "plug-name");
+        assertThat( newName, startsWith( "abc@plug-name-xyz_" ) );
+        assertThat( newName.length(), greaterThan( 15 ) );
+
+        newName = IndexManager.getNextIndexName( "abc_201504141213084", "xyz", "plug-name" );
+        assertThat( newName, startsWith( "abc@plug-name-xyz_" ) );
+        assertThat( newName.length(), greaterThan( 15 ) );
+        assertThat( newName, not( startsWith( "abc@_201504141213084" ) ) );
+
+        newName = IndexManager.getNextIndexName( "abc_def", "xyz", "plug-name" );
+        assertThat( newName, startsWith( "abc_def@plug-name-xyz_" ) );
+        assertThat( newName.length(), greaterThan( 15 ) );
+
+        newName = IndexManager.getNextIndexName( "abc_def_143", "xyz", "plug-name" );
+        assertThat( newName, startsWith( "abc_def_" ) );
+        assertThat( newName, startsWith( "abc_def_143@plug-name-xyz" ) );
+        assertThat( newName.length(), greaterThan( 15 ) );
+
+        newName = IndexManager.getNextIndexName( "abc_def_201504141213084", "xyz", "plug-name" );
+        assertThat( newName, startsWith( "abc_def@plug-name-xyz_" ) );
         assertThat( newName.length(), greaterThan( 15 ) );
         assertThat( newName, not( startsWith( "abc_def_201504141213084" ) ) );
     }
