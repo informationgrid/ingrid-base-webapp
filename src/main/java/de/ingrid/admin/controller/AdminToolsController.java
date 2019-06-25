@@ -49,10 +49,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class AdminToolsController extends AbstractController {
@@ -126,10 +123,10 @@ public class AdminToolsController extends AbstractController {
 
             final IngridHit[] hits = results.getHits();
             // create requested fields list for search/detail
-            final List<String> requestedFields = Arrays.asList(config.indexFieldTitle, config.indexFieldSummary);
+            final List<String> requestedFields = new ArrayList<String>(Arrays.asList(config.indexFieldTitle, config.indexFieldSummary));
             // add additional requested fields from configuration to be able to
             // add fields iplug specific. For example the iPlug-SE needs an field "url" to be added.
-            requestedFields.addAll(Arrays.asList(config.searchRequestedFieldsAdditional.split(",")));
+            requestedFields.addAll(Arrays.asList(config.searchRequestedFieldsAdditional.split("\\s*,\\s*")));
             final IngridHitDetail[] details = _plug.getDetails( hits, query, requestedFields.stream().toArray(String[]::new) );
 
             // convert details to map
