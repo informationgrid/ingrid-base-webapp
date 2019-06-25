@@ -22,7 +22,10 @@
  */
 package de.ingrid.admin.controller;
 
-import de.ingrid.admin.*;
+import de.ingrid.admin.Config;
+import de.ingrid.admin.IKeys;
+import de.ingrid.admin.IUris;
+import de.ingrid.admin.IViews;
 import de.ingrid.admin.service.CacheService;
 import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.iplug.HeartBeatPlug;
@@ -46,7 +49,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -120,7 +125,12 @@ public class AdminToolsController extends AbstractController {
             modelMap.addAttribute( "totalHitCount", results.length() );
 
             final IngridHit[] hits = results.getHits();
-            final IngridHitDetail[] details = _plug.getDetails( hits, query, new String[] { config.indexFieldTitle, config.indexFieldSummary, "t02_address.firstname", "t02_address.lastname" } );
+            // create requested fields list for search/detail
+            final List<String> requestedFields = Arrays.asList(config.indexFieldTitle, config.indexFieldSummary);
+            // add additional requested fields from configuration to be able to
+            // add fields iplug specific. For example the iPlug-SE needs an field "url" to be added.
+            requestedFields.addAll(Arrays.asList(config.searchRequestedFieldsAdditional.split(",")));
+            final IngridHitDetail[] details = _plug.getDetails( hits, query, requestedFields.stream().toArray(String[]::new) );
 
             // convert details to map
             // this is necessary because it's not possible to access the
@@ -133,6 +143,10 @@ public class AdminToolsController extends AbstractController {
                             // if no title is given, then assume it might be an address
                             if (detail.getString("title").isEmpty()) {
                                 detail.put( "title", detail.getArray( "t02_address.lastname")[0] + ", " + detail.getArray( "t02_address.firstname" )[0] );
+                            }
+                            // if url is an array convert it to an string
+                            if (detail.containsKey("url") && detail.get("url") instanceof String[] && ((String[]) detail.get("url")).length > 0) {
+                                detail.put("url", ((String[]) detail.get("url"))[0]);
                             }
                         } catch (Exception ignored) {}
                         detailsMap.put( detail.getDocumentId(), detail );

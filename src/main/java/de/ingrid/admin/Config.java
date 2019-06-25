@@ -219,6 +219,9 @@ public class Config {
     @Value("${index.field.summary:summary}")
     public String indexFieldSummary;
 
+    @Value("${search.requested.fields.additional:t02_address.firstname,t02_address.lastname}")
+    public String searchRequestedFieldsAdditional;
+
     // this field is overwritten in iPlugSE, where results
     // shall be grouped by URL instead of the iPlug-ID
     @Value("${index.search.groupByUrl:false}")
