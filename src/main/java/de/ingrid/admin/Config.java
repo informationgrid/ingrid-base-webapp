@@ -174,6 +174,18 @@ public class Config {
     @Value("${plugdescription.provider:}")
     public String[] provider;
 
+    @Value("${igc.metadata.standard.name.geodata}")
+    public String mdStandardNameGeodata;
+
+    @Value("${igc.metadata.standard.version.geodata}")
+    public String mdStandardNameVersionGeodata;
+
+    @Value("${igc.metadata.standard.name.geoservice}")
+    public String mdStandardNameGeoservice;
+
+    @Value("${igc.metadata.standard.version.geoservice}")
+    public String mdStandardNameVersionGeoservice;
+
     private List<FieldQueryCommandObject> queryExtensions;
     
     @Value("${plugdescription.isRecordLoader:true}")
@@ -206,6 +218,9 @@ public class Config {
 
     @Value("${index.field.summary:summary}")
     public String indexFieldSummary;
+
+    @Value("${search.requested.fields.additional:t02_address.firstname,t02_address.lastname}")
+    public String searchRequestedFieldsAdditional;
 
     // this field is overwritten in iPlugSE, where results
     // shall be grouped by URL instead of the iPlug-ID
