@@ -31,7 +31,6 @@ import java.io.File;
 import java.util.Optional;
 
 import de.ingrid.admin.Config;
-import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
@@ -46,6 +45,7 @@ import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
 import de.ingrid.elasticsearch.IndexManager;
@@ -66,7 +66,7 @@ public class IndexSchedulerTest {
         private int _counter = 0;
 
         public DummyRunnable(final long time, PlugDescriptionService pdService, Config config) {
-            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, config, new ElasticConfig(), Optional.empty());
+            super(pdService, new IndexManager( elastic, new ElasticConfig() ), null, config, new ElasticConfig(), Optional.empty(), new StatusProviderService());
             _time = time;
         }
 
