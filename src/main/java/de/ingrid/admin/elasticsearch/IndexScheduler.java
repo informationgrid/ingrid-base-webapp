@@ -219,7 +219,7 @@ public class IndexScheduler implements IConfigurable {
     private class InitialIndexRun extends Thread {
         
         // delay execution in ms
-        private int delay = 10000;
+        private int delay = 30000;
         
         @Override
         public void run() {
