@@ -380,7 +380,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
             datatypes = config.datatypes.toArray(new String[0]);
         }
 
-        document.put("datatype", datatypes);
+        for (String datatype : datatypes) {
+            document.put("datatype", datatype);
+        }
         document.put(PlugDescription.PARTNER, config.partner);
         document.put(PlugDescription.PROVIDER, config.provider);
         document.put(PlugDescription.DATA_SOURCE_NAME, config.datasourceName);
