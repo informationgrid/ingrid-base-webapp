@@ -174,16 +174,16 @@ public class Config {
     @Value("${plugdescription.provider:}")
     public String[] provider;
 
-    @Value("${igc.metadata.standard.name.geodata}")
+    @Value("${igc.metadata.standard.name.geodata:}")
     public String mdStandardNameGeodata;
 
-    @Value("${igc.metadata.standard.version.geodata}")
+    @Value("${igc.metadata.standard.version.geodata:}")
     public String mdStandardNameVersionGeodata;
 
-    @Value("${igc.metadata.standard.name.geoservice}")
+    @Value("${igc.metadata.standard.name.geoservice:}")
     public String mdStandardNameGeoservice;
 
-    @Value("${igc.metadata.standard.version.geoservice}")
+    @Value("${igc.metadata.standard.version.geoservice:}")
     public String mdStandardNameVersionGeoservice;
 
     private List<FieldQueryCommandObject> queryExtensions;
