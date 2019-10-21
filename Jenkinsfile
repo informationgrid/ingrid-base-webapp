@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: "RELEASE", description: "Build a release from current commit.", defaultValue: false)
+        string(name: 'releaseVersion', defaultValue: '5.2.x', description: 'What is the version of the release?')
+        string(name: 'nextVersion', defaultValue: '5.3.x', description: 'What is the next development version? "-SNAPSHOT" will be appended automatically!')
+        booleanParam(name: "undoFailedRelease", description: "Revert local changes after a failed release?", defaultValue: false)
+    }
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '5'))
     }
@@ -32,6 +39,51 @@ pipeline {
                 }
             }
         }
+
+        stage("Cleanup failed Release") {
+            when {
+                expression { params.RELEASE }
+                expression { params.undoFailedRelease }
+            }
+            steps {
+                sh "git checkout master && git reset --hard origin/master && git pull"
+                sh "git checkout develop && git reset --hard origin/develop && git pull"
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh "git tag -d ${params.releaseVersion}"
+                }
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh 'git branch | grep "release/" | xargs git branch -D'
+                }
+            }
+        }
+
+        stage("Release") {
+            when {
+                expression { params.RELEASE }
+                branch 'develop'
+            }
+            steps {
+                sh "git checkout develop"
+                sh "git pull"
+
+                script {
+                    docker.image('docker-registry.wemove.com/ingrid-elasticsearch-with-decompound:6.4.2').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkinsnexussonar_devnet') { c ->
+                        withMaven(
+                            maven: 'Maven3',
+                            mavenSettingsConfig: '2529f595-4ac5-44c6-8b4f-f79b5c3f4bae'
+                        ) {
+                            sh "mvn jgitflow:release-start -DreleaseVersion=${params.releaseVersion} -DdevelopmentVersion=${params.nextVersion}-SNAPSHOT -DallowUntracked -DperformRelease=true"
+                            sh "mvn jgitflow:release-finish -DallowUntracked -Dmaven.test.failure.ignore=true"
+                        }
+                        withCredentials([usernamePassword(credentialsId: '77647a76-a18e-4ce0-8433-a61ab69bbe9f', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                            sh "git push --all https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/informationgrid/ingrid-base-webapp"
+                            sh "git push --tags https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/informationgrid/ingrid-base-webapp"
+                        }
+                    }
+                }
+            }
+        }
+
         stage ('SonarQube Analysis'){
             steps {
                 withMaven(

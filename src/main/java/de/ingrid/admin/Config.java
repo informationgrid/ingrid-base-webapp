@@ -174,18 +174,6 @@ public class Config {
     @Value("${plugdescription.provider:}")
     public String[] provider;
 
-    @Value("${igc.metadata.standard.name.geodata}")
-    public String mdStandardNameGeodata;
-
-    @Value("${igc.metadata.standard.version.geodata}")
-    public String mdStandardNameVersionGeodata;
-
-    @Value("${igc.metadata.standard.name.geoservice}")
-    public String mdStandardNameGeoservice;
-
-    @Value("${igc.metadata.standard.version.geoservice}")
-    public String mdStandardNameVersionGeoservice;
-
     private List<FieldQueryCommandObject> queryExtensions;
     
     @Value("${plugdescription.isRecordLoader:true}")
@@ -390,7 +378,13 @@ public class Config {
     public Properties getOverrideProperties() throws IOException {
         Resource override = getOverrideConfigResource();
         InputStream is = new FileInputStream( override.getFile().getAbsolutePath() );
-        Properties props = new Properties();
+        Properties props = new Properties() {
+            private static final long serialVersionUID = 6956076060462348684L;
+            @Override
+            public synchronized Enumeration<Object> keys() {
+                return Collections.enumeration(new TreeSet<>(super.keySet()));
+            }
+        };
         props.load( is );
         return props;
     }

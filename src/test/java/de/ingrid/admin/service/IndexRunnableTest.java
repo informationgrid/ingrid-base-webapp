@@ -25,7 +25,7 @@ package de.ingrid.admin.service;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
-import de.ingrid.admin.elasticsearch.StatusProvider;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IndexManager;
@@ -113,9 +113,8 @@ public class IndexRunnableTest extends ElasticTests {
     }
 
     private void index(int model) throws Exception {
-        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, elasticConfig, Optional.empty());
+        _indexRunnable = new IndexRunnable(pds, indexManager, null, config, elasticConfig, Optional.empty(), new StatusProviderService());
         _indexRunnable.configure(_plugDescription);
-        _indexRunnable.setStatusProvider( new StatusProvider() );
         DummyProducer dummyProducer = new DummyProducer(model);
         dummyProducer.configure(_plugDescription);
         docProducers = new ArrayList<>();

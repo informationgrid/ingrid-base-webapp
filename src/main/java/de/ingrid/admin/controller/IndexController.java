@@ -41,7 +41,7 @@ import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
-import de.ingrid.admin.elasticsearch.StatusProvider;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
@@ -59,7 +59,7 @@ public class IndexController extends AbstractController {
     private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
     
     @Autowired
-    private StatusProvider statusProvider;
+    private StatusProviderService statusProviderService;
     
     @Autowired
     private IndexScheduler scheduler;
@@ -142,7 +142,7 @@ public class IndexController extends AbstractController {
     @RequestMapping(value = IUris.LIVE_INDEX_STATE, method = RequestMethod.GET)
     public @ResponseBody
     StatusResponse getLiveIndexState(ModelMap model) {
-        return new StatusResponse(scheduler.isRunning(), statusProvider.toString());
+        return new StatusResponse(scheduler.isRunning(), statusProviderService.getDefaultStatusProvider().toString());
     }
     
     private class StatusResponse {

@@ -25,7 +25,9 @@ package de.ingrid.admin.elasticsearch;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.elasticsearch.StatusProvider.Classification;
+import de.ingrid.utils.statusprovider.StatusProvider;
+import de.ingrid.utils.statusprovider.StatusProvider.Classification;
+import de.ingrid.utils.statusprovider.StatusProviderService;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.elasticsearch.*;
@@ -64,9 +66,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     private final ConcurrentMap<String, Object> _indexHelper;
 
-    @Autowired
     private StatusProvider statusProvider;
-
+    
     private final Config config;
 
     private final ElasticConfig elasticConfig;
@@ -77,10 +78,11 @@ public class IndexRunnable implements Runnable, IConfigurable {
      * @param ibusIndexManager is the manager to handle indices via the iBus
      */
     @Autowired
-    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, ElasticConfig elasticConfig, Optional<IPlugdescriptionFieldFilter[]> fieldFilters) {
+    public IndexRunnable(PlugDescriptionService pds, IndexManager indexManager, IBusIndexManager ibusIndexManager, Config config, ElasticConfig elasticConfig, Optional<IPlugdescriptionFieldFilter[]> fieldFilters, StatusProviderService statusProviderService) {
         // Config config = config;
         this.config = config;
         this.elasticConfig = elasticConfig;
+        this.statusProvider = statusProviderService.getDefaultStatusProvider();
 
         _plugDescriptionService = pds;
         try {
@@ -378,7 +380,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
             datatypes = config.datatypes.toArray(new String[0]);
         }
 
-        document.put("datatype", datatypes);
+        for (String datatype : datatypes) {
+            document.put("datatype", datatype);
+        }
         document.put(PlugDescription.PARTNER, config.partner);
         document.put(PlugDescription.PROVIDER, config.provider);
         document.put(PlugDescription.DATA_SOURCE_NAME, config.datasourceName);
