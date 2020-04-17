@@ -18,6 +18,17 @@ mvn eclipse:eclipse
 
 and import project into eclipse.
 
+### Tests
+
+The tests do not work out of the box, since they are adapted
+to run inside a docker container with jenkins.
+
+To enable the tests, start a elastic seaarch node:
+
+```docket-compose up -d```
+
+Adapt the file `src/test/resources/config.override.properties` (see `elastic.remoteHosts`).
+
 Support
 -------
 
