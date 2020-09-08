@@ -271,13 +271,25 @@ public class IndexRunnable implements Runnable, IConfigurable {
         // switch aliases of all document producers to the new indices
         for (String index : indexNames.keySet()) {
             String[] indexMore = indexNames.get(index);
-            _indexManager.switchAlias(indexMore[2], indexMore[0], indexMore[1]);
+            String newIndex = indexMore[1];
+            _indexManager.switchAlias(indexMore[2], indexMore[0], newIndex);
             if (oldIndex != null) {
-                _indexManager.deleteIndex(indexMore[0]);
+                removeOldIndices(newIndex);
             }
-            this.statusProvider.addState("switch_index", "Switch to newly created index: " + indexMore[1] + " under the alias: " + indexMore[2]);
+            this.statusProvider.addState("switch_index", "Switch to newly created index: " + newIndex + " under the alias: " + indexMore[2]);
         }
         LOG.info("switched alias to new index and deleted old one");
+    }
+
+    private void removeOldIndices(String newIndex) {
+        int delimiterPos = newIndex.lastIndexOf("_");
+        String indexGroup = newIndex.substring(0, delimiterPos + 1);
+        String[] indices = _indexManager.getIndices(indexGroup);
+        for (String indexToDelete : indices) {
+            if (!indexToDelete.equals(newIndex)) {
+                _indexManager.deleteIndex(indexToDelete);
+            }
+        }
     }
 
     private String getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
