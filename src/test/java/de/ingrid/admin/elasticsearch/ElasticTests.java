@@ -200,18 +200,5 @@ public class ElasticTests {
 //        config.docProducerIndices = new String[] { "test:test" };
         return indexImpl;
     }
-    
-    @SuppressWarnings("resource")
-    public static void createNodeManager() {
-        // create a test master node with http support
-        Settings settings = Settings.builder()
-            .put( "cluster.name", "ingrid" )
-            .put( "node.local", "false" )
-            .put( "node.data", "false" )
-            .put( "node.master", "false" )
-            .put( "http.enabled", "false" )
-            .put( "node.client", "true" )
-            .build();
-        new Node(settings);
-    }
+
 }
