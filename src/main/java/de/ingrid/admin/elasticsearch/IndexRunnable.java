@@ -285,10 +285,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
         int delimiterPos = newIndex.lastIndexOf("_");
         String indexGroup = newIndex.substring(0, delimiterPos + 1);
         String[] indices = _indexManager.getIndices(indexGroup);
-        for (String indexToDelete : indices) {
-            if (!indexToDelete.equals(newIndex)) {
-                _indexManager.deleteIndex(indexToDelete);
+        if (indices != null) {
+            for (String indexToDelete : indices) {
+                if (!indexToDelete.equals(newIndex)) {
+                    _indexManager.deleteIndex(indexToDelete);
+                }
             }
+        } else {
+            LOG.warn("No indices found with prefix: " + indexGroup + " which we wanted to clean up after indexing");
         }
     }
 
