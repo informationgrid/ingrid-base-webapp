@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -285,10 +285,14 @@ public class IndexRunnable implements Runnable, IConfigurable {
         int delimiterPos = newIndex.lastIndexOf("_");
         String indexGroup = newIndex.substring(0, delimiterPos + 1);
         String[] indices = _indexManager.getIndices(indexGroup);
-        for (String indexToDelete : indices) {
-            if (!indexToDelete.equals(newIndex)) {
-                _indexManager.deleteIndex(indexToDelete);
+        if (indices != null) {
+            for (String indexToDelete : indices) {
+                if (!indexToDelete.equals(newIndex)) {
+                    _indexManager.deleteIndex(indexToDelete);
+                }
             }
+        } else {
+            LOG.warn("No indices found with prefix: " + indexGroup + " which we wanted to clean up after indexing");
         }
     }
 
