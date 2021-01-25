@@ -40,8 +40,12 @@ import de.ingrid.utils.IBus;
 import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Utils {
+
+    private static Log log = LogFactory.getLog(Utils.class);
 
     @SuppressWarnings("unchecked")
     public static List<Partner> getPartners(final IBus bus) throws Exception {
@@ -63,7 +67,11 @@ public class Utils {
                         final String partnerId = (String) map.get("partnerid");
                         list.add(new Partner(partnerId, partnerName));
                     }
+                } else {
+                    log.warn("No partners found");
                 }
+            } else {
+                log.warn("No iBus result when requesting for partners");
             }
         } else {
             // get partners from file
