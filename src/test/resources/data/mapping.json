@@ -54,6 +54,9 @@
         "boost": {
             "type": "float",
             "null_value" : "0.0"
+        },
+        "sort_hash": {
+            "type": "keyword"
         }
     }
 }
