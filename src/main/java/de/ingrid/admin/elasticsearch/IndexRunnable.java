@@ -38,6 +38,7 @@ import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -50,6 +51,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import static de.ingrid.utils.PlugDescription.QUERY_EXTENSION_CONTAINER;
 
@@ -404,5 +406,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
         document.put(PlugDescription.DATA_SOURCE_NAME, config.datasourceName);
         document.put(PlugDescription.ORGANISATION, config.organisation);
         document.put("iPlugId", config.communicationProxyUrl);
+
+        String sortString = Arrays.stream(document.getValues("title")).collect(Collectors.joining());
+        sortString += Arrays.stream(document.getValues("url")).collect(Collectors.joining());
+        document.put("sort_hash", DigestUtils.shaHex(sortString));
     }
 }
