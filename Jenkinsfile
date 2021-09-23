@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    
+    tools {
+        jdk 'jdk8'
+    }
 
     parameters {
         booleanParam(name: "RELEASE", description: "Build a release from current commit.", defaultValue: false)
