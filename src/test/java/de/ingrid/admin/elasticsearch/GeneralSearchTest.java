@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,9 +59,9 @@ public class GeneralSearchTest extends ElasticTests {
         IndexManager indexManager = new IndexManager( elastic, elasticConfig );
         indexManager.removeFromAlias("test", "test_1");
         indexManager.switchAlias( "test", null, "test_1" );
-    }    
-    
-   
+    }
+
+
     @AfterClass
     public static void afterClass() {
         // elastic.getObject().close();
@@ -97,7 +97,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 5 ) );
         Utils.checkHitsForIDs( search.getHits(), 1, 6, 7, 8, 11 );
-        
+
         q = QueryStringParser.parse( "((wemove) OR (reisen))" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
@@ -118,7 +118,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 3 ) );
         Utils.checkHitsForIDs( search.getHits(), 1, 4, 5 );
     }
-    
+
     @Test
     public void searchForMultipleTermsWithAndOrParentheses() throws Exception {
         IndexImpl index = getIndexer();
@@ -128,7 +128,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 2 ) );
         Utils.checkHitsForIDs( search.getHits(), 1, 4 );
     }
-    
+
     @Test
     public void searchForTermNot() throws Exception {
         IndexImpl index = getIndexer();
@@ -138,7 +138,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( (int)Utils.MAX_RESULTS - 4 ) );
         Utils.checkHitsForIDs( search.getHits(), 2, 3, 4, 5, 9, 10, 11 );
     }
-    
+
     @Test
     public void searchForMultipleTermsNot() throws Exception {
         IndexImpl index = getIndexer();
@@ -148,7 +148,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 2 ) );
         Utils.checkHitsForIDs( search.getHits(), 4, 11 );
     }
-    
+
     @Test
     public void searchWithWildcardCharacter() throws Exception {
         IndexImpl index = getIndexer();
@@ -158,20 +158,20 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
-        
+
         // should not find the following, because only one character is a wildcard!
         q = QueryStringParser.parse( "Deutschl?d" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 0 ) );
-        
+
         q = QueryStringParser.parse( "wel?" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 3 ) );
         Utils.checkHitsForIDs( search.getHits(), 1, 4, 11 );
     }
-    
+
     @Test
     public void searchWithWildcardString() throws Exception {
         IndexImpl index = getIndexer();
@@ -180,20 +180,20 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
-        
+
         q = QueryStringParser.parse( "Deutschl*d" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
-        
+
         q = QueryStringParser.parse( "st*" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
-        assertThat( search.getHits().length, is( 2 ) );
-        Utils.checkHitsForIDs( search.getHits(), 2, 8 );
+        assertThat( search.getHits().length, is( 3 ) );
+        Utils.checkHitsForIDs( search.getHits(), 2, 6, 8 );
     }
-    
+
     @Test
     public void searchCombinedWildcards() throws Exception {
         IndexImpl index = getIndexer();
@@ -202,26 +202,26 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 2 ) );
         Utils.checkHitsForIDs( search.getHits(), 6, 9 );
-        
+
         q = QueryStringParser.parse( "(Deutschl*nd OR Entstehung)" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 2 ) );
         Utils.checkHitsForIDs( search.getHits(), 6, 9 );
-        
+
         q = QueryStringParser.parse( "(Deutschl*nd OR Ents*ung)" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 2 ) );
         Utils.checkHitsForIDs( search.getHits(), 6, 9 );
-        
+
         q = QueryStringParser.parse( "(Deutschl*nd OR Ents*ung) title:wemove" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 6 );
     }
-    
+
     @Test
     public void searchFuzzy() throws Exception {
         IndexImpl index = getIndexer();
@@ -229,14 +229,14 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHits search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 0 ) );
-        
+
         q = QueryStringParser.parse( "Deutschlnad~" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
     }
-    
+
     @Test
     public void searchFuzzyCombination() throws Exception {
         IndexImpl index = getIndexer();
@@ -245,14 +245,14 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
-        
+
         q = QueryStringParser.parse( "wemove -Wetl~" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 3 ) );
         Utils.checkHitsForIDs( search.getHits(), 6, 7, 8 );
     }
-    
+
     @Test
     public void searchField() throws Exception {
         IndexImpl index = getIndexer();
@@ -262,7 +262,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 9 );
     }
-    
+
     @Test
     public void searchFieldAND() throws Exception {
         IndexImpl index = getIndexer();
@@ -272,7 +272,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.length(), is(1L) );
         Utils.checkHitsForIDs( search.getHits(), 11 );
     }
-    
+
     @Test
     public void searchFieldOR() throws Exception {
         IndexImpl index = getIndexer();
@@ -282,7 +282,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.length(), is(3L) );
         Utils.checkHitsForIDs( search.getHits(), 1, 4, 11 );
     }
-    
+
     @Test
     public void searchFieldSpecialAND() throws Exception {
         IndexImpl index = getIndexer();
@@ -292,7 +292,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.length(), is(1L) );
         Utils.checkHitsForIDs( search.getHits(), 1 );
     }
-    
+
     @Test
     public void searchFieldSpecialOR() throws Exception {
         IndexImpl index = getIndexer();
@@ -302,7 +302,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.length(), is(5L) );
         Utils.checkHitsForIDs( search.getHits(), 1, 7, 8, 10, 11 );
     }
-    
+
     @Test
     public void searchFieldSpecialORComplex() throws Exception {
         IndexImpl index = getIndexer();
@@ -317,20 +317,20 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.length(), is(6L) );
         Utils.checkHitsForIDs( search.getHits(), 10, 11 );
-        
+
         q = QueryStringParser.parse( "(datatype:xml AND partner:bund) OR partner:bw" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.length(), is(4L) );
         Utils.checkHitsForIDs( search.getHits(), 3, 7, 10, 11 );
-        
+
         q = QueryStringParser.parse( "(datatype:xml AND partner:bund) OR partner:bw Nachrichten" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.length(), is(1L) );
         Utils.checkHitsForIDs( search.getHits(), 3);
     }
-    
+
     @Test
     public void searchPhrase() throws Exception {
         IndexImpl index = getIndexer();
@@ -339,14 +339,14 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 10 );
-        
+
         q = QueryStringParser.parse( "\"Welt der Computer\"" );
         search = index.search( q, 0, 10 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.getHits().length, is( 1 ) );
         Utils.checkHitsForIDs( search.getHits(), 4 );
     }
-    
+
     @Test
     public void stopWordsRemoval() throws Exception {
         IndexImpl index = getIndexer();
@@ -356,7 +356,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.getHits().length, is( 2 ) );
         Utils.checkHitsForIDs( search.getHits(), 4, 11 );
     }
-    
+
     @Test
     public void searchWithPaging() throws Exception {
         IndexImpl index = getIndexer();
@@ -372,7 +372,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( search.length(), is(Utils.MAX_RESULTS) );
         assertThat( search.getHits().length, is( 5 ) );
         //Utils.checkHitsForIDs( search.getHits(), 2, 7, 4, 9, 11 );
-        
+
         search = index.search( q, 10, 5 );
         assertThat( search, not( is( nullValue() ) ) );
         assertThat( search.length(), is(Utils.MAX_RESULTS) );
@@ -400,7 +400,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( detail.getSummary(), is( "Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
     }
-    
+
     @Test
     public void getCompoundDetail() throws Exception {
         IndexImpl index = getIndexer();
@@ -416,7 +416,7 @@ public class GeneralSearchTest extends ElasticTests {
         assertThat( detail.getSummary(), is( "<em>Preishit</em>" ) );
         assertThat( detail.getScore(), greaterThan( 0.1f ) );
     }
-    
+
     @Test
     public void getDetailWithRequestedField() throws Exception {
         IndexImpl index = getIndexer();
@@ -431,11 +431,11 @@ public class GeneralSearchTest extends ElasticTests {
 //        TODO: same here -> assertThat(detail.getArray( "fetched" )[0], is( "2014-06-03" ) );
         assertThat(detail.get( "fetched" ), is( "2014-06-03" ) );
     }
-    
+
 
     @Test @Ignore
     public void testDeleteUrl() {
         fail( "Not yet implemented" );
     }
-    
+
 }

@@ -14,18 +14,47 @@
             "store": true
         },
         "title": {
-            "analyzer": "decomp",
-            "search_analyzer": "no_decomp",
             "type": "text",
-            "boost": 1.1,
+            "analyzer": "german",
             "store": true,
-            "fielddata": true
+            "fielddata": true,
+            "fields": {
+                "phrase": {
+                    "type":  "text",
+                    "analyzer": "ngram_phrase",
+                    "search_analyzer": "phrase"
+                },
+                "ngram": {
+                    "type":  "text",
+                    "analyzer": "ngram",
+                    "search_analyzer": "german"
+                },
+                "edge_ngram": {
+                    "type":  "text",
+                    "analyzer": "edge_ngram",
+                    "search_analyzer": "german"
+                }
+            }
         },
         "content": {
-            "analyzer": "decomp",
-            "search_analyzer": "no_decomp",
             "type": "text",
-            "store": true
+            "analyzer": "german",
+            "store": true,
+            "fields": {
+                "keyword": {
+                    "type":  "keyword"
+                },
+                "ngram": {
+                    "type":  "text",
+                    "analyzer": "ngram",
+                    "search_analyzer": "german"
+                },
+                "edge_ngram": {
+                    "type":  "text",
+                    "analyzer": "edge_ngram",
+                    "search_analyzer": "german"
+                }
+            }
         },
         "datatype": {
             "type": "keyword",

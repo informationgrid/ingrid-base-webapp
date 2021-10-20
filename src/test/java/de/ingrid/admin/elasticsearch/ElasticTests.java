@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -72,7 +72,7 @@ public class ElasticTests {
             FileSystemUtils.deleteRecursively( dir );
 
         Properties elasticProperties = getConfigProperties();
-        
+
         elastic = new ElasticsearchNodeFactoryBean();
         elasticConfig = new ElasticConfig();
         elasticConfig.isEnabled = true;
@@ -84,7 +84,7 @@ public class ElasticTests {
         elasticConfig.activeIndices = activeIndices;
         elasticConfig.indexFieldSummary = "content";
         elasticConfig.additionalSearchDetailFields = new String[0];
-        elasticConfig.indexSearchDefaultFields = new String[] { "title", "content" };
+        elasticConfig.indexSearchDefaultFields = new String[] { "title^10.0","title.edge_ngram^4.0","title.ngram^2.0","summary","summary.edge_ngram^0.4","summary.ngram^0.2","content^0.2","content.ngram^0.1" };
         elasticConfig.remoteHosts = ((String)elasticProperties.get("elastic.remoteHosts")).split(",");
         elastic.init(elasticConfig);
         elastic.afterPropertiesSet();
@@ -101,7 +101,7 @@ public class ElasticTests {
         parsers.add( new FuzzyQueryConverter() );
         parsers.add( new MatchAllQueryConverter() );
         qc.setQueryParsers( parsers );
-        
+
         indexManager = new IndexManager( elastic, elasticConfig );
         try {
             indexManager.deleteIndex( "test" );
@@ -119,7 +119,7 @@ public class ElasticTests {
             prepareIndex( elastic, fileData, "test_1" );
             indexManager.switchAlias( "test", null, "test_1" );
         }
-        
+
         docProducers = new ArrayList<>();
         docProducers.add( new DummyProducer() );
     }
@@ -143,11 +143,11 @@ public class ElasticTests {
     public static void setup(String index, String fileData) throws Exception {
         setup( index, fileData, true );
     }
-    
+
     public static void setup() throws Exception {
         setup( null, null, false );
     }
-    
+
     private static void prepareIndex(ElasticsearchNodeFactoryBean elastic, String fileData, String index) throws ElasticsearchException, Exception {
         Client client = elastic.getClient();
         ClassPathResource resource = new ClassPathResource( fileData );
@@ -166,12 +166,12 @@ public class ElasticTests {
         RefreshRequest refreshRequest = new RefreshRequest( index );
         client.admin().indices().refresh( refreshRequest ).actionGet();
     }
-    
+
     public static void deleteIndex(String index, Client client) {
         RefreshRequest refreshRequest = new RefreshRequest( index );
         client.admin().indices().refresh( refreshRequest ).actionGet();
     }
-    
+
     protected static void setMapping(ElasticsearchNodeFactoryBean elastic, String index) {
         try {
             Client client = elastic.getClient();
@@ -188,13 +188,13 @@ public class ElasticTests {
                     .addMapping("base", mapping, XContentType.JSON)
                     .setSettings(settings, XContentType.JSON)
                     .execute().actionGet();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-    
+
     protected IndexImpl getIndexer() throws Exception {
         IndexImpl indexImpl = new IndexImpl( elasticConfig, indexManager, qc, new FacetConverter(qc), new QueryBuilderService());
 //        config.docProducerIndices = new String[] { "test:test" };
