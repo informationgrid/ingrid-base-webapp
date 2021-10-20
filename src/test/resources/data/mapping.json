@@ -17,6 +17,7 @@
             "type": "text",
             "analyzer": "german",
             "store": true,
+            "fielddata": true,
             "fields": {
                 "phrase": {
                     "type":  "text",

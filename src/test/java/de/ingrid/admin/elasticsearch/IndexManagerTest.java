@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,7 +69,7 @@ public class IndexManagerTest {
         elasticConfig.activeIndices = activeIndices;
         elasticConfig.indexFieldSummary = "content";
         elasticConfig.additionalSearchDetailFields = new String[0];
-        elasticConfig.indexSearchDefaultFields = new String[] { "title", "content" };
+        elasticConfig.indexSearchDefaultFields = new String[] { "title^10.0","title.edge_ngram^4.0","title.ngram^2.0","summary","summary.edge_ngram^0.4","summary.ngram^0.2","content^0.2","content.ngram^0.1" };
         elasticConfig.remoteHosts = ((String)elasticProperties.get("elastic.remoteHosts")).split(",");
         elastic.init(elasticConfig);
         elastic.afterPropertiesSet();
@@ -92,7 +92,7 @@ public class IndexManagerTest {
         statusProvider = new StatusProvider();
         // TODO: indexManager.setStatusProvider( statusProvider );
     }
-    
+
     @AfterClass
     public static void afterClass() {
         elastic.getClient().close();
@@ -173,7 +173,7 @@ public class IndexManagerTest {
 
         indexManager.addToAlias( aliasName, indexName );
         indexManager.addToAlias( aliasName, indexName2 );
-        
+
         ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases( new GetAliasesRequest( aliasName ) ).actionGet().getAliases();
         assertThat( indexToAliasesMap.keys().size(), is( 2 ) );
 
@@ -181,7 +181,7 @@ public class IndexManagerTest {
         assertThat( indexFromAlias, anyOf( is( indexName ), is( indexName2 ) ) );
         assertThat( statusProvider.toString(), containsString( "The index name could not be determined correctly" ) );
     }
-    
+
     @Test
     public void testIndexFromAliasMultipleReplace() {
         String aliasName = "my-alias5";
@@ -189,13 +189,13 @@ public class IndexManagerTest {
         String indexName2 = "switch_alias_test5_2";
         indexManager.createIndex( indexName );
         indexManager.createIndex( indexName2 );
-        
+
         indexManager.addToAlias( aliasName, indexName );
         indexManager.switchAlias( aliasName, indexName, indexName2 );
-        
+
         ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases( new GetAliasesRequest( aliasName ) ).actionGet().getAliases();
         assertThat( indexToAliasesMap.keys().size(), is( 1 ) );
-        
+
         String indexFromAlias = indexManager.getIndexNameFromAliasName( aliasName, "switch" );
         assertThat( indexFromAlias, is( indexName2 ) );
         assertThat( statusProvider.toString(), not( containsString( "The index name could not be determined correctly" ) ) );
