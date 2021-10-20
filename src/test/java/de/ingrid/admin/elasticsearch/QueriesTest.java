@@ -65,6 +65,6 @@ public class QueriesTest {
         assertThat( result, not( is( nullValue() ) ) );
         assertThat( result.toString(), containsString( "\"wildcard\" : {" ) );
         assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
-                "                        \"wildcard\" : \"http*\"" ) );
+                "                              \"wildcard\" : \"http*\"" ) );
     }
 }
