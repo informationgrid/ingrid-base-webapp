@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>5.10.0</version>
+  <version>5.11.0</version>
   <name>InGrid Base-Webapp</name>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -20,8 +20,8 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <spring.version>4.3.20.RELEASE</spring.version>
-    <log4j2.version>2.13.3</log4j2.version>
-    <elasticsearch.version>6.8.4</elasticsearch.version>
+    <log4j2.version>2.17.1</log4j2.version>
+    <elasticsearch.version>6.8.17</elasticsearch.version>
   </properties>
 
   <!-- ==================== REPOSITORIES ==================== -->
@@ -189,7 +189,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.10.5</version>
+      <version>2.10.5.1</version>
     </dependency>
 
     <!-- backward compatible -->
