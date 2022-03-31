@@ -154,7 +154,7 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-crypto</artifactId>
       <!-- The version differs from base springframework! -->
-      <version>4.2.7.RELEASE</version>
+      <version>5.3.13.RELEASE</version>
     </dependency>
 
     <dependency>
