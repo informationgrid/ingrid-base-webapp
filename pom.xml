@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>5.11.0</version>
+  <version>5.12.0</version>
   <name>InGrid Base-Webapp</name>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -154,7 +154,7 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-crypto</artifactId>
       <!-- The version differs from base springframework! -->
-      <version>4.2.7.RELEASE</version>
+      <version>5.3.13.RELEASE</version>
     </dependency>
 
     <dependency>
@@ -244,7 +244,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>5.10.0</version>
+      <version>5.12.0</version>
     </dependency>
   </dependencies>
 
