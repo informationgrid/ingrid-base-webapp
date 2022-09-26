@@ -244,7 +244,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>5.13.0</version>
+      <version>5.14.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
