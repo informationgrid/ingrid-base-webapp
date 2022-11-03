@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,7 +53,7 @@ public class JettyStarter {
 
 
     @Autowired
-    public JettyStarter(Config config, IConfig externalConfig, PlugDescriptionService plugDescriptionService) throws Exception {
+    public JettyStarter(Config config, @Autowired(required = false) IConfig externalConfig, PlugDescriptionService plugDescriptionService) throws Exception {
         baseConfig = config;
         this.config = config;
         this.externalConfig = externalConfig;
@@ -78,6 +78,19 @@ public class JettyStarter {
     // Use JettyStart(IConfig) instead to correctly configure iPlug
     @Deprecated
     public JettyStarter() throws Exception {
+        // manually create necessary beans for configuration we need during startup
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(Config.class);
+        ctx.register(ElasticConfig.class);
+        ctx.refresh();
+
+        // set configurations to be used in start-method
+        JettyStarter.baseConfig = ctx.getBean(Config.class);
+
+        // this manual context is not used anymore so close it
+        // during server start a new spring context is started
+        ctx.close();
+
         start();
     }
 
