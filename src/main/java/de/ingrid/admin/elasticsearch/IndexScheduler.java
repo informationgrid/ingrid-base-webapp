@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import it.sauronsoftware.cron4j.Scheduler;

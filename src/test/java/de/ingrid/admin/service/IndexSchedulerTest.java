@@ -91,7 +91,7 @@ public class IndexSchedulerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        new JettyStarter( false );
+        new JettyStarter( );
         //setup( "test2", "data/webUrls2.json" );
         MockitoAnnotations.initMocks(this);
 

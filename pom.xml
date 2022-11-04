@@ -19,9 +19,16 @@
 
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
-    <spring.version>4.3.20.RELEASE</spring.version>
-    <log4j2.version>2.17.1</log4j2.version>
-    <elasticsearch.version>6.8.17</elasticsearch.version>
+    <java.version>17</java.version>
+    <spring.version>2.7.5</spring.version>
+    <log4j2.version>2.19.0</log4j2.version>
+<!--    <elasticsearch.version>6.8.17</elasticsearch.version>-->
+    <jetty.version>10.0.12</jetty.version>
+    <servlet.version>4.0.4</servlet.version>
+    <slf4j.version>2.0.3</slf4j.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <!-- ==================== REPOSITORIES ==================== -->
@@ -32,17 +39,27 @@
       <name>Nexus Repo</name>
       <url>https://nexus.informationgrid.eu/repository/maven-public</url>
     </repository>
-    <repository>
+    <!--<repository>
       <id>xbib.org</id>
       <name>Maven Repo XBIB</name>
       <url>http://xbib.org/repository/</url>
-    </repository>
+    </repository>-->
   </repositories>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <!-- Import dependency management from Spring Boot -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>${spring.version}</version>
+        <!-- <relativePath />-->
+        <!-- lookup parent from repository -->
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!--<dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
         <version>${spring.version}</version>
@@ -66,7 +83,7 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-webmvc</artifactId>
         <version>${spring.version}</version>
-      </dependency>
+      </dependency>-->
     </dependencies>
   </dependencyManagement>
 
@@ -75,7 +92,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
-      <version>5.3.0</version>
+      <version>5.11.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>opensymphony</groupId>
@@ -114,51 +131,40 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>5.12.0</version>
+      <version>5.15.0.3324-SNAPSHOT</version>
     </dependency>
-    <!-- The two following dependencies are needed for Jetty -->
+
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty</artifactId>
-      <version>6.1.26</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jsp-2.1</artifactId>
-      <version>6.1.14</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
       <exclusions>
-        <!-- already included in jetty -->
+        <!-- Exclude the Tomcat dependency -->
         <exclusion>
-          <groupId>org.mortbay.jetty</groupId>
-          <artifactId>servlet-api-2.5</artifactId>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-jasper</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
     </dependency>
+
+
+
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
-      <!-- The version differs from base springframework! -->
-      <version>5.3.13.RELEASE</version>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.12.2</version>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -172,7 +178,22 @@
       <artifactId>cron4j</artifactId>
       <version>2.2.5</version>
     </dependency>
+<!--    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>5.0.0</version>
+    </dependency>-->
+    <!--<dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+    </dependency>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>-->
+    <!--<dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch.version}</version>
@@ -181,7 +202,7 @@
       <groupId>org.elasticsearch.client</groupId>
       <artifactId>transport</artifactId>
       <version>${elasticsearch.version}</version>
-    </dependency>
+    </dependency>-->
 
     <!-- optional dep for elastic search -->
     <dependency>
@@ -219,6 +240,16 @@
       <artifactId>log4j-core</artifactId>
       <version>${log4j2.version}</version>
     </dependency>
+    <!--<dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j2.version}</version>
+    </dependency>-->
+    <!--<dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
+      <version>${log4j2.version}</version>
+    </dependency>-->
 
     <!-- END -->
     <dependency>
@@ -260,8 +291,14 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>5.14.0</version>
+      <version>5.15.0.3324-SNAPSHOT</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.ehcache/ehcache -->
+    <!--<dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>3.10.2</version>
+    </dependency>-->
   </dependencies>
 
   <!-- ==================== Build Configuration ==================== -->
@@ -322,15 +359,16 @@
           </execution>
         </executions>
       </plugin>
+<!--
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>maven-jetty-plugin</artifactId>
         <version>6.1.14</version>
         <configuration>
-          <!--
+          &lt;!&ndash;
                         give more memory with 'export MAVEN_OPTS="-Xmx1024M"' before
                         executing mvn jetty:run
-                    -->
+                    &ndash;&gt;
           <contextPath>/</contextPath>
           <classesDirectory>target/classes</classesDirectory>
           <scanTargets>
@@ -347,6 +385,7 @@
           <stopPort />
         </configuration>
       </plugin>
+-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -384,23 +423,52 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+          <release>17</release>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.openrewrite.maven</groupId>
         <artifactId>rewrite-maven-plugin</artifactId>
         <version>4.35.1</version>
         <configuration>
           <activeRecipes>
-            <recipe>org.openrewrite.java.testing.junit5.JUnit5BestPractices</recipe>
+<!--            <recipe>org.openrewrite.java.spring.framework.UpgradeSpringFramework_5_3</recipe>-->
+            <recipe>org.openrewrite.java.migrate.JavaxServletToJakartaServlet</recipe>
           </activeRecipes>
         </configuration>
         <dependencies>
           <dependency>
             <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-testing-frameworks</artifactId>
-            <version>1.29.0</version>
+            <artifactId>rewrite-spring</artifactId>
+            <version>4.29.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-migrate-java</artifactId>
+            <version>1.13.0</version>
           </dependency>
         </dependencies>
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>development</id>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/develop/resources</directory>
+          </resource>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+  </profiles>
 </project>
 
