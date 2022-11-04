@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
@@ -47,6 +48,11 @@ public class WelcomeController {
         _service = service;
     }
 
+    @GetMapping("/")
+    public String root() {
+        return IUris.WELCOME;
+    }
+    
     @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
     public String welcome(final HttpSession session) throws Exception {
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {

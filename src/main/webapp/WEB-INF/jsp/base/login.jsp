@@ -62,13 +62,13 @@
 			<br/>
 				        <div>
 				        	<p>&nbsp;</p>
-				            <form method="post" action="j_security_check" id="login">
+				            <form method="post" action="/j_spring_security_check" id="login">
 					            <table id="konfigForm">
 									<tr>
 										<td class="leftCol">Name:</td>
 										<td>
                                             <div class="input inline">
-                                                <input style="width: 200px;" type="text" name="j_username"/>
+                                                <input style="width: 200px;" type="text" name="username"/>
                                             </div>
 										</td>
 									</tr>
@@ -76,7 +76,7 @@
 										<td class="leftCol">Passwort:</td>
 										<td>
                                             <div class="input inline">
-										        <input style="width: 200px;" type="password" name="j_password" />
+										        <input style="width: 200px;" type="password" name="password" />
                                             </div>
 										</td>
 									</tr>
