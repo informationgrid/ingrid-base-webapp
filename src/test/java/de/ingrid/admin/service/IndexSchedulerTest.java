@@ -36,7 +36,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
@@ -91,7 +90,7 @@ public class IndexSchedulerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        new JettyStarter( );
+//        new JettyStarter( );
         //setup( "test2", "data/webUrls2.json" );
         MockitoAnnotations.initMocks(this);
 
