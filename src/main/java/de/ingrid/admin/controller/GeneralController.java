@@ -39,6 +39,7 @@ import de.ingrid.elasticsearch.IndexInfo;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.Errors;
@@ -67,12 +68,15 @@ public class GeneralController extends AbstractController {
     private final Config config;
 
     @Autowired(required=false)
-    private List<IDocumentProducer> docProducer = new ArrayList<IDocumentProducer>();
+    private List<IDocumentProducer> docProducer = new ArrayList<>();
+    
+    @Autowired
+    private UserDetailsManager userDetailsManager;
 
     @Autowired
     public GeneralController(final CommunicationService communicationInterface,
                              final CommunicationService communicationService, final PlugDescValidator validator,
-                             Config config, final IDataType... dataTypes) throws Exception {
+                             Config config, final IDataType... dataTypes) {
         _communicationInterface = communicationInterface;
         _communicationService = communicationService;
         _validator = validator;
@@ -86,12 +90,12 @@ public class GeneralController extends AbstractController {
             _partners = Utils.getPartners(_communicationInterface.getIBus());
             return _partners;
         }
-        return new ArrayList<Partner>();
+        return new ArrayList<>();
     }
 
     @ModelAttribute("dataTypes")
     public List<IDataType> injectDataTypes() {
-        final List<IDataType> types = new ArrayList<IDataType>();
+        final List<IDataType> types = new ArrayList<>();
         for (final IDataType type : _dataTypes) {
             if (!type.isHidden()) {
                 types.add(type);
@@ -131,7 +135,7 @@ public class GeneralController extends AbstractController {
 
         addForcedDatatypes(commandObject);
         
-        List<IndexInfo> indices = new ArrayList<IndexInfo>();
+        List<IndexInfo> indices = new ArrayList<>();
         if (config.datatypesOfIndex == null) {
             for (IDocumentProducer producer : docProducer) {
                 IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
@@ -193,7 +197,7 @@ public class GeneralController extends AbstractController {
         // check if index has the parent field and add then the included ones
         for (IDocumentProducer producer : docProducer) {
             IndexInfo indexInfo = Utils.getIndexInfo( producer, config );
-            List<String> included = new ArrayList<String>();
+            List<String> included = new ArrayList<>();
             String[] datatypesOfIndex = config.datatypesOfIndex.get( indexInfo.getIdentifier() );
             
             // check all data types
@@ -246,6 +250,7 @@ public class GeneralController extends AbstractController {
         String newPassword = pd.getNewPassword();
         if (newPassword != null && newPassword.trim().length() > 0) {
             String pw_hash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            userDetailsManager.changePassword(config.pdPassword, pw_hash);
             config.pdPassword = pw_hash;
             pd.setIplugAdminPassword( pw_hash );
         }
@@ -256,14 +261,14 @@ public class GeneralController extends AbstractController {
         if (_communicationInterface.isConnected(0)) {
             return Utils.getProviders(_communicationInterface.getIBus());
         }
-        return new ArrayList<Provider>();
+        return new ArrayList<>();
     }
 
-    private final SortedMap<String, List<Provider>> createPartnerProviderMap(final List<Partner> partners,
-            final List<Provider> providers) {
-        final SortedMap<String, List<Provider>> map = new TreeMap<String, List<Provider>>();
+    private SortedMap<String, List<Provider>> createPartnerProviderMap(final List<Partner> partners,
+                                                                       final List<Provider> providers) {
+        final SortedMap<String, List<Provider>> map = new TreeMap<>();
         for (final Partner pa : partners) {
-            final List<Provider> list = new ArrayList<Provider>();
+            final List<Provider> list = new ArrayList<>();
             final Iterator<Provider> it = providers.iterator();
             final String shortName = pa.getShortName().substring(0, 2);
             while (it.hasNext()) {
