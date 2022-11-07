@@ -34,6 +34,18 @@ pipeline {
                                 // Maven settings and global settings can also be defined in Jenkins Global Tools Configuration
                                 mavenSettingsConfig: '2529f595-4ac5-44c6-8b4f-f79b5c3f4bae'
                         ) {
+                        
+                            // wait 1min for elasticsearch to be ready
+                            timeout(1) {
+                                waitUntil {
+                                    try {
+                                        sh 'wget -q http://elasticsearch_basewebapp:9200 -O /dev/null'
+                                        return true;
+                                    } catch(error) {
+                                        return false
+                                    }
+                                }
+                            }
 
                             // Run the maven build
                             sh 'mvn clean deploy -Dmaven.test.failure.ignore=true'
