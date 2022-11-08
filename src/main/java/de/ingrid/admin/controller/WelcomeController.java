@@ -50,7 +50,7 @@ public class WelcomeController {
 
     @GetMapping("/")
     public String root() {
-        return IUris.WELCOME;
+        return IViews.WELCOME;
     }
     
     @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
