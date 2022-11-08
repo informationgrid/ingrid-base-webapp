@@ -86,7 +86,7 @@ public class SecurityConfig {
                 .and()
                 .formLogin()
                 .loginPage("/base/auth/login.html")
-                .loginProcessingUrl("/j_spring_security_check")
+                .loginProcessingUrl("/base/auth/j_spring_security_check")
                 .defaultSuccessUrl("/base/welcome.html", true)
                 .failureUrl("/base/auth/loginFailure.html")
                 .and()

@@ -56,7 +56,7 @@
 			<br/>
 				        <div>
 				        	<p>&nbsp;</p>
-				            <form method="post" action="/j_spring_security_check" id="login">
+				            <form method="post" action="j_spring_security_check" id="login">
 					            <table id="konfigForm">
 									<tr>
 										<td class="leftCol">Name:</td>
