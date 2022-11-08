@@ -2,8 +2,11 @@ package de.ingrid.admin.security;
 
 
 import de.ingrid.admin.Config;
+import de.ingrid.admin.JettyInitializer;
 import de.ingrid.admin.service.PlugDescriptionService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +36,19 @@ public class SecurityConfig {
     @Value("${plugdescription.IPLUG_ADMIN_PASSWORD:}")
     String password;
 
+    @Value("${development.mode:false}")
+    private boolean developmentMode;
+
+
+    @Bean
+    public ConfigurableServletWebServerFactory servletContainerFactory(Config config) {
+        JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
+        if (developmentMode) {
+            factory.addServerCustomizers(new JettyInitializer());
+        }
+        factory.setPort(config.webappPort);
+        return factory;
+    }
 
     @Bean
     public AuthenticationManager authManager(HttpSecurity http, PasswordEncoder passwordEncoder, CustomAuthenticationManager customAuthProvider, InMemoryUserDetailsManager userDetailsManager) throws Exception {
