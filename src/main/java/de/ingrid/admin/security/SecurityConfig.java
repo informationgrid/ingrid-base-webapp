@@ -117,8 +117,8 @@ public class SecurityConfig {
                 return null;
             } else {
                 return new UsernamePasswordAuthenticationToken(
-                        "setup",
-                        "initial",
+                        "admin",
+                        "xxx",
                         List.of(new SimpleGrantedAuthority("ROLE_admin")));
             }
         }
