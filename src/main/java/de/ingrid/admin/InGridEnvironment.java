@@ -22,43 +22,44 @@
  */
 package de.ingrid.admin;
 
-import java.io.IOException;
-
+import de.ingrid.admin.service.CommunicationService;
+import de.ingrid.admin.service.PlugDescriptionService;
+import de.ingrid.utils.IConfigurable;
+import de.ingrid.utils.PlugDescription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 
 /**
  * The purpose of this class is to ensure that classes are configured correctly
  * during startup. Each class must implement IConfigurable so that its configure-
  * method can be called.
- *
  */
-//@Service
-public class Environment {
+@Service
+public class InGridEnvironment {
 
-	/**
-	 * All classes that implement IConfigurable will be ordered to execute their
-	 * configure-method. This way all classes are configured (correctly) during
-	 * startup.
-	 * AdminToolsController will not be used here, but its actions during creation
-	 * must be made before configurations can start.
-	 *
-	 * @param adminToolsController, only used to preserve the bean creation order
-	 * @param plugDescriptionService, which contains the PlugDescription
-	 * @param configurables, classes that implement IConfigurable
-	 * @throws IOException
-	 */
-/*
+    /**
+     * All classes that implement IConfigurable will be ordered to execute their
+     * configure-method. This way all classes are configured (correctly) during
+     * startup.
+     * AdminToolsController will not be used here, but its actions during creation
+     * must be made before configurations can start.
+     *
+     * @param plugDescriptionService, which contains the PlugDescription
+     * @param configurables,          classes that implement IConfigurable
+     * @throws IOException on error
+     */
     @Autowired
-    public Environment(final AdminToolsController adminToolsController,
-    		final PlugDescriptionService plugDescriptionService,
-    		final IConfigurable... configurables) throws IOException {
+    public InGridEnvironment(final PlugDescriptionService plugDescriptionService,
+                             final CommunicationService communicationService, // this is needed to be initialized
+                             final IConfigurable... configurables) throws IOException {
 
         class ThreadedConfiguration extends Thread {
-            private PlugDescription plugDescription;
+            private final PlugDescription plugDescription;
 
-            public ThreadedConfiguration(PlugDescription plugDescription, IConfigurable... configurables) {
+            public ThreadedConfiguration(PlugDescription plugDescription) {
                 this.plugDescription = plugDescription;
             }
 
@@ -71,13 +72,12 @@ public class Environment {
             }
         }
 
-    	final PlugDescription plugDescription = plugDescriptionService.getPlugDescription();
+        final PlugDescription plugDescription = plugDescriptionService.getPlugDescription();
 
-    	// run in a thread to prevent blocking of webapp-start when connection to iBus cannot
-    	// be established
-    	ThreadedConfiguration threadedConfiguration = new ThreadedConfiguration( plugDescription, configurables );
-    	threadedConfiguration.start();
+        // run in a thread to prevent blocking of webapp-start when connection to iBus cannot
+        // be established
+        ThreadedConfiguration threadedConfiguration = new ThreadedConfiguration(plugDescription);
+        threadedConfiguration.start();
 
     }
-*/
 }

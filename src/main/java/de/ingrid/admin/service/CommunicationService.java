@@ -49,11 +49,11 @@ public class CommunicationService {
 
     private boolean _error = false;
 
-    private Config config;
+    private final Config config;
 
     // JettyStarter is needed since it depends on it for initialization
     @Autowired
-    public CommunicationService(final IPlug iPlug, Config config, CacheService cacheService) {
+    public CommunicationService(final IPlug iPlug, Config config) {
         _iPlug = iPlug;
         this.config = config;
         boolean iBusDisabled = config.disableIBus;
