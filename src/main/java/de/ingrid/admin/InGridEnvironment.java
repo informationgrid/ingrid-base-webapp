@@ -26,6 +26,8 @@ import de.ingrid.admin.service.CommunicationService;
 import de.ingrid.admin.service.PlugDescriptionService;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,8 @@ import java.io.IOException;
  */
 @Service
 public class InGridEnvironment {
+
+    private static final Log log = LogFactory.getLog(InGridEnvironment.class);
 
     /**
      * All classes that implement IConfigurable will be ordered to execute their
@@ -66,7 +70,11 @@ public class InGridEnvironment {
             public void run() {
                 if (plugDescription != null) {
                     for (final IConfigurable configurable : configurables) {
-                        configurable.configure(plugDescription);
+                        try {
+                            configurable.configure(plugDescription);
+                        } catch (Exception ex) {
+                            log.error("Exception during configuration: " + ex.getMessage());
+                        }
                     }
                 }
             }
