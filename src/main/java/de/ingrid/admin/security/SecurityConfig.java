@@ -38,13 +38,16 @@ public class SecurityConfig {
 
     @Value("${development.mode:false}")
     private boolean developmentMode;
+    
+    @Value("${jetty.base.resources:src/main/webapp,target/base-webapp}")
+    private String[] jettyBaseResources;
 
 
     @Bean
     public ConfigurableServletWebServerFactory servletContainerFactory(Config config) {
         JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
         if (developmentMode) {
-            factory.addServerCustomizers(new JettyInitializer());
+            factory.addServerCustomizers(new JettyInitializer(jettyBaseResources));
         }
         factory.setPort(config.webappPort);
         return factory;
