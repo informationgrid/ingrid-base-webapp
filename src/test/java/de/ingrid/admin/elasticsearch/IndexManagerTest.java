@@ -27,10 +27,9 @@ import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
 import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.utils.statusprovider.StatusProvider;
-
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.jupiter.api.*;
 import org.springframework.util.FileSystemUtils;
@@ -104,7 +103,7 @@ public class IndexManagerTest {
         String indexName = "switch_alias_test0";
         indexManager.createIndex(indexName);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
+        ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
         assertThat(indexToAliasesMap.keys().size(), is(0));
 
         indexManager.switchAlias(aliasName, null, indexName);
@@ -121,7 +120,7 @@ public class IndexManagerTest {
         indexManager.createIndex(indexName);
         indexManager.createIndex(indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
+        ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
         assertThat(indexToAliasesMap.keys().size(), is(0));
 
         indexManager.switchAlias(aliasName, null, indexName);
@@ -139,7 +138,7 @@ public class IndexManagerTest {
         indexManager.createIndex(indexName);
         indexManager.createIndex(indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
+        ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
         assertThat(indexToAliasesMap.keys().size(), is(0));
 
         indexManager.switchAlias(aliasName, null, indexName);
@@ -174,7 +173,7 @@ public class IndexManagerTest {
         indexManager.addToAlias(aliasName, indexName);
         indexManager.addToAlias(aliasName, indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
+        ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
         assertThat(indexToAliasesMap.keys().size(), is(2));
 
         String indexFromAlias = indexManager.getIndexNameFromAliasName(aliasName, "switch");
@@ -193,7 +192,7 @@ public class IndexManagerTest {
         indexManager.addToAlias(aliasName, indexName);
         indexManager.switchAlias(aliasName, indexName, indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
+        ImmutableOpenMap<String, List<AliasMetaData>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
         assertThat(indexToAliasesMap.keys().size(), is(1));
 
         String indexFromAlias = indexManager.getIndexNameFromAliasName(aliasName, "switch");

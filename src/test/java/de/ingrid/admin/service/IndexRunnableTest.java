@@ -146,7 +146,7 @@ public class IndexRunnableTest extends ElasticTests {
         SearchResponse searchResponse = srb.execute().actionGet();
 
         SearchHits hitsRes = searchResponse.getHits();
-        assertEquals(5, hitsRes.getTotalHits().value);
+        assertEquals(5, hitsRes.getTotalHits());
     }
 
     @Test
@@ -163,7 +163,7 @@ public class IndexRunnableTest extends ElasticTests {
 
         SearchHits hitsRes = searchResponse.getHits();
         SearchHit[] hits = hitsRes.getHits();
-        assertEquals(5, hitsRes.getTotalHits().value);
+        assertEquals(5, hitsRes.getTotalHits());
         assertEquals(1, hits[0].field("url").getValues().size());
         assertEquals(1, hits[0].field("mylist").getValues().size());
     }
@@ -182,7 +182,7 @@ public class IndexRunnableTest extends ElasticTests {
 
         SearchHits hitsRes = searchResponse.getHits();
         SearchHit[] hits = hitsRes.getHits();
-        assertEquals(1, hitsRes.getTotalHits().value);
+        assertEquals(1, hitsRes.getTotalHits());
         assertEquals(1, hits[0].field("url").getValues().size());
         assertEquals(2, hits[0].field("mylist").getValues().size());
     }
@@ -205,7 +205,7 @@ public class IndexRunnableTest extends ElasticTests {
                 .setQuery(query);
         SearchResponse searchResponse = srb.execute().actionGet();
 
-        assertEquals(6, searchResponse.getHits().getTotalHits().value);
+        assertEquals(6, searchResponse.getHits().getTotalHits());
     }
 
     @Test

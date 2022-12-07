@@ -22,6 +22,7 @@
     <spring.version>2.7.5</spring.version>
     <log4j2.version>2.19.0</log4j2.version>
     <jetty.version>10.0.12</jetty.version>
+    <elastic.version>6.8.23</elastic.version>
     <servlet.version>4.0.4</servlet.version>
     <slf4j.version>2.0.3</slf4j.version>
     <maven.compiler.release>11</maven.compiler.release>
@@ -50,6 +51,26 @@
         <!-- lookup parent from repository -->
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId> org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>${elastic.version}</version>
+      </dependency>
+      <dependency>
+        <groupId> org.elasticsearch.client</groupId>
+        <artifactId>transport</artifactId>
+        <version>${elastic.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch.plugin</groupId>
+        <artifactId>transport-netty4-client</artifactId>
+        <version>${elastic.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>elasticsearch-rest-client</artifactId>
+        <version>${elastic.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
