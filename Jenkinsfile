@@ -83,7 +83,7 @@ pipeline {
                 sh "git pull"
 
                 script {
-                    docker.image('docker-registry.wemove.com/ingrid-elasticsearch-with-decompound:6.4.2').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkins-nexus-sonar_devnet') { c ->
+                    docker.image('docker.elastic.co/elasticsearch/elasticsearch:7.17.6').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "discovery.type=single-node" -e "ingest.geoip.downloader.enabled=false" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkins-nexus-sonar_devnet') { c ->
                         withMaven(
                             maven: 'Maven3',
                             mavenSettingsConfig: '2529f595-4ac5-44c6-8b4f-f79b5c3f4bae'

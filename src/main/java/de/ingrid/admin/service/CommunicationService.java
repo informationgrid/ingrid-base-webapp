@@ -153,7 +153,7 @@ public class CommunicationService {
                 busClient = BusClientFactory.createBusClient(_communicationFile, _iPlug);
                 _error = false;
             } catch (final Exception e) {
-                LOG.warn("error creating bus client");
+                LOG.warn("error creating bus client", e);
                 _error = true;
 //                throw new RuntimeException( "error creating bus client" );
             }
