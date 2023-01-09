@@ -30,13 +30,14 @@ import net.sf.ehcache.CacheManager;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.utils.PlugDescription;
 
 @Service
+@Order(1)
 public class CacheService {
 
     protected static final Logger LOG = Logger.getLogger(CacheService.class);

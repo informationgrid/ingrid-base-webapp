@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,26 +22,20 @@
  */
 package de.ingrid.admin.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.util.Optional;
 
 import de.ingrid.admin.Config;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.TestUtils;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
@@ -51,15 +45,17 @@ import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.utils.PlugDescription;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class IndexSchedulerTest {
 
     private DummyRunnable _runnable;
 
     private IndexScheduler _scheduler;
-    
+
     @Mock
     static ElasticsearchNodeFactoryBean elastic;
-    
+
     private static class DummyRunnable extends IndexRunnable {
         private long _time;
 
@@ -90,14 +86,14 @@ public class IndexSchedulerTest {
         }
     }
 
-    
-    
-    @Before
+
+
+    @BeforeEach
     public void setUp() throws Exception {
-        new JettyStarter( false );
+//        new JettyStarter( );
         //setup( "test2", "data/webUrls2.json" );
         MockitoAnnotations.initMocks(this);
-        
+
         Client client = Mockito.mock( Client.class );
         Mockito.when( elastic.getClient() ).thenReturn( client );
         Mockito.when( client.settings() ).thenReturn( Settings.builder().build() );
@@ -126,15 +122,15 @@ public class IndexSchedulerTest {
         _scheduler = new IndexScheduler(_runnable, config);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    public void tearDown() {
         if (_scheduler != null) {
             _scheduler.deletePattern();
         }
     }
 
     @Test
-    public void testIsStarted() throws Exception {
+    void testIsStarted() {
         assertFalse(_scheduler.isStarted());
 
         _scheduler.setPattern("* * * * *");
@@ -145,8 +141,8 @@ public class IndexSchedulerTest {
     }
 
     @Test
-    @Ignore
-    public void testScheduling10() throws Exception {
+    @Disabled
+    void testScheduling10() throws Exception {
         System.out.println("Sleep for 10 sec.");
         _runnable.setTime(1000L * 10L);
         _scheduler.setPattern("* * * * *");
@@ -158,8 +154,8 @@ public class IndexSchedulerTest {
     }
 
     @Test
-    @Ignore
-    public void testScheduling70() throws Exception {
+    @Disabled
+    void testScheduling70() throws Exception {
         System.out.println("Sleep for 70 sec.");
         _runnable.setTime(1000L * 70L);
         _scheduler.setPattern("* * * * *");
@@ -171,7 +167,7 @@ public class IndexSchedulerTest {
     }
 
     @Test
-    public void testPatternFile() throws Exception {
+    void testPatternFile() {
         final String pattern = "0 12 * * *";
 
         assertNull(_scheduler.getPattern());

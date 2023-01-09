@@ -25,8 +25,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<%@page import="de.ingrid.admin.security.IngridPrincipal"%><html
-    xmlns="http://www.w3.org/1999/xhtml" lang="de">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
 <title>InGrid iPlug Administration</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -40,16 +39,9 @@
     <div id="header">
         <img src="../images/base/logo.gif" alt="InGrid" />
         <h1>Konfiguration</h1>
-        <%
-            java.security.Principal principal = request.getUserPrincipal();
-            if (principal != null && !(principal instanceof IngridPrincipal.SuperAdmin)) {
-        %>
-        <div id="language">
-            <a href="../base/auth/logout.html">Logout</a>
-        </div>
-        <%
-            }
-        %>
+        <security:authorize access="isAuthenticated()">
+            <div id="language"><a href="../base/auth/logout.html">Logout</a></div>
+        </security:authorize>
     </div>
 
     <div id="help">
