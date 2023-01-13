@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -28,9 +28,9 @@ import java.util.Objects;
 import de.ingrid.admin.Config;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.ibus.client.BusClient;
 import de.ingrid.ibus.client.BusClientFactory;
 import de.ingrid.iplug.HeartBeatPlug;
@@ -38,6 +38,7 @@ import de.ingrid.utils.IBus;
 import de.ingrid.utils.IPlug;
 
 @Service
+@Order(2)
 public class CommunicationService {
 
     protected static final Logger LOG = Logger.getLogger(CommunicationService.class);
@@ -48,11 +49,11 @@ public class CommunicationService {
 
     private boolean _error = false;
 
-    private Config config;
+    private final Config config;
 
     // JettyStarter is needed since it depends on it for initialization
     @Autowired
-    public CommunicationService(final IPlug iPlug, Config config, JettyStarter jettyStarter) {
+    public CommunicationService(final IPlug iPlug, Config config) {
         _iPlug = iPlug;
         this.config = config;
         boolean iBusDisabled = config.disableIBus;
@@ -152,9 +153,9 @@ public class CommunicationService {
                 busClient = BusClientFactory.createBusClient(_communicationFile, _iPlug);
                 _error = false;
             } catch (final Exception e) {
-                LOG.warn("error creating bus client");
+                LOG.warn("error creating bus client", e);
                 _error = true;
-                throw new RuntimeException( "error creating bus client" );
+//                throw new RuntimeException( "error creating bus client" );
             }
         }
         return busClient;

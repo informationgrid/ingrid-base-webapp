@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2023 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -76,7 +76,7 @@
         <menutaglib:MenuTag text="Scheduling" url="../base/scheduling.html" ></menutaglib:MenuTag>
 
 		<!-- indexing -->
-        <menutaglib:MenuTag text="Indexieren" url="../base/indexing.html" ></menutaglib:MenuTag>
+        <menutaglib:MenuTag text="Indizieren" url="../base/indexing.html" ></menutaglib:MenuTag>
 	
 		<!-- index status: not used for central index at the moment -->
         <%--<menutaglib:MenuTag text="Index Status" url="../base/indexStatus.html" ></menutaglib:MenuTag>--%>

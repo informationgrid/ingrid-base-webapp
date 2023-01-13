@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -44,10 +44,10 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IndexRunnableTest extends ElasticTests {
 
@@ -70,9 +70,9 @@ public class IndexRunnableTest extends ElasticTests {
     PlugDescriptionService pds;
 
     private ArrayList<IDocumentProducer> docProducers;
-    
 
-    @BeforeClass
+
+    @BeforeAll
     public static void setUp() throws Exception {
         config = new Config();
         config.uuid = "1";
@@ -87,7 +87,7 @@ public class IndexRunnableTest extends ElasticTests {
         indexManager.postConstruct();
     }
 
-    @Before
+    @BeforeEach
     public void beforeTest() {
         /*try {
             elastic.getClient().admin().indices().prepareDelete( "test_1" ).execute().actionGet();
@@ -107,7 +107,7 @@ public class IndexRunnableTest extends ElasticTests {
         elasticConfig.indexWithAutoId = false;
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         elastic.getClient().close();
     }
@@ -135,58 +135,58 @@ public class IndexRunnableTest extends ElasticTests {
      * @throws Exception
      */
     @Test
-    public void indexWithExlusiveId() throws Exception {
+    void indexWithExlusiveId() throws Exception {
         index(0);
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
         //createNodeManager();
-        
-        SearchRequestBuilder srb = client.prepareSearch( config.index )
-                .setTypes( config.indexType )
-                .setQuery( query );
+
+        SearchRequestBuilder srb = client.prepareSearch(config.index)
+                .setTypes(config.indexType)
+                .setQuery(query);
         SearchResponse searchResponse = srb.execute().actionGet();
-        
+
         SearchHits hitsRes = searchResponse.getHits();
-        assertEquals( 5, hitsRes.getTotalHits() );
+        assertEquals(5, hitsRes.getTotalHits().value);
     }
-    
+
     @Test
-    public void indexWithSingleField() throws Exception {
+    void indexWithSingleField() throws Exception {
         index(0);
-        MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "first" );
+        MatchQueryBuilder query = QueryBuilders.matchQuery("mylist", "first");
         //createNodeManager();
-        
-        SearchRequestBuilder srb = client.prepareSearch( config.index )
-                .setTypes( config.indexType )
-                .storedFields( "url", "mylist" )
-                .setQuery( query );
+
+        SearchRequestBuilder srb = client.prepareSearch(config.index)
+                .setTypes(config.indexType)
+                .storedFields("url", "mylist")
+                .setQuery(query);
         SearchResponse searchResponse = srb.execute().actionGet();
-        
+
         SearchHits hitsRes = searchResponse.getHits();
         SearchHit[] hits = hitsRes.getHits();
-        assertEquals( 5, hitsRes.getTotalHits() );
-        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
-        assertEquals( 1, hits[ 0 ].field( "mylist" ).getValues().size() );
+        assertEquals(5, hitsRes.getTotalHits().value);
+        assertEquals(1, hits[0].field("url").getValues().size());
+        assertEquals(1, hits[0].field("mylist").getValues().size());
     }
-    
+
     @Test
-    public void indexWithListField() throws Exception {
+    void indexWithListField() throws Exception {
         index(0);
-        MatchQueryBuilder query = QueryBuilders.matchQuery( "mylist", "second" );
+        MatchQueryBuilder query = QueryBuilders.matchQuery("mylist", "second");
         //createNodeManager();
-        
-        SearchRequestBuilder srb = client.prepareSearch( config.index )
-                .setTypes( config.indexType )
-                .storedFields( "url", "mylist" )
-                .setQuery( query );
+
+        SearchRequestBuilder srb = client.prepareSearch(config.index)
+                .setTypes(config.indexType)
+                .storedFields("url", "mylist")
+                .setQuery(query);
         SearchResponse searchResponse = srb.execute().actionGet();
-        
+
         SearchHits hitsRes = searchResponse.getHits();
         SearchHit[] hits = hitsRes.getHits();
-        assertEquals( 1, hitsRes.getTotalHits() );
-        assertEquals( 1, hits[ 0 ].field( "url" ).getValues().size() );
-        assertEquals( 2, hits[ 0 ].field( "mylist" ).getValues().size() );
+        assertEquals(1, hitsRes.getTotalHits().value);
+        assertEquals(1, hits[0].field("url").getValues().size());
+        assertEquals(2, hits[0].field("mylist").getValues().size());
     }
-    
+
     /**
      * In this test the ID of each document is generated automatically, which does
      * not support any update operation, since the documents cannot be identified
@@ -195,41 +195,41 @@ public class IndexRunnableTest extends ElasticTests {
      * @throws Exception
      */
     @Test
-    public void indexWithAutoId() throws Exception {
+    void indexWithAutoId() throws Exception {
         elasticConfig.indexWithAutoId = true;
         index(0);
         MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
         //createNodeManager();
-        
-        SearchRequestBuilder srb = client.prepareSearch( config.index )
-                .setQuery( query );
+
+        SearchRequestBuilder srb = client.prepareSearch(config.index)
+                .setQuery(query);
         SearchResponse searchResponse = srb.execute().actionGet();
-        
-        assertEquals( 6, searchResponse.getHits().getTotalHits() );
+
+        assertEquals(6, searchResponse.getHits().getTotalHits().value);
     }
-    
+
     @Test
-    public void testFlipIndex() throws Exception {
+    void testFlipIndex() throws Exception {
         elasticConfig.indexWithAutoId = false;
         IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
-    	
+
         long length = index.search(q, 0, 10).length();
         assertEquals(1, length);
-        
+
         index(0);
         length = index.search(q, 0, 10).length();
         assertEquals(1, length);
-        
-        index(1);        
+
+        index(1);
         length = index.search(q, 0, 10).length();
         assertEquals(2, length);
 
     }
-    
+
     @Test
-    public void testGetFacet() throws Exception {
+    void testGetFacet() throws Exception {
         IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService() );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
@@ -237,10 +237,10 @@ public class IndexRunnableTest extends ElasticTests {
 
         IngridHits hits = index.search(q, 0, 10);
         assertEquals(1, hits.length());
-        assertEquals(1, ((IngridDocument)hits.get("FACETS")).getLong("title:marko"));
-        
+        assertEquals(1, ((IngridDocument) hits.get("FACETS")).getLong("title:marko"));
+
     }
-    
+
     private void addFacets(IngridQuery ingridQuery) {
         IngridDocument f1 = new IngridDocument();
         f1.put("id", "title");

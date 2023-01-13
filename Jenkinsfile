@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     tools {
-        jdk 'jdk8'
+        jdk 'jdk17'
     }
 
     parameters {
@@ -26,7 +26,7 @@ pipeline {
                                    we also should use the IP mask for the port mapping to only allow
                                    access to the right containers
                     */
-                    docker.image('docker-registry.wemove.com/ingrid-elasticsearch-with-decompound:6.4.2').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkins-nexus-sonar_devnet') { c ->
+                    docker.image('docker.elastic.co/elasticsearch/elasticsearch:7.17.6').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "discovery.type=single-node" -e "ingest.geoip.downloader.enabled=false" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkins-nexus-sonar_devnet') { c ->
                         withMaven(
                                 // Maven installation declared in the Jenkins "Global Tool Configuration"
                                 maven: 'Maven3',
@@ -34,6 +34,18 @@ pipeline {
                                 // Maven settings and global settings can also be defined in Jenkins Global Tools Configuration
                                 mavenSettingsConfig: '2529f595-4ac5-44c6-8b4f-f79b5c3f4bae'
                         ) {
+                        
+                            // wait 1min for elasticsearch to be ready
+                            timeout(1) {
+                                waitUntil {
+                                    try {
+                                        sh 'wget -q http://elasticsearch_basewebapp:9200 -O /dev/null'
+                                        return true;
+                                    } catch(error) {
+                                        return false
+                                    }
+                                }
+                            }
 
                             // Run the maven build
                             sh 'mvn clean deploy -Dmaven.test.failure.ignore=true'
@@ -71,7 +83,7 @@ pipeline {
                 sh "git pull"
 
                 script {
-                    docker.image('docker-registry.wemove.com/ingrid-elasticsearch-with-decompound:6.4.2').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkins-nexus-sonar_devnet') { c ->
+                    docker.image('docker.elastic.co/elasticsearch/elasticsearch:7.17.6').withRun('--name "elasticsearch_basewebapp" -e "cluster.name=ingrid" -e "discovery.type=single-node" -e "ingest.geoip.downloader.enabled=false" -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" -e "xpack.security.enabled=false" -e "xpack.monitoring.enabled=false" -e "xpack.ml.enabled=false" --network jenkins-nexus-sonar_devnet') { c ->
                         withMaven(
                             maven: 'Maven3',
                             mavenSettingsConfig: '2529f595-4ac5-44c6-8b4f-f79b5c3f4bae'

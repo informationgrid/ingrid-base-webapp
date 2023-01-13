@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.IUris;
 import de.ingrid.admin.IViews;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.StringUtils;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;

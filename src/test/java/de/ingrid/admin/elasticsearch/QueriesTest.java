@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -26,15 +26,14 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import de.ingrid.elasticsearch.search.IQueryParsers;
 import de.ingrid.elasticsearch.search.converter.DatatypePartnerProviderQueryConverter;
 import de.ingrid.elasticsearch.search.converter.FieldQueryConverter;
@@ -47,24 +46,24 @@ import de.ingrid.utils.queryparser.QueryStringParser;
 
 public class QueriesTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() {}
 
     @Test
-    public void queryConvertFields() throws ParseException {
+    void queryConvertFields() throws ParseException {
         String query = "(capabilities_url:http* OR t011_obj_serv_op_connpoint.connect_point:http*) datatype:metadata";
-        IngridQuery q = QueryStringParser.parse( query );
+        IngridQuery q = QueryStringParser.parse(query);
         QueryConverter queryConverter = new QueryConverter();
         List<IQueryParsers> parsers = new ArrayList<IQueryParsers>();
-        parsers.add( new DatatypePartnerProviderQueryConverter() );
-        parsers.add( new FieldQueryConverter() );
-        parsers.add( new WildcardQueryConverter() );
-        parsers.add( new WildcardFieldQueryConverter() );
-        queryConverter.setQueryParsers( parsers  );
-        BoolQueryBuilder result = queryConverter.convert( q );
-        assertThat( result, not( is( nullValue() ) ) );
-        assertThat( result.toString(), containsString( "\"wildcard\" : {" ) );
-        assertThat( result.toString(), containsString( "\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
-                "                                    \"wildcard\" : \"http*\"" ) );
+        parsers.add(new DatatypePartnerProviderQueryConverter());
+        parsers.add(new FieldQueryConverter());
+        parsers.add(new WildcardQueryConverter());
+        parsers.add(new WildcardFieldQueryConverter());
+        queryConverter.setQueryParsers(parsers  );
+        BoolQueryBuilder result = queryConverter.convert(q);
+        assertThat(result, not(is(nullValue())));
+        assertThat(result.toString(), containsString("\"wildcard\" : {"));
+        assertThat(result.toString(), containsString("\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
+                "                                    \"wildcard\" : \"http*\""));
     }
 }
