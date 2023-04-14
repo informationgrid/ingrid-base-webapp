@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>6.0.0</version>
+  <version>6.1.0</version>
   <name>InGrid Base-Webapp</name>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -223,7 +223,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>6.0.0</version>
+      <version>6.1.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
