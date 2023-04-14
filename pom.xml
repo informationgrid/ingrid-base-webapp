@@ -223,7 +223,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>6.1.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
