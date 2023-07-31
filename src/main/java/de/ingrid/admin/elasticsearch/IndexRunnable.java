@@ -214,10 +214,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         documentCount++;
                     }
 
-                    if (documentCount > 0) {
-                        writeFieldNamesToPlugdescription();
-                    }
-
                     // update central index with iPlug information
                     this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
 
@@ -228,6 +224,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
 
                 LOG.info("number of produced documents: " + documentCount);
+
+                if (documentCount > 0) {
+                    writeFieldNamesToPlugdescription();
+                }
 
                 LOG.info("indexing ends");
 
