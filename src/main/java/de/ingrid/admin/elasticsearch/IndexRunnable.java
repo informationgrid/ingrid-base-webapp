@@ -124,7 +124,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
     @Override
     public void run() {
-        _indexHelper.clear();
         if (_produceable) {
             // remember newIndex in case it has to be cleaned up, after an unsuccessful index process
             String newIndex = null;
@@ -147,6 +146,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 this._indexManager.checkAndCreateInformationIndex();
 
                 for (IDocumentProducer producer : _documentProducers) {
+                    _indexHelper.clear();
                     IndexInfo info = Utils.getIndexInfo(producer, config);
                     // get the current index from the alias name
                     // if it's the first time then use the name given by the
@@ -214,6 +214,10 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         documentCount++;
                     }
 
+                    if (documentCount > 0) {
+                        writeFieldNamesToPlugdescription();
+                    }
+                    
                     // update central index with iPlug information
                     this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
 
@@ -224,10 +228,6 @@ public class IndexRunnable implements Runnable, IConfigurable {
                 }
 
                 LOG.info("number of produced documents: " + documentCount);
-
-                if (documentCount > 0) {
-                    writeFieldNamesToPlugdescription();
-                }
 
                 LOG.info("indexing ends");
 
