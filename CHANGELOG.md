@@ -1,4 +1,11 @@
 
+## 6.3.0 (17.10.2023)
+
+
+### Bugfixes
+
+* Indizierte Felder werden doppelt in die Konfiguration geschrieben  (#5381)
+    
 ## 6.1.0 (14.04.2023)
 
 
