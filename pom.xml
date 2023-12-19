@@ -2,12 +2,12 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-base-pom</artifactId>
-    <version>5.0.0</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>6.4.0-SNAPSHOT</version>
+  <version>7.0.0-SNAPSHOT</version>
   <name>InGrid Base-Webapp</name>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>opensymphony</groupId>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>6.4.0-SNAPSHOT</version>
+      <version>7.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -223,7 +223,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>6.4.0-SNAPSHOT</version>
+      <version>7.0.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
