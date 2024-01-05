@@ -1,13 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-base-pom</artifactId>
-    <version>5.0.0</version>
+    <version>7.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-base-webapp</artifactId>
   <packaging>war</packaging>
-  <version>6.3.0</version>
+  <version>7.0.0</version>
   <name>InGrid Base-Webapp</name>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -19,8 +19,8 @@
 
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
-    <spring.version>2.7.7</spring.version>
-    <log4j2.version>2.19.0</log4j2.version>
+    <spring.version>2.7.17</spring.version>
+    <log4j2.version>2.22.0</log4j2.version>
     <jetty.version>10.0.12</jetty.version>
     <servlet.version>4.0.4</servlet.version>
     <slf4j.version>2.0.3</slf4j.version>
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-iplug</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>opensymphony</groupId>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0</version>
     </dependency>
 
     <dependency>
@@ -223,7 +223,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>6.1.0</version>
+      <version>7.0.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
