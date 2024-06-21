@@ -60,10 +60,9 @@ public class QueriesTest {
         parsers.add(new WildcardQueryConverter());
         parsers.add(new WildcardFieldQueryConverter());
         queryConverter.setQueryParsers(parsers  );
-        BoolQuery.Builder result = queryConverter.convert(q);
+        BoolQuery result = queryConverter.convert(q).build();
         assertThat(result, not(is(nullValue())));
-        assertThat(result.toString(), containsString("\"wildcard\" : {"));
-        assertThat(result.toString(), containsString("\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
-                "                                    \"wildcard\" : \"http*\""));
+        assertThat(result.toString(), containsString("\"wildcard\":{"));
+        assertThat(result.toString(), containsString("\"t011_obj_serv_op_connpoint.connect_point\":{\"wildcard\":\"http*\""));
     }
 }
