@@ -104,7 +104,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
         JSONObject json = new JSONObject();
         json.put("plugId", config.communicationProxyUrl);
         json.put("indexId", id);
-        json.put("lastHeartbeat", new Date());
+        json.put("lastHeartbeat", String.valueOf(new Date()));
         return json;
     }
 

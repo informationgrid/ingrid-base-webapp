@@ -21,8 +21,6 @@
   <properties>
     <spring.version>3.3.0</spring.version>
     <log4j2.version>2.22.0</log4j2.version>
-    <jetty.version>10.0.12</jetty.version>
-    <servlet.version>4.0.4</servlet.version>
     <slf4j.version>2.0.3</slf4j.version>
     <maven.compiler.release>17</maven.compiler.release>
     <servlet-api.version>3.1.0</servlet-api.version>

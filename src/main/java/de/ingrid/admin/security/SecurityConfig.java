@@ -40,6 +40,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -104,11 +105,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeRequests(authz -> authz.requestMatchers("/base/auth/*", "/base/login*", "/css/**", "/images/**", "/js/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/base/auth/*", "/base/login*", "/css/**", "/images/**", "/js/**", "/WEB-INF/jsp/base/login.jsp")
+                            .permitAll()
+                        .anyRequest().authenticated()
+                )
                 .formLogin(login -> login.loginPage("/base/auth/login.html")
                         .usernameParameter("j_username")
                         .passwordParameter("j_password")

@@ -304,10 +304,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
         json.put("indexId", infoId);
         json.put("iPlugName", _config.datasourceName);
         json.put("linkedIndex", indexName);
-        json.put("linkedType", info.getToType());
         json.put("adminUrl", _config.guiUrl);
-        json.put("lastHeartbeat", new Date());
-        json.put("lastIndexed", new Date());
+        json.put("lastHeartbeat", String.valueOf(new Date().getTime()));
+        json.put("lastIndexed", String.valueOf(new Date().getTime()));
         json.put("plugdescription", this._plugDescription);
         JSONObject indexingState = new JSONObject();
         indexingState.put("numProcessed", count);
