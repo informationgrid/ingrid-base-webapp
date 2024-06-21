@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,23 +22,31 @@
  */
 package de.ingrid.admin;
 
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.resource.ResourceCollection;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class JettyInitializer implements JettyServerCustomizer {
 
-    private final String[] jettyBaseResources;
+    private final List<Resource> jettyBaseResources;
 
     public JettyInitializer(String[] jettyBaseResources) {
-        this.jettyBaseResources = jettyBaseResources;
+        PathResourceFactory pathResourceFactory = new PathResourceFactory();
+        this.jettyBaseResources = Arrays.stream(jettyBaseResources).map(pathResourceFactory::newResource).toList();
     }
 
     @Override
     public void customize(Server server) {
         WebAppContext handler = (WebAppContext) server.getHandler();
         handler.setWelcomeFiles(new String[]{"index.jsp"});
-        handler.setBaseResource(new ResourceCollection(jettyBaseResources));
+
+        Resource combinedResources = ResourceFactory.combine(jettyBaseResources);
+        handler.setBaseResource(combinedResources);
     }
 }

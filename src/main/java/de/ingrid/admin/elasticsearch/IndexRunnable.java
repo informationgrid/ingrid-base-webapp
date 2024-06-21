@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,9 +40,7 @@ import de.ingrid.utils.tool.PlugDescriptionUtil;
 import de.ingrid.utils.tool.QueryUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentFactory;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +67,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
     private final ConcurrentMap<String, Object> _indexHelper;
 
     private StatusProvider statusProvider;
-    
+
     private final Config config;
 
     private final ElasticConfig elasticConfig;
@@ -161,7 +159,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                             String mapping = _indexManager.getDefaultMapping();
                             String settings = _indexManager.getDefaultSettings();
                             if (mapping != null) {
-                                _indexManager.createIndex(newIndex, info.getToType(), mapping, settings);
+                                _indexManager.createIndex(newIndex, mapping, settings);
                             } else {
                                 this.statusProvider.addState("MAPPING_ERROR", "Could not get default mapping to create index", Classification.WARN);
                                 _indexManager.createIndex(newIndex);
@@ -217,7 +215,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     if (documentCount > 0) {
                         writeFieldNamesToPlugdescription();
                     }
-                    
+
                     // update central index with iPlug information
                     this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
 
@@ -298,29 +296,26 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
     }
 
-    private String getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
+    private JSONObject getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
         Config _config = config;
 
-        // @formatter:off
-        XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject()
-                .field("plugId", _config.communicationProxyUrl)
-                .field("indexId", infoId)
-                .field("iPlugName", _config.datasourceName)
-                .field("linkedIndex", indexName)
-                .field("linkedType", info.getToType())
-                .field("adminUrl", _config.guiUrl)
-                .field("lastHeartbeat", new Date())
-                .field("lastIndexed", new Date())
-                .field("plugdescription", this._plugDescription)
-                .startObject("indexingState")
-                    .field("numProcessed", count)
-                    .field("totalDocs", totalCount)
-                    .field("running", running)
-                    .endObject()
-                .endObject();
-        // @formatter:on
+        JSONObject json = new JSONObject();
+        json.put("plugId", _config.communicationProxyUrl);
+        json.put("indexId", infoId);
+        json.put("iPlugName", _config.datasourceName);
+        json.put("linkedIndex", indexName);
+        json.put("linkedType", info.getToType());
+        json.put("adminUrl", _config.guiUrl);
+        json.put("lastHeartbeat", new Date());
+        json.put("lastIndexed", new Date());
+        json.put("plugdescription", this._plugDescription);
+        JSONObject indexingState = new JSONObject();
+        indexingState.put("numProcessed", count);
+        indexingState.put("totalDocs", totalCount);
+        indexingState.put("running", running);
+        json.put("indexingState", indexingState);
 
-        return Strings.toString(xContentBuilder);
+        return json;
     }
 
     private void cleanUp(String newIndex) {
