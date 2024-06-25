@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -63,7 +62,7 @@ public class SecurityConfig {
 
     @Value("${development.mode:false}")
     private boolean developmentMode;
-
+    
     @Value("${jetty.base.resources:src/main/webapp,target/base-webapp}")
     private String[] jettyBaseResources;
 
@@ -105,21 +104,25 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/base/auth/*", "/base/login*", "/css/**", "/images/**", "/js/**", "/WEB-INF/jsp/base/login.jsp")
-                            .permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(login -> login.loginPage("/base/auth/login.html")
-                        .usernameParameter("j_username")
-                        .passwordParameter("j_password")
-                        .loginProcessingUrl("/base/auth/j_spring_security_check")
-                        .defaultSuccessUrl("/base/welcome.html", true)
-                        .failureUrl("/base/auth/loginFailure.html"))
-                .logout(logout -> logout.logoutUrl("/perform_logout")
-                        .deleteCookies("JSESSIONID"))
-                .authenticationManager(authManager);
+        http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/base/auth/*", "/base/login*", "/css/**", "/images/**", "/js/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/base/auth/login.html")
+                .usernameParameter("j_username")
+                .passwordParameter("j_password")
+                .loginProcessingUrl("/base/auth/j_spring_security_check")
+                .defaultSuccessUrl("/base/welcome.html", true)
+                .failureUrl("/base/auth/loginFailure.html")
+                .and()
+                .logout()
+                .logoutUrl("/perform_logout")
+                .deleteCookies("JSESSIONID")
+                .and().authenticationManager(authManager);
         return http.build();
     }
 
