@@ -19,7 +19,7 @@
 
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
-    <spring.version>2.7.17</spring.version>
+    <spring.version>2.7.18</spring.version>
     <log4j2.version>2.22.0</log4j2.version>
     <slf4j.version>2.0.3</slf4j.version>
     <maven.compiler.release>17</maven.compiler.release>
@@ -301,6 +301,7 @@
               <iPlug-Type>IPLUG_BASE</iPlug-Type>
             </manifestEntries>
           </archive>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
       <plugin>
