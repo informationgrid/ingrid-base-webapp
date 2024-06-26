@@ -6,7 +6,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="debug">
+        <Logger name="de.ingrid" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
+        <Root level="warn">
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>

@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,7 +42,7 @@ import de.ingrid.admin.service.PlugDescriptionService;
 public class WelcomeController {
 
     private final PlugDescriptionService _service;
-    
+
     @Autowired
     public WelcomeController(final PlugDescriptionService service) {
         _service = service;
@@ -52,7 +52,7 @@ public class WelcomeController {
     public String root() {
         return IKeys.REDIRECT + IUris.WELCOME;
     }
-    
+
     @RequestMapping(value = IUris.WELCOME, method = RequestMethod.GET)
     public String welcome(final HttpSession session) throws Exception {
         if (session.getAttribute(IKeys.PLUG_DESCRIPTION) == null) {
@@ -61,9 +61,9 @@ public class WelcomeController {
         if (session.getAttribute("postCommandObject") == null) {
             session.setAttribute("postCommandObject", new Command());
         }
-        
-        String redirectUrl = (String) session.getAttribute("redirectUrl"); 
-        
+
+        String redirectUrl = (String) session.getAttribute("redirectUrl");
+
         if (redirectUrl != null && (redirectUrl.contains( "base" ) || redirectUrl.contains( "iplug-pages" ) )) {
             session.removeAttribute( "redirectUrl" );
             return IKeys.REDIRECT + redirectUrl;

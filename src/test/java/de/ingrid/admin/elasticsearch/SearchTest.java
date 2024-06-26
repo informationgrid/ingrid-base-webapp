@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,10 +54,10 @@ public class SearchTest extends ElasticTests {
         indexManager.removeAlias("test");
         indexManager.switchAlias( "test", null, "test_1" );
     }
-    
+
     @AfterAll
     public static void afterClass() {
-        elastic.getClient().close();
+        elastic.getClient().shutdown();
     }
 
     @Test
@@ -91,8 +91,8 @@ public class SearchTest extends ElasticTests {
         assertThat(search2.length(), is(1l));
 
         // this should have the same result as the previous one, but since partner, provider and dataype
-        // are separated from the other fields inside the InGridQuery, we cannot know the original 
-        // combination with the other fields. So it could be that partner is connected to title or xxx 
+        // are separated from the other fields inside the InGridQuery, we cannot know the original
+        // combination with the other fields. So it could be that partner is connected to title or xxx
         // or even both! See also REDMINE-251
         /*
         q = QueryStringParser.parse( "title:Mathematics OR xxx:www partner:bund" );
@@ -162,7 +162,6 @@ public class SearchTest extends ElasticTests {
 
     @Test
     void getDoc() throws Exception {
-        IndexImpl index = getIndexer();
         ElasticDocument response = indexManager.getDocById("4");
         assertThat(response, not(is(nullValue())));
         assertThat((String) response.get("url"), is("http://www.golemXXX.de"));
@@ -219,5 +218,5 @@ public class SearchTest extends ElasticTests {
         assertThat(search, not(is(nullValue())));
         assertThat(search.length(), is(0l));
     }
-    
+
 }

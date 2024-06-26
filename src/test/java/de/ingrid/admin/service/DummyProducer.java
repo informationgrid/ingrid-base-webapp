@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,14 +33,12 @@ import de.ingrid.utils.PlugDescription;
 
 public class DummyProducer implements IDocumentProducer {
 
-    private List<ElasticDocument> _dummys;
-
     private Iterator<ElasticDocument> _iterator;
 
     private int model;
-    
+
     public DummyProducer() {}
-    
+
     public DummyProducer(int config) {
         this.model = config;
     }
@@ -64,20 +62,20 @@ public class DummyProducer implements IDocumentProducer {
         doc.put( "boost", boost);
         doc.put( "url", url);
         doc.put( "mylist", "first entry" );
-        
+
         if ("id#2".equals( id )) {
             doc.put( "mylist", "second entry" );
         }
-        
+
         return doc;
     }
 
 	@Override
 	public void configure(PlugDescription arg0) {
-		_dummys = new ArrayList<ElasticDocument>();
+        List<ElasticDocument> _dummys = new ArrayList<>();
 		ElasticDocument specialDoc = createDocument("id#1", "Max", "Ender", 0.1f, "http://aaa.de");
 		specialDoc.put( "specialField", "secret" );
-		
+
         _dummys.add(specialDoc );
 		_dummys.add(createDocument("id#2", "Marko", "Bauhardt", 0.2f, "http://bbb.de"));
 		if (model == 1) {
