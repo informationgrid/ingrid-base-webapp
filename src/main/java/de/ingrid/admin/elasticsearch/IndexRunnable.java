@@ -22,6 +22,7 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.Utils;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -305,8 +306,8 @@ public class IndexRunnable implements Runnable, IConfigurable {
         json.put("iPlugName", _config.datasourceName);
         json.put("linkedIndex", indexName);
         json.put("adminUrl", _config.guiUrl);
-        json.put("lastHeartbeat", String.valueOf(new Date().getTime()));
-        json.put("lastIndexed", String.valueOf(new Date().getTime()));
+        json.put("lastHeartbeat", new StdDateFormat().format(new Date()));
+        json.put("lastIndexed", new StdDateFormat().format(new Date()));
         json.put("plugdescription", this._plugDescription);
         JSONObject indexingState = new JSONObject();
         indexingState.put("numProcessed", count);

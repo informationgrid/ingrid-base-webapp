@@ -22,6 +22,7 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.ElasticConfig;
@@ -104,7 +105,7 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
         JSONObject json = new JSONObject();
         json.put("plugId", config.communicationProxyUrl);
         json.put("indexId", id);
-        json.put("lastHeartbeat", String.valueOf(new Date()));
+        json.put("lastHeartbeat", new StdDateFormat().format(new Date()));
         return json;
     }
 
