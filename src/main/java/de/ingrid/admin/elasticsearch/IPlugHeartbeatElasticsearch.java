@@ -91,8 +91,8 @@ public class IPlugHeartbeatElasticsearch extends TimerTask {
         }
     }
 
-    private Map<String, JSONObject> getIPlugInfos(List<String> docProducerIndices) {
-        Map<String, JSONObject> map = new HashMap<>();
+    private Map<String, Object> getIPlugInfos(List<String> docProducerIndices) {
+        Map<String, Object> map = new HashMap<>();
 
         for (String docProdId : docProducerIndices) {
             map.put(docProdId, getHearbeatInfo(docProdId));
