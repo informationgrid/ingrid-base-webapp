@@ -99,6 +99,7 @@ public class ElasticTests {
         qc.setQueryParsers( parsers );
 
         indexManager = new IndexManager( elastic, elasticConfig );
+        indexManager.init();
         try {
             indexManager.deleteIndex( "test" );
         } catch (Exception ignored) {}

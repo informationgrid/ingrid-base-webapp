@@ -57,6 +57,7 @@ public class GeneralSearchTest extends ElasticTests {
         elasticConfig.additionalSearchDetailFields = new String[]{"url", "title", "partner", "datatype", "content", "fetched", "iPlugId"};
 
         IndexManager indexManager = new IndexManager(elastic, elasticConfig);
+        indexManager.init();
         indexManager.removeFromAlias("test", "test_1");
         indexManager.switchAlias("test", null, "test_1");
     }

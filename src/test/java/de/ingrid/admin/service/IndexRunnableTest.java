@@ -203,7 +203,9 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     void testFlipIndex() throws Exception {
         elasticConfig.indexWithAutoId = false;
-        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
+        IndexManager indexManager1 = new IndexManager(elastic, new ElasticConfig());
+        indexManager1.init();
+        IndexImpl index = new IndexImpl( elasticConfig, indexManager1, qc, new FacetConverter(qc), new QueryBuilderService());
         IngridQuery q = QueryStringParser.parse("title:Marko");
 /*        index(0);
 
@@ -222,7 +224,9 @@ public class IndexRunnableTest extends ElasticTests {
 
     @Test
     void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService() );
+        IndexManager indexManager1 = new IndexManager(elastic, elasticConfig);
+        indexManager1.init();
+        IndexImpl index = new IndexImpl( elasticConfig, indexManager1, qc, new FacetConverter(qc), new QueryBuilderService() );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);

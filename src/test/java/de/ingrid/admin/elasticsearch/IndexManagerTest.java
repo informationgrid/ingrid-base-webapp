@@ -93,6 +93,7 @@ public class IndexManagerTest {
     @BeforeEach
     public void prepare() {
         indexManager = new IndexManager( elastic, new ElasticConfig() );
+        indexManager.init();
         statusProvider = new StatusProvider();
         // TODO: indexManager.setStatusProvider( statusProvider );
     }
