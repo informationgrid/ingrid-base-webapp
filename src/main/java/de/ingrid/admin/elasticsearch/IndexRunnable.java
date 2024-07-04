@@ -205,7 +205,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
 
                         // send info every 100 docs
                         if (count % 100 == 2) {
-                            this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, oldIndex, true, count - 1, totalCount));
+                            this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, oldIndex, true, count - 1, totalCount));
                         }
 
                         collectIndexFields(document);
@@ -221,7 +221,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
                     _indexManager.flush();
 
                     // update central index with iPlug information
-                    this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
+                    this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, newIndex, false, null, null));
 
                     // update index now!
                     _indexManager.flush();
@@ -300,7 +300,7 @@ public class IndexRunnable implements Runnable, IConfigurable {
         }
     }
 
-    private JSONObject getIPlugInfo(String infoId, IndexInfo info, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
+    private JSONObject getIPlugInfo(String infoId, String indexName, boolean running, Integer count, Integer totalCount) throws IOException {
         Config _config = config;
 
         JSONObject json = new JSONObject();
