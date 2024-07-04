@@ -419,7 +419,7 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail(search.getHits()[0], q, extraFields);
         assertThat(detail, not(is(nullValue())));
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat(detail.get("url"), is(List.of("http://www.wemove.com")));
+        assertThat(detail.get("url"), is(new String[]{"http://www.wemove.com"}));
 //        assertThat(detail.get("fetched"), is("2014-06-03"));
         assertThat(detail.getTitle(), is("wemove"));
         assertThat(detail.getSummary(), is("Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit"));
@@ -451,8 +451,8 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail(search.getHits()[0], q, extraFields);
         assertThat(detail, not(is(nullValue())));
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat(detail.get("url"), is(List.of("http://www.wemove.com")));
-        assertThat(detail.get("fetched"), is(List.of("2014-06-03")));
+        assertThat(detail.get("url"), is(new String[]{"http://www.wemove.com"}));
+        assertThat(detail.get("fetched"), is(new String[]{"2014-06-03"}));
     }
 
 
