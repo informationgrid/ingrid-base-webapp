@@ -217,6 +217,9 @@ public class IndexRunnable implements Runnable, IConfigurable {
                         writeFieldNamesToPlugdescription();
                     }
 
+                    // flush before updating iPlugInformation, in case indexing is too fast and another info will be created
+                    _indexManager.flush();
+
                     // update central index with iPlug information
                     this._indexManager.updateIPlugInformation(plugIdInfo, getIPlugInfo(plugIdInfo, info, newIndex, false, null, null));
 
