@@ -34,6 +34,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -417,8 +419,8 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail(search.getHits()[0], q, extraFields);
         assertThat(detail, not(is(nullValue())));
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat(detail.get("url"), is("http://www.wemove.com"));
-        assertThat(detail.get("fetched"), is("2014-06-03"));
+        assertThat(detail.get("url"), is(List.of("http://www.wemove.com")));
+//        assertThat(detail.get("fetched"), is("2014-06-03"));
         assertThat(detail.getTitle(), is("wemove"));
         assertThat(detail.getSummary(), is("Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit"));
         assertThat(detail.getScore(), greaterThan(0.1f));
@@ -449,10 +451,8 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail(search.getHits()[0], q, extraFields);
         assertThat(detail, not(is(nullValue())));
         // assertThat( detail.getHitId(), is( "1" ) );
-//       TODO: why is it not an array anymore? -> assertThat(detail.getArray( "url" )[0], is( "http://www.wemove.com" ) );
-        assertThat(detail.get("url"), is("http://www.wemove.com"));
-//        TODO: same here -> assertThat(detail.getArray( "fetched" )[0], is( "2014-06-03" ) );
-        assertThat(detail.get("fetched"), is("2014-06-03"));
+        assertThat(detail.get("url"), is(List.of("http://www.wemove.com")));
+        assertThat(detail.get("fetched"), is(List.of("2014-06-03")));
     }
 
 
