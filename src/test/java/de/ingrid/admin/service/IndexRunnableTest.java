@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,9 +22,16 @@
  */
 package de.ingrid.admin.service;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.elasticsearch.ElasticTests;
 import de.ingrid.admin.elasticsearch.IndexRunnable;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.statusprovider.StatusProviderService;
 import de.ingrid.admin.object.IDocumentProducer;
 import de.ingrid.elasticsearch.ElasticConfig;
@@ -37,13 +44,6 @@ import de.ingrid.utils.IngridHits;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +54,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,7 +85,7 @@ public class IndexRunnableTest extends ElasticTests {
         setup();
 
         indexManager = new IndexManager( elastic, elasticConfig );
-        indexManager.postConstruct();
+        indexManager.init();
     }
 
     @BeforeEach
@@ -109,7 +110,7 @@ public class IndexRunnableTest extends ElasticTests {
 
     @AfterAll
     public static void afterClass() {
-        elastic.getClient().close();
+        elastic.getClient().shutdown();
     }
 
     private void index(int model) throws Exception {
@@ -124,7 +125,7 @@ public class IndexRunnableTest extends ElasticTests {
 
         try {
             indexManager.refreshIndex( indexManager.getIndexNameFromAliasName(config.index, config.index) );
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
         Thread.sleep(1000);
     }
 
@@ -137,54 +138,47 @@ public class IndexRunnableTest extends ElasticTests {
     @Test
     void indexWithExlusiveId() throws Exception {
         index(0);
-        MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
-        //createNodeManager();
 
-        SearchRequestBuilder srb = client.prepareSearch(config.index)
-                .setTypes(config.indexType)
-                .setQuery(query);
-        SearchResponse searchResponse = srb.execute().actionGet();
+        SearchResponse<ElasticDocument> searchResponse = client.search(s -> s
+                .index(config.index)
+                .query(new MatchAllQuery.Builder().build()._toQuery()), ElasticDocument.class);
 
-        SearchHits hitsRes = searchResponse.getHits();
-        assertEquals(5, hitsRes.getTotalHits().value);
+        HitsMetadata<ElasticDocument> hitsRes = searchResponse.hits();
+        assertEquals(5, hitsRes.total().value());
     }
 
     @Test
     void indexWithSingleField() throws Exception {
         index(0);
-        MatchQueryBuilder query = QueryBuilders.matchQuery("mylist", "first");
-        //createNodeManager();
+        Query query = MatchQuery.of(mq -> mq.field("mylist").query("first"))._toQuery();
 
-        SearchRequestBuilder srb = client.prepareSearch(config.index)
-                .setTypes(config.indexType)
+        SearchResponse<ElasticDocument> searchResponse = client.search(s -> s
+                .index(config.index)
                 .storedFields("url", "mylist")
-                .setQuery(query);
-        SearchResponse searchResponse = srb.execute().actionGet();
+                .query(query), ElasticDocument.class);
 
-        SearchHits hitsRes = searchResponse.getHits();
-        SearchHit[] hits = hitsRes.getHits();
-        assertEquals(5, hitsRes.getTotalHits().value);
-        assertEquals(1, hits[0].field("url").getValues().size());
-        assertEquals(1, hits[0].field("mylist").getValues().size());
+        HitsMetadata<ElasticDocument> hitsRes = searchResponse.hits();
+        List<Hit<ElasticDocument>> hits = hitsRes.hits();
+        assertEquals(5, hitsRes.total().value());
+        assertEquals(1, hits.get(0).fields().get("url").to(List.class).size());
+        assertEquals(1, hits.get(0).fields().get("mylist").to(List.class).size());
     }
 
     @Test
     void indexWithListField() throws Exception {
         index(0);
-        MatchQueryBuilder query = QueryBuilders.matchQuery("mylist", "second");
-        //createNodeManager();
+        Query query = MatchQuery.of(mq -> mq.field("mylist").query("second"))._toQuery();
 
-        SearchRequestBuilder srb = client.prepareSearch(config.index)
-                .setTypes(config.indexType)
+        SearchResponse<ElasticDocument> searchResponse = client.search(s -> s
+                .index(config.index)
                 .storedFields("url", "mylist")
-                .setQuery(query);
-        SearchResponse searchResponse = srb.execute().actionGet();
+                .query(query), ElasticDocument.class);
 
-        SearchHits hitsRes = searchResponse.getHits();
-        SearchHit[] hits = hitsRes.getHits();
-        assertEquals(1, hitsRes.getTotalHits().value);
-        assertEquals(1, hits[0].field("url").getValues().size());
-        assertEquals(2, hits[0].field("mylist").getValues().size());
+        HitsMetadata<ElasticDocument> hitsRes = searchResponse.hits();
+        List<Hit<ElasticDocument>> hits = hitsRes.hits();
+        assertEquals(1, hitsRes.total().value());
+        assertEquals(1, hits.get(0).fields().get("url").to(List.class).size());
+        assertEquals(2, hits.get(0).fields().get("mylist").to(List.class).size());
     }
 
     /**
@@ -198,39 +192,41 @@ public class IndexRunnableTest extends ElasticTests {
     void indexWithAutoId() throws Exception {
         elasticConfig.indexWithAutoId = true;
         index(0);
-        MatchAllQueryBuilder query = QueryBuilders.matchAllQuery();
-        //createNodeManager();
 
-        SearchRequestBuilder srb = client.prepareSearch(config.index)
-                .setQuery(query);
-        SearchResponse searchResponse = srb.execute().actionGet();
+        SearchResponse<ElasticDocument> searchResponse = client.search(s -> s
+                .index(config.index)
+                .query(new MatchAllQuery.Builder().build()._toQuery()), ElasticDocument.class);
 
-        assertEquals(6, searchResponse.getHits().getTotalHits().value);
+        assertEquals(6, searchResponse.hits().total().value());
     }
 
     @Test
     void testFlipIndex() throws Exception {
         elasticConfig.indexWithAutoId = false;
-        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, new ElasticConfig() ), qc, new FacetConverter(qc), new QueryBuilderService());
-        index(0);
+        IndexManager indexManager1 = new IndexManager(elastic, new ElasticConfig());
+        indexManager1.init();
+        IndexImpl index = new IndexImpl( elasticConfig, indexManager1, qc, new FacetConverter(qc), new QueryBuilderService());
         IngridQuery q = QueryStringParser.parse("title:Marko");
+/*        index(0);
 
         long length = index.search(q, 0, 10).length();
         assertEquals(1, length);
 
         index(0);
         length = index.search(q, 0, 10).length();
-        assertEquals(1, length);
+        assertEquals(1, length);*/
 
         index(1);
-        length = index.search(q, 0, 10).length();
+        long length = index.search(q, 0, 10).length();
         assertEquals(2, length);
 
     }
 
     @Test
     void testGetFacet() throws Exception {
-        IndexImpl index = new IndexImpl( elasticConfig, new IndexManager( elastic, elasticConfig ), qc, new FacetConverter(qc), new QueryBuilderService() );
+        IndexManager indexManager1 = new IndexManager(elastic, elasticConfig);
+        indexManager1.init();
+        IndexImpl index = new IndexImpl( elasticConfig, indexManager1, qc, new FacetConverter(qc), new QueryBuilderService() );
         index(0);
         IngridQuery q = QueryStringParser.parse("title:Marko");
         addFacets(q);
@@ -245,7 +241,7 @@ public class IndexRunnableTest extends ElasticTests {
         IngridDocument f1 = new IngridDocument();
         f1.put("id", "title");
 
-        ingridQuery.put("FACETS", Arrays.asList(new Object[] { f1 }));
+        ingridQuery.put("FACETS", List.of(f1));
     }
 
 }

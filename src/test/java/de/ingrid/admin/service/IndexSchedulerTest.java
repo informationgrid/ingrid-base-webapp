@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,9 +25,8 @@ package de.ingrid.admin.service;
 import java.io.File;
 import java.util.Optional;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import de.ingrid.admin.Config;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -94,9 +93,9 @@ public class IndexSchedulerTest {
         //setup( "test2", "data/webUrls2.json" );
         MockitoAnnotations.initMocks(this);
 
-        Client client = Mockito.mock( Client.class );
+        ElasticsearchClient client = Mockito.mock( ElasticsearchClient.class );
         Mockito.when( elastic.getClient() ).thenReturn( client );
-        Mockito.when( client.settings() ).thenReturn( Settings.builder().build() );
+//        Mockito.when( client.settings() ).thenReturn( Settings.builder().build() );
 
         final PlugDescription pd = new PlugDescription();
         final File file = new File(System.getProperty("java.io.tmpdir"), this.getClass().getName());

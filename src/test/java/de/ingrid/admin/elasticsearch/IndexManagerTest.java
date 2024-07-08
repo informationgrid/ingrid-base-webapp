@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,20 +22,20 @@
  */
 package de.ingrid.admin.elasticsearch;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.ElasticsearchNodeFactoryBean;
 import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.utils.statusprovider.StatusProvider;
 
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.jupiter.api.*;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -46,7 +46,7 @@ import static org.hamcrest.Matchers.*;
 public class IndexManagerTest {
 
     public static ElasticsearchNodeFactoryBean elastic;
-    private static Client client;
+    private static ElasticsearchClient client;
     private IndexManager indexManager;
     private StatusProvider statusProvider;
 
@@ -76,77 +76,84 @@ public class IndexManagerTest {
         client = elastic.getClient();
 
         IndexManager indexManager = new IndexManager( elastic, elasticConfig );
+        indexManager.init();
         String[] indicesToDelete = new String[] {"test_1", "switch_alias_test0", "switch_alias_test1_1", "switch_alias_test1_2", "switch_alias_test2_1", "switch_alias_test2_2", "switch_alias_test3_1", "switch_alias_test4_1", "switch_alias_test4_2", "switch_alias_test5_1", "switch_alias_test5_2"};
+        String[] aliasesToDelete = new String[] {"my-alias", "my-alias1", "my-alias2"};
 
-        for (String index : indicesToDelete) {
-            try {
-                indexManager.deleteIndex( index );
-            } catch (Exception ignored) {}
+        for (String alias : aliasesToDelete) {
+            try { indexManager.removeAlias( alias ); } catch (Exception ignored) {}
         }
+        for (String index : indicesToDelete) {
+            try { indexManager.deleteIndex( index ); } catch (Exception ignored) {}
+        }
+        indexManager.flush();
 
     }
 
     @BeforeEach
     public void prepare() {
         indexManager = new IndexManager( elastic, new ElasticConfig() );
+        indexManager.init();
         statusProvider = new StatusProvider();
         // TODO: indexManager.setStatusProvider( statusProvider );
     }
 
     @AfterAll
     public static void afterClass() {
-        elastic.getClient().close();
+        elastic.getClient().shutdown();
     }
 
     @Test
-    void testSwitchAlias() {
+    void testSwitchAlias() throws IOException {
         String aliasName = "my-alias";
         String indexName = "switch_alias_test0";
         indexManager.createIndex(indexName);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(0));
+        BooleanResponse aliasExists = client.indices().existsAlias(a -> a.name( aliasName ));
+        assertThat(aliasExists.value(), is(false));
 
         indexManager.switchAlias(aliasName, null, indexName);
 
-        indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(1));
+        GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name(aliasName));
+        assertThat(indexToAliasesMap.result().size(), is(1));
     }
 
     @Test
-    void testSwitchAliasMultiple() {
+    void testSwitchAliasMultiple() throws IOException {
         String aliasName = "my-alias1";
         String indexName = "switch_alias_test1_1";
         String indexName2 = "switch_alias_test1_2";
         indexManager.createIndex(indexName);
         indexManager.createIndex(indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(0));
+
+        BooleanResponse aliasExists = client.indices().existsAlias(a -> a.name( aliasName ));
+        assertThat(aliasExists.value(), is(false));
 
         indexManager.switchAlias(aliasName, null, indexName);
         indexManager.switchAlias(aliasName, null, indexName2);
 
-        indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(2));
+        GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name(aliasName));
+        assertThat(indexToAliasesMap.result().size(), is(2));
     }
 
     @Test
-    void testSwitchAliasMultipleReplace() {
+    void testSwitchAliasMultipleReplace() throws IOException {
         String aliasName = "my-alias2";
         String indexName = "switch_alias_test2_1";
         String indexName2 = "switch_alias_test2_2";
+
         indexManager.createIndex(indexName);
         indexManager.createIndex(indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(0));
+        BooleanResponse aliasExists = client.indices().existsAlias(a -> a.name( aliasName ));
+        assertThat(aliasExists.value(), is(false));
 
         indexManager.switchAlias(aliasName, null, indexName);
         indexManager.switchAlias(aliasName, indexName, indexName2);
 
-        indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(1));
+        GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name(aliasName));
+        assertThat(indexToAliasesMap.result().size(), is(1));
     }
 
     @Test
@@ -164,7 +171,7 @@ public class IndexManagerTest {
     // How to handle multiple indices with same prefix under an alias? Do we actually need this function anymore
     @Test
     @Disabled
-    void testIndexFromAliasMultiple() {
+    void testIndexFromAliasMultiple() throws IOException {
         String aliasName = "my-alias4";
         String indexName = "switch_alias_test4_1";
         String indexName2 = "switch_alias_test4_2";
@@ -174,8 +181,8 @@ public class IndexManagerTest {
         indexManager.addToAlias(aliasName, indexName);
         indexManager.addToAlias(aliasName, indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(2));
+        GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name( aliasName ));
+        assertThat(indexToAliasesMap.result().size(), is(2));
 
         String indexFromAlias = indexManager.getIndexNameFromAliasName(aliasName, "switch");
         assertThat(indexFromAlias, anyOf(is(indexName), is(indexName2)));
@@ -183,7 +190,7 @@ public class IndexManagerTest {
     }
 
     @Test
-    void testIndexFromAliasMultipleReplace() {
+    void testIndexFromAliasMultipleReplace() throws IOException {
         String aliasName = "my-alias5";
         String indexName = "switch_alias_test5_1";
         String indexName2 = "switch_alias_test5_2";
@@ -193,8 +200,8 @@ public class IndexManagerTest {
         indexManager.addToAlias(aliasName, indexName);
         indexManager.switchAlias(aliasName, indexName, indexName2);
 
-        ImmutableOpenMap<String, List<AliasMetadata>> indexToAliasesMap = client.admin().indices().getAliases(new GetAliasesRequest( aliasName )).actionGet().getAliases();
-        assertThat(indexToAliasesMap.keys().size(), is(1));
+        GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name( aliasName ));
+        assertThat(indexToAliasesMap.result().size(), is(1));
 
         String indexFromAlias = indexManager.getIndexNameFromAliasName(aliasName, "switch");
         assertThat(indexFromAlias, is(indexName2));

@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import de.ingrid.elasticsearch.search.IQueryParsers;
@@ -60,10 +60,9 @@ public class QueriesTest {
         parsers.add(new WildcardQueryConverter());
         parsers.add(new WildcardFieldQueryConverter());
         queryConverter.setQueryParsers(parsers  );
-        BoolQueryBuilder result = queryConverter.convert(q);
+        BoolQuery result = queryConverter.convert(q).build();
         assertThat(result, not(is(nullValue())));
-        assertThat(result.toString(), containsString("\"wildcard\" : {"));
-        assertThat(result.toString(), containsString("\"t011_obj_serv_op_connpoint.connect_point\" : {\n" +
-                "                                    \"wildcard\" : \"http*\""));
+        assertThat(result.toString(), containsString("\"wildcard\":{"));
+        assertThat(result.toString(), containsString("{\"wildcard\":{\"capabilities_url\":{\"value\":\"http*\"}}}"));
     }
 }

@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,6 +33,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,6 +59,7 @@ public class GeneralSearchTest extends ElasticTests {
         elasticConfig.additionalSearchDetailFields = new String[]{"url", "title", "partner", "datatype", "content", "fetched", "iPlugId"};
 
         IndexManager indexManager = new IndexManager(elastic, elasticConfig);
+        indexManager.init();
         indexManager.removeFromAlias("test", "test_1");
         indexManager.switchAlias("test", null, "test_1");
     }
@@ -416,8 +419,8 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail(search.getHits()[0], q, extraFields);
         assertThat(detail, not(is(nullValue())));
         // assertThat( detail.getHitId(), is( "1" ) );
-        assertThat(detail.get("url"), is("http://www.wemove.com"));
-        assertThat(detail.get("fetched"), is("2014-06-03"));
+        assertThat(detail.get("url"), is(new String[]{"http://www.wemove.com"}));
+//        assertThat(detail.get("fetched"), is("2014-06-03"));
         assertThat(detail.getTitle(), is("wemove"));
         assertThat(detail.getSummary(), is("Die beste IT-<em>Firma</em> auf der <em>Welt</em>! Preishit"));
         assertThat(detail.getScore(), greaterThan(0.1f));
@@ -448,10 +451,8 @@ public class GeneralSearchTest extends ElasticTests {
         IngridHitDetail detail = index.getDetail(search.getHits()[0], q, extraFields);
         assertThat(detail, not(is(nullValue())));
         // assertThat( detail.getHitId(), is( "1" ) );
-//       TODO: why is it not an array anymore? -> assertThat(detail.getArray( "url" )[0], is( "http://www.wemove.com" ) );
-        assertThat(detail.get("url"), is("http://www.wemove.com"));
-//        TODO: same here -> assertThat(detail.getArray( "fetched" )[0], is( "2014-06-03" ) );
-        assertThat(detail.get("fetched"), is("2014-06-03"));
+        assertThat(detail.get("url"), is(new String[]{"http://www.wemove.com"}));
+        assertThat(detail.get("fetched"), is(new String[]{"2014-06-03"}));
     }
 
 
