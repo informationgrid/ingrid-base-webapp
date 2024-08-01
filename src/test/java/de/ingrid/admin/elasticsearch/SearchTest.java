@@ -30,6 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.utils.IngridHit;
 import org.apache.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -163,7 +164,9 @@ public class SearchTest extends ElasticTests {
 
     @Test
     void getDoc() throws Exception {
-        ElasticDocument response = indexManager.getDocById("4");
+        IngridHit hit = new IngridHit("test-iplug", "4", 0, 0);
+        hit.setDocumentId("4");
+        ElasticDocument response = indexManager.getDocById(hit);
         assertThat(response, not(is(nullValue())));
         assertThat((String) response.get("url"), is("http://www.golemXXX.de"));
     }
