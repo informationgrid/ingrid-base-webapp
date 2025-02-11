@@ -73,6 +73,8 @@ public class SecurityConfig {
         JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
         if (developmentMode) {
             factory.addServerCustomizers(new JettyInitializer(jettyBaseResources));
+        } else {
+            factory.addServerCustomizers(new JettyInitializer(new String[]{"public"}));
         }
         factory.setPort(config.webappPort);
         return factory;
