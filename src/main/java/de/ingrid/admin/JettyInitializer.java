@@ -23,6 +23,7 @@
 package de.ingrid.admin;
 
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -51,6 +52,10 @@ public class JettyInitializer implements JettyServerCustomizer {
             Resource res = resourceFactory.newResource(jettyBaseResource);
             resources.add(res);
         }
+
+        // fix correct redirect when behind proxy (see: https://github.com/jetty/jetty.project/issues/11947)
+        HttpConnectionFactory httpConfig = server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class);
+        httpConfig.getHttpConfiguration().setRelativeRedirectAllowed(false);
 
         handler.setBaseResource(ResourceFactory.combine(resources));
     }

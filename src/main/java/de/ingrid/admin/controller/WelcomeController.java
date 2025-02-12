@@ -23,6 +23,8 @@
 package de.ingrid.admin.controller;
 
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,6 +39,8 @@ import de.ingrid.admin.IViews;
 import de.ingrid.admin.command.Command;
 import de.ingrid.admin.service.PlugDescriptionService;
 
+import java.io.IOException;
+
 @Controller
 @SessionAttributes({"plugDescription", "postCommandObject"})
 public class WelcomeController {
@@ -49,7 +53,7 @@ public class WelcomeController {
     }
 
     @GetMapping("/")
-    public String root() {
+    public String root() throws IOException {
         return IKeys.REDIRECT + IUris.WELCOME;
     }
 
