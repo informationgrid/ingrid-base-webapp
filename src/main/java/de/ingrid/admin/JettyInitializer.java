@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid Base-Webapp
  * ==================================================
- * Copyright (C) 2014 - 2024 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2025 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,10 +22,15 @@
  */
 package de.ingrid.admin;
 
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.resource.ResourceCollection;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class JettyInitializer implements JettyServerCustomizer {
 
@@ -39,6 +44,19 @@ public class JettyInitializer implements JettyServerCustomizer {
     public void customize(Server server) {
         WebAppContext handler = (WebAppContext) server.getHandler();
         handler.setWelcomeFiles(new String[]{"index.jsp"});
-        handler.setBaseResource(new ResourceCollection(jettyBaseResources));
+
+        ResourceFactory resourceFactory = ResourceFactory.of(handler);
+
+        List<Resource> resources = new ArrayList<>();
+        for (String jettyBaseResource : jettyBaseResources) {
+            Resource res = resourceFactory.newResource(jettyBaseResource);
+            resources.add(res);
+        }
+
+        // fix correct redirect when behind proxy (see: https://github.com/jetty/jetty.project/issues/11947)
+        HttpConnectionFactory httpConfig = server.getConnectors()[0].getConnectionFactory(HttpConnectionFactory.class);
+        httpConfig.getHttpConfiguration().setRelativeRedirectAllowed(false);
+
+        handler.setBaseResource(ResourceFactory.combine(resources));
     }
 }

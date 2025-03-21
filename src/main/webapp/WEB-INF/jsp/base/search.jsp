@@ -2,17 +2,14 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2024 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2025 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.2 or – as soon they will be
   approved by the European Commission - subsequent versions of the
   EUPL (the "Licence");
-  
   You may not use this work except in compliance with the Licence.
   You may obtain a copy of the Licence at:
-  
   https://joinup.ec.europa.eu/software/page/eupl
-  
   Unless required by applicable law or agreed to in writing, software
   distributed under the Licence is distributed on an "AS IS" basis,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,12 +40,12 @@
 			<div id="language"><a href="../base/auth/logout.html">Logout</a></div>
 		</security:authorize>
 	</div>
-	
+
 	<div id="help"><a href="#">[?]</a></div>
-	
+
 	<c:set var="active" value="search" scope="request"/>
 	<c:import url="subNavi.jsp"></c:import>
-	
+
 	<div id="contentBox" class="contentMiddle">
 		<h1 id="head">Suche testen</h1>
 		<div id="content">
@@ -70,32 +67,32 @@
 					</tr>
 				</table>
 			</form>
-			
+
 			<c:if test="${!empty hits}">
 				<div class="hitCount">Ergebnisse 1-${hitCount} von ${totalHitCount} für "${query}"</div>
-				
+
 				<c:forEach items="${hits}" var="hit">
 					<div class="searchResult">
 					   <h3>
 					       <c:choose>
 					           <c:when test="${details}">
-<%-- 								   <a href="../base/searchDetails.html?id=${hit.key}">${hit.value['title']}</a> --%>
-                                    ${hit.value['title']} (<a href="../base/searchDetails.html?id=${hit.key}">raw result</a>) 
+<%-- 								   <a href="../base/searchDetails.html?id=${hit.getKey()}">${hit.value['title']}</a> --%>
+                                    ${hit.getValue()['title']} (<a href="../base/searchDetails.html?id=${hit.getKey()}">raw result</a>)
 					           </c:when>
-                               <c:when test="${hit.value['url'] != null && hit.value['url'] != ''}">
-                                   <a href="${hit.value['url']}">${hit.value['title']}</a>
+                               <c:when test="${hit.getValue()['url'] != null && hit.getValue()['url'] != ''}">
+                                   <a href="${hit.getValue()['url']}">${hit.getValue()['title']}</a>
                                </c:when>
 					           <c:otherwise>
-					               <a href="#">${hit.value['title']}</a>
+					               <a href="#">${hit.getValue()['title']}</a>
 					           </c:otherwise>
 					       </c:choose>
 					   </h3>
-					   <span>${hit.value['abstract']}</span>
+					   <span>${hit.getValue()['abstract']}</span>
 					</div>
 				</c:forEach>
 				<br /><br />
 			</c:if>
-			
+
 		</div>
 	</div>
 	<div id="footer" style="height:100px; width:90%"></div>
