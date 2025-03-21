@@ -138,7 +138,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils</artifactId>
-      <version>7.5.0-SNAPSHOT</version>
+      <version>7.5.0</version>
     </dependency>
 
     <dependency>
@@ -254,7 +254,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-elasticsearch-tools</artifactId>
-      <version>7.5.0-SNAPSHOT</version>
+      <version>7.5.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
