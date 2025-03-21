@@ -1,4 +1,11 @@
 
+## 7.5.0 (21.03.2025)
+
+
+### Bugfixes
+
+* Aktualisierung des Spring-Frameworks (#7313)
+    
 ## 7.0.0 (05.01.2024)
 
 ### Features
