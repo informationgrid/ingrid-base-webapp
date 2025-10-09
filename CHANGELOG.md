@@ -1,4 +1,11 @@
 
+## 8.1.0 (09.10.2025)
+
+
+### Bugfixes
+
+* Aktualisierung der Bibliotheken (#8151)
+    
 ## 7.5.0 (21.03.2025)
 
 
