@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -115,7 +115,7 @@ public class IndexManagerTest {
         indexManager.switchAlias(aliasName, null, indexName);
 
         GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name(aliasName));
-        assertThat(indexToAliasesMap.result().size(), is(1));
+        assertThat(indexToAliasesMap.aliases().size(), is(1));
     }
 
     @Test
@@ -134,7 +134,7 @@ public class IndexManagerTest {
         indexManager.switchAlias(aliasName, null, indexName2);
 
         GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name(aliasName));
-        assertThat(indexToAliasesMap.result().size(), is(2));
+        assertThat(indexToAliasesMap.aliases().size(), is(2));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class IndexManagerTest {
         indexManager.switchAlias(aliasName, indexName, indexName2);
 
         GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name(aliasName));
-        assertThat(indexToAliasesMap.result().size(), is(1));
+        assertThat(indexToAliasesMap.aliases().size(), is(1));
     }
 
     @Test
@@ -182,7 +182,7 @@ public class IndexManagerTest {
         indexManager.addToAlias(aliasName, indexName2);
 
         GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name( aliasName ));
-        assertThat(indexToAliasesMap.result().size(), is(2));
+        assertThat(indexToAliasesMap.aliases().size(), is(2));
 
         String indexFromAlias = indexManager.getIndexNameFromAliasName(aliasName, "switch");
         assertThat(indexFromAlias, anyOf(is(indexName), is(indexName2)));
@@ -201,7 +201,7 @@ public class IndexManagerTest {
         indexManager.switchAlias(aliasName, indexName, indexName2);
 
         GetAliasResponse indexToAliasesMap = client.indices().getAlias(a -> a.name( aliasName ));
-        assertThat(indexToAliasesMap.result().size(), is(1));
+        assertThat(indexToAliasesMap.aliases().size(), is(1));
 
         String indexFromAlias = indexManager.getIndexNameFromAliasName(aliasName, "switch");
         assertThat(indexFromAlias, is(indexName2));
