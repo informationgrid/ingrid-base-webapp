@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid Base-Webapp
  * ==================================================
- * Copyright (C) 2014 - 2025 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2026 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,12 +22,12 @@
  */
 package de.ingrid.admin;
 
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
-import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+import org.springframework.boot.jetty.JettyServerCustomizer;
 
 import java.util.ArrayList;
 import java.util.List;
