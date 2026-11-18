@@ -60,6 +60,7 @@ public class WorkingDirController extends AbstractController {
     @RequestMapping(value = IUris.WORKING_DIR, method = RequestMethod.GET)
     public String getWorkingDir(@ModelAttribute("plugDescription") final PlugdescriptionCommandObject plugDescription) {
         plugDescription.setRealWorkingDir( config.pdWorkingDir );
+        plugDescription.setProxyServiceURL( config.communicationProxyUrl );
         return IViews.WORKING_DIR;
     }
 

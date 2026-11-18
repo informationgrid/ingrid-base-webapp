@@ -50,6 +50,10 @@ public class PlugdescriptionCommandObject extends PlugDescription {
 
     }
 
+    public PlugdescriptionCommandObject(Config config) {
+        this.config = config;
+    }
+
     public PlugdescriptionCommandObject(final File file, Config config) throws IOException {
         this.config = config;
         if (file.exists()) {
@@ -137,6 +141,7 @@ public class PlugdescriptionCommandObject extends PlugDescription {
     }
 
     public int getOriginalPort() {
+        if (config == null) return 8088;
         Integer port = config.getWebappPort();
         if (port == null) return 8088;
         return port;

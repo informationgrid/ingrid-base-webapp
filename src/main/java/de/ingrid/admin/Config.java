@@ -102,7 +102,7 @@ public class Config {
     @Value("${communication.location:conf/communication.xml}")
     public String communicationLocation;
 
-    @Value("${communication.clientName:/ingrid-group:base-webapp}")
+    @Value("${plugdescription.proxyServiceUrl:${communication.clientName:/ingrid-group:base-webapp}}")
     public String communicationProxyUrl;
 
     public List<CommunicationCommandObject> ibusses;
@@ -242,7 +242,7 @@ public class Config {
     public ClientConfiguration communicationClientConfiguration;
 
     public Integer getWebappPort() {
-        return this.webappPort;
+        return this.webappPort == null ? 8088 : this.webappPort;
     }
 
     public String getCommunicationLocation() {
@@ -576,7 +576,7 @@ public class Config {
             }
         }
 
-        if (!pdPassword.trim().isEmpty()) {
+        if (pdPassword != null && !pdPassword.trim().isEmpty()) {
             pd.setIplugAdminPassword( pdPassword );
         }
 
@@ -592,7 +592,7 @@ public class Config {
         pd.setDataSourceName( datasourceName );
         pd.setDataSourceDescription( datasourceDescription );
         pd.setIplugAdminGuiUrl( guiUrl );
-        pd.setIplugAdminGuiPort( this.webappPort );
+        pd.setIplugAdminGuiPort( getWebappPort() );
         pd.setRecordLoader( recordLoader );
         pd.setCacheActive( cacheActive );
         pd.setCachedLifeTime(cacheLifeTime );
@@ -624,10 +624,12 @@ public class Config {
 
         PlugDescriptionUtil.addFieldToPlugDescription( pd, QueryUtil.FIELDNAME_INCL_META );
 
-        for (String field : fields) {
-            // if empty property then field can be recognized as empty (bug!!!)
-            if (!field.isEmpty())
-                PlugDescriptionUtil.addFieldToPlugDescription( pd, field );
+        if (fields != null) {
+            for (String field : fields) {
+                // if empty property then field can be recognized as empty (bug!!!)
+                if (!field.isEmpty())
+                    PlugDescriptionUtil.addFieldToPlugDescription( pd, field );
+            }
         }
         
         if (rankings != null) {

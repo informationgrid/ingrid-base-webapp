@@ -111,7 +111,11 @@ public class GeneralController extends AbstractController {
                              @ModelAttribute("partners") final List<Partner> partners) throws Exception {
 
         // set up proxy service url
-        commandObject.setProxyServiceURL(_communicationInterface.getPeerName());
+        if (!config.disableIBus && _communicationInterface.isConnected(0)) {
+            commandObject.setProxyServiceURL(_communicationInterface.getPeerName());
+        } else {
+            commandObject.setProxyServiceURL(config.communicationProxyUrl);
+        }
 
         // test if plug is a igc plug
         boolean isIgc = false;
